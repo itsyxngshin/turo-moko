@@ -53,7 +53,7 @@ In the `.env` file, update the following variables:
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=doughmain_db
+DB_DATABASE=turomoko_db
 DB_USERNAME=root
 DB_PASSWORD=
 ```
@@ -61,7 +61,7 @@ DB_PASSWORD=
 Create the database in **phpMyAdmin** or via MySQL:
 
 ```sql
-CREATE DATABASE doughmain_db;
+CREATE DATABASE turomoko_db;
 ```
 
 Then, migrate the database:
