@@ -15,9 +15,6 @@ Route::get('/signup', function () {
     return view('signup');
 });
 
-
-
-
 // End //
 
 Route::prefix('learner')->group(function () {
@@ -61,4 +58,10 @@ Route::prefix('learner')->group(function () {
     Route::get('/evaluation', function () {
         return view('learner.evaluation');
     })->name('learner.evaluation');
+    });
+
+Route::prefix('admin')->group(function () {
+    Route::get('/hub', function () {
+        return view('livewire.admin.dashboard');
+        })->name('admin.hub');
     });
