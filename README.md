@@ -1,66 +1,172 @@
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# TURO-MOKO: Guide for Project Navigation and Collaboration
 
-## About Laravel
+## **1. Cloning the Repository**
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+To get started, open your terminal and run:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+```sh
+git clone https://github.com/itsyxngshin/turo-moko.git
+cd turo-moko
+```
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## **2. Install Dependencies**
 
-## Learning Laravel
+### **Backend (Laravel Dependencies)**
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Make sure you have **PHP**, **Composer**, and **XAMPP** installed. Then, run:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```sh
+composer install
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### **Frontend (Node.js & NPM Dependencies)**
 
-## Laravel Sponsors
+Ensure **Node.js** and **npm** are installed, then run:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```sh
+npm install
+```
 
-### Premium Partners
+## **3. Setup Environment Variables**
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+Duplicate the `.env.example` file and rename it to `.env`:
 
-## Contributing
+```sh
+cp .env.example .env
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Then, generate the application key:
 
-## Code of Conduct
+```sh
+php artisan key:generate
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## **4. Configure Database Connection**
 
-## Security Vulnerabilities
+Start XAMPP and make sure **Apache** and **MySQL** are running.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+In the `.env` file, update the following variables:
 
-## License
+```ini
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=turomoko_db
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Create the database in **phpMyAdmin** or via MySQL:
+
+```sql
+CREATE DATABASE turomoko_db;
+```
+
+Then, migrate the database:
+
+```sh
+php artisan migrate --seed
+```
+
+## **5. Run the Project**
+
+### **Start Laravel Development Server**
+
+```sh
+php artisan serve
+```
+
+### **Start Vite for Frontend Assets**
+
+```sh
+npm run dev
+```
+
+## **6. Git Workflow for Collaborators**
+
+### **Pull the Latest Changes**
+
+Before making changes, always pull the latest code:
+
+```sh
+git pull origin main
+```
+
+### **Create a New Branch for Your Work** 
+Ensure that you will create a branch for the module you are working on
+
+```sh
+git checkout -b feature-branch
+```
+
+### **Commit and Push Changes**
+
+```sh
+git add .
+git commit -m "Added new feature"
+git push origin feature-branch
+```
+
+### **Conventional Commit Messages***
+Please observe the following when commiting changes to Git
+
+```sh
+feat – a new feature is introduced with the changes
+fix – a bug fix has occurred
+chore – changes that do not relate to a fix or feature and don't modify src or test files (for example updating dependencies)
+refactor – refactored code that neither fixes a bug nor adds a feature
+docs – updates to documentation such as a the README or other markdown files
+style – changes that do not affect the meaning of the code, likely related to code formatting such as white-space, missing semi-colons, and so on.
+test – including new or correcting previous tests
+perf – performance improvements
+ci – continuous integration related
+build – changes that affect the build system or external dependencies
+revert – reverts a previous commit
+```
+
+### **Create a Pull Request (PR) on GitHub**
+
+1. Go to the repository on GitHub.
+2. Click "New Pull Request".
+3. Select `feature-branch` → `main`.
+4. Submit for review and approval.
+
+---
+
+## **7. Troubleshooting**
+
+### **If you get a **``** error with Git:**
+
+Run:
+
+```sh
+git config --global credential.helper store
+```
+
+Then try pushing again.
+
+### **If **``** is missing or not working:**
+
+Try running:
+
+```sh
+php artisan config:clear
+```
+
+### **If Vite is not loading CSS/JS properly:**
+
+Try:
+
+```sh
+php artisan optimize:clear
+npm run build
+```
+
+---
+
+Your Laravel 11 project is now fully set up! 🎉
+
+For any issues, reach out to the project team or check the documentation. 🚀
+
