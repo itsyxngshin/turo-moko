@@ -4,6 +4,70 @@
 
 @section('content')
 <main>
+<!-- Prefill Assessment Modal -->
+<div id="prefillModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+  <div class="bg-white rounded-lg shadow-lg p-6 w-96 relative">
+    
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold">Assessment Details</h2>
+      <button id="closePrefillModal"><i data-lucide="x" class="w-6 h-6 text-gray-600"></i></button>
+    </div>
+
+    <hr class="border-t-2 border-gray-300 w-full mb-4">
+
+    <!-- Form -->
+    <form id="prefillForm" class="flex flex-col gap-4">
+      
+      <!-- Course Name -->
+      <div class="flex flex-col">
+        <label class="font-semibold text-sm mb-1">Course Name</label>
+        <select name="course" class="block border rounded-lg p-3 cursor-pointer hover:bg-gray-50">
+          <option value="">Select course</option>
+          <option value="course1">Course 1</option>
+          <option value="course2">Course 2</option>
+        </select>
+      </div>
+
+      <!-- Type -->
+      <div class="flex flex-col">
+        <label class="font-semibold text-sm mb-1">Type</label>
+        <select name="type" class="block border rounded-lg p-3 cursor-pointer hover:bg-gray-50">
+          <option value="">Select type</option>
+          <option value="quiz">Quiz</option>
+          <option value="exam">Exam</option>
+        </select>
+      </div>
+
+      <!-- Deadline -->
+      <div class="flex flex-col">
+        <label class="font-semibold text-sm mb-1">Deadline</label>
+        <input type="date" name="deadline" class="block border rounded-lg p-3 cursor-pointer hover:bg-gray-50">
+      </div>
+
+      <!-- Description -->
+      <div class="flex flex-col">
+        <label class="font-semibold text-sm mb-1">Description</label>
+        <textarea name="description" rows="3" class="border rounded px-2 py-1"></textarea>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex justify-center">
+      <button
+        type="submit"
+        name="action"
+        value="save"
+        class="px-4 py-2 bg-black text-white rounded-lg"
+      >
+        Save
+      </button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+
   <form
     action=""
     class="bg-white rounded-3xl border border-gray-200 shadow-sm py-10 px-10 ml-4 mt-2 flex flex-col gap-8"
@@ -231,49 +295,95 @@
           </button>
         </div>
       </div>
-    </div>
+    </div> 
 </main>
 @endsection
 
 @section('scripts')
 <script>
-const modal = document.getElementById('modal');
-const openModalButtons = document.querySelectorAll('.addItemBtn');
-const closeModal = document.getElementById('closeModal');
+/* ==============================
+   Add Anything Modal
+   ============================== */
+const addModal = document.getElementById('modal');
+const openAddBtns = document.querySelectorAll('.addItemBtn');
+const closeAdd = document.getElementById('closeModal');
 const itemForm = document.getElementById('itemForm');
 const itemName = document.getElementById('itemName');
 const itemDesc = document.getElementById('itemDesc');
 
-// Open modal for any plus button
-openModalButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-        modal.classList.remove('hidden');
-        itemName.focus();
+if (openAddBtns && addModal) {
+    // Open Add modal for any plus button
+    openAddBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            addModal.classList.remove('hidden');
+            if (itemName) itemName.focus();
+        });
     });
-});
+}
 
-// Close modal
-closeModal.addEventListener('click', () => {
-    modal.classList.add('hidden');
-    itemForm.reset();
-});
+if (closeAdd && addModal) {
+    closeAdd.addEventListener('click', () => {
+        addModal.classList.add('hidden');
+        if (itemForm) itemForm.reset();
+    });
+}
 
-// Close modal if clicking outside the modal content
-modal.addEventListener('click', (e) => {
-    if(e.target === modal){
-        modal.classList.add('hidden');
+// Handle Add modal form submission safely
+if (itemForm) {
+    itemForm.addEventListener('submit', e => {
+        e.preventDefault();
+        if (itemName) console.log('Item name:', itemName.value);
+        if (itemDesc) console.log('Item description:', itemDesc.value);
         itemForm.reset();
-    }
-});
+        if (addModal) addModal.classList.add('hidden');
+    });
+}
 
-// Handle form submission
-itemForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    console.log('Item name:', itemName.value);
-    console.log('Item description:', itemDesc.value);
-    itemForm.reset();
-    modal.classList.add('hidden');
-});
+
+/* ==============================
+   Pre-fill Assessment Modal
+   ============================== */
+const prefillModal = document.getElementById('prefillModal');
+const closePrefill = document.getElementById('closePrefillModal');
+const prefillForm = document.getElementById('prefillForm');
+
+if (prefillModal) {
+    // Show pre-fill modal on page load
+    window.addEventListener('DOMContentLoaded', () => {
+        prefillModal.classList.remove('hidden');
+    });
+}
+
+if (closePrefill && prefillModal) {
+    // Close pre-fill modal on X button click
+    closePrefill.addEventListener('click', () => {
+        prefillModal.classList.add('hidden');
+    });
+}
+
+// Handle pre-fill form submission safely
+if (prefillForm && prefillModal) {
+    prefillForm.addEventListener('submit', e => {
+        e.preventDefault();
+
+        // Populate main form automatically
+        const mainForm = document.querySelector('form');
+        if (mainForm) {
+            const titleInput = mainForm.querySelector('input[type="text"]');
+            const descTextarea = mainForm.querySelector('textarea');
+            
+            if (titleInput && prefillForm.querySelector('input[name="title"]')) {
+                titleInput.value = prefillForm.querySelector('input[name="title"]')?.value || '';
+            }
+            
+            if (descTextarea && prefillForm.querySelector('textarea[name="description"]')) {
+                descTextarea.value = prefillForm.querySelector('textarea[name="description"]').value;
+            }
+        }
+
+        prefillModal.classList.add('hidden');
+    });
+}
 </script>
 @endsection
 
