@@ -65,3 +65,11 @@ Route::prefix('admin')->group(function () {
         return view('livewire.admin.dashboard');
         })->name('admin.hub');
     });
+
+// IMPLEMENTOR
+
+Route::prefix('implementor')->group(function () {
+    Route::get('/create-assessment', function () {
+        return view('implementor.create-assessment');
+    })->name('implementor.create-assessment');
+});
