@@ -187,8 +187,8 @@
     </div>
   </form>
 
-  <!-- Add Item Modal -->
-<div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <!-- Add Item Modal -->
+  <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
     <div class="bg-white rounded-lg shadow-lg p-6 w-96 relative">
       <div class="flex justify-between mb-4">
         <h2 class="text-xl font-bold">Add anything</h2>
@@ -197,42 +197,41 @@
 
       <hr class="border-t-2 border-gray-300 w-full mb-4">
 
-            <div class="grid grid-cols-4 gap-4">
-                <button class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
-                    <i data-lucide="type" class="w-6 h-6 mb-2"></i>
-                    <span class="text-xs text-center px-1">Text</span>
-                </button>
-                <button class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
-                    <i data-lucide="heading" class="w-6 h-6 mb-2"></i>
-                    <span class="text-xs text-center">Heading</span>
-                </button>
-                <button class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
-                    <i data-lucide="edit" class="w-6 h-6 mb-2"></i>
-                    <span class="text-xs text-center">Short Answer</span>
-                </button>
-                <button class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
-                    <i data-lucide="file-text" class="w-6 h-6 mb-2"></i>
-                    <span class="text-xs text-center px-1">Long Answer</span>
-                </button>
-                <button class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
-                    <i data-lucide="check-square" class="w-6 h-6 mb-2"></i>
-                    <span class="text-xs text-center">True/False</span>
-                </button>
-                <button class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
-                    <i data-lucide="list" class="w-6 h-6 mb-2"></i>
-                    <span class="text-xs text-center">Multiple Choice</span>
-                </button>
-                <button class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
-                    <i data-lucide="chevrons-down" class="w-6 h-6 mb-2"></i>
-                    <span class="text-xs text-center">Dropdown</span>
-                </button>
-                <button class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
-                    <i data-lucide="square" class="w-6 h-6 mb-1"></i>
-                    <span class="text-xs text-center">Checkboxes</span>
-                </button>
-            </div>
+      <div class="grid grid-cols-4 gap-4">
+        <button class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
+          <i data-lucide="type" class="w-6 h-6 mb-2"></i>
+          <span class="text-xs text-center px-1">Text</span>
+        </button>
+        <button class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
+          <i data-lucide="heading" class="w-6 h-6 mb-2"></i>
+          <span class="text-xs text-center">Heading</span>
+        </button>
+        <button class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
+          <i data-lucide="edit" class="w-6 h-6 mb-2"></i>
+          <span class="text-xs text-center">Short Answer</span>
+          <button class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
+            <i data-lucide="file-text" class="w-6 h-6 mb-2"></i>
+            <span class="text-xs text-center px-1">Long Answer</span>
+          </button>
+          <button class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
+            <i data-lucide="check-square" class="w-6 h-6 mb-2"></i>
+            <span class="text-xs text-center">True/False</span>
+          </button>
+          <button class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
+            <i data-lucide="list" class="w-6 h-6 mb-2"></i>
+            <span class="text-xs text-center">Multiple Choice</span>
+          </button>
+          <button class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
+            <i data-lucide="chevrons-down" class="w-6 h-6 mb-2"></i>
+            <span class="text-xs text-center">Dropdown</span>
+          </button>
+          <button class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
+            <i data-lucide="square" class="w-6 h-6 mb-1"></i>
+            <span class="text-xs text-center">Checkboxes</span>
+          </button>
+        </div>
+      </div>
     </div>
-</div>
 </main>
 @endsection
 
