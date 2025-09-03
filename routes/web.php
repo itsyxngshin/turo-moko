@@ -60,6 +60,23 @@ Route::prefix('learner')->group(function () {
     })->name('learner.evaluation');
     });
 
+Route::prefix('implementor')->name('implementor.')->group(function () {
+    Route::get('/course-information', function () {
+        return view('implementor.implementor-course-details');
+    })->name('course-information');
+    Route::get('/courses', function () {
+        return view('implementor.courses');
+    })->name('courses');
+    Route::get('/myprofile', function () {
+        return view('implementor.teacher-profile');
+    })->name('myprofile');
+    Route::get('/allcourses', function () {
+        return view('implementor.all-courses');
+    })->name('allcourses)');
+    
+});
+
+
 Route::prefix('admin')->group(function () {
     Route::get('/hub', function () {
         return view('livewire.admin.dashboard');
