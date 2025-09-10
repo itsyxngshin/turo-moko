@@ -73,9 +73,3 @@ Route::prefix('implementor')->group(function () {
         return view('implementor.create-assessment');
     })->name('implementor.create-assessment');
 });
-
-Route::prefix('implementor')->group(function () {
-    Route::get('/create-evaluation', function () {
-        return view('implementor.create-evaluation');
-    })->name('implementor.create-evaluation');
-});
