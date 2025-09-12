@@ -1,9 +1,6 @@
 <header class="px-8 py-4 flex justify-between items-center bg-transparent">
     <div class="flex items-center gap-4">
-        <div class="h-10 w-10 rounded-full bg-orange-300 flex items-center justify-center text-white font-bold text-sm">
-            PFP
-        </div>
-        <h1 class="text-xl font-semibold">Hello, Student!</h1>
+        <h1 class="text-xl font-semibold">Assessment Builder</h1>
     </div>
 
     <div class="flex items-center gap-4">
