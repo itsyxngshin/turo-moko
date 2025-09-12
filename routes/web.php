@@ -72,4 +72,7 @@ Route::prefix('implementor')->group(function () {
     Route::get('/create-assessment', function () {
         return view('implementor.create-assessment');
     })->name('implementor.create-assessment');
+    
+    Route::post('/assessment', [App\Http\Controllers\AssessmentController::class, 'store'])
+        ->name('implementor.assessment.store');
 });
