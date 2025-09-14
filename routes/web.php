@@ -58,6 +58,16 @@ Route::prefix('learner')->group(function () {
     Route::get('/evaluation', function () {
         return view('learner.evaluation');
     })->name('learner.evaluation');
+
+    // Feedback routes
+    Route::get('/feedback', function () {
+        return view('learner.feedback');
+    })->name('learner.feedback');
+
+    Route::post('/feedback', function () {
+        // Handle the feedback submission
+        return redirect()->back()->with('success', 'Feedback submitted successfully!');
+    })->name('feedback.submit');
     });
 
 Route::prefix('admin')->group(function () {
