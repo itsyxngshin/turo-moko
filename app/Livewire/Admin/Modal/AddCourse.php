@@ -6,6 +6,9 @@ use Livewire\Component;
 
 class AddCourse extends Component
 {
+    public $show = false;
+
+
     public function render()
     {
         return view('livewire.admin.modal.add-course');
