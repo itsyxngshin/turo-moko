@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Answer extends Model
+class QuizResult extends Model
 {
      protected $fillable = [
         'course_enrollee_id', 'question_id', 'answer_text', 'points', 'is_correct'

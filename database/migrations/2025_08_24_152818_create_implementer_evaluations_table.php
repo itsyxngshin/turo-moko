@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('course_id')->constrained('courses');
             $table->foreignId('implementer_id')->constrained('users');
+            $table->foreignId('enrollee_id')->constrained('course_enrollees');
             $table->string('description');
             $table->enum('status', ['active', 'inactive']);
             $table->timestamps();
