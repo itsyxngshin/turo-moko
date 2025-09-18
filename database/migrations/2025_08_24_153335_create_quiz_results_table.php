@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('quiz_results', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('quiz_id')->constrained('quizzes');
+            $table->foreignId('course_enrollee_id')->constrained('course_enrollees');
+            $table->decimal('score')->default(0);
+            $table->string('remarks');
+            $table->enum('status', ['Pending', 'Checked'])->default('Pending');
+            $table->timestamp('checked_at'); 
             $table->timestamps();
         });
     }

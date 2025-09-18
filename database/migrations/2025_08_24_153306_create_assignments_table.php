@@ -21,9 +21,8 @@ return new class extends Migration
             $table->dateTime('end_date');
             $table->boolean('filetype_allowed')->default(true);
             $table->integer('order')->nullable();
-            $table->enum('visibility', ['Hidden', 'Active'])->default(true);
+            $table->enum('visibility', ['Hidden', 'Active'])->default('Active');
             $table->timestamp('post_date')->nullable();
-            $table->timestamps();
             $table->timestamps();
         });
     }

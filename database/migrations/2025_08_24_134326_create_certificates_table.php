@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users'); 
             $table->foreignId('course_id')->constrained('courses');
-            $table->foreignId('implemnter_id')->constrained('users');
+            $table->foreignId('implementer_id')->constrained('users');
             $table->string('certificate_name');
             $table->string('issued_by');
-            $table->date('issue_date');
+            $table->datetime('issue_date');
             $table->timestamps();
         });
     }

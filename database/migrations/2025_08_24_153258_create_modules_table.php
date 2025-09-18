@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('module_title');
             $table->text('description')->nullable();
             $table->text('discussion')->nullable();
-            $table->longBlob('attachments')->nullable();
+            $table->binary('attachments')->nullable();
             $table->timestamps();
         });
     }
