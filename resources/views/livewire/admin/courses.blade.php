@@ -81,7 +81,7 @@
                         <td class="px-6 py-4">Juan Dela Cruz</td>
                         <td class="px-6 py-4 text-blue-500 flex space-x-4">
                             <button class="hover:underline">View</button>
-                            <button class="hover:underline">Edit</button>
+                            @livewire('admin.modal.modify-course')
                             <button class="hover:underline">Moderate</button>
                             <button class="hover:underline">Archive</button>
                         </td>
@@ -94,7 +94,7 @@
                         <td class="px-6 py-4">Maria Santos</td>
                         <td class="px-6 py-4 text-blue-500 flex space-x-4">
                             <button class="hover:underline">View</button>
-                            <button class="hover:underline">Edit</button>
+                            @livewire('admin.modal.modify-course')
                             <button class="hover:underline">Moderate</button>
                             <button class="hover:underline">Archive</button>
                         </td>
@@ -107,7 +107,7 @@
                         <td class="px-6 py-4">Carlos Reyes</td>
                         <td class="px-6 py-4 text-blue-500 flex space-x-4">
                             <button class="hover:underline">View</button>
-                            <button class="hover:underline">Edit</button>
+                             @livewire('admin.modal.modify-course')
                             <button class="hover:underline">Moderate</button>
                             <button class="hover:underline">Archive</button>
                         </td>

@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('course_tags', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('course_id')->constrained('courses');
+            $table->string('tag');
             $table->timestamps();
         });
     }

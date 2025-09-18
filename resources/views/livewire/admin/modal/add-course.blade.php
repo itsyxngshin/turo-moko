@@ -11,7 +11,7 @@
         class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
             <div class="bg-white w-full max-w-lg rounded-2xl shadow-lg p-6 relative">
                     <!-- Close Button -->
-                    <button wire:click="close" class="absolute top-4 right-4 text-gray-500 hover:text-black">
+                    <button @click="open = false" class="absolute top-4 right-4 text-gray-500 hover:text-black">
                         ✕
                     </button>
 

@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('program_ratings', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('program_eval_id')->constrained('program_evaluations');
+            $table->string('statement');
             $table->timestamps();
         });
     }

@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('work_portfolios', function (Blueprint $table) {
+        Schema::create('quiz_results', function (Blueprint $table) {
             $table->id();
-            $table->string('designation');
-            $table->string('description')->nullable();
-            $table->string('duration')->nullable();
-            $table->enum('status', ['Active', 'Former', 'Private']);
             $table->timestamps();
         });
     }
@@ -26,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('work_portfolios');
+        Schema::dropIfExists('quiz_results');
     }
 };

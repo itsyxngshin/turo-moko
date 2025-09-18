@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('modules', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('lesson_id')->constrained('lessons');
+            $table->string('module_title');
+            $table->text('description')->nullable();
+            $table->text('discussion')->nullable();
+            $table->longBlob('attachments')->nullable();
             $table->timestamps();
         });
     }

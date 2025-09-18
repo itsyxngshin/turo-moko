@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('implementor_ratings', function (Blueprint $table) {
+        Schema::create('portfolio_sets', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('profile_id')->constrained('profiles');
+            $table->string('work_portfolio')->nullable();
             $table->timestamps();
         });
     }
@@ -22,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('implementor_ratings');
+        Schema::dropIfExists('portfolio_sets');
     }
 };

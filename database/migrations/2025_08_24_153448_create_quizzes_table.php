@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('quizzes', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('course_id')->constrained('courses');
+            $table->string('quiz_title');
+            $table->text('description')->nullable();
+            $table->enum('status', ['Draft', 'Published', 'Closed', 'Archived'])->default('Draft');
+            $table->boolean('visibility')->default(true);
+            $table->datetime('start_date');
+            $table->datetime('end_date');
             $table->timestamps();
         });
     }

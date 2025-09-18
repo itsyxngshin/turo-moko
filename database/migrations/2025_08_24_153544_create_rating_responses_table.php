@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('rating_responses', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('enrollee_id')->constrained('course_enrollees');
+            $table->foreignId('prog_rating_id')->constrained('program_ratings');
+            $table->integer('rating_value');
             $table->timestamps();
         });
     }

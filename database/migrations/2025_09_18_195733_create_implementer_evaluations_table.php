@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('work_portfolios', function (Blueprint $table) {
+        Schema::create('implementer_evaluations', function (Blueprint $table) {
             $table->id();
-            $table->string('designation');
-            $table->string('description')->nullable();
-            $table->string('duration')->nullable();
-            $table->enum('status', ['Active', 'Former', 'Private']);
+            $table->foreignId('course_id')->constrained('courses');
+            $table->foreignId('implementer_id')->constrained('users');
+            $table->string('description');
+            $table->enum('status', ['active', 'inactive']);
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('work_portfolios');
+        Schema::dropIfExists('implementer_evaluations');
     }
 };

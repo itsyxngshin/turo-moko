@@ -13,6 +13,18 @@ return new class extends Migration
     {
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('implementer_id');
+            $table->foreignId('organization_id')->nullable()->constrained('organizations');
+            $table->foreignId('category_id')->constrained('categories');
+            $table->foreignId('subcat_id')->nullable()->constrained('sub_categories');
+            $table->foreignId('cover_photo_id')->nullable()->constrained('photos');
+            $table->string('course_title');
+            $table->string('name'); 
+            $table->text('background'); 
+            $table->enum('status', ['Archived', 'Active', 'Deleted', 'Closed'])->default('Active');
+            $table->enum('visibility', ['Visible', 'Hidden'])->default('Visible');
+            $table->datetime('start_date'); 
+            $table->datetime('end_date'); 
             $table->timestamps();
         });
     }

@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('implementer_comment_responses', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('enrollee_id')->constrained('course_enrollees');
+            $table->foreignId('prog_rating_id')->constrained('implementer_evaluations');
+            $table->foreignId('imp_comment_id')->constrained('implementer_comments');
+            $table->string('comment');
             $table->timestamps();
         });
     }

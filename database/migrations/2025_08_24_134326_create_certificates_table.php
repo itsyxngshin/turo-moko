@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('certificates', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users'); 
+            $table->foreignId('course_id')->constrained('courses');
+            $table->foreignId('implemnter_id')->constrained('users');
+            $table->string('certificate_name');
+            $table->string('issued_by');
+            $table->date('issue_date');
             $table->timestamps();
         });
     }

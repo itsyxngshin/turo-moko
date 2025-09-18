@@ -13,6 +13,17 @@ return new class extends Migration
     {
         Schema::create('assignments', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('lesson_id')->constrained('lessons');
+            $table->string('title');
+            $table->text('instruction');
+            $table->enum('status', ['Open', 'Closed']);
+            $table->dateTime('start_date');
+            $table->dateTime('end_date');
+            $table->boolean('filetype_allowed')->default(true);
+            $table->integer('order')->nullable();
+            $table->enum('visibility', ['Hidden', 'Active'])->default(true);
+            $table->timestamp('post_date')->nullable();
+            $table->timestamps();
             $table->timestamps();
         });
     }
