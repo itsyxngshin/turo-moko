@@ -1,6 +1,6 @@
 @extends('layouts.layout')
 
-@section('title', 'Create Assessment')
+@section('title', 'Assessment Builder')
 
 @section('content')
 <style>
@@ -11,7 +11,7 @@
     <!-- Assessment Builder -->
     <div x-show="!isPreviewMode">
     <form
-            action="{{ route('implementor.assessment.store') }}"
+            action="{{ route('implementor.assessment-builder.store') }}"
             method="POST"
         class="bg-white rounded-3xl border border-gray-200 shadow-sm py-10 px-10 ml-4 mt-2 flex flex-col gap-8"
             @submit="serializeItems()"
@@ -44,8 +44,23 @@
             </div>
 
                 <div class="flex flex-col">
-                    <label class="font-semibold text-sm mb-2">Deadline</label>
-                    <input x-model="assessment.deadline" type="date" name="deadline" class="block border rounded-lg p-3 cursor-pointer hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <label class="font-semibold text-sm mb-2">Schedule Closing</label>
+                    <input x-model="assessment.closing_schedule" type="datetime-local" name="closing_schedule" class="block border rounded-lg p-3 cursor-pointer hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6">
+            <div class="flex flex-col">
+                <label class="font-semibold text-sm mb-2">Timer (optional)</label>
+                <div class="flex gap-2">
+                    <input x-model="assessment.timer_hours" type="number" name="timer_hours" placeholder="Hours" min="0" max="23" class="block border rounded-lg p-3 cursor-pointer hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 flex-1">
+                    <input x-model="assessment.timer_minutes" type="number" name="timer_minutes" placeholder="Minutes" min="0" max="59" class="block border rounded-lg p-3 cursor-pointer hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 flex-1">
+                </div>
+            </div>
+
+            <div class="flex flex-col">
+                <label class="font-semibold text-sm mb-2">Number of submissions allowed</label>
+                <input x-model="assessment.submission_limit" type="number" name="submission_limit" class="block border rounded-lg p-3 cursor-pointer hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             </div>
         </div>
 
@@ -68,13 +83,67 @@
         <div x-ref="itemsContainer" class="space-y-6">
             <template x-for="(item, index) in items" :key="item.id">
                 <div class="flex items-start gap-8 p-4 border border-gray-200 rounded-lg hover:border-gray-300 transition-all duration-200" :data-id="item.id">
-            <div class="flex gap-2 w-15 flex-shrink-0">
+                    <div class="flex gap-2 w-15 flex-shrink-0">
                         <button type="button" @click="removeItem(index)"><i data-lucide="trash" class="w-6 h-6 text-gray-600"></i></button>
                         <button type="button" @click="addItemAfter(index)"><i data-lucide="plus" class="w-6 h-6 text-gray-600"></i></button>
                         <button type="button" class="drag-handle cursor-move" draggable="true"><i data-lucide="grip-vertical" class="w-6 h-6 text-gray-600"></i></button>
-            </div>
-                    <div class="flex-1" x-html="item.content"></div>
-        </div>
+                    </div>
+                    <div class="flex-1">
+                        <template x-if="item.type === 'multiple_choice'">
+                            <div>
+                                <input type="text" placeholder="Enter question..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText" @input="this.style.width = ''; this.style.width = Math.min(Math.max(200, this.scrollWidth + 10), this.parentElement.offsetWidth) + 'px'" />
+                                <div class="space-y-3">
+                                    <template x-for="(option, optionIndex) in item.options" :key="optionIndex">
+                                        <div class="flex items-center gap-2">
+                                            <label class="flex-1 block border rounded-lg p-3 cursor-pointer hover:bg-gray-50">
+                                                <input type="radio" :name="'mc-' + item.id" :value="optionIndex" class="hidden peer" />
+                                                <span class="peer-checked:font-semibold peer-checked:text-blue-600">
+                                                    <b x-text="String.fromCharCode(65 + optionIndex) + '.'"></b> 
+                                                    <input type="text" :placeholder="'Option ' + String.fromCharCode(65 + optionIndex)" class="border-none outline-none bg-transparent min-w-[150px] max-w-full" x-model="item.options[optionIndex]" @input="this.style.width = ''; this.style.width = Math.min(Math.max(150, this.scrollWidth + 10), this.closest('.block').offsetWidth - 100) + 'px'" />
+                                                </span>
+                                            </label>
+                                            <button type="button" @click="item.options.splice(optionIndex, 1)" class="text-red-600 hover:text-red-800 px-2" x-show="item.options.length > 1">×</button>
+                                        </div>
+                                    </template>
+                                    <button type="button" @click="item.options.push('')" class="text-blue-600 hover:text-blue-800 text-sm">+ Add option</button>
+                                </div>
+                            </div>
+                        </template>
+                        <template x-if="item.type === 'true_false'">
+                            <div>
+                                <input type="text" placeholder="Enter statement..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText" @input="this.style.width = ''; this.style.width = Math.min(Math.max(200, this.scrollWidth + 10), this.parentElement.offsetWidth) + 'px'" />
+                                <div class="space-y-3">
+                                    <label class="block border rounded-lg p-3 cursor-pointer hover:bg-gray-50">
+                                        <input type="radio" :name="'tf-' + item.id" value="true" class="hidden peer" />
+                                        <span class="peer-checked:font-semibold peer-checked:text-blue-600">
+                                            <b>TRUE:</b> <input type="text" placeholder="True statement" class="border-none outline-none bg-transparent min-w-[150px] max-w-full" x-model="item.trueText" @input="this.style.width = ''; this.style.width = Math.min(Math.max(150, this.scrollWidth + 10), this.closest('.block').offsetWidth - 100) + 'px'" />
+                                        </span>
+                                    </label>
+                                    <label class="block border rounded-lg p-3 cursor-pointer hover:bg-gray-50">
+                                        <input type="radio" :name="'tf-' + item.id" value="false" class="hidden peer" />
+                                        <span class="peer-checked:font-semibold peer-checked:text-blue-600">
+                                            <b>FALSE:</b> <input type="text" placeholder="False statement" class="border-none outline-none bg-transparent min-w-[150px] max-w-full" x-model="item.falseText" @input="this.style.width = ''; this.style.width = Math.min(Math.max(150, this.scrollWidth + 10), this.closest('.block').offsetWidth - 100) + 'px'" />
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </template>
+                        <template x-if="item.type === 'short_answer'">
+                            <div>
+                                <input type="text" placeholder="Enter question..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText" @input="this.style.width = ''; this.style.width = Math.min(Math.max(200, this.scrollWidth + 10), this.parentElement.offsetWidth) + 'px'" />
+                                <div class="mt-4">
+                                    <input type="text" placeholder="Short answer field" class="px-4 py-2 rounded-xl border bg-white shadow-sm min-w-[200px] max-w-full" x-model="item.shortAnswerField" @input="this.style.width = ''; this.style.width = Math.min(Math.max(200, this.scrollWidth + 20), this.parentElement.offsetWidth) + 'px'" />
+                                </div>
+                            </div>
+                        </template>
+                        <template x-if="item.type === 'long_answer'">
+                            <div>
+                                <input type="text" placeholder="Enter question..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText" @input="this.style.width = ''; this.style.width = Math.min(Math.max(200, this.scrollWidth + 10), this.parentElement.offsetWidth) + 'px'" />
+                                <textarea placeholder="Long answer field" class="w-full border rounded-lg p-3 min-h-[80px]" rows="3" x-model="item.longAnswerField" @input="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"></textarea>
+                            </div>
+                        </template>
+                    </div>
+                </div>
             </template>
         </div>
 
@@ -128,40 +197,24 @@
 
             <hr class="border-t-2 border-gray-300 w-full mb-4">
 
-            <div class="grid grid-cols-4 gap-4">
-                <button @click="addNewItem('text')" class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
-                    <i data-lucide="type" class="w-6 h-6 mb-2"></i>
-                    <span class="text-xs text-center px-1">Text</span>
+            <div class="flex gap-2">
+                <button @click="addNewItem('multiple_choice')" class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
+                    <i data-lucide="circle-dot" class="w-6 h-6 mb-2"></i>
+                    <span class="text-xs text-center">Multiple Choice</span>
                 </button>
-                <button @click="addNewItem('heading')" class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
-                    <i data-lucide="heading" class="w-6 h-6 mb-2"></i>
-                    <span class="text-xs text-center">Heading</span>
+                <button @click="addNewItem('true_false')" class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
+                    <i data-lucide="toggle-right" class="w-6 h-6 mb-2"></i>
+                    <span class="text-xs text-center">True/False</span>
                 </button>
                 <button @click="addNewItem('short_answer')" class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
-                    <i data-lucide="edit" class="w-6 h-6 mb-2"></i>
+                    <i data-lucide="minus" class="w-6 h-6 mb-2"></i>
                     <span class="text-xs text-center">Short Answer</span>
                 </button>
                 <button @click="addNewItem('long_answer')" class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
-                        <i data-lucide="file-text" class="w-6 h-6 mb-2"></i>
-                        <span class="text-xs text-center px-1">Long Answer</span>
-                    </button>
-                <button @click="addNewItem('true_false')" class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
-                        <i data-lucide="check-square" class="w-6 h-6 mb-2"></i>
-                        <span class="text-xs text-center">True/False</span>
-                    </button>
-                <button @click="addNewItem('multiple_choice')" class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
-                        <i data-lucide="list" class="w-6 h-6 mb-2"></i>
-                        <span class="text-xs text-center">Multiple Choice</span>
-                    </button>
-                <button @click="addNewItem('dropdown')" class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
-                        <i data-lucide="chevrons-down" class="w-6 h-6 mb-2"></i>
-                        <span class="text-xs text-center">Dropdown</span>
-                    </button>
-                <button @click="addNewItem('checkboxes')" class="border rounded-lg flex flex-col items-center justify-center hover:bg-gray-50 h-20 w-20 px-1">
-                        <i data-lucide="square" class="w-6 h-6 mb-1"></i>
-                        <span class="text-xs text-center">Checkboxes</span>
-                    </button>
-                </div>
+                    <i data-lucide="text-align-justify" class="w-6 h-6 mb-2"></i>
+                    <span class="text-xs text-center px-1">Long Answer</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -210,7 +263,11 @@
                 course: '',
                 type: '',
                 deadline: '',
-                description: ''
+                description: '',
+                timer_hours: '',
+                timer_minutes: '',
+                submission_limit: '',
+                closing_schedule: ''
             },
             
             // Courses array - will be populated from database
@@ -314,15 +371,12 @@
                     const newItem = {
                         id: this.generateUniqueId(),
                         type: type,
-                        content: this.getItemTemplate(type),
-                        // Initialize preview data
                         questionText: '',
-                        textValue: '',
                         shortAnswerField: '',
                         longAnswerField: '',
                         trueText: 'True',
                         falseText: 'False',
-                        options: []
+                        options: type === 'multiple_choice' ? ['', ''] : []
                     };
 
                     if (this.insertAfterIndex !== null) {
@@ -338,131 +392,6 @@
                 }
             },
 
-            // ===== TEMPLATE GENERATION =====
-            
-            /**
-             * Get template for specific item type
-             */
-            getItemTemplate(type) {
-                const templates = {
-                    text: this.getTextTemplate(),
-                    heading: this.getHeadingTemplate(),
-                    short_answer: this.getShortAnswerTemplate(),
-                    long_answer: this.getLongAnswerTemplate(),
-                    true_false: this.getTrueFalseTemplate(),
-                    multiple_choice: this.getMultipleChoiceTemplate(),
-                    dropdown: this.getDropdownTemplate(),
-                    checkboxes: this.getCheckboxesTemplate()
-                };
-
-                return templates[type] || '<div>Unknown question type</div>';
-            },
-
-            getTextTemplate() {
-                return '<textarea name="" id="" class="w-full resize-none overflow-hidden leading-relaxed min-h-[60px]" data-role="textValue" x-model="item.textValue" @input="this.style.height = \'\'; this.style.height = this.scrollHeight + \'px\'" placeholder="Enter text content..."></textarea>';
-            },
-
-            getHeadingTemplate() {
-                return '<input class="text-xl font-semibold w-full min-w-0" type="text" data-role="questionText" placeholder="Enter heading..." x-model="item.questionText" @input="this.style.width = \'\'; this.style.width = Math.min(Math.max(200, this.scrollWidth + 10), this.parentElement.offsetWidth) + \'px\'" />';
-            },
-
-            getShortAnswerTemplate() {
-                return `<div>
-                    <input type="text" data-role="questionText" placeholder="Enter question..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText" @input="this.style.width = \'\'; this.style.width = Math.min(Math.max(200, this.scrollWidth + 10), this.parentElement.offsetWidth) + \'px\'" />
-                    <div class="mt-4">
-                        <input type="text" data-role="shortAnswerField" placeholder="Short answer field" class="px-4 py-2 rounded-xl border bg-white shadow-sm min-w-[200px] max-w-full" x-model="item.shortAnswerField" @input="this.style.width = \'\'; this.style.width = Math.min(Math.max(200, this.scrollWidth + 20), this.parentElement.offsetWidth) + \'px\'" />
-                    </div>
-                </div>`;
-            },
-
-            getLongAnswerTemplate() {
-                return `<div>
-                    <input type="text" data-role="questionText" placeholder="Enter question..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText" @input="this.style.width = \'\'; this.style.width = Math.min(Math.max(200, this.scrollWidth + 10), this.parentElement.offsetWidth) + \'px\'" />
-                    <textarea data-role="longAnswerField" placeholder="Long answer field" class="w-full border rounded-lg p-3 min-h-[80px]" rows="3" x-model="item.longAnswerField" @input="this.style.height = \'\'; this.style.height = this.scrollHeight + \'px\'"></textarea>
-                </div>`;
-            },
-
-            getTrueFalseTemplate() {
-                return `<div>
-                    <input type="text" data-role="questionText" placeholder="Enter statement..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText" @input="this.style.width = \'\'; this.style.width = Math.min(Math.max(200, this.scrollWidth + 10), this.parentElement.offsetWidth) + \'px\'" />
-                    <div class="space-y-3">
-                        <label class="block border rounded-lg p-3 cursor-pointer hover:bg-gray-50">
-                            <input type="radio" name="tf-new" value="true" class="hidden peer" />
-                            <span class="peer-checked:font-semibold peer-checked:text-blue-600">
-                                <b>TRUE:</b> <input type="text" data-role="trueText" placeholder="True statement" class="border-none outline-none bg-transparent min-w-[150px] max-w-full" x-model="item.trueText" @input="this.style.width = \'\'; this.style.width = Math.min(Math.max(150, this.scrollWidth + 10), this.closest(\'.block\').offsetWidth - 100) + \'px\'" />
-                            </span>
-                        </label>
-                        <label class="block border rounded-lg p-3 cursor-pointer hover:bg-gray-50">
-                            <input type="radio" name="tf-new" value="false" class="hidden peer" />
-                            <span class="peer-checked:font-semibold peer-checked:text-blue-600">
-                                <b>FALSE:</b> <input type="text" data-role="falseText" placeholder="False statement" class="border-none outline-none bg-transparent min-w-[150px] max-w-full" x-model="item.falseText" @input="this.style.width = \'\'; this.style.width = Math.min(Math.max(150, this.scrollWidth + 10), this.closest(\'.block\').offsetWidth - 100) + \'px\'" />
-                            </span>
-                        </label>
-                    </div>
-                </div>`;
-            },
-
-            getMultipleChoiceTemplate() {
-                return `<div>
-                    <input type="text" data-role="questionText" placeholder="Enter question..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText" @input="this.style.width = \'\'; this.style.width = Math.min(Math.max(200, this.scrollWidth + 10), this.parentElement.offsetWidth) + \'px\'" />
-                    <div class="space-y-3" x-data="{ options: ['', ''], questionId: 'mc-' + Math.random().toString(36).substr(2, 9) }" x-init="item.options = options; $watch('options', value => item.options = value)">
-                        <template x-for="(option, index) in options" :key="index">
-                            <div class="flex items-center gap-2">
-                                <label class="flex-1 block border rounded-lg p-3 cursor-pointer hover:bg-gray-50">
-                                    <input type="radio" :name="questionId" :value="index" class="hidden peer" />
-                                    <span class="peer-checked:font-semibold peer-checked:text-blue-600">
-                                        <b x-text="String.fromCharCode(65 + index) + '.'"></b> 
-                                        <input type="text" data-role="option" :placeholder="'Option ' + String.fromCharCode(65 + index)" class="border-none outline-none bg-transparent min-w-[150px] max-w-full" x-model="options[index]" @input="this.style.width = \'\'; this.style.width = Math.min(Math.max(150, this.scrollWidth + 10), this.closest(\'.block\').offsetWidth - 100) + \'px\'" />
-                                    </span>
-                                </label>
-                                <button type="button" @click="options.splice(index, 1)" class="text-red-600 hover:text-red-800 px-2" x-show="options.length > 1">×</button>
-                            </div>
-                        </template>
-                        <button type="button" @click="options.push('')" class="text-blue-600 hover:text-blue-800 text-sm">+ Add option</button>
-                    </div>
-                </div>`;
-            },
-
-            getDropdownTemplate() {
-                return `<div>
-                    <input type="text" data-role="questionText" placeholder="Enter question..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText" @input="this.style.width = \'\'; this.style.width = Math.min(Math.max(200, this.scrollWidth + 10), this.parentElement.offsetWidth) + \'px\'" />
-                    <div x-data="{ options: ['Option 1', 'Option 2'] }" x-init="item.options = options; $watch('options', value => item.options = value)">
-                        <select class="px-4 py-2 rounded-xl border bg-white shadow-sm min-w-[200px] max-w-full mb-3" @input="this.style.width = \'\'; this.style.width = Math.min(Math.max(200, this.scrollWidth + 20), this.parentElement.offsetWidth) + \'px\'">
-                            <option>Select option...</option>
-                            <template x-for="(option, index) in options" :key="index">
-                                <option x-text="option"></option>
-                            </template>
-                        </select>
-                        <div class="space-y-2">
-                            <template x-for="(option, index) in options" :key="index">
-                                <div class="flex items-center gap-2">
-                                    <input type="text" data-role="option" x-model="options[index]" class="border rounded px-2 py-1 flex-1 min-w-[150px] max-w-full" @input="this.style.width = \'\'; this.style.width = Math.min(Math.max(150, this.scrollWidth + 10), this.parentElement.offsetWidth - 50) + \'px\'" />
-                                    <button type="button" @click="options.splice(index, 1)" class="text-red-600 hover:text-red-800">×</button>
-                                </div>
-                            </template>
-                            <button type="button" @click="options.push('New Option')" class="text-blue-600 hover:text-blue-800 text-sm">+ Add option</button>
-                        </div>
-                    </div>
-                </div>`;
-            },
-
-            getCheckboxesTemplate() {
-                return `<div>
-                    <input type="text" data-role="questionText" placeholder="Enter question..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText" @input="this.style.width = \'\'; this.style.width = Math.min(Math.max(200, this.scrollWidth + 10), this.parentElement.offsetWidth) + \'px\'" />
-                    <div class="space-y-3" x-data="{ options: ['', ''] }" x-init="item.options = options; $watch('options', value => item.options = value)">
-                        <template x-for="(option, index) in options" :key="index">
-                            <div class="flex items-center gap-2">
-                                <label class="flex-1 flex items-center gap-2 mb-2 block border rounded-lg p-3 cursor-pointer hover:bg-gray-50">
-                                    <input type="checkbox" :name="'cb-' + Date.now() + '[]'" :value="index" />
-                                    <input type="text" data-role="option" :placeholder="'Option ' + (index + 1)" class="border-none outline-none bg-transparent flex-1 min-w-[150px] max-w-full" x-model="options[index]" @input="this.style.width = \'\'; this.style.width = Math.min(Math.max(150, this.scrollWidth + 10), this.closest(\'.block\').offsetWidth - 100) + \'px\'" />
-                                </label>
-                                <button type="button" @click="options.splice(index, 1)" class="text-red-600 hover:text-red-800 px-2" x-show="options.length > 1">×</button>
-                            </div>
-                        </template>
-                        <button type="button" @click="options.push('')" class="text-blue-600 hover:text-blue-800 text-sm">+ Add option</button>
-                    </div>
-                </div>`;
-            },
 
             // ===== FORM SERIALIZATION =====
             
@@ -470,19 +399,50 @@
                 try {
                     this.captureInputValues();
                     
+                    // Select the form element
+                    const form = this.$el.querySelector('form');
+                    
                     // Create hidden input for items
                     const itemsInput = document.createElement('input');
                     itemsInput.type = 'hidden';
                     itemsInput.name = 'items';
                     itemsInput.value = JSON.stringify(this.items);
-                    this.$el.appendChild(itemsInput);
+                    form.appendChild(itemsInput);
                     
                     // Add title from the form title input
                     const titleInput = document.createElement('input');
                     titleInput.type = 'hidden';
                     titleInput.name = 'title';
                     titleInput.value = this.formTitle || 'Assessment Form Title';
-                    this.$el.appendChild(titleInput);
+                    form.appendChild(titleInput);
+                    
+                    // Add timer hours
+                    const timerHoursInput = document.createElement('input');
+                    timerHoursInput.type = 'hidden';
+                    timerHoursInput.name = 'timer_hours';
+                    timerHoursInput.value = this.assessment.timer_hours || '';
+                    form.appendChild(timerHoursInput);
+                    
+                    // Add timer minutes
+                    const timerMinutesInput = document.createElement('input');
+                    timerMinutesInput.type = 'hidden';
+                    timerMinutesInput.name = 'timer_minutes';
+                    timerMinutesInput.value = this.assessment.timer_minutes || '';
+                    form.appendChild(timerMinutesInput);
+                    
+                    // Add submission limit
+                    const submissionLimitInput = document.createElement('input');
+                    submissionLimitInput.type = 'hidden';
+                    submissionLimitInput.name = 'submission_limit';
+                    submissionLimitInput.value = this.assessment.submission_limit || '';
+                    form.appendChild(submissionLimitInput);
+                    
+                    // Add closing schedule
+                    const closingScheduleInput = document.createElement('input');
+                    closingScheduleInput.type = 'hidden';
+                    closingScheduleInput.name = 'closing_schedule';
+                    closingScheduleInput.value = this.assessment.closing_schedule || '';
+                    form.appendChild(closingScheduleInput);
                 } catch (error) {
                     console.error('Failed to serialize items:', error);
                 }
@@ -501,65 +461,12 @@
             },
 
             captureInputValues() {
-                try {
-                    this.items.forEach((item) => {
-                        const itemElement = this.safeQuerySelector(this.$el, `[data-id="${item.id}"]`);
-                        
-                        if (itemElement) {
-                            const contentDiv = this.safeQuerySelector(itemElement, '.flex-1');
-                            if (contentDiv) {
-                                // Capture question text
-                                const questionInput = this.safeQuerySelector(contentDiv, '[data-role="questionText"]');
-                                item.questionText = questionInput?.value || '';
-                                
-                                // Capture text value
-                                const textValueInput = this.safeQuerySelector(contentDiv, '[data-role="textValue"]');
-                                item.textValue = textValueInput?.value || '';
-                                
-                                // Capture type-specific values
-                                this.captureTypeSpecificValues(item, contentDiv);
-                                
-                                // Debug: Log what we captured
-                                console.log(`Item ${item.type} captured:`, {
-                                    questionText: item.questionText,
-                                    shortAnswerField: item.shortAnswerField,
-                                    longAnswerField: item.longAnswerField
-                                });
-                            }
-                        }
-                    });
-                } catch (error) {
-                    console.error('Failed to capture input values:', error);
-                }
+                this.items.forEach(i => {
+                    if (['multiple_choice','dropdown','checkboxes'].includes(i.type) && !Array.isArray(i.options)) i.options = ['',''];
+                    i.questionText = i.questionText || '';
+                });
             },
 
-            captureTypeSpecificValues(item, contentDiv) {
-                switch (item.type) {
-                    case 'short_answer':
-                        const shortAnswerInput = this.safeQuerySelector(contentDiv, '[data-role="shortAnswerField"]');
-                        item.shortAnswerField = shortAnswerInput?.value || '';
-                        break;
-                        
-                    case 'long_answer':
-                        const longAnswerInput = this.safeQuerySelector(contentDiv, '[data-role="longAnswerField"]');
-                        item.longAnswerField = longAnswerInput?.value || '';
-                        break;
-                        
-                    case 'true_false':
-                        const trueInput = this.safeQuerySelector(contentDiv, '[data-role="trueText"]');
-                        const falseInput = this.safeQuerySelector(contentDiv, '[data-role="falseText"]');
-                        item.trueText = trueInput?.value || 'True';
-                        item.falseText = falseInput?.value || 'False';
-                        break;
-                        
-                    case 'multiple_choice':
-                    case 'dropdown':
-                    case 'checkboxes':
-                        const optionInputs = this.safeQuerySelectorAll(contentDiv, '[data-role="option"]');
-                        item.options = optionInputs.map(opt => opt.value).filter(opt => opt);
-                        break;
-                }
-            },
 
             getPreviewContent(item) {
                 try {

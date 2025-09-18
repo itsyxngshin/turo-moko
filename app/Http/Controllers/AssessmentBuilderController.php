@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class AssessmentController extends Controller
+class AssessmentBuilderController extends Controller
 {
     /**
      * Store a newly created assessment

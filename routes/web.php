@@ -69,10 +69,10 @@ Route::prefix('admin')->group(function () {
 // IMPLEMENTOR
 
 Route::prefix('implementor')->group(function () {
-    Route::get('/create-assessment', function () {
-        return view('implementor.create-assessment');
-    })->name('implementor.create-assessment');
+    Route::get('/assessment-builder', function () {
+        return view('implementor.assessment-builder');
+    })->name('implementor.assessment-builder');
     
-    Route::post('/assessment', [App\Http\Controllers\AssessmentController::class, 'store'])
-        ->name('implementor.assessment.store');
+    Route::post('/assessment-builder', [App\Http\Controllers\AssessmentBuilderController::class, 'store'])
+        ->name('implementor.assessment-builder.store');
 });
