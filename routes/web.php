@@ -62,16 +62,16 @@ Route::prefix('learner')->group(function () {
 
 Route::prefix('implementor')->name('implementor.')->group(function () {
     Route::get('/course-information', function () {
-        return view('implementor.implementor-course-details');
+        return view('livewire.implementors.implementor-course-details');
     })->name('course-information');
     Route::get('/courses', function () {
-        return view('implementor.courses');
+        return view('livewire.implementors.courses');
     })->name('courses');
     Route::get('/myprofile', function () {
-        return view('implementor.teacher-profile');
+        return view('livewire.implementors.teacher-profile');
     })->name('myprofile');
     Route::get('/allcourses', function () {
-        return view('implementor.all-courses');
+        return view('livewire.implementors.all-courses');
     })->name('allcourses)');
     
 });
