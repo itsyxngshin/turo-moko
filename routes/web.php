@@ -64,9 +64,9 @@ Route::prefix('implementor')->name('implementor.')->group(function () {
     Route::get('/course-information', function () {
         return view('livewire.implementors.implementor-course-details');
     })->name('course-information');
-    Route::get('/courses', function () {
-        return view('livewire.implementors.courses');
-    })->name('courses');
+    Route::get('/dashboard', function () {
+        return view('livewire.implementors.implementor-dashboard');
+    })->name('dashboard');
     Route::get('/myprofile', function () {
         return view('livewire.implementors.teacher-profile');
     })->name('myprofile');
