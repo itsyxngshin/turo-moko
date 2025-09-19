@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 
 class Course extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'implementer_id', 'organization_id', 'category_id',
         'name', 'subject', 'background', 'status', 'visibility',
