@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->text('discussion')->nullable();
             $table->binary('attachments')->nullable();
+            $table->enum('status', ['Hidden', 'Visible'])->default('Visible');  
             $table->timestamps();
         });
     }
