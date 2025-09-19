@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('implementer_rating_responses', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('imp_eval_id')->constrained('implementer_evaluations');
+            $table->foreignId('imp_rating_id')->constrained('implementer_ratings');
+            $table->integer('rating_value');
             $table->timestamps();
         });
     }

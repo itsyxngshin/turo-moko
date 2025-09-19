@@ -81,4 +81,45 @@ Route::prefix('admin')->group(function () {
     Route::get('/hub', function () {
         return view('livewire.admin.dashboard');
         })->name('admin.hub');
-    });
+
+    Route::get('/implementors', function () {
+        return view('livewire.admin.implementors');
+        })->name('admin.implementors');
+    
+    Route::get('/enrollees', function () {
+        return view('livewire.admin.enrollees');
+        })->name('admin.enrollees');
+
+    Route::get('/courses', function () {
+        return view('livewire.admin.courses');
+        })->name('admin.courses');
+    
+    Route::get('/reports', function () {
+        return view('livewire.admin.reports');
+        })->name('admin.reports');    
+
+    //Route::get('/add-course', [AddCourse::class, 'create'])->name('addcourse');
+    //Route::post('/add-course', [AddCourse::class, 'store'])->name('course.store'); 
+    Route::get('/update-course', [ModifyCourse::class, 'edit'])->name('updatecourse');
+    Route::put('/update-course', [ModifyCourse::class, 'update'])->name('course.update');
+    Route::get('/update-user', [MofifyUser::class, 'edit'])->name('updateuser');
+    Route::put('/update-user', [ModifyUser::class, 'update'])->name('user.update');
+    Route::get('/view-user', [ViewUser::class, 'render'])->name('review');
+});
+
+    Route::middleware(['auth', 'role:learner'])->group(function () {
+        //LINK THE BLADES EXCLUSIVE FOR THE LEARNER SIDE
+        }); 
+    
+    Route::middleware(['auth', 'role:admin'])->group(function () {
+        //LINK THE BLADES EXCLUSIVE FOR THE ADMIN SIDE
+        }); 
+    
+    Route::middleware(['auth', 'role:implementer'])->group(function () {
+        //LINK THE BLADES EXCLUSIVE FOR THE TEACHER/IMPLEMENTER SIDE
+        }); 
+
+    Route::middleware(['guest'])->group(function () {
+        //OPEN FOR ALL / WEBSITE & LOGIN FACE
+        }); 
+
