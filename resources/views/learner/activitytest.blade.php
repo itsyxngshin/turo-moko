@@ -52,16 +52,15 @@
                 </table>
             </div>
 
-            <!-- Buttons -->
-            <div class="flex gap-4 mt-6">
-                <button class="px-6 py-2 bg-black text-white rounded-full hover:bg-gray-800">
-                    Edit submission
-                </button>
-                <button class="px-6 py-2 bg-black text-white rounded-full hover:bg-gray-800">
-                    Remove submission
-                </button>
-            </div>
-
+           <!-- Buttons -->
+        <div class="flex justify-center gap-4 mt-6">
+            <button class="px-6 py-2 bg-black text-white rounded-full hover:bg-gray-800">
+                Edit submission
+            </button>
+            <button class="px-6 py-2 bg-black text-white rounded-full hover:bg-gray-800">
+                Remove submission
+            </button>
+        </div>
         </div>
     </div>
 @endsection

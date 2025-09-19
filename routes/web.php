@@ -1,22 +1,24 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Livewire\Admin\Modal\ModifyCourse;
+use App\Http\Livewire\Admin\Modal\ModifyUser; // Ensure this class exists in the specified namespace
+use App\Http\Livewire\Admin\Modal\ViewUser;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-// Routes for testing front ends //
-Route::get('/login', function () {
-    return view('login');
-});
+// -----------------------------
+// Public Pages
+// -----------------------------
+Route::get('/signup', fn() => view('signup'))->name('signup');
+Route::get('/login', fn() => view('login'))->name('login');
 
-Route::get('/signup', function () {
-    return view('signup');
-});
 
-// End //
-
+// -----------------------------
+// Learner Pages
+// -----------------------------
 Route::prefix('learner')->group(function () {
         // ADMIN DASHBOARD
     Route::get('/classes', function () {
@@ -102,7 +104,7 @@ Route::prefix('admin')->group(function () {
     //Route::post('/add-course', [AddCourse::class, 'store'])->name('course.store'); 
     Route::get('/update-course', [ModifyCourse::class, 'edit'])->name('updatecourse');
     Route::put('/update-course', [ModifyCourse::class, 'update'])->name('course.update');
-    Route::get('/update-user', [MofifyUser::class, 'edit'])->name('updateuser');
+    Route::get('/update-user', [ModifyUser::class, 'edit'])->name('updateuser');
     Route::put('/update-user', [ModifyUser::class, 'update'])->name('user.update');
     Route::get('/view-user', [ViewUser::class, 'render'])->name('review');
 });

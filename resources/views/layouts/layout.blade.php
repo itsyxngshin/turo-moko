@@ -36,11 +36,12 @@
         <!-- Sidebar Component -->
         <x-sidebar />
 
-        <!-- Main Section -->
+       <!-- Main Section -->
         <div class="flex-1 flex flex-col">
-            
             <!-- Navbar Component -->
-            <x-navbar />
+            <div class="flex justify-end">
+                <x-navbar />
+            </div>
 
             <!-- Page Content -->
             <main class="p-6">
