@@ -1,6 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Livewire\Admin\ModifyCourse;
+use App\Http\Livewire\Admin\ModifyUser;
+use App\Http\Livewire\Admin\ViewUser;
 
 Route::get('/', function () {
     return view('welcome');
@@ -85,7 +88,7 @@ Route::prefix('admin')->group(function () {
     //Route::post('/add-course', [AddCourse::class, 'store'])->name('course.store'); 
     Route::get('/update-course', [ModifyCourse::class, 'edit'])->name('updatecourse');
     Route::put('/update-course', [ModifyCourse::class, 'update'])->name('course.update');
-    Route::get('/update-user', [MofifyUser::class, 'edit'])->name('updateuser');
+    Route::get('/update-user', [ModifyUser::class, 'edit'])->name('updateuser');
     Route::put('/update-user', [ModifyUser::class, 'update'])->name('user.update');
     Route::get('/view-user', [ViewUser::class, 'render'])->name('review');
 });
