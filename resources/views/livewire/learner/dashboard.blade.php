@@ -11,7 +11,6 @@
             </button>
         </div>
     </div>
-    <a href="{{ route('verify.phone') }}">Verify Phone</a>
 
     <!-- Course Preview -->
     <section class="bg-white rounded-2xl shadow-md p-6">
