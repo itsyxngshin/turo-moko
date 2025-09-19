@@ -1,9 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Livewire\Admin\ModifyCourse;
-use App\Http\Livewire\Admin\ModifyUser;
-use App\Http\Livewire\Admin\ViewUser;
+use App\Http\Livewire\Admin\Modal\ModifyCourse;
+use App\Http\Livewire\Admin\Modal\ModifyUser; // Ensure this class exists in the specified namespace
+use App\Http\Livewire\Admin\Modal\ViewUser;
 
 Route::get('/', function () {
     return view('welcome');
