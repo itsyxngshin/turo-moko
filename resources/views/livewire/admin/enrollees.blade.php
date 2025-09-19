@@ -56,10 +56,7 @@
 
         <!-- Add Enrollees Button -->
         <div class="flex justify-end mb-4">
-            <button class="px-4 py-2 bg-white rounded-lg shadow border flex items-center space-x-2 hover:bg-gray-100">
-                <x-heroicon-o-plus class="w-5 h-5"/>
-                <span>Add Enrollees</span>
-            </button>
+            @livewire('admin.modal.add-enrollee')
         </div>
 
         <!-- Table -->

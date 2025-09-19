@@ -88,4 +88,21 @@ Route::prefix('admin')->group(function () {
     Route::get('/update-user', [MofifyUser::class, 'edit'])->name('updateuser');
     Route::put('/update-user', [ModifyUser::class, 'update'])->name('user.update');
     Route::get('/view-user', [ViewUser::class, 'render'])->name('review');
-    });
+});
+
+    Route::middleware(['auth', 'role:learner'])->group(function () {
+        //LINK THE BLADES EXCLUSIVE FOR THE LEARNER SIDE
+        }); 
+    
+    Route::middleware(['auth', 'role:admin'])->group(function () {
+        //LINK THE BLADES EXCLUSIVE FOR THE ADMIN SIDE
+        }); 
+    
+    Route::middleware(['auth', 'role:implementer'])->group(function () {
+        //LINK THE BLADES EXCLUSIVE FOR THE TEACHER/IMPLEMENTER SIDE
+        }); 
+
+    Route::middleware(['guest'])->group(function () {
+        //OPEN FOR ALL / WEBSITE & LOGIN FACE
+        }); 
+
