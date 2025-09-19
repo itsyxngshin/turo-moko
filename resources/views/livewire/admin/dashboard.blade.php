@@ -1,47 +1,8 @@
-<!--
-  Livewire + Tailwind Dashboard
-  - Pure Tailwind utilities (no custom CSS files)
-  - Semantic, responsive layout instead of absolute positioning
-  - Drop this into a Blade view (e.g., resources/views/dashboard.blade.php)
-  - Requires Tailwind and (optionally) @tailwindcss/forms for pretty inputs
-  - Replace image src paths to match your public assets
--->
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Admin Dashboard</title>
-    <!-- Tailwind CSS (Vite/Blade directive example) -->
-    @vite(['resources/css/app.css','resources/js/app.js'])
-  </head>
-  <body class="min-h-screen bg-[#F5FBFD] text-[#343434]">
-    <!-- Top bar -->
-    <header class="sticky top-0 z-30 bg-[#F5FBFD]/80 backdrop-blur border-b border-black/10">
-      <div class="max-w-[1720px] mx-auto px-6 py-4 flex items-center gap-4">
-        <img src="/img/group-88.png" alt="Logo" class="w-16 h-16" />
-        <h1 class="text-3xl md:text-4xl font-semibold">Hello, Admin!</h1>
+@extends('layouts.admin-layout') 
 
-        <div class="ml-auto flex items-center gap-4 w-full md:w-auto">
-          <div class="relative flex-1 md:flex-none md:w-[614px]">
-            <input
-              type="search"
-              placeholder="Search courses"
-              class="w-full rounded-full border border-black/20 bg-white pl-12 pr-12 py-3 text-lg placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-400"
-            />
-            <span class="absolute left-4 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-6 h-6">
-              <img src="/img/vector-23.svg" alt="Search" class="w-5 h-5" />
-            </span>
-            <button class="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-gray-100" aria-label="Notifications">
-              <img src="/img/vector-25.svg" alt="Bell" class="w-6 h-6" />
-            </button>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <!-- Main -->
-    <main class="max-w-[1720px] mx-auto px-6 pb-16">
+@section('title', 'Dashboard')
+@section('page-title', 'Dashboard')
+  <div class="max-w-[1720px] mx-auto px-6 pb-16">
       <!-- Stats Row -->
       <section class="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-6">
         <!-- Enrollees -->
@@ -231,6 +192,6 @@
           </article>
         </div>
       </section>
-    </main>
-  </body>
-</html>
+  </div>
+@section('content')
+
