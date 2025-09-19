@@ -83,10 +83,22 @@
         <div x-ref="itemsContainer" class="space-y-6">
             <template x-for="(item, index) in items" :key="item.id">
                 <div class="flex items-start gap-8 p-4 border border-gray-200 rounded-lg hover:border-gray-300 transition-all duration-200" :data-id="item.id">
-                    <div class="flex gap-2 w-15 flex-shrink-0">
-                        <button type="button" @click="removeItem(index)"><i data-lucide="trash" class="w-6 h-6 text-gray-600"></i></button>
-                        <button type="button" @click="addItemAfter(index)"><i data-lucide="plus" class="w-6 h-6 text-gray-600"></i></button>
-                        <button type="button" class="drag-handle cursor-move" draggable="true"><i data-lucide="grip-vertical" class="w-6 h-6 text-gray-600"></i></button>
+                    <div class="flex flex-col gap-2 w-15 flex-shrink-0">
+                        <div class="flex gap-2">
+                            <button type="button" @click="removeItem(index)"><i data-lucide="trash" class="w-6 h-6 text-gray-600"></i></button>
+                            <button type="button" @click="addItemAfter(index)"><i data-lucide="plus" class="w-6 h-6 text-gray-600"></i></button>
+                            <button type="button" class="drag-handle cursor-move" draggable="true"><i data-lucide="grip-vertical" class="w-6 h-6 text-gray-600"></i></button>
+                        </div>
+                        <div class="flex items-center gap-2 mt-2">
+                            <label class="text-xs text-gray-500">Points</label>
+                            <input 
+                                type="number" 
+                                x-model="item.points" 
+                                class="w-16 border rounded px-2 py-1 text-sm text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                                min="1" 
+                                value="1"
+                            />
+                        </div>
                     </div>
                     <div class="flex-1">
                         <template x-if="item.type === 'multiple_choice'">
@@ -142,6 +154,7 @@
                                 <textarea placeholder="Long answer field" class="w-full border rounded-lg p-3 min-h-[80px]" rows="3" x-model="item.longAnswerField" @input="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"></textarea>
                             </div>
                         </template>
+                        </div>
                     </div>
                 </div>
             </template>
@@ -371,6 +384,7 @@
                     const newItem = {
                         id: this.generateUniqueId(),
                         type: type,
+                        points: 1,
                         questionText: '',
                         shortAnswerField: '',
                         longAnswerField: '',
@@ -464,6 +478,7 @@
                 this.items.forEach(i => {
                     if (['multiple_choice','dropdown','checkboxes'].includes(i.type) && !Array.isArray(i.options)) i.options = ['',''];
                     i.questionText = i.questionText || '';
+                    i.points = i.points || 1;
                 });
             },
 
@@ -486,12 +501,13 @@
                     longAnswerField: item.longAnswerField || '',
                     trueText: item.trueText || 'True',
                     falseText: item.falseText || 'False',
-                    options: item.options || []
+                    options: item.options || [],
+                    points: item.points || 1
                 };
             },
 
             generatePreviewHTML(type, values, itemId) {
-                const { questionText, textValue, shortAnswerField, longAnswerField, trueText, falseText, options } = values;
+                const { questionText, textValue, shortAnswerField, longAnswerField, trueText, falseText, options, points } = values;
                 
                 switch (type) {
                     case 'text':
@@ -503,7 +519,10 @@
                     case 'short_answer':
                         return `
                             <div class="mb-6">
-                                <label class="block text-lg font-medium mb-3">${questionText || 'Enter question...'}</label>
+                                <div class="flex items-center gap-2 mb-3">
+                                    <label class="block text-lg font-medium">${questionText || 'Enter question...'}</label>
+                                    <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">${points} point${points !== 1 ? 's' : ''}</span>
+                                </div>
                                 <input type="text" placeholder="Your answer here..." value="${shortAnswerField || ''}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                             </div>
                         `;
@@ -511,7 +530,10 @@
                     case 'long_answer':
                         return `
                             <div class="mb-6">
-                                <label class="block text-lg font-medium mb-3">${questionText || 'Enter question...'}</label>
+                                <div class="flex items-center gap-2 mb-3">
+                                    <label class="block text-lg font-medium">${questionText || 'Enter question...'}</label>
+                                    <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">${points} point${points !== 1 ? 's' : ''}</span>
+                                </div>
                                 <textarea placeholder="Your answer here..." rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical">${longAnswerField || ''}</textarea>
                             </div>
                         `;
@@ -519,7 +541,10 @@
                     case 'true_false':
                         return `
                             <div class="mb-6">
-                                <label class="block text-lg font-medium mb-3">${questionText || 'Enter statement...'}</label>
+                                <div class="flex items-center gap-2 mb-3">
+                                    <label class="block text-lg font-medium">${questionText || 'Enter statement...'}</label>
+                                    <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">${points} point${points !== 1 ? 's' : ''}</span>
+                                </div>
                                 <div class="space-y-2">
                                     <label class="flex items-center">
                                         <input type="radio" name="tf-${itemId}" value="true" class="mr-2" />
@@ -540,7 +565,10 @@
                         }).join('');
                         return `
                             <div class="mb-6">
-                                <label class="block text-lg font-medium mb-3">${questionText || 'Enter question...'}</label>
+                                <div class="flex items-center gap-2 mb-3">
+                                    <label class="block text-lg font-medium">${questionText || 'Enter question...'}</label>
+                                    <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">${points} point${points !== 1 ? 's' : ''}</span>
+                                </div>
                                 <div class="space-y-2">${mcOptions}</div>
                             </div>
                         `;
@@ -549,7 +577,10 @@
                         const selectOptions = options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
                         return `
                             <div class="mb-6">
-                                <label class="block text-lg font-medium mb-3">${questionText || 'Enter question...'}</label>
+                                <div class="flex items-center gap-2 mb-3">
+                                    <label class="block text-lg font-medium">${questionText || 'Enter question...'}</label>
+                                    <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">${points} point${points !== 1 ? 's' : ''}</span>
+                                </div>
                                 <select class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                                     <option value="">Select an option...</option>
                                     ${selectOptions}
@@ -563,7 +594,10 @@
                         }).join('');
                         return `
                             <div class="mb-6">
-                                <label class="block text-lg font-medium mb-3">${questionText || 'Enter question...'}</label>
+                                <div class="flex items-center gap-2 mb-3">
+                                    <label class="block text-lg font-medium">${questionText || 'Enter question...'}</label>
+                                    <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">${points} point${points !== 1 ? 's' : ''}</span>
+                                </div>
                                 <div class="space-y-2">${cbOpts}</div>
                             </div>
                         `;
