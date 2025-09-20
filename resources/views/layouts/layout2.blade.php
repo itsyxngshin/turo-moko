@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Turo-Moko')</title>
 
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
-    <!-- Tailwind CSS -->
+        <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-
+    
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -25,21 +26,10 @@
             }
         }
     </script>
+    @livewireStyles
 </head>
 <body class="bg-gray-50 font-sans">
     <div class="flex h-screen">
-        
-        <!-- Sidebar Component -->
-        <x-sidebar />
-
-        <!-- Main Section -->
-        <div class="flex-1 flex flex-col">
-            <!-- Header Row -->
-            <div class="flex justify-between items-center ">
-                <x-namelayout />
-                <x-navbar />
-            </div>
-
             <!-- Page Content -->
             <main class="p-6">
                 @yield('content')
@@ -51,5 +41,6 @@
     <script>
         lucide.createIcons();
     </script>
+    @livewireScripts
 </body>
 </html>
