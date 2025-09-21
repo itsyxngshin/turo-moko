@@ -34,19 +34,29 @@
     </div>
 
     <!-- Featured Course -->
+    @if($recentCourse)
+    <!-- Featured Course -->
     <div class="relative mb-8">
-      <img src="https://images.unsplash.com/photo-1608506573186-631f3ff1f6e3" class="rounded-lg w-full h-56 object-cover">
-      <div class="absolute top-4 left-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded">Subject here</div>
-      <div class="absolute bottom-4 left-4 text-white">
-        <h2 class="text-xl font-semibold">{{ $courseName ?? '--' }}</h2>
-        <div class="flex items-center gap-2 mt-2">
-          <div class="w-8 h-8 bg-white text-black rounded-full flex items-center justify-center">
-            <i class="fas fa-play"></i>
-          </div>
-          <span>Continue course</span>
+        <img src="{{ asset('storage/' . $recentCourse->activeCoverPhoto->path) }}"
+             alt="Course Cover"
+             class="rounded-lg w-full h-56 object-cover">
+
+        <div class="absolute top-4 left-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded">
+            {{ $recentCourse->subject ?? 'Subject here' }}
         </div>
-      </div>
+
+        <div class="absolute bottom-4 left-4 text-white">
+            <h2 class="text-xl font-semibold">{{ $recentCourse->name ?? '--' }}</h2>
+            <div class="flex items-center gap-2 mt-2">
+                <div class="w-8 h-8 bg-white text-black rounded-full flex items-center justify-center">
+                    <i class="fas fa-play"></i>
+                </div>
+                <span>Continue course</span>
+            </div>
+        </div>
     </div>
+@endif
+
 
    <div class="p-6 ">
     <h1 class="text-2xl font-bold mb-6"> 
@@ -62,9 +72,16 @@
         @foreach($courses as $course)
             <div class="bg-white rounded-lg shadow-md border overflow-hidden">
                 <!-- Thumbnail -->
-                <img src="{{ asset('storage/implementor/course/' . $course->thumbnail) }}"
-                     alt="Course Thumbnail"
-                     class="w-full h-40 object-cover">
+                @if($course->activeCoverPhoto)
+                    <img src="{{ asset('storage/' . $course->activeCoverPhoto->path) }}"
+                        alt="Course Cover"
+                        class="w-full h-40 object-cover">
+                @else
+                    <img src="{{ asset('images/default-course.jpg') }}"
+                        alt="Default Cover"
+                        class="w-full h-40 object-cover">
+                @endif
+
 
                 <!-- Course Info -->
                 <div class="p-4">

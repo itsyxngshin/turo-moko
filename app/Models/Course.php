@@ -12,7 +12,7 @@ class Course extends Model
 
     protected $fillable = [
         'implementer_id', 'organization_id', 'category_id',
-        'name', 'subject', 'background', 'status', 'visibility',
+        'name', 'background', 'status', 'visibility',
         'start_date', 'end_date'
     ];
 
@@ -56,9 +56,16 @@ class Course extends Model
     {
         return $this->belongsTo(Category::class);
     }
-    public function coverPhoto()
+     // 👇 Add this relationship
+    public function coverPhotos()
     {
-        return $this->belongsTo(Photos::class, 'cover_photo_id');
+        return $this->hasMany(CoverPhoto::class, 'course_id');
+    }
+
+    
+    public function activeCoverPhoto()
+    {
+        return $this->hasOne(CoverPhoto::class)->where('status', 'Active');
     }
 
 }

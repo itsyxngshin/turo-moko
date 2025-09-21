@@ -77,11 +77,11 @@ Route::prefix('learner')->group(function () {
 // -----------------------------
 
 Route::prefix('implementor')->name('implementor.')->group(function () {
+    Route::get('/dashboard', [ImplementorDashboardController::class, 'index'])
+        ->name('dashboard');
     Route::get('/course-information/{course}', [ImplementorCourseInformationController::class, 'show'])
          ->name('course-information');
 
-    Route::get('/dashboard', [ImplementorDashboardController::class, 'index'])
-        ->name('dashboard');
         
     Route::get('/myprofile', function () {
         return view('livewire.implementors.teacher-profile');

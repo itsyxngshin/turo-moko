@@ -17,8 +17,7 @@ return new class extends Migration
             $table->foreignId('organization_id')->nullable()->constrained('organizations');
             $table->foreignId('category_id')->constrained('categories');
             $table->foreignId('subcat_id')->nullable()->constrained('subcategories');
-            $table->foreignId('cover_photo_id')->nullable()->constrained('photos');
-            $table->string('course_title');
+            $table->foreignId('cover_photo_id')->nullable();
             $table->string('name'); 
             $table->text('background'); 
             $table->enum('status', ['Archived', 'Active', 'Deleted', 'Closed'])->default('Active');

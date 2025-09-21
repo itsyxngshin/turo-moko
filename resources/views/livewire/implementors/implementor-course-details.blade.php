@@ -8,15 +8,15 @@
    <!-- Header -->
         <div class="relative h-56 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1608506573186-631f3ff1f6e3');">
             
-            <img src="https://i.pravatar.cc/100" alt="Teacher Avatar" class="w-full h-full rounded-lg object-cover">
+            <img src="{{ asset('storage/' . $course->activeCoverPhoto->path) }}" alt="Teacher Avatar" class="w-full h-full rounded-lg object-cover">
             <div class="absolute inset-0 bg-black rounded-lg bg-opacity-50 flex flex-col px-8 text-white">
-            <h1 class="text-3xl font-bold mt-auto mb-1">{{ $course->course_title ?? '--' }}</h1>
+            <h1 class="text-3xl font-bold mt-auto mb-1">{{ $course->name ?? '--' }}</h1>
             <p class="max-w-2xl mb-4">
                 {{ $course->background ?? '--'}}           </p>
 
             <!-- Bottom-right container -->
             <div class="flex justify-end gap-x-2 mt-auto mb-3">
-                <button class="bg-black text-white px-4 py-2 rounded-lg">Edit</button>
+                 @livewire('modals.implementor.edit-course', ['courseId' => $course->id], key($course->id))
             </div>
         </div>
 

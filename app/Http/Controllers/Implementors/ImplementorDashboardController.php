@@ -11,8 +11,7 @@ use App\Models\Evaluation;
 use App\Models\Assignment;
 
 class ImplementorDashboardController extends Controller
-{
-   public function index()
+{public function index()
 {
     $instructor = User::where('id', 2)->where('role_id', 2)->first();
 
@@ -36,13 +35,23 @@ class ImplementorDashboardController extends Controller
 
     $courseName = $courses->first()?->name ?? '--';
 
+    // 🔹 Get most recently updated course for that instructor
+    $recentCourse = $instructor
+        ? Course::with('activeCoverPhoto')
+            ->where('implementer_id', $instructor->id)
+            ->orderBy('updated_at', 'desc')
+            ->first()
+        : null;
+
     return view('livewire.implementors.implementor-dashboard', compact(
         'instructor',
         'courses',
         'enrolleesCount',
         'submissionsCount',
-        'courseName'
+        'courseName',
+        'recentCourse' // ✅ pass it to Blade
     ));
 }
+
 
 }

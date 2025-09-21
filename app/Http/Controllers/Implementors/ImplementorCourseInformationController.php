@@ -27,10 +27,10 @@ class ImplementorCourseInformationController extends Controller
         //    return redirect()->route('login')->with('error', 'Please log in.');
         //}
 
-        // Fetch the course only if it belongs to this implementor
-        $course = Course::where('id', $courseId)         // $courseId = 5
-                ->where('implementer_id', $implementor->id) // $implementor->id = 2
-                ->firstOrFail();
+        //Fetch the course only if it belongs to this implementor
+        $course = Course::where('id', $courseId)
+        ->where('implementer_id', $implementor->id)
+        ->firstOrFail();
 
 
         // Fetch related modules, assignments, and resources
