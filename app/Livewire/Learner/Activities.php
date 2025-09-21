@@ -3,7 +3,7 @@
 namespace App\Http\Livewire\Learner;
 
 use Livewire\Component;
-use App\Models\Activity; // adjust if your model name differs
+use App\Models\Assignment; // adjust if your model name differs
 
 class Activities extends Component
 {
@@ -12,7 +12,7 @@ class Activities extends Component
     public function mount()
     {
         // Fetch only pending activities (adjust query as needed)
-        $this->activities = Activity::where('status', 'pending')->get();
+        $this->activities = Assignment::where('status', 'pending')->get();
     }
 
     public function render()
