@@ -1,3 +1,9 @@
+@extends('layouts.layout')
+
+@section('title', 'Learner Dashboard')
+@section('page-title', 'Learner Dashboard')
+
+@section('content')
 <div>
     <!-- Banner -->
     <div class="relative h-60 rounded-2xl overflow-hidden shadow mb-8">
@@ -71,3 +77,4 @@
       </div>
     </section>
 </div>
+@endsection

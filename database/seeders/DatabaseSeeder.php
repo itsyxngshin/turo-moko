@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         CategorySeeder::class,        // categories before subcategories
         SubCategorySeeder::class,     // subcategories before courses
         CourseSeeder::class,          // courses depend on all above
+        CourseEnrolleesSeeder::class,
 ]);
 
     }

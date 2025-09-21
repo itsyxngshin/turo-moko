@@ -16,6 +16,12 @@ class Course extends Model
         'start_date', 'end_date'
     ];
 
+     public function users()
+    {
+        return $this->belongsToMany(User::class, 'course_enrollees', 'course_id', 'user_id')
+            ->withTimestamps();
+    }
+    
     public function implementer()
     {
         return $this->belongsTo(User::class, 'implementer_id');
@@ -50,4 +56,9 @@ class Course extends Model
     {
         return $this->belongsTo(Category::class);
     }
+    public function coverPhoto()
+    {
+        return $this->belongsTo(Photos::class, 'cover_photo_id');
+    }
+
 }

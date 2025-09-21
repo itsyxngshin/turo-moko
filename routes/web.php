@@ -5,6 +5,12 @@ use App\Http\Livewire\Admin\Modal\ModifyCourse;
 use App\Http\Livewire\Admin\Modal\ModifyUser; // Ensure this class exists in the specified namespace
 use App\Http\Livewire\Admin\Modal\ViewUser;
 
+
+use App\Http\Controllers\Implementors\ImplementorDashboardController;
+use App\Http\Controllers\Implementors\ImplementorCourseInformationController;
+use App\Http\Controllers\CourseController;
+
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -67,18 +73,21 @@ Route::prefix('learner')->group(function () {
     });
 
 Route::prefix('implementor')->name('implementor.')->group(function () {
-    Route::get('/course-information', function () {
-        return view('livewire.implementors.implementor-course-details');
-    })->name('course-information');
-    Route::get('/dashboard', function () {
-        return view('livewire.implementors.implementor-dashboard');
-    })->name('dashboard');
+    Route::get('/course-information/{course}', [ImplementorCourseInformationController::class, 'show'])
+         ->name('course-information');
+
+    Route::get('/dashboard', [ImplementorDashboardController::class, 'index'])
+        ->name('dashboard');
+        
     Route::get('/myprofile', function () {
         return view('livewire.implementors.teacher-profile');
     })->name('myprofile');
     Route::get('/allcourses', function () {
         return view('livewire.implementors.all-courses');
     })->name('allcourses)');
+    
+    Route::get('/courses/create', [CourseController::class, 'create'])->name('courses.create');
+    Route::post('/courses', [CourseController::class, 'store'])->name('courses.store');
     
 });
 
