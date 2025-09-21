@@ -23,6 +23,39 @@ class User extends Authenticatable
         'password',
     ];
 
+    public function profile()
+    {
+        return $this->hasOne(Profile::class);
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    public function logs()
+    {
+        return $this->hasMany(Log::class);
+    }
+
+    public function enrollments()
+    {
+        return $this->hasMany(CourseEnrollee::class);
+    }
+
+    public function engagements()
+    {
+        return $this->hasMany(Engagement::class);
+    }
+
+    public function recentCourses()
+    {
+    return $this->belongsToMany(Course::class, 'course_user')
+                ->withPivot('last_accessed')
+                ->orderByDesc('pivot_last_accessed');
+    }
+
+
     /**
      * The attributes that should be hidden for serialization.
      *

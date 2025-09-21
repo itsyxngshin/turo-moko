@@ -1,5 +1,4 @@
-<!-- resources/views/learner/dashboard.blade.php -->
-@extends('layouts.layout')
+@extends('layouts.layout2')
 
 @section('title', 'Learner Profile')
 

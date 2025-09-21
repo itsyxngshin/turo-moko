@@ -42,6 +42,12 @@
 
     <!-- Main -->
     <main class="max-w-[1720px] mx-auto px-6 pb-16">
+@extends('layouts.layout') 
+@section('content')
+
+@section('title', 'Dashboard')
+@section('page-title', 'Dashboard')
+  <div class="max-w-[1720px] mx-auto px-6 pb-16">
       <!-- Stats Row -->
       <section class="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-6">
         <!-- Enrollees -->
@@ -234,3 +240,7 @@
     </main>
   </body>
 </html>
+  </div>
+
+@endsection
+

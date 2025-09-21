@@ -56,12 +56,6 @@
         <hr class="flex-1 border-gray-300" />
       </div>
 
-      <!-- Google Button -->
-      <button class="w-full flex items-center justify-center border rounded-md py-2 hover:bg-gray-100 gap-2">
-        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="w-5 h-5" />
-        <span class="text-sm">Continue with Google</span>
-      </button>
-
       <!-- Sign up link -->
       <p class="text-sm text-center mt-6 text-gray-600">
         Don’t have an account?

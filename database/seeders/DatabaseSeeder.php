@@ -13,8 +13,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
+        $this->call([
+        RolesTableSeeder::class,      // roles must exist first
+        UsersTableSeeder::class,      // users depend on roles
+        OrganizationSeeder::class,    // organizations before courses
+        CategorySeeder::class,        // categories before subcategories
+        SubCategorySeeder::class,     // subcategories before courses
+        CourseSeeder::class,          // courses depend on all above
+        UserSeeder::class,
+        CoursesTableSeeder::class,
+]);
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
