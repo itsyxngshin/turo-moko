@@ -1,20 +1,44 @@
 <?php
 
-namespace App\Models;
+namespace App\Livewire\Learner;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Livewire\Component;
+use App\Models\User;
 
-
-class Profile extends Model
+class Profile extends Component
 {
-    public function user()
+    public $studentName;
+    public $description;
+    public $email;
+    public $activeCourses;
+    public $archivedCourses;
+    public $courses;
+
+    public function mount()
     {
-        return $this->belongsTo(User::class);
+        $user = auth()->user(); // adjust based on auth logic
+
+        $this->studentName = $user->name;
+        $this->description = $user->description ?? 'No description provided';
+        $this->email = $user->email;
+
+        $this->activeCourses = $user->courses()->where('status', 'active')->count();
+        $this->archivedCourses = $user->courses()->where('status', 'archived')->count();
+
+        // Fetch all courses including images
+        $this->courses = $user->courses()->latest()->get()->map(function ($course) {
+            return [
+                'name' => $course->name,
+                'semester' => $course->semester ?? 'N/A',
+                'description' => $course->description ?? 'No description',
+                'image' => $course->image ?? '/images/course1.jpg', // dynamic image
+                'progress' => $course->pivot->progress ?? 0, // if using pivot table
+            ];
+        });
     }
 
-    public function portfolioSets()
+    public function render()
     {
-        return $this->hasMany(PortfolioSet::class);
+        return view('livewire.learner.profile');
     }
 }

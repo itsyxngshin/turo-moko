@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('course_title');
             $table->string('name'); 
             $table->text('background'); 
-            $table->enum('status', ['Archived', 'Active', 'Deleted', 'Closed'])->default('Active');
+            $table->enum('status', ['Archived', 'Active', 'Deleted', 'Closed', 'Completed'])->default('Active');
             $table->enum('visibility', ['Visible', 'Hidden'])->default('Visible');
             $table->datetime('start_date'); 
             $table->datetime('end_date'); 

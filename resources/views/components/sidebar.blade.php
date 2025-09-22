@@ -6,7 +6,7 @@
         </div>
 
         <!-- Home -->
-        <a href="{{ route('learner.hub') }}" class="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-gray-100" aria-label="Home">
+        <a href="{{ route('learner.dashboard') }}" class="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-gray-100" aria-label="Home">
             <i data-lucide="home" class="w-6 h-6 text-gray-600"></i>
         </a>
 

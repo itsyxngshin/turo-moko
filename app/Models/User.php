@@ -50,6 +50,14 @@ class User extends Authenticatable
         return $this->hasMany(Engagement::class);
     }
 
+    public function recentCourses()
+    {
+    return $this->belongsToMany(Course::class, 'course_user')
+                ->withPivot('last_accessed')
+                ->orderByDesc('pivot_last_accessed');
+    }
+
+
     /**
      * The attributes that should be hidden for serialization.
      *

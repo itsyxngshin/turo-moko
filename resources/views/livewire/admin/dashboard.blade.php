@@ -1,4 +1,5 @@
-@extends('layouts.admin-layout') 
+@extends('layouts.layout') 
+@section('content')
 
 @section('title', 'Dashboard')
 @section('page-title', 'Dashboard')
@@ -193,5 +194,6 @@
         </div>
       </section>
   </div>
-@section('content')
+
+@endsection
 

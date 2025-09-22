@@ -3,46 +3,57 @@
 namespace App\Livewire\Learner;
 
 use Livewire\Component;
+use App\Models\Course;
+use App\Models\Assignment;
 
 class Classes extends Component
 {
-    public $activeCourses;
-    public $completedCourses;
+    // Counts (used in stats cards)
+    public $activeCourses;          
+    public $activeCoursesCount;     
+    public $completedCourses;       
+    public $completedCoursesCount;  
+
+    // Data for lists / banner
+    public $courses;         
+    public $featuredCourse;  
+
+    // placeholders / stats
     public $pendingActivities;
     public $pendingEvaluations;
-    public $featuredCourse;
-    public $courses;
+
+     public $recentCourses;
 
     public function mount()
-    {
-        // For now, you can hardcode sample values
-        $this->activeCourses = 3;
-        $this->completedCourses = 2;
-        $this->pendingActivities = 5;
-        $this->pendingEvaluations = 1;
+{
+    // Count
+    $this->activeCoursesCount = Course::where('status', 'Active')->count();
 
-        $this->featuredCourse = (object)[
-            'subject' => 'Math',
-            'name' => 'Algebra Basics',
-        ];
+    // List of active courses
+    $this->activeCourses = Course::where('status', 'Active')->get();
 
-        $this->courses = [
-            (object)[
-                'title' => 'Intro to Algebra',
-                'description' => 'Learn the basics of algebra and problem-solving.',
-                'progress' => 40,
-                'semester' => '1st Sem SY 2024-2025',
-                'image' => '/images/course1.jpg'
-            ],
-            (object)[
-                'title' => 'Geometry',
-                'description' => 'Explore the world of shapes and measurements.',
-                'progress' => 70,
-                'semester' => '1st Sem SY 2024-2025',
-                'image' => '/images/course2.jpg'
-            ],
-        ];
+    $this->completedCourses = Course::where('status', 'Completed')->count();
+    $this->completedCoursesCount = $this->completedCourses;
+
+    // Pending assignments & evaluations
+    if (class_exists(Assignment::class)) {
+        $this->pendingActivities = Assignment::where('status', 'Pending')->count();
+        $this->pendingEvaluations = Assignment::where('status', 'Evaluation Pending')->count();
+    } else {
+        $this->pendingActivities = 0;
+        $this->pendingEvaluations = 0;
     }
+
+    // Featured course
+    $this->featuredCourse = Course::where('status', 'Active')->latest()->first();
+
+    // All active courses
+    $this->courses = Course::where('status', 'Active')->get();
+
+    // 🆕 Recent courses (last 5, adjust as needed)
+    $this->recentCourses = Course::latest()->take(5)->get();
+}
+
 
     public function render()
     {
