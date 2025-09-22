@@ -1,9 +1,12 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use App\Http\Livewire\Admin\Modal\ModifyCourse;
 use App\Http\Livewire\Admin\Modal\ModifyUser; // Ensure this class exists in the specified namespace
 use App\Http\Livewire\Admin\Modal\ViewUser;
+use App\Http\Controllers\AssessmentBuilderController;
+use App\Http\Controllers\CourseController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -87,10 +90,20 @@ Route::prefix('admin')->group(function () {
 // IMPLEMENTOR
 
 Route::prefix('implementor')->group(function () {
-    Route::get('/assessment-builder', function () {
-        return view('implementor.assessment-builder');
-    })->name('implementor.assessment-builder');
+    Route::get('/assessment-builder', [AssessmentBuilderController::class, 'create'])
+        ->name('implementor.assessment-builder');
     
-    Route::post('/assessment-builder', [App\Http\Controllers\AssessmentBuilderController::class, 'store'])
+    Route::post('/assessment-builder', [AssessmentBuilderController::class, 'store'])
         ->name('implementor.assessment-builder.store');
+    
+    Route::put('/assessment-builder/{id}', [AssessmentBuilderController::class, 'update'])
+        ->name('implementor.assessment-builder.update');
+    
+    // Test route to verify form submission
+    Route::post('/test-form', function(Request $request) {
+        return response()->json([
+            'message' => 'Form received successfully!',
+            'data' => $request->all()
+        ]);
+    })->name('implementor.test-form');
 });

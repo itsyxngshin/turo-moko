@@ -14,7 +14,7 @@
             action="{{ route('implementor.assessment-builder.store') }}"
             method="POST"
         class="bg-white rounded-3xl border border-gray-200 shadow-sm py-10 px-10 ml-4 mt-2 flex flex-col gap-8"
-            @submit="serializeItems()"
+            @submit.prevent="submitForm()"
     >
             @csrf
 
@@ -25,11 +25,11 @@
         <div class="space-y-6">
         <div class="flex flex-col">
                 <label class="font-semibold text-sm mb-2">Course Name</label>
-                <select x-model="assessment.course" name="course" class="block border rounded-lg p-3 cursor-pointer hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <select x-model="assessment.course_id" name="course_id" class="block border rounded-lg p-3 cursor-pointer hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 <option value="">Select course</option>
-                    <template x-for="course in courses" :key="course.id">
-                        <option :value="course.id" x-text="course.name"></option>
-                    </template>
+                    @foreach($courses as $course)
+                        <option value="{{ $course->id }}">{{ $course->course_title }}</option>
+                    @endforeach
             </select>
         </div>
 
@@ -74,6 +74,7 @@
 
         <input
             type="text"
+            name="title"
             value="Assessment Form Title"
             class="text-3xl font-bold text-center"
             x-model="formTitle"
@@ -103,15 +104,15 @@
                     <div class="flex-1">
                         <template x-if="item.type === 'multiple_choice'">
                             <div>
-                                <input type="text" placeholder="Enter question..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText" @input="this.style.width = ''; this.style.width = Math.min(Math.max(200, this.scrollWidth + 10), this.parentElement.offsetWidth) + 'px'" />
+                                <input type="text" placeholder="Enter question..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText"  />
                                 <div class="space-y-3">
                                     <template x-for="(option, optionIndex) in item.options" :key="optionIndex">
                                         <div class="flex items-center gap-2">
                                             <label class="flex-1 block border rounded-lg p-3 cursor-pointer hover:bg-gray-50">
-                                                <input type="radio" :name="'mc-' + item.id" :value="optionIndex" class="hidden peer" />
+                                                <input type="radio" :name="'mc-' + item.id" :value="optionIndex" class="hidden peer" x-model="item.correctAnswer" />
                                                 <span class="peer-checked:font-semibold peer-checked:text-blue-600">
                                                     <b x-text="String.fromCharCode(65 + optionIndex) + '.'"></b> 
-                                                    <input type="text" :placeholder="'Option ' + String.fromCharCode(65 + optionIndex)" class="border-none outline-none bg-transparent min-w-[150px] max-w-full" x-model="item.options[optionIndex]" @input="this.style.width = ''; this.style.width = Math.min(Math.max(150, this.scrollWidth + 10), this.closest('.block').offsetWidth - 100) + 'px'" />
+                                                    <input type="text" :placeholder="'Option ' + String.fromCharCode(65 + optionIndex)" class="border-none outline-none bg-transparent min-w-[150px] max-w-full" x-model="item.options[optionIndex]"  />
                                                 </span>
                                             </label>
                                             <button type="button" @click="item.options.splice(optionIndex, 1)" class="text-red-600 hover:text-red-800 px-2" x-show="item.options.length > 1">×</button>
@@ -123,18 +124,18 @@
                         </template>
                         <template x-if="item.type === 'true_false'">
                             <div>
-                                <input type="text" placeholder="Enter statement..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText" @input="this.style.width = ''; this.style.width = Math.min(Math.max(200, this.scrollWidth + 10), this.parentElement.offsetWidth) + 'px'" />
+                                <input type="text" placeholder="Enter statement..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText"  />
                                 <div class="space-y-3">
                                     <label class="block border rounded-lg p-3 cursor-pointer hover:bg-gray-50">
-                                        <input type="radio" :name="'tf-' + item.id" value="true" class="hidden peer" />
+                                        <input type="radio" :name="'tf-' + item.id" value="true" class="hidden peer" x-model="item.correctAnswer" />
                                         <span class="peer-checked:font-semibold peer-checked:text-blue-600">
-                                            <b>TRUE:</b> <input type="text" placeholder="True statement" class="border-none outline-none bg-transparent min-w-[150px] max-w-full" x-model="item.trueText" @input="this.style.width = ''; this.style.width = Math.min(Math.max(150, this.scrollWidth + 10), this.closest('.block').offsetWidth - 100) + 'px'" />
+                                            <b>TRUE:</b> <input type="text" placeholder="True statement" class="border-none outline-none bg-transparent min-w-[150px] max-w-full" x-model="item.trueText"  />
                                         </span>
                                     </label>
                                     <label class="block border rounded-lg p-3 cursor-pointer hover:bg-gray-50">
-                                        <input type="radio" :name="'tf-' + item.id" value="false" class="hidden peer" />
+                                        <input type="radio" :name="'tf-' + item.id" value="false" class="hidden peer" x-model="item.correctAnswer" />
                                         <span class="peer-checked:font-semibold peer-checked:text-blue-600">
-                                            <b>FALSE:</b> <input type="text" placeholder="False statement" class="border-none outline-none bg-transparent min-w-[150px] max-w-full" x-model="item.falseText" @input="this.style.width = ''; this.style.width = Math.min(Math.max(150, this.scrollWidth + 10), this.closest('.block').offsetWidth - 100) + 'px'" />
+                                            <b>FALSE:</b> <input type="text" placeholder="False statement" class="border-none outline-none bg-transparent min-w-[150px] max-w-full" x-model="item.falseText"  />
                                         </span>
                                     </label>
                                 </div>
@@ -142,16 +143,16 @@
                         </template>
                         <template x-if="item.type === 'short_answer'">
                             <div>
-                                <input type="text" placeholder="Enter question..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText" @input="this.style.width = ''; this.style.width = Math.min(Math.max(200, this.scrollWidth + 10), this.parentElement.offsetWidth) + 'px'" />
+                                <input type="text" placeholder="Enter question..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText"  />
                                 <div class="mt-4">
-                                    <input type="text" placeholder="Short answer field" class="px-4 py-2 rounded-xl border bg-white shadow-sm min-w-[200px] max-w-full" x-model="item.shortAnswerField" @input="this.style.width = ''; this.style.width = Math.min(Math.max(200, this.scrollWidth + 20), this.parentElement.offsetWidth) + 'px'" />
+                                    <input type="text" placeholder="Short answer field" class="px-4 py-2 rounded-xl border bg-white shadow-sm min-w-[200px] max-w-full" x-model="item.shortAnswerField"  />
                                 </div>
                             </div>
                         </template>
                         <template x-if="item.type === 'long_answer'">
                             <div>
-                                <input type="text" placeholder="Enter question..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText" @input="this.style.width = ''; this.style.width = Math.min(Math.max(200, this.scrollWidth + 10), this.parentElement.offsetWidth) + 'px'" />
-                                <textarea placeholder="Long answer field" class="w-full border rounded-lg p-3 min-h-[80px]" rows="3" x-model="item.longAnswerField" @input="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"></textarea>
+                                <input type="text" placeholder="Enter question..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText"  />
+                                <textarea placeholder="Long answer field" class="w-full border rounded-lg p-3 min-h-[80px]" rows="3" x-model="item.longAnswerField" ></textarea>
                             </div>
                         </template>
                         </div>
@@ -273,9 +274,8 @@
             
             // Assessment details state
             assessment: {
-                course: '',
+                course_id: '',
                 type: '',
-                deadline: '',
                 description: '',
                 timer_hours: '',
                 timer_minutes: '',
@@ -390,6 +390,7 @@
                         longAnswerField: '',
                         trueText: 'True',
                         falseText: 'False',
+                        correctAnswer: type === 'true_false' ? 'true' : 0,
                         options: type === 'multiple_choice' ? ['', ''] : []
                     };
 
@@ -407,56 +408,162 @@
             },
 
 
+            // ===== FORM SUBMISSION =====
+            
+            submitForm() {
+                console.log('=== FORM SUBMISSION STARTED ===');
+                this.serializeItems();
+                
+                // Add a delay so we can see the console logs
+                setTimeout(() => {
+                    console.log('=== SUBMITTING FORM NOW ===');
+                    const form = document.querySelector('form[action*="assessment-builder"]');
+                    console.log('Form found:', form);
+                    
+                    if (form) {
+                        // Use AJAX instead of form.submit() to prevent page reload
+                        const formData = new FormData(form);
+                        
+                        console.log('Form data being sent:');
+                        for (let [key, value] of formData.entries()) {
+                            console.log(key + ':', value);
+                        }
+                        
+                        fetch('{{ route("implementor.assessment-builder.store") }}', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                            }
+                        })
+                        .then(response => {
+                            console.log('Response status:', response.status);
+                            console.log('Response headers:', response.headers);
+                            
+                            if (response.status === 200) {
+                                console.log('✅ SUCCESS: Form submitted successfully!');
+                                return response.json();
+                            } else if (response.status === 422) {
+                                console.log('❌ VALIDATION ERROR: Form validation failed');
+                                return response.json();
+                            } else if (response.status === 500) {
+                                console.log('❌ SERVER ERROR: Something went wrong');
+                                return response.json();
+                            } else {
+                                console.log('⚠️ UNEXPECTED STATUS:', response.status);
+                                return response.text();
+                            }
+                        })
+                        .then(data => {
+                            console.log('Response data:', data);
+                            if (typeof data === 'object') {
+                                if (data.success) {
+                                    console.log('✅ SUCCESS:', data.message);
+                                    alert('✅ ' + data.message);
+                                } else if (data.errors) {
+                                    console.log('❌ Validation errors:', data.errors);
+                                    alert('❌ Validation failed: ' + JSON.stringify(data.errors, null, 2));
+                                } else if (data.message) {
+                                    console.log('❌ ERROR:', data.message);
+                                    alert('❌ ' + data.message);
+                                }
+                            } else {
+                                console.log('Response is not JSON:', data);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error submitting form:', error);
+                            alert('Error submitting form: ' + error.message);
+                        });
+                    } else {
+                        console.error('Form not found!');
+                    }
+                }, 2000); // 2 second delay
+            },
+
             // ===== FORM SERIALIZATION =====
             
             serializeItems() {
                 try {
+                    console.log('Starting form serialization...');
                     this.captureInputValues();
                     
                     // Select the form element
-                    const form = this.$el.querySelector('form');
+                    const form = document.querySelector('form[action*="assessment-builder"]');
+                    console.log('Form found for serialization:', form);
                     
-                    // Create hidden input for items
-                    const itemsInput = document.createElement('input');
-                    itemsInput.type = 'hidden';
-                    itemsInput.name = 'items';
-                    itemsInput.value = JSON.stringify(this.items);
-                    form.appendChild(itemsInput);
+                    if (!form) {
+                        console.error('Form not found! Cannot serialize items.');
+                        return;
+                    }
                     
-                    // Add title from the form title input
-                    const titleInput = document.createElement('input');
-                    titleInput.type = 'hidden';
-                    titleInput.name = 'title';
-                    titleInput.value = this.formTitle || 'Assessment Form Title';
-                    form.appendChild(titleInput);
+                    // Clear any existing hidden inputs
+                    const existingHidden = form.querySelectorAll('input[type="hidden"]:not([name="_token"])');
+                    existingHidden.forEach(input => input.remove());
                     
-                    // Add timer hours
-                    const timerHoursInput = document.createElement('input');
-                    timerHoursInput.type = 'hidden';
-                    timerHoursInput.name = 'timer_hours';
-                    timerHoursInput.value = this.assessment.timer_hours || '';
-                    form.appendChild(timerHoursInput);
+                    // Create hidden input for questions
+                    const questionsInput = document.createElement('input');
+                    questionsInput.type = 'hidden';
+                    questionsInput.name = 'questions';
                     
-                    // Add timer minutes
-                    const timerMinutesInput = document.createElement('input');
-                    timerMinutesInput.type = 'hidden';
-                    timerMinutesInput.name = 'timer_minutes';
-                    timerMinutesInput.value = this.assessment.timer_minutes || '';
-                    form.appendChild(timerMinutesInput);
+                    // Format questions data for backend
+                    const formattedQuestions = this.items.map(item => {
+                        const question = {
+                            text: item.questionText || '',
+                            type: item.type,
+                            points: item.points || 1,
+                        };
+                        
+                        // Add type-specific data
+                        if (item.type === 'multiple_choice') {
+                            question.options = item.options || [];
+                            question.correctAnswer = item.correctAnswer || 0;
+                        } else if (item.type === 'true_false') {
+                            question.trueText = item.trueText || '';
+                            question.falseText = item.falseText || '';
+                            question.correctAnswer = item.correctAnswer || 'true';
+                        }
+                        
+                        return question;
+                    });
                     
-                    // Add submission limit
-                    const submissionLimitInput = document.createElement('input');
-                    submissionLimitInput.type = 'hidden';
-                    submissionLimitInput.name = 'submission_limit';
-                    submissionLimitInput.value = this.assessment.submission_limit || '';
-                    form.appendChild(submissionLimitInput);
+                    questionsInput.value = JSON.stringify(formattedQuestions);
+                    form.appendChild(questionsInput);
                     
-                    // Add closing schedule
-                    const closingScheduleInput = document.createElement('input');
-                    closingScheduleInput.type = 'hidden';
-                    closingScheduleInput.name = 'closing_schedule';
-                    closingScheduleInput.value = this.assessment.closing_schedule || '';
-                    form.appendChild(closingScheduleInput);
+                    console.log('Formatted questions:', formattedQuestions);
+                    console.log('Alpine data:', {
+                        course_id: this.assessment.course_id,
+                        type: this.assessment.type,
+                        title: this.formTitle,
+                        questions: formattedQuestions
+                    });
+                    
+                    // Force update form fields with Alpine data
+                    const courseSelect = form.querySelector('select[name="course_id"]');
+                    if (courseSelect) courseSelect.value = this.assessment.course_id || '';
+                    
+                    const typeSelect = form.querySelector('select[name="type"]');
+                    if (typeSelect) typeSelect.value = this.assessment.type || '';
+                    
+                    const titleInput = form.querySelector('input[name="title"]');
+                    if (titleInput) titleInput.value = this.formTitle || 'Assessment Form Title';
+                    
+                    const descriptionTextarea = form.querySelector('textarea[name="description"]');
+                    if (descriptionTextarea) descriptionTextarea.value = this.assessment.description || '';
+                    
+                    const timerHoursInput = form.querySelector('input[name="timer_hours"]');
+                    if (timerHoursInput) timerHoursInput.value = this.assessment.timer_hours || '';
+                    
+                    const timerMinutesInput = form.querySelector('input[name="timer_minutes"]');
+                    if (timerMinutesInput) timerMinutesInput.value = this.assessment.timer_minutes || '';
+                    
+                    const submissionLimitInput = form.querySelector('input[name="submission_limit"]');
+                    if (submissionLimitInput) submissionLimitInput.value = this.assessment.submission_limit || '';
+                    
+                    const closingScheduleInput = form.querySelector('input[name="closing_schedule"]');
+                    if (closingScheduleInput) closingScheduleInput.value = this.assessment.closing_schedule || '';
+                    
+                    console.log('Form fields updated with Alpine data');
                 } catch (error) {
                     console.error('Failed to serialize items:', error);
                 }
