@@ -127,6 +127,7 @@ class AssessmentBuilderController extends Controller
                 $question = Question::create([
                     'quiz_id' => $quiz->id,
                     'question_text' => $questionData['text'],
+                    'model_answer' => $questionData['modelAnswer'] ?? null,
                     'type' => $questionData['type'],
                     'points' => $questionData['points'],
                 ]);
@@ -269,6 +270,7 @@ class AssessmentBuilderController extends Controller
                 $question = Question::create([
                     'quiz_id' => $quiz->id,
                     'question_text' => $questionData['text'],
+                    'model_answer' => $questionData['modelAnswer'] ?? null,
                     'type' => $questionData['type'],
                     'points' => $questionData['points'],
                 ]);

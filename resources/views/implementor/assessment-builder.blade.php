@@ -147,12 +147,20 @@
                                 <div class="mt-4">
                                     <input type="text" placeholder="Short answer field" class="px-4 py-2 rounded-xl border bg-white shadow-sm min-w-[200px] max-w-full" x-model="item.shortAnswerField"  />
                                 </div>
+                                <div class="mt-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Model Answer (Optional)</label>
+                                    <input type="text" placeholder="Enter the correct answer..." class="px-4 py-2 rounded-xl border bg-white shadow-sm w-full" x-model="item.modelAnswer"  />
+                                </div>
                             </div>
                         </template>
                         <template x-if="item.type === 'long_answer'">
                             <div>
                                 <input type="text" placeholder="Enter question..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText"  />
                                 <textarea placeholder="Long answer field" class="w-full border rounded-lg p-3 min-h-[80px]" rows="3" x-model="item.longAnswerField" ></textarea>
+                                <div class="mt-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Model Answer (Optional)</label>
+                                    <textarea placeholder="Enter the correct answer..." class="w-full border rounded-lg p-3 min-h-[80px]" rows="3" x-model="item.modelAnswer" ></textarea>
+                                </div>
                             </div>
                         </template>
                         </div>
@@ -388,6 +396,7 @@
                         questionText: '',
                         shortAnswerField: '',
                         longAnswerField: '',
+                        modelAnswer: '',
                         trueText: 'True',
                         falseText: 'False',
                         correctAnswer: type === 'true_false' ? 'true' : 0,
@@ -512,6 +521,7 @@
                             text: item.questionText || '',
                             type: item.type,
                             points: item.points || 1,
+                            modelAnswer: item.modelAnswer || '',
                         };
                         
                         // Add type-specific data

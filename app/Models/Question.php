@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Question extends Model
 {
-   protected $fillable = [
-        'quiz_id', 'question_text', 'type', 'points'
+    protected $fillable = [
+        'quiz_id', 'question_text', 'model_answer', 'type', 'points'
     ];
 
     public function quiz()
