@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('modules', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('lesson_id')->constrained('lessons');
+            $table->string('module_title');
+            $table->text('description')->nullable();
+            $table->text('discussion')->nullable();
+            $table->binary('attachments')->nullable();
+            $table->enum('status', ['Hidden', 'Visible'])->default('Visible');  
             $table->timestamps();
         });
     }

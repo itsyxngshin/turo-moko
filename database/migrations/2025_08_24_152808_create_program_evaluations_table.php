@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('program_evaluations', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('course_id')->constrained('courses');
+            $table->foreignId('enrollee_id')->constrained('course_enrollees');
+            $table->string('description')->nullable();
+            $table->enum('status', ['active', 'inactive']);
             $table->timestamps();
         });
     }

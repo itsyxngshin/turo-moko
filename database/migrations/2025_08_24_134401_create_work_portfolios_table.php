@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('work_portfolios', function (Blueprint $table) {
             $table->id();
+            $table->string('designation');
+            $table->string('description')->nullable();
+            $table->string('duration')->nullable();
+            $table->enum('status', ['Active', 'Former', 'Private']);
             $table->timestamps();
         });
     }

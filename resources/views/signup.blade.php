@@ -1,33 +1,68 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" x-data="{ role: 'implementor' }">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Turo-Moko Register</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <link rel="icon" href="{{ asset('images/turo_moko_logo.png') }}" type="image/png">
 </head>
 <body class="flex h-screen w-screen overflow-hidden font-sans">
 
   <!-- Left side: Image + Logo -->
-  <div class="w-1/2 relative hidden md:block">
-    <img
-      src="https://images.unsplash.com/photo-1581090700227-1e8eec7d1df7?auto=format&fit=crop&w=1050&q=80"
+<div class="w-1/2 relative hidden md:block"
+     x-data="{ images: ['/images/cover.jpg', '/images/cover7.jpg', '/images/cover3.jpg'], index: 0 }"
+     x-init="setInterval(() => { index = (index + 1) % images.length }, 5000)">
+  
+  <!-- Loop through images -->
+  <template x-for="(image, i) in images" :key="i">
+    <img 
+      :src="image" 
       alt="Students using computer"
-      class="w-full h-full object-cover"
+      class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out brightness-50"
+      x-show="index === i"
+      x-transition:enter="opacity-0"
+      x-transition:enter-start="opacity-0"
+      x-transition:enter-end="opacity-100"
+      x-transition:leave="opacity-100"
+      x-transition:leave-end="opacity-0"
     />
-    <div class="absolute bottom-6 left-6 text-white flex items-center gap-3 text-3xl font-bold">
-      <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2C6.477 2 2 6.477 2 12h2a8 8 0 1113.535 5.535L16 20a10 10 0 10-4-18z" />
-      </svg>
-      TURO-MOKO
-    </div>
+  </template>
+
+  <!-- Logo -->
+  <div class="absolute bottom-6 left-6 flex items-center gap-3">
+    <img src="/images/turo_moko_logo_white.png" alt="Turo-Moko Logo" class="w-10 h-10 object-contain" />
+    <span class="text-white text-3xl font-bold">TURO-MOKO</span>
   </div>
+</div>
 
   <!-- Right side: Form -->
   <div class="w-full md:w-1/2 flex items-center justify-center bg-white">
     <div class="w-full max-w-sm px-6">
       <h2 class="text-2xl font-bold mb-1 text-center">Welcome!</h2>
       <p class="text-sm text-gray-600 text-center mb-6">Register to continue.</p>
+
+      <!-- Role Switch -->
+      <div class="mb-6">
+        <div class="flex bg-gray-100 rounded-lg overflow-hidden text-sm font-medium">
+          <button
+            @click="role = 'implementor'"
+            :class="role === 'implementor' ? 'bg-orange-500 text-white' : 'text-gray-600 hover:bg-gray-200'"
+            class="flex-1 py-2 text-center"
+          >
+            Implementor
+          </button>
+          <button
+            @click="role = 'learner'"
+            :class="role === 'learner' ? 'bg-orange-500 text-white' : 'text-gray-600 hover:bg-gray-200'"
+            class="flex-1 py-2 text-center"
+          >
+            Learner
+          </button>
+        </div>
+        <input type="hidden" name="role" :value="role">
+      </div>
 
       <!-- Email -->
       <div class="mb-3">
@@ -39,9 +74,7 @@
       <div class="mb-3">
         <label for="phone" class="block text-sm font-medium">Phone Number</label>
         <div class="relative mt-1">
-          <span class="absolute inset-y-0 left-0 flex items-center pl-3">
-            🇵🇭
-          </span>
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3">🇵🇭</span>
           <input
             type="text"
             id="phone"
@@ -84,7 +117,11 @@
       <!-- Login link -->
       <p class="text-sm text-center text-gray-600">
         Already have an account?
-        <a href="#" class="text-black font-semibold hover:underline">Log in here.</a>
+        <!-- Log In Button -->
+      <a href="{{ route('login') }}" 
+        class="text-sm font-medium text-gray-800 hover:text-orange-500">
+        Log In here.
+      </a>
       </p>
     </div>
   </div>

@@ -1,5 +1,10 @@
 import './bootstrap';
 
-import Swal from 'sweetalert2';
+import Alpine from 'alpinejs';
+window.Alpine = Alpine;
+Alpine.start();
 
+import Swal from 'sweetalert2';
 window.Swal = Swal;
+
+import '../css/app.css';

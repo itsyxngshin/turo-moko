@@ -13,6 +13,15 @@ return new class extends Migration
     {
         Schema::create('lessons', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('course_id')->constrained('courses');
+            $table->string('title');
+            $table->string('subtitle')->nullable();
+            $table->text('description')->nullable();
+            $table->enum('status', ['Draft', 'Published', 'Archived'])->default('Draft');
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+            $table->integer('order')->nullable();
+            $table->boolean('visibility')->default(true);
             $table->timestamps();
         });
     }

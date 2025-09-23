@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('program_comments', function (Blueprint $table) {
             $table->id();
+            $table->string('description')->nullable();
+            $table->enum('status', ['active', 'inactive']);
             $table->timestamps();
         });
     }
