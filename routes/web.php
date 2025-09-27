@@ -8,6 +8,11 @@ use App\Http\Livewire\Admin\Modal\ModifyCourse;
 use App\Http\Livewire\Admin\Modal\ModifyUser; // Ensure this class exists in the specified namespace
 use App\Http\Livewire\Admin\Modal\ViewUser;
 use App\Http\Controllers\AuthController; // Ensure this class exists in the specified namespace
+use App\Livewire\Auth\Login;
+use App\Livewire\Auth\Register;
+use App\Livewire\Auth\Logout;
+use App\Livewire\Auth\ForgotPassword;
+use App\Livewire\Auth\ResetPassword;
 
 Route::get('/', function () {
     return view('welcome');
@@ -28,10 +33,7 @@ Route::get('/register', function () {
     return view('livewire.auth.register'); 
         })->name('auth.register');
         
-Route::get('/login', function () {
-        return view('livewire.auth.login');
-        })->name('auth.login');
-
+Route::get('/login', Login::class)->name('auth.login');
 Route::get('/check', function () {
         return view('livewire.auth.verify');
         })->name('auth.verify');

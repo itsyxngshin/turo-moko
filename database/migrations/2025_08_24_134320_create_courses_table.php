@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('implementer_id')->constrained('users');;
             $table->foreignId('organization_id')->nullable()->constrained('organizations');
-            $table->foreignId('category_id')->constrained('categories');
+            $table->foreignId('category_id')->nullable()->constrained('categories');
             $table->foreignId('subcat_id')->nullable()->constrained('subcategories');
             $table->foreignId('cover_photo_id')->nullable()->constrained('photos');
             $table->string('course_title');

@@ -48,7 +48,7 @@ class CourseSeeder extends Seeder
             ],
             [
             'implementer_id' => 3,
-            'organization_id' => 3,
+            'organization_id' => null,
             'category_id' => 3,
             'subcat_id' => null,
             'cover_photo_id' => null,
