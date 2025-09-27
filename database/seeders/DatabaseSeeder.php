@@ -12,20 +12,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create one demo user
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => bcrypt('password'),
-        ]);
-
-        // Create multiple random users
-        User::factory(5)->create();
-
-        // Call other seeders
         $this->call([
+            RoleSeeder::class,
+            UserSeeder::class, // ✅ add this
+            ProfileSeeder::class,
+            OrganizationSeeder::class,
             CourseSeeder::class,
-            ActivitySeeder::class, // ✅ add this
+
         ]);
     }
 }
