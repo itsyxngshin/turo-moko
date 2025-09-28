@@ -33,6 +33,8 @@ Route::get('/login', function () {
     return view('auth.login');   // this is the wrapper blade that mounts @livewire('auth.login')
 })->name('auth.login');
 
+Route::get('/logout', Logout::class)->middleware('auth');
+
 Route::get('/password-reset', function () {
     return view('auth.password-request');   // this is the wrapper blade that mounts @livewire('auth.login')
 })->name('auth.password-request');
