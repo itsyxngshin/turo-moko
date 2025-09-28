@@ -1,5 +1,5 @@
-<?php
-
+<?php 
+ 
 use Illuminate\Support\Facades\Route;
 // Ensure the Verify class is imported or replace it with the correct class
 use App\Livewire\Auth\VerifyEmail; // Add this import at the top if Verify exists in this namespace
@@ -13,29 +13,29 @@ use App\Livewire\Auth\Register;
 use App\Livewire\Auth\Logout;
 use App\Livewire\Auth\ForgotPassword;
 use App\Livewire\Auth\ResetPassword;
+use App\Livewire\Auth\Verify; // Ensure this class exists in the specified namespace
+use App\Livewire\Admin\Dashboard as AdminDashboard;
+use App\Livewire\Learner\Dashboard as LearnerDashboard;
+use App\Livewire\Implementer\Dashboard as ImplementerDashboard;
+// -----------------------------
+// Public Pages
+// -----------------------------
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/test-login', function () {
-    return view('login');
-});
-
-Route::get('/signup', function () {
-    return view('signup');
-});
-
-// -----------------------------
-// Public Pages
-// -----------------------------
 Route::get('/register', function () {
     return view('auth.register'); 
         })->name('auth.register');
         
 Route::get('/login', function () {
     return view('auth.login');   // this is the wrapper blade that mounts @livewire('auth.login')
-})->name('login');
+})->name('auth.login');
+
+Route::get('/password-reset', function () {
+    return view('auth.password-request');   // this is the wrapper blade that mounts @livewire('auth.login')
+})->name('auth.password-request');
 
 Route::get('/check', function () {
         return view('livewire.auth.verify');
@@ -43,39 +43,12 @@ Route::get('/check', function () {
 
 Route::get('/verify-email', VerifyEmail::class)->name('auth.verify'); 
 
-// -----------------------------
-// Learner Pages
-// -----------------------------
-
-Route::prefix('learner')->group(function () {
-    Route::get('/hub', function () {
-        return view('livewire.learner.dashboard');
-        })->name('learner.hub');
-
-    Route::get('/profile', function () {
-        return view('livewire.learner.profile');
-        })->name('learner.profile');
-    
-    Route::get('/classes', function () {
-        return view('livewire.learner.classes');
-        })->name('learner.classes');
-    
-    Route::get('/enrolled', fn() => view('livewire.learner.enrolled'))->name('learner.enrolled');
-    Route::get('/activity', fn() => view('livewire.learner.activities'))->name('learner.activity');
-    Route::get('/course', fn() => view('livewire.learner.course'))->name('learner.course');
-    Route::get('/activitytest', fn() => view('livewire.learner.activitytest'))->name('learner.activitytest');
-    Route::get('/submission', fn() => view('livewire.learner.submission'))->name('learner.submission');
-    Route::get('/assessment', fn() => view('livewire.learner.assessment'))->name('learner.assessment');
-    Route::get('/evaluation', fn() => view('livewire.learner.evaluation'))->name('learner.evaluation');
-    Route::get('/settings', fn() => view('livewire.learner.settings'))->name('learner.settings');
-});
-
 
 // -----------------------------
 // Admin Pages
 // -----------------------------
 
-        /*
+/*
     //Route::get('/add-course', [AddCourse::class, 'create'])->name('addcourse');
     //Route::post('/add-course', [AddCourse::class, 'store'])->name('course.store'); 
     Route::get('/update-course', [ModifyCourse::class, 'edit'])->name('updatecourse');
@@ -84,11 +57,35 @@ Route::prefix('learner')->group(function () {
     Route::put('/update-user', [ModifyUser::class, 'update'])->name('user.update');
     Route::get('/view-user', [ViewUser::class, 'render'])->name('review');
 
-    */
-
+*/
 
 Route::middleware(['auth', 'role:learner'])->group(function () {
-        //LINK THE BLADES EXCLUSIVE FOR THE LEARNER SIDE
+ // -----------------------------
+// Learner Pages
+// -----------------------------
+
+    Route::prefix('learner')->group(function () {
+        Route::get('/hub', function () {
+            return view('livewire.learner.dashboard');
+            })->name('learner.hub');
+
+        Route::get('/profile', function () {
+            return view('livewire.learner.profile');
+            })->name('learner.profile');
+        
+        Route::get('/classes', function () {
+            return view('livewire.learner.classes');
+            })->name('learner.classes');
+        
+        Route::get('/enrolled', fn() => view('livewire.learner.enrolled'))->name('learner.enrolled');
+        Route::get('/activity', fn() => view('livewire.learner.activities'))->name('learner.activity');
+        Route::get('/course', fn() => view('livewire.learner.course'))->name('learner.course');
+        Route::get('/activitytest', fn() => view('livewire.learner.activitytest'))->name('learner.activitytest');
+        Route::get('/submission', fn() => view('livewire.learner.submission'))->name('learner.submission');
+        Route::get('/assessment', fn() => view('livewire.learner.assessment'))->name('learner.assessment');
+        Route::get('/evaluation', fn() => view('livewire.learner.evaluation'))->name('learner.evaluation');
+        Route::get('/settings', fn() => view('livewire.learner.settings'))->name('learner.settings');
+        });
     }); 
     
 Route::middleware(['auth', 'role:admin'])->group(function () {
@@ -116,7 +113,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     });
 }); 
     
-    Route::middleware(['auth', 'role:implementer'])->group(function () {
+Route::middleware(['auth', 'role:implementer'])->group(function () {
         //LINK THE BLADES EXCLUSIVE FOR THE TEACHER/IMPLEMENTER SIDE
         }); 
 
