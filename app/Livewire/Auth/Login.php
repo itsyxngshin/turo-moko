@@ -38,6 +38,7 @@ class Login extends Component
                 };
 
                 session()->flash('success', 'Login successful!');
+                $this->dispatchBrowserEvent('swal:success', ['message' => 'Login successful!']);
                 return $this->redirect($redirect); // Livewire-friendly redirect
             }
             $this->addError('email', 'The provided credentials do not match our records.');
