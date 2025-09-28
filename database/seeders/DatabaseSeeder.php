@@ -16,8 +16,8 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             CategorySeeder::class, 
             SubcategorySeeder::class,
-            UserSeeder::class, // ✅ add this
             ProfileSeeder::class,
+            UserSeeder::class, // ✅ add this
             OrganizationSeeder::class,
             CourseSeeder::class,
 
