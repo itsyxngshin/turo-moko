@@ -10,11 +10,16 @@ class Profile extends Model
 {
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->hasOne(User::class);
     }
 
     public function portfolioSets()
     {
         return $this->hasMany(PortfolioSet::class);
+    }
+
+    public function photo()
+    {
+        return $this->belongsTo(Photo::class);
     }
 }
