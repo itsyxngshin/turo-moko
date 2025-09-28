@@ -36,9 +36,8 @@ class Login extends Component
                     'implementer' => route('implementer.hub'),
                     default => route('homepage'),
                 };
-
+                //$this->dispatchBrowserEvent('swal:success', ['message' => 'Login successful!']);
                 session()->flash('success', 'Login successful!');
-                $this->dispatchBrowserEvent('swal:success', ['message' => 'Login successful!']);
                 return $this->redirect($redirect); // Livewire-friendly redirect
             }
             $this->addError('email', 'The provided credentials do not match our records.');

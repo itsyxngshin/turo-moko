@@ -55,7 +55,7 @@
     <div class="flex items-center gap-4 relative">
         @auth
             <!-- Logged-in User -->
-            <div x-data="{ open: false }" class="relative">
+            <div x-data="{ open: false }" class="relative text-orange-500 border border-orange-600 shadow-md px-4 py-3 rounded-lg">
                 <!-- User Info Button -->
                 <button @click="open = !open" class="flex items-center gap-3 focus:outline-none">
                     <!-- User Photo -->
@@ -69,8 +69,8 @@
 
                     <!-- Name & Role -->
                     <div class="hidden md:flex flex-col items-start">
-                        <span class="text-sm font-semibold text-gray-800">{{ Auth::user()->name }}</span>
-                        <span class="text-xs text-gray-500">{{ Auth::user()->role->name ?? 'User' }}</span>
+                        <span class="text-sm font-semibold text-gray-800 hover:text-orange-500">{{ Auth::user()->profile->first_name }} {{ Auth::user()->profile->last_name }}</span>
+                        <span class="text-xs text-gray-500">{{ Auth::user()->role->role_name ?? 'User' }}</span>
                     </div>
                 </button>
 
@@ -78,18 +78,15 @@
                 <div x-show="open"
                     @click.away="open = false"
                     class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50">
-                    <a href="{{ route('profile.show') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Profile
                     </a>
-                    <a href="{{ route('dashboard') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Dashboard
                     </a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            Logout
-                        </button>
-                    </form>
+
+                    @livewire('auth.logout')
                 </div>
             </div>
         @else
