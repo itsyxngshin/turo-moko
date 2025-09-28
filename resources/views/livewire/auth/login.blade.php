@@ -1,66 +1,76 @@
-@extends('layouts.main') 
-
-@section('title', 'Login')
-
-@section('content')
-<div class="h-screen w-screen flex overflow-hidden">
-  <!-- Left: Image Section -->
-  <div class="w-1/2 h-full relative"
-     x-data="{ 
-         images: [@js(asset('images/cover.jpg')), @js(asset('images/cover7.jpg')), @js(asset('images/cover3.jpg'))], 
-         index: 0 
-     }"
-     x-init="setInterval(() => { index = (index + 1) % images.length }, 5000)">
-    
-      <template x-for="(image, i) in images" :key="i">
-        <img 
-          :src="image" 
-          class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out brightness-50"
-          x-show="index === i"
-          x-transition
-        />
-      </template>
-
-        <div class="absolute bottom-6 left-6 text-white text-3xl font-bold flex items-center gap-2">
-            <img src="{{ asset('images/turo_moko_logo_white.png') }}" alt="Logo" class="w-10 h-10 object-contain">
-            <span class="tracking-wide">TURO-MOKO</span>
-        </div>
-  </div>
-  <!-- Right: Login Form Section -->
-  <div class="w-1/2 flex items-center justify-center bg-white">
-    <div class="w-full max-w-sm px-6">
+<div class="w-full max-w-sm px-6">
       <h2 class="text-2xl font-bold mb-1 text-center">Welcome back!</h2>
       <p class="text-gray-600 mb-6 text-center">Login to continue</p>
+
       <form wire:submit.prevent="login">
+        @csrf
         <!-- Email Input -->
         <div class="mb-4">
           <label class="block text-sm mb-1" for="email">Email</label>
-          <input type="email" wire:model="email" id="email" placeholder="Enter your email here" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400" />
+          <input type="email" 
+                 wire:model="email" 
+                 id="email" 
+                 placeholder="Enter your email here" 
+                 class=" w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400" />
+          @error('email')
+                <div 
+                    x-show="showError" 
+                    x-transition 
+                    class="p-3 rounded-md border border-red-500 bg-red-100 text-red-700 text-sm"
+                >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.662 1.732-3L13.732 4c-.77-1.338-2.694-1.338-3.464 0L4.34 16c-.77 1.338.192 3 1.732 3z"/>
+                </svg>
+                <span>{{ $message }} </span> 
+                </div>
+            @enderror
         </div>
 
-        <!-- Password Input -->
+        <!-- Password Input with Alpine toggle -->
         <div class="mb-4">
-          <label class="block text-sm mb-1">Password</label>
-            <input :type="showPassword ? 'text' : 'password'"
-                   wire:model="password"
-                   placeholder="Enter your password here" 
-                   class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400" >
-            @error('password') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+          <label class="block text-sm mb-1" for="password">Password</label>
+          <input type="password"
+                id="password"
+                wire:model="password"
+                placeholder="Enter password"
+                class="w-full px-4 py-2 border rounded-md">
+
+          <div 
+            x-data="{ showError: @entangle('showError').defer }" 
+            class="mt-2"
+            >
+            @error('password')
+                <div 
+                    x-show="showError" 
+                    x-transition 
+                    class="p-3 rounded-md border border-red-500 bg-red-100 text-red-700 text-sm"
+                >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.662 1.732-3L13.732 4c-.77-1.338-2.694-1.338-3.464 0L4.34 16c-.77 1.338.192 3 1.732 3z"/>
+                </svg>
+                <span>{{ $message }} </span> 
+                </div>
+            @enderror
+          </div>
         </div>
 
         <!-- Remember me -->
         <div class="flex items-center justify-between mb-4">
-          <label class="flex items-center gap-2">
+          <label class="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" 
-                  class="accent-orange-500"
+                  class="rounded-sm accent-orange-500 focus:ring-1 focus:ring-orange-400"
                   wire:model="remember" />
             <span class="text-sm">Remember me</span>
           </label>
-          <a href="#" class="text-sm text-gray-500 hover:underline">Forgot Password?</a>
+
+          <a href="#" 
+             class="text-sm text-gray-500 hover:underline">Forgot Password?</a>
         </div>
 
         <!-- Login Button -->
-        <button  type="submit"
+        <button type="submit"
               class="w-full bg-orange-500 text-white py-2 rounded-md hover:bg-orange-600 mb-4">Login
         </button>
 
@@ -80,14 +90,10 @@
         <!-- Sign up link -->
         <p class="text-sm text-center mt-6 text-gray-600">
           Don’t have an account?
-          <!-- Sign Up Button -->
           <a href="{{ route('auth.register') }}" 
-            class=" text-sm font-medium text-gray-800 hover:text-orange-500">
+            class="text-sm font-medium text-gray-800 hover:text-orange-500">
             Sign Up here.
           </a>
         </p>
       </form>
-    </div>
-  </div>
 </div>
-@endsection

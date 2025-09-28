@@ -9,36 +9,47 @@ use App\Models\User;
 class Login extends Component
 {
     public $email;
-    public $password;
+    public $password = '';
     public $remember = false;
-
-    protected $rules = [
+    public $showError = false;
+    public function login(){
+    $this->validate([
         'email' => 'required|email',
-        'password' => 'required|min:6',
-    ];
+        'password' => 'required|string|min:6',
+    ]);
 
-    public function login()
-    {
-        $this->validate();
-
+    try {
         if (Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
-            $user = User::where('id', Auth::id())->with('role')->first(); // Eager-load 'role'
+                request()->session()->regenerate();
 
-            if (!$user->role) {
-                return back()->with('error', 'No role assigned to user.');
+                $user = User::with('role')->find(Auth::id());
+
+                if (!$user || !$user->role) {
+                    $this->addError('email', 'No role assigned to user.');
+                    Auth::logout();
+                    return;
+                }
+
+                $redirect = match ($user->role->role_name) {
+                    'admin' => route('admin.hub'),
+                    'learner' => route('learner.hub'),
+                    'implementer' => route('implementer.hub'),
+                    default => route('homepage'),
+                };
+
+                session()->flash('success', 'Login successful!');
+                return $this->redirect($redirect); // Livewire-friendly redirect
             }
-        
-            $redirect = match($user->role->role_name) {
-                'admin' => route('admin.hub'),
-                'learner' => route('learner.hub'),
-                'implementer' => route('implementer.hub'),
-                default => route('homepage'),
-            };
-            return redirect($redirect)->with('success', 'Login successful!');
+            $this->addError('email', 'The provided credentials do not match our records.');
+            $this->showError = true;
+            return;
         }
 
-        $this->addError('email', 'Invalid email or password.');
-        return back()->with('error', 'Invalid credentials. Please try again.');
+    catch (\Exception $e) {
+        $this->addError('password', 'Something went wrong. Please try again.');
+        $this->showError = true;
+        return;
+        }    
     }
 
     public function render()
