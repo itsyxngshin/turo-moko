@@ -12,6 +12,7 @@ use App\Http\Controllers\AuthController; // Ensure this class exists in the spec
 
 use App\Http\Controllers\Implementors\ImplementorDashboardController;
 use App\Http\Controllers\Implementors\ImplementorCourseInformationController;
+use App\Http\Controllers\Implementors\ImplementorAddAnnouncementController;
 use App\Http\Controllers\CourseController;
 
 
@@ -89,6 +90,9 @@ Route::prefix('implementor')->name('implementor.')->group(function () {
     Route::get('/allcourses', function () {
         return view('livewire.implementors.all-courses');
     })->name('allcourses)');
+    Route::get('/create-announcement', [ImplementorAddAnnouncementController::class, 'show'])
+         ->name('add-announcement');
+
     
     Route::get('/courses/create', [CourseController::class, 'create'])->name('courses.create');
     Route::post('/courses', [CourseController::class, 'store'])->name('courses.store');

@@ -73,11 +73,15 @@
             <div class="bg-white rounded-lg shadow-md border overflow-hidden">
                 <!-- Thumbnail -->
                 @if($course->activeCoverPhoto)
-                    <img src="{{ asset('storage/' . $course->activeCoverPhoto->path) }}"
-                        alt="Course Cover"
-                        class="w-full h-40 object-cover">
+                 <img 
+                    src="{{ $course->activeCoverPhoto 
+                            ? asset('storage/' . $course->activeCoverPhoto->path) 
+                            : asset('implementor/thumbnail.jpg') }}" 
+                    alt="Course Cover"
+                    class="w-full h-40 object-cover">
+
                 @else
-                    <img src="{{ asset('images/default-course.jpg') }}"
+                    <img src="{{ asset('implementor/thumbnail.jpg') }}"
                         alt="Default Cover"
                         class="w-full h-40 object-cover">
                 @endif

@@ -11,48 +11,44 @@ use App\Models\Resource;
 use App\Models\User;
 use App\Models\ProgramEvaluation;
 use App\Models\Quiz;
-use App\Models\Engagement;
+use App\Models\Announcement;
 
 class ImplementorCourseInformationController extends Controller
 {
     
     public function show($courseId)
-    {
-        // Get the logged-in implementor
-        //$implementor = auth()->user();
+{
+    // Get the logged-in implementor (for now still hardcoded as ID 2)
+    $implementor = User::where('id', 2)->where('role_id', 2)->first();
 
-         $implementor = User::where('id', 2)->where('role_id', 2)->first();
-
-       // if (!$implementor) {
-        //    return redirect()->route('login')->with('error', 'Please log in.');
-        //}
-
-        //Fetch the course only if it belongs to this implementor
-        $course = Course::where('id', $courseId)
+    // Fetch the course only if it belongs to this implementor
+    $course = Course::where('id', $courseId)
         ->where('implementer_id', $implementor->id)
         ->firstOrFail();
 
+    // Fetch related modules, assignments, etc.
+    $courseIds = Course::where('implementer_id', $implementor->id)
+        ->pluck('id');
 
-        // Fetch related modules, assignments, and resources
-       // Assuming courses table has implementor_id
-$courseIds = Course::where('implementer_id', auth()->id())
-    ->pluck('id');
+    $announcements = Announcement::whereIn('course_id', $courseIds)
+        ->orderBy('created_at', 'desc')
+        ->get();
 
-$announcements = Engagement::whereIn('course_id', $courseIds)
-    ->orderBy('created_at', 'desc')
-    ->get();
+    $modules = Module::where('lesson_id', $course->id)->get();
+    $assignments = Assignment::where('lesson_id', $course->id)->get();
+    $evaluations = ProgramEvaluation::where('course_id', $course->id)->get();
+    $quiz = Quiz::where('course_id', $course->id)->get();
 
+    // Always pass both course and courseId to the Blade
+    return view('livewire.implementors.implementor-course-details', [
+        'course'       => $course,
+        'courseId'     => $course->id,
+        'modules'      => $modules,
+        'assignments'  => $assignments,
+        'evaluations'  => $evaluations,
+        'quiz'         => $quiz,
+        'announcements'=> $announcements,
+    ]);
+}
 
-
-        $modules = Module::where('lesson_id', $course->id)->get();
-        $assignments = Assignment::where('lesson_id', $course->id)->get();
-        $evaluations = ProgramEvaluation::where('course_id', $course->id)->get();
-        $quiz = Quiz::where('course_id', $course->id)->get();
-//$resources = Resource::where('course_id', $course->id)->get();
-
-       return view('livewire.implementors.implementor-course-details', compact(
-    'course', 'modules', 'assignments', 'evaluations', 'quiz', 'announcements',
-));
-
-    }
 }

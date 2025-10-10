@@ -16,7 +16,9 @@
 
             <!-- Bottom-right container -->
             <div class="flex justify-end gap-x-2 mt-auto mb-3">
-                 @livewire('modals.implementor.edit-course', ['courseId' => $course->id], key($course->id))
+             @livewire('modals.implementor.add-resource', ['courseId' => $course->id], key('add-resource-' . $course->id))
+
+
             </div>
         </div>
 
