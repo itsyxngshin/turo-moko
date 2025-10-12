@@ -73,5 +73,14 @@
         </div>
       </div>
     </section>
+    
+    <button 
+    wire:click="$emit('openFeedbackModal', 1)" 
+    class="mt-8 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+>
+    Test Feedback Modal
+</button>
+
+    @livewire('learner.course-feedback-modal')
 </div>
 @endsection
