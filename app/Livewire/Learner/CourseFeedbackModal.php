@@ -8,16 +8,20 @@ use Illuminate\Support\Facades\Auth;
 
 class CourseFeedbackModal extends Component
 {
-    public $showModal = false;
+    // TODO: This modal should be triggered from the course completion page
+    // Example: $this->dispatch('openFeedbackModal', courseId: $courseId);
+    // Set $showModal = false by default when integrated
+    public $showModal = true; // Currently true for testing only
     public $courseId;
+    public $feedbackSubmitted = false;
 
-    // Listen for event from the frontend when modal should open
     protected $listeners = ['openFeedbackModal' => 'openModal'];
 
     public function openModal($courseId)
     {
         $this->courseId = $courseId;
         $this->showModal = true;
+        $this->feedbackSubmitted = false;
     }
 
     public function closeModal()
@@ -25,12 +29,8 @@ class CourseFeedbackModal extends Component
         $this->showModal = false;
     }
 
-    /**
-     * Handles feedback submission from Alpine.js
-     */
     public function submitFeedback($ratings, $comment)
     {
-        // Basic validation
         if (!$this->courseId || empty($ratings)) {
             return;
         }
@@ -45,11 +45,11 @@ class CourseFeedbackModal extends Component
             'comment' => $comment ?? null,
         ]);
 
-        // Notify frontend and close modal
-        $this->dispatch('feedbackSubmitted');
-        $this->closeModal();
+        // Show success message
+        $this->feedbackSubmitted = true;
 
-        session()->flash('message', 'Thank you for your feedback!');
+        // Hide modal after 2 seconds
+        $this->dispatchBrowserEvent('feedback-submitted'); 
     }
 
     public function render()

@@ -39,20 +39,20 @@
         </main>
     </div>
 
-    <!-- Alpine.js -->
-    <script src="//unpkg.com/alpinejs" defer></script>
-
     <!-- Lucide Init + Livewire Hook -->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             lucide.createIcons();
         });
 
-        document.addEventListener("livewire:load", () => {
+        // Livewire 3 syntax
+        document.addEventListener('livewire:navigated', () => {
             lucide.createIcons();
-
-            // Re-render Lucide icons whenever Livewire updates DOM
-            Livewire.hook("morph.updated", () => lucide.createIcons());
+        });
+        
+        // Also reinitialize after any Livewire updates
+        Livewire.hook('morph.updated', ({ el, component }) => {
+            lucide.createIcons();
         });
     </script>
 
