@@ -8,6 +8,11 @@ use App\Http\Livewire\Admin\Modal\ModifyCourse;
 use App\Http\Livewire\Admin\Modal\ModifyUser; // Ensure this class exists in the specified namespace
 use App\Http\Livewire\Admin\Modal\ViewUser;
 use App\Http\Controllers\AuthController; // Ensure this class exists in the specified namespace
+use App\Livewire\Learner\Assessment;
+
+Route::get('/learner/assessment', Assessment::class)->name('learner.assessment');
+
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -63,6 +68,9 @@ Route::prefix('learner')->group(function () {
     Route::get('/assessment', fn() => view('livewire.learner.assessment'))->name('learner.assessment');
     Route::get('/evaluation', fn() => view('livewire.learner.evaluation'))->name('learner.evaluation');
     Route::get('/settings', fn() => view('livewire.learner.settings'))->name('learner.settings');
+    Route::get('/chat', fn() => view('livewire.learner.chat'))->name('learner.chat');
+    Route::get('/messages', fn() => view('livewire.learner.messages'))->name('learner.messages');
+    
 });
 
 

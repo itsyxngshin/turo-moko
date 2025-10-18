@@ -26,23 +26,12 @@
         }
     </script>
 </head>
-<body class="bg-gray-50 font-sans">
-    <div class="flex h-screen">
-        
-        <!-- Sidebar Component -->
-        <x-sidebar />
-
-        <!-- Main Section -->
-        <div class="flex-1 flex flex-col">
-            
-            <!-- Navbar Component -->
-            <x-navbar />
-
-            <!-- Page Content -->
-            <main class="p-6">
-                @yield('content')
-            </main>
-        </div>
+<body class="bg-gray-50 font-sans m-0 p-0">
+    <div class="flex flex-col min-h-screen w-full overflow-x-hidden">
+        <!-- Page Content -->
+        <main class="@yield('main_class', 'flex-1 w-full overflow-y-auto')">
+            @yield('content')
+        </main>
     </div>
 
     <!-- Init Lucide -->

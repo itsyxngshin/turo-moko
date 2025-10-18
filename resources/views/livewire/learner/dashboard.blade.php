@@ -1,5 +1,6 @@
-@extends('layouts.layout2')  
+@extends('layouts.layout')  
 
+@section('main_class', 'p-6') 
 @section('content')
 <div>
     <!-- Banner -->

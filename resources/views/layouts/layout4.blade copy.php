@@ -34,10 +34,10 @@
 
         <!-- Main Section -->
         <div class="flex-1 flex flex-col h-full pt-5">
-            <!-- Top Bar: Name + Navbar -->
+            <!-- Top Bar: Name + Navbar2 -->
             <div class="flex justify-between items-center h-[60px] w-full">
                 <x-namelayout />
-                <x-navbar />
+                <x-navbar2 />
             </div>
 
             <!-- Page Content -->
