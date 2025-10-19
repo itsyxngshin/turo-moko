@@ -11,9 +11,10 @@ class Announcement extends Model
 
     protected $fillable = [
         'course_id',
+        'user_id',
         'title',
-        'body',
-        'created_by',
+        'content',
+        
     ];
 
     /**
@@ -26,9 +27,14 @@ class Announcement extends Model
     return $this->belongsTo(Course::class, 'course_id');
 }
 
+public function attachments()
+    {
+        return $this->hasMany(AnnouncementAttachment::class);
+    }
+
     // Announcement was created by a user
     public function user()
     {
-        return $this->belongsTo(User::class, 'id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

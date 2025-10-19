@@ -14,12 +14,7 @@
             <p class="max-w-2xl mb-4">
                 {{ $course->background ?? '--'}}           </p>
 
-            <!-- Bottom-right container -->
-            <div class="flex justify-end gap-x-2 mt-auto mb-3">
-             @livewire('modals.implementor.add-resource', ['courseId' => $course->id], key('add-resource-' . $course->id))
-
-
-            </div>
+            
         </div>
 
             
@@ -98,16 +93,186 @@
 
 
                 @foreach($announcements as $announcement)
-                    <div class="bg-white p-4 rounded-lg shadow mb-4">
-                        <h3 class="font-semibold">{{ $announcement->title }}</h3>
-                        <p class="text-gray-600">{{ $announcement->description }}</p>
-                        <span class="text-sm text-gray-400">{{ $announcement->created_at->diffForHumans() }}</span>
+                <div x-data="{ open:false,
+    confirmDelete(id) {
+        window.dispatchEvent(new CustomEvent('confirm-delete', { detail: { id } }))
+    }
+}"
+  x-transition
+                    x-cloak
+                    class="mb-4">
+                    <!-- Clickable announcement -->
+                    <div 
+                        class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer"
+                        @click="open = true"
+                    >
+                        <div class=" m-auto">
+                            
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 ml-5 mr-10 text-blue-500 mb-2" viewBox="0 0 48 48" fill="currentColor"> <path fill-rule="evenodd" d="M33 18.535c1.163.348 2 .465 2 .465v-3h2a5 5 0 0 0 0-10h-5.764A5.236 5.236 0 0 0 26 11.236c0 4.518 4.348 6.506 7 7.299M40 11a3 3 0 0 1-3 3h-4v2.435a13 13 0 0 1-1.603-.667C29.414 14.774 28 13.36 28 11.236A3.236 3.236 0 0 1 31.236 8H37a3 3 0 0 1 3 3m-25.183 6.993A4.998 4.998 0 0 1 14.998 8h3.169A4.833 4.833 0 0 1 23 12.833c0 4.042-3.63 5.89-6 6.667c-1.148.376-2 .5-2 .5v-2zM17 16.071l-2.11-.076A2.998 2.998 0 0 1 14.997 10h3.169A2.833 2.833 0 0 1 21 12.833c0 1.915-1.217 3.17-2.924 4.06c-.36.188-.725.348-1.076.484zM28 24c0 2.21-1.79 4-4 4s-4-1.79-4-4s1.79-4 4-4s4 1.79 4 4m-2 0a1.999 1.999 0 1 1-4 0a1.999 1.999 0 1 1 4 0m-7 2c0 2.21-1.79 4-4 4s-4-1.79-4-4s1.79-4 4-4s4 1.79 4 4m-2 0a1.999 1.999 0 1 1-4 0a1.999 1.999 0 1 1 4 0M6 36.546C6 33.522 11.996 32 15 32c.585 0 1.284.058 2.03.173C18.371 31.19 20.827 30 24 30s5.629 1.19 6.971 2.173A13.6 13.6 0 0 1 33 32c3.004 0 9 1.523 9 4.545V42H6zm15.652-.523c.348.324.348.493.348.522V40H8v-3.455c0-.03 0-.198.348-.522c.363-.339.962-.7 1.776-1.03C11.756 34.333 13.75 34 15 34s3.244.333 4.876.993c.814.33 1.413.691 1.776 1.03m6.49-3.167A10.4 10.4 0 0 0 24 32c-1.656 0-3.064.386-4.141.856C22.074 33.6 24 34.832 24 36.546c0-1.714 1.926-2.945 4.142-3.69M40 36.546c0-.03 0-.199-.348-.523c-.363-.339-.962-.7-1.776-1.03C36.244 34.333 34.25 34 33 34s-3.244.333-4.876.993c-.814.33-1.413.691-1.776 1.03c-.348.324-.348.493-.348.522V40h14zM33 30c2.21 0 4-1.79 4-4s-1.79-4-4-4s-4 1.79-4 4s1.79 4 4 4m0-2a1.999 1.999 0 1 0 0-4a1.999 1.999 0 1 0 0 4" clip-rule="evenodd"/> </svg>
+
+                        </div>
+                        
+                        <div class="flex-1 text-left">
+                            <h3 class="font-semibold">{{ $announcement->title }}</h3>
+                            <span class="text-sm text-gray-400">{{ $announcement->created_at->diffForHumans() }}</span>
+                            
+                        </div>
+                        <div class="m-auto">
+                             <span class="text-sm text-gray-400">{{ $announcement->created_at->format('F j, Y') }}</span>
+                        </div>
                     </div>
-                @endforeach
+
+                    <!-- Modal -->
+                    <div 
+                        x-show="open" 
+                        x-transition
+                        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+                    >
+                        <div class="bg-white rounded-lg w-11/12 md:w-2/3 max-h-[90vh] overflow-auto p-6 relative">
+                            
+                        
+                            <div class="flex border-b pb-2">
+                                <!-- User profile -->
+                                <img 
+                                    src="{{ $announcement->user && $announcement->user->profile_picture 
+                                            ? asset('storage/' . $announcement->user->profile_picture) 
+                                            : asset('implementor/course/thumbnail.png') }}" 
+                                    alt="User Profile" 
+                                    class="w-10 h-10 rounded-full mt-1"
+                                />
+                                 <!--User Name-->
+                                <h3 class="my-auto ml-2 ">{{ $announcement->user->name ?? '--' }}</h3>
+                                
+                               
+                            <!-- Three-dot button at top-right -->
+                            <div x-data="{ open: false }" class="absolute top-7 right-14 ">
+                                <button @click="open = !open" class="p-2 rounded-full hover:bg-gray-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                                        <path fill="currentColor" d="M7 12a2 2 0 1 1-4 0a2 2 0 0 1 4 0m7 0a2 2 0 1 1-4 0a2 2 0 0 1 4 0m7 0a2 2 0 1 1-4 0a2 2 0 0 1 4 0"/>
+                                    </svg>
+                                </button>
+
+                                <!-- Dropdown menu -->
+                                <div x-show="open" @click.outside="open = false" 
+                                    x-transition 
+                                    class="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg z-50">
+                                   @livewire('modals.implementor.edit-announcement', [
+                                        'courseId' => $courseId,
+                                        'announcementId' => $announcement->id
+                                    ], key('edit-announcement-' . $announcement->id))
+
+                                    @livewire('implementors.delete-announcement', [
+                                        'courseId' => $courseId,
+                                        'announcementId' => $announcement->id
+                                    ], key('delete-announcement-' . $announcement->id))
+
+                                </div>
+                           
+
+                                </div>
+                                <!-- Close Button -->
+                                <button @click="open = false" class="absolute top-8 right-7 text-gray-600 hover:text-gray-800 text-xl">&times;</button>
+                        
+                            </div>
+
+
+
+
+
+                        <h2 class="text-xl font-bold mt-4 mb-4">{{ $announcement->title }}</h2>
+                        <p class="mb-4">{{ $announcement->content }}</p>
+
+                        <!-- Attachments -->
+                        @if($announcement->attachments->count() > 0)
+                        <div class="flex flex-wrap gap-3">
+                            @foreach($announcement->attachments as $attachment)
+                                @php
+                                    $ext = strtolower(pathinfo($attachment->file_path, PATHINFO_EXTENSION));
+                                    $isImage = in_array($ext, ['jpg','jpeg','png','gif','webp']);
+                                    $isPDF   = $ext === 'pdf';
+                                    $isVideo = in_array($ext, ['mp4','webm','mov','avi']);
+                                    $isWord  = in_array($ext, ['doc','docx']);
+                                    $isExcel = in_array($ext, ['xls','xlsx']);
+                                    $fileUrl = asset('storage/' . $attachment->file_path);
+                                @endphp
+
+                                <a href="{{ $fileUrl }}" target="_blank" class="flex flex-col items-center justify-center w-28 border rounded-md p-2 hover:bg-gray-100">
+                                    @if($isImage)
+                                        <img src="{{ $fileUrl }}" 
+                                            alt="Attachment" 
+                                            class="w-24 h-24 object-cover rounded-md border mb-1">
+                                    @elseif($isPDF)
+                                        <canvas class="w-24 h-24 mb-1 pdf-thumbnail" data-pdf="{{ $fileUrl }}"></canvas>
+                                    @elseif($isVideo)
+                                        <video class="w-24 h-24 object-cover rounded-md border mb-1" muted>
+                                            <source src="{{ $fileUrl }}" type="video/{{ $ext }}">
+                                        </video>
+                                    @elseif($isWord)
+                                        <div class="flex flex-col items-center justify-center w-24 h-24 border rounded-md p-2 mb-1 text-center">
+                                            <span class="text-4xl">📄</span>
+                                            <p class="text-xs mt-1">Word</p>
+                                        </div>
+                                    @elseif($isExcel)
+                                        <div class="flex flex-col items-center justify-center w-24 h-24 border rounded-md p-2 mb-1 text-center">
+                                            <span class="text-4xl">📊</span>
+                                            <p class="text-xs mt-1">Excel</p>
+                                        </div>
+                                    @else
+                                        <div class="flex flex-col items-center justify-center w-24 h-24 border rounded-md p-2 mb-1 text-center">
+                                            <span class="text-4xl">📄</span>
+                                            <p class="text-xs mt-1">File</p>
+                                        </div>
+                                    @endif
+
+                                    <p class="text-xs text-center truncate w-full">
+                                        {{ $attachment->original_name ?? basename($attachment->file_path) }}
+                                    </p>
+                                </a>
+                            @endforeach
+
+                        
+                        </div>
+                        <span class="text-sm text-gray-400">{{ $announcement->created_at->diffForHumans() }}</span>
+                        @endif
+            
+            
+                    </div>
+
+
+        
+        
+    </div>
+</div>
+@endforeach
+
+
+                    
+
+
 
             </div>
         </div>
     
   
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.7.107/pdf.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const canvases = document.querySelectorAll(".pdf-thumbnail");
+    canvases.forEach(canvas => {
+        const url = canvas.dataset.pdf;
+        const ctx = canvas.getContext("2d");
+
+        pdfjsLib.getDocument(url).promise.then(pdfDoc => {
+            pdfDoc.getPage(1).then(page => {
+                const viewport = page.getViewport({ scale: 0.25 });
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                page.render({ canvasContext: ctx, viewport: viewport });
+            });
+        }).catch(err => console.error("PDF render error:", err));
+    });
+});
+</script>
+
 @endsection

@@ -12,6 +12,8 @@ class ImplementorCourseDetails extends Component
     {
         $this->courseId = $courseId;
     }
+
+    
     
     public function render()
     {

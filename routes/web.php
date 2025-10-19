@@ -82,7 +82,8 @@ Route::prefix('implementor')->name('implementor.')->group(function () {
         ->name('dashboard');
     Route::get('/course-information/{course}', [ImplementorCourseInformationController::class, 'show'])
          ->name('course-information');
-
+Route::delete('/implementor/announcement/{id}', [ImplementorCourseInformationController::class, 'deleteAnnouncement'])
+    ->name('implementor.announcement.delete');
         
     Route::get('/myprofile', function () {
         return view('livewire.implementors.teacher-profile');

@@ -67,6 +67,10 @@ class Course extends Model
     return $this->hasMany(Engagement::class, 'course_id');
 }
 
+ public function announcements()
+    {
+        return $this->hasMany(Announcement::class);
+    }
     
     public function activeCoverPhoto()
     {
