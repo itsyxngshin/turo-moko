@@ -7,13 +7,15 @@ use Livewire\Component;
 
 class Logout extends Component
 {
+     protected $listeners = ['logoutConfirmed' => 'logout'];
+
     public function logout()
     {
         Auth::logout();
         session()->invalidate();
         session()->regenerateToken();
 
-        return redirect('/login');
+        return $this->redirectRoute('auth.login'); // change to your homepage route
     }
 
     public function render()

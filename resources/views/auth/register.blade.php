@@ -1,5 +1,5 @@
 @extends('layouts.main') 
-@section('title', 'Login')
+@section('title', 'Register')
 
 @section('content')
 <div class="flex h-screen w-screen overflow-hidden font-sans">

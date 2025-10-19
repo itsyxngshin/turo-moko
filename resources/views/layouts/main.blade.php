@@ -12,6 +12,7 @@
     
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    
 
     <script>
         tailwind.config = {
@@ -39,6 +40,8 @@
     <script>
         lucide.createIcons();
     </script>
+
     @livewireScripts
+    @stack('scripts')
 </body>
 </html>

@@ -28,14 +28,21 @@
         </div>
 
         <!-- Password Input with Alpine toggle -->
-        <div class="mb-4">
-          <label class="block text-sm mb-1" for="password">Password</label>
-          <input type="password"
-                id="password"
-                wire:model="password"
-                placeholder="Enter password"
-                class="w-full px-4 py-2 border rounded-md">
 
+        <div class="mb-4 password-container" x-data="{ showPassword: false }">
+
+          <label class="block text-sm mb-1" for="password">Password</label>
+          <input 
+            :type="showPassword ? 'text' : 'password'" 
+            placeholder="Enter Password" 
+            id="password"
+            class="w-full px-4 py-2 border rounded-md">
+          >
+
+          <button type="button" @click="showPassword = !showPassword" class="toggle-button">
+            <i class="fa-solid fa-eye-slash" x-show="showPassword"></i>
+            <i class="fa-solid fa-eye" x-show="!showPassword"></i>
+          </button>
           <div 
             x-data="{ showError: @entangle('showError').defer }" 
             class="mt-2"
@@ -54,7 +61,6 @@
                 </div>
             @enderror
           </div>
-        </div>
 
         <!-- Remember me -->
         <div class="flex items-center justify-between mb-4">
