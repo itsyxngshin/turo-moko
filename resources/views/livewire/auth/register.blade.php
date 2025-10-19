@@ -103,6 +103,18 @@
             @error('email') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
         </div>
 
+      <div class="mb-3">
+          <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+          <input 
+              wire:model.live="username"
+              type="text" 
+              id="username" 
+              placeholder="juan_delacruz" 
+              class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 @error('lastName') border-red-500 @enderror" 
+          />
+          @error('username') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+      </div>
+
         <!-- Phone -->
         <div class="mb-3">
             <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number</label>

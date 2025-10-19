@@ -62,10 +62,6 @@ Route::get('/verify-email', VerifyEmail::class)->name('auth.verify');
 */
 
 Route::middleware(['auth', 'role:learner'])->group(function () {
- // -----------------------------
-// Learner Pages
-// -----------------------------
-
     Route::prefix('learner')->group(function () {
         Route::get('/hub', function () {
             return view('livewire.learner.dashboard');
@@ -117,15 +113,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     
 Route::middleware(['auth', 'role:implementer'])->group(function () {
         //LINK THE BLADES EXCLUSIVE FOR THE TEACHER/IMPLEMENTER SIDE
-        }); 
-
-    /*Route::middleware(['guest'])->group(function () {
-        //OPEN FOR ALL / WEBSITE & LOGIN FACE
-        Route::get('/register', [AuthController::class, 'registerView'])->name('register');
-        Route::post('/passRegister', [AuthController::class, 'register'])->name('passRegister');
-        Route::post('/shopRegister', [AuthController::class, 'shopRegister'])->name('shopRegister');
-        Route::get('/login', [AuthController::class, 'loginView'])->name('login');
-    Route::post('/passLogin', [AuthController::class, 'login'])->name('passLogin');
-        }); 
-
-        */
+    Route::prefix('admin')->group(function () {
+        Route::get('/hub', function () {
+            return view(view: 'livewire.implementer.profile');
+            })->name('implementer.hub');   
+        });
+}); 
