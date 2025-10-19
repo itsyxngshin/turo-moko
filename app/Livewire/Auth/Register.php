@@ -87,7 +87,7 @@ class Register extends Component
             return User::create([
                 'email' => $validated['email'],
                 'username' => $validated['username'],
-                'phone_number' => $validated['phone_number'],
+                'phonenum' => $validated['phone_number'],
                 'password' => Hash::make($validated['password']),
                 'role_id' => $this->role->id,
                 'profile_id' => $profile->id,
