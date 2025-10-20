@@ -11,11 +11,11 @@ class LandingNavbar extends Component
 {
    public function logout()
     {
-        Auth::logout();
-        session()->invalidate();
-        session()->regenerateToken();
+        // This helper handles session invalidation and token regeneration
+        Auth::logout(); 
 
-        return $this->redirectRoute('auth.login'); 
+        // Redirect to the login page
+        return $this->redirect(route('login'));  
     }
 
     public function render()
