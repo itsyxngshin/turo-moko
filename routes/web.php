@@ -1,6 +1,8 @@
 <?php 
  
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 // Ensure the Verify class is imported or replace it with the correct class
 use App\Livewire\Auth\VerifyEmail; // Add this import at the top if Verify exists in this namespace
 
@@ -11,12 +13,13 @@ use App\Http\Controllers\AuthController; // Ensure this class exists in the spec
 use App\Livewire\Auth\Login;
 use App\Livewire\Auth\Register;
 use App\Livewire\Auth\Logout;
-use App\Livewire\Auth\ForgotPassword;
-use App\Livewire\Auth\ResetPassword;
 use App\Livewire\Auth\Verify; // Ensure this class exists in the specified namespace
 use App\Livewire\Admin\Dashboard as AdminDashboard;
 use App\Livewire\Learner\Dashboard as LearnerDashboard;
 use App\Livewire\Implementer\Dashboard as ImplementerDashboard;
+// Ensure the ForgotPassword class exists in the specified namespace or replace it with the correct class
+use App\Livewire\Auth\ForgetPassword;
+use App\Livewire\Auth\Reset;
 // -----------------------------
 // Public Pages
 // -----------------------------
@@ -28,15 +31,15 @@ Route::get('/', function () {
 Route::middleware('guest')->group(function () {
     Route::get('/login', Login::class)->name('auth.login');
     Route::get('/register', Register::class)->name('auth.register');
+    Route::get('/forgot-password', ForgetPassword::class)->name('auth.forget-password'); 
+    Route::get('/reset-password/{token}', Reset::class)->name('auth.reset'); 
 });
 
-
-
-Route::get('/logout', Logout::class)->middleware('auth');
-
 Route::get('/password-reset', function () {
-    return view('auth.password-request');   // this is the wrapper blade that mounts @livewire('auth.login')
+    return view('auth.password-request');  
 })->name('auth.password-request');
+
+
 
 Route::get('/check', function () {
         return view('livewire.auth.verify');
@@ -118,3 +121,13 @@ Route::middleware(['auth', 'role:implementer'])->group(function () {
             })->name('implementer.hub');   
         });
 }); 
+Route::middleware(['auth'])->group(function () {
+    Route::post('/logout', function (Request $request) {
+    Auth::logout();  
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+    
+    return redirect('/login');
+        })->name('auth.logout');
+}); 
+

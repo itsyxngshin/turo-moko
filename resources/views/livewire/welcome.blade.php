@@ -1,7 +1,4 @@
 <div class="bg-white text-gray-800">
-    
-    @livewire('landing-navbar')
-
     <div class="pt-20"></div>
 
     <!-- Hero Section -->
