@@ -37,7 +37,6 @@
             placeholder="Enter Password" 
             id="password"
             class="w-full px-4 py-2 border rounded-md">
-          >
 
           <button type="button" @click="showPassword = !showPassword" class="toggle-button">
             <i class="fa-solid fa-eye-slash" x-show="showPassword"></i>
@@ -105,8 +104,9 @@
 <script>
     window.addEventListener('swal:success', event => {
         Swal.fire({
-            icon: 'success',
-            title: 'Success',
+           title: event.detail.title,
+            text: event.detail.text,
+            icon: event.detail.icon,
             text: event.detail.message,
             timer: 2000,
             showConfirmButton: false

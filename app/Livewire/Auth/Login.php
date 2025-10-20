@@ -36,7 +36,14 @@ class Login extends Component
                     'implementer' => route('implementer.hub'),
                     default => route('homepage'),
                 };
-                //$this->dispatchBrowserEvent('swal:success', ['message' => 'Login successful!']);
+
+                $this->dispatchBrowserEvent('swal:success', [
+                    'message' => 'Login successful!',  
+                    'title' => 'Welcome, ' . $user->profile->first_name . '!',
+                    'text' => 'Registration complete. Redirecting to your dashboard...',
+                    'icon' => 'success',
+                ]);
+
                 session()->flash('success', 'Login successful!');
                 return $this->redirect($redirect); // Livewire-friendly redirect
             }

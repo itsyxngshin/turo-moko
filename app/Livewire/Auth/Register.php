@@ -31,8 +31,8 @@ class Register extends Component
     public string $username = '';
 
     // Simple phone validation (customize as needed for your specific format)
-    #[Rule('required|string|regex:/^\+63\d{10}$/|max:15|unique:users,phone_number')]
-    public string $phone_number = '';
+    #[Rule('required|string|regex:/^\+63\d{10}$/|max:15|unique:users')]
+    public string $phonenum = '';
 
     #[Rule('required|string|min:8')]
     public string $password = '';
@@ -87,7 +87,7 @@ class Register extends Component
             return User::create([
                 'email' => $validated['email'],
                 'username' => $validated['username'],
-                'phonenum' => $validated['phone_number'],
+                'phonenum' => $validated['phonenum'],
                 'password' => Hash::make($validated['password']),
                 'role_id' => $this->role->id,
                 'profile_id' => $profile->id,
@@ -105,10 +105,10 @@ class Register extends Component
 
         //Dispatch SweetAlert2 success notification and redirect event
         $this->dispatch('swal-redirect', [
-            'title' => 'Welcome, ' . $user->profile->first_name . '!',
-            'text' => 'Registration complete. Redirecting to your dashboard...',
-            'icon' => 'success',
-            'url' => '/dashboard',
+            'title' => 'Registration Successful!',
+            'text'  => 'Welcome! You will be redirected to your dashboard.',
+            'icon'  => 'success',
+            'url'   => route($redirectUrl) // Or whatever your target route is
         ]);
     }
     public function render()

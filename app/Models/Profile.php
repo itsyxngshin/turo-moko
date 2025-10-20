@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Profile extends Model
 {
+    protected $fillable = [
+        'first_name', 'photo_id', 'last_name', 'middle_name'
+    ];
     public function user()
     {
         return $this->hasOne(User::class);

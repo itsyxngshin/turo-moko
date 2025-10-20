@@ -4,17 +4,18 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
+
 
 class LandingNavbar extends Component
 {
-    protected $listeners = ['logoutConfirmed' => 'logout'];
-    public function logout()
+   public function logout()
     {
         Auth::logout();
         session()->invalidate();
         session()->regenerateToken();
 
-        return $this->redirectRoute('auth.login'); // change to your homepage route
+        return $this->redirectRoute('auth.login'); 
     }
 
     public function render()

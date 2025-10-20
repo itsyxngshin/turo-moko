@@ -1,4 +1,16 @@
-<div class="relative w-full max-w-sm px-5 max-h-[90vh] overflow-y-auto"  >
+<div class="relative w-full max-w-sm px-5 max-h-[90vh] overflow-y-auto"
+  x-on:swal-redirect.window="
+          Swal.fire({
+              title: event.detail.title,
+              text: event.detail.text,
+              icon: event.detail.icon,
+              timer: 6000,
+              timerProgressBar: true,
+              showConfirmButton: false
+          }).then(() => {
+              window.location.href = event.detail.url;
+          });
+      ">
 
      <div wire:loading.flex wire:target="register" 
         class="absolute inset-0 z-50 flex items-center justify-center bg-white bg-opacity-75 backdrop-blur-sm rounded-xl">
@@ -117,18 +129,18 @@
 
         <!-- Phone -->
         <div class="mb-3">
-            <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+            <label for="phonenum" class="block text-sm font-medium text-gray-700">Phone Number</label>
             <div class="relative mt-1">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-lg">🇵🇭</span>
                 <input
-                    wire:model.live="phone_number"
+                    wire:model.live="phonenum"
                     type="text"
-                    id="phone"
+                    id="phonenum"
                     placeholder="+639XX-XXXX-XXX"
                     class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 @error('phone_number') border-red-500 @enderror"
                 />
             </div>
-            @error('phone_number') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+            @error('phonenum') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
         </div>
 
         <!-- Password -->

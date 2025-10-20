@@ -22,16 +22,15 @@ use App\Livewire\Implementer\Dashboard as ImplementerDashboard;
 // -----------------------------
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('welcome'); 
 });
 
-Route::get('/register', function () {
-    return view('auth.register'); 
-        })->name('auth.register');
-        
-Route::get('/login', function () {
-    return view('auth.login');   // this is the wrapper blade that mounts @livewire('auth.login')
-})->name('auth.login');
+Route::middleware('guest')->group(function () {
+    Route::get('/login', Login::class)->name('auth.login');
+    Route::get('/register', Register::class)->name('auth.register');
+});
+
+
 
 Route::get('/logout', Logout::class)->middleware('auth');
 
