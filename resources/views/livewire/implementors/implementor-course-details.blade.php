@@ -25,7 +25,9 @@
             <div class="relative">
                 <!-- + Button pinned top right -->
                 <div class="absolute top-0 right-0 flex items-center gap-2">
-                    <livewire:modals.implementor.add-resource />
+                   
+
+                    <livewire:modals.implementor.add-resource :courseId="$course->id" />
                     <svg xmlns="http://www.w3.org/2000/svg" 
                         width="24" height="24" viewBox="0 0 24 24" 
                         class="cursor-pointer hover:scale-110 transition">

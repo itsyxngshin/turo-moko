@@ -13,8 +13,8 @@ use App\Http\Controllers\AuthController; // Ensure this class exists in the spec
 use App\Http\Controllers\Implementors\ImplementorDashboardController;
 use App\Http\Controllers\Implementors\ImplementorCourseInformationController;
 use App\Http\Controllers\Implementors\ImplementorAddAnnouncementController;
-use App\Http\Controllers\CourseController;
-
+use App\Http\Controllers\Learner\CourseController;
+use App\Http\Controllers\Implementors\ImplementorAddAssignmentController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -80,17 +80,25 @@ Route::prefix('learner')->group(function () {
 Route::prefix('implementor')->name('implementor.')->group(function () {
     Route::get('/dashboard', [ImplementorDashboardController::class, 'index'])
         ->name('dashboard');
+
     Route::get('/course-information/{course}', [ImplementorCourseInformationController::class, 'show'])
          ->name('course-information');
-Route::delete('/implementor/announcement/{id}', [ImplementorCourseInformationController::class, 'deleteAnnouncement'])
-    ->name('implementor.announcement.delete');
-        
+
+    Route::delete('/implementor/announcement/{id}', [ImplementorCourseInformationController::class, 'deleteAnnouncement'])
+        ->name('implementor.announcement.delete');
+
+    
+Route::get('/implementors/{courseId}/add-assignment', [ImplementorAddAssignmentController::class, 'create'])
+    ->name('implementors.add-assignment');
+    
     Route::get('/myprofile', function () {
         return view('livewire.implementors.teacher-profile');
     })->name('myprofile');
+    
     Route::get('/allcourses', function () {
         return view('livewire.implementors.all-courses');
     })->name('allcourses)');
+    
     Route::get('/create-announcement', [ImplementorAddAnnouncementController::class, 'show'])
          ->name('add-announcement');
 
