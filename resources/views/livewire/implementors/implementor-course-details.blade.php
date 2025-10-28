@@ -4,19 +4,31 @@
 @section('page-title', 'Course Information')
 
 @section('content')
-<div class="p-0 ml-[20px]">
-   <!-- Header -->
-        <div class="relative h-56 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1608506573186-631f3ff1f6e3');">
-            
-            <img src="{{ asset('storage/' . $course->activeCoverPhoto->path) }}" alt="Teacher Avatar" class="w-full h-full rounded-lg object-cover">
-            <div class="absolute inset-0 bg-black rounded-lg bg-opacity-50 flex flex-col px-8 text-white">
-            <h1 class="text-3xl font-bold mt-auto mb-1">{{ $course->name ?? '--' }}</h1>
-            <p class="max-w-2xl mb-4">
-                {{ $course->background ?? '--'}}           </p>
+        <div class="p-0">
+        <!-- Header -->
+                <div class="relative h-56 bg-cover bg-center rounded-lg overflow-hidden" 
+            style="background-image: url('https://images.unsplash.com/photo-1608506573186-631f3ff1f6e3');">
 
-            
+            <!-- Course Cover -->
+            @if ($course->activeCoverPhoto)
+                <img 
+                    src="{{ asset('storage/' . $course->activeCoverPhoto->path) }}" 
+                    alt="Course Cover" 
+                    class="w-full h-full object-cover"
+                >
+            @endif
+
+            <!-- Overlay -->
+            <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col px-8 text-white rounded-lg">
+                <h1 class="text-3xl font-bold mt-auto mb-1">{{ $course->name ?? '--' }}</h1>
+                <p class="max-w-2xl mb-8">{{ $course->background ?? '--' }}</p>
+
+                <!-- Button - bottom right -->
+                <div class="absolute bottom-4 right-4">
+<livewire:modals.implementor.edit-course :courseId="$course->id" />
+                </div>
+            </div>
         </div>
-
             
         </div>
 
@@ -182,7 +194,17 @@
 
 
                         <h2 class="text-xl font-bold mt-4 mb-4">{{ $announcement->title }}</h2>
-                        <p class="mb-4">{{ $announcement->content }}</p>
+                        @php
+                            $formatted = preg_replace(
+                                '/(https?:\/\/[^\s]+)/',
+                                '<a href="$1" class="text-blue-500 underline" target="_blank" rel="noopener noreferrer">$1</a>',
+                                e($announcement->content)
+                            );
+                        @endphp
+
+                        <div class="prose">
+                            {!! nl2br($formatted) !!}
+                        </div>
 
                         <!-- Attachments -->
                         @if($announcement->attachments->count() > 0)

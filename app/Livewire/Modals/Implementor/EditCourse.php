@@ -25,6 +25,7 @@ class EditCourse extends Component
     public $tagInput = '';   // For new tag input
     public $start_date;      // Start date
     public $end_date;  
+    public $student_limit;
 
     public function mount($courseId)
     {
@@ -37,6 +38,7 @@ class EditCourse extends Component
         $this->name       = $this->course->name;
         $this->background = $this->course->background;
         $this->category   = $this->course->category_id;
+        $this->student_limit   = $this->course->student_limit;
       $this->start_date = $this->course->start_date
     ? \Carbon\Carbon::parse($this->course->start_date)->format('Y-m-d')
     : null;
@@ -77,6 +79,7 @@ $this->end_date = $this->course->end_date
         'background' => 'required|string',
         'category'   => 'required|integer',
         'thumbnail'  => 'nullable|image|max:2048',
+        'student_limit' => 'required|integer|min:1|max:20',
     ]);
 
     try {

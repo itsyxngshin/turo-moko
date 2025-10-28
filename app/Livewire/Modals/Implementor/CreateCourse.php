@@ -26,6 +26,8 @@ class CreateCourse extends Component
     public $categories = [];
     public $tagInput = '';
     public $tags = []; // holds tags for this course
+    public $student_limit;
+
 
     public function addTag()
     {
@@ -59,6 +61,7 @@ class CreateCourse extends Component
                 'category_id' => 'required|exists:categories,id',
                 'thumbnail'   => 'nullable|image|max:2048',
                 'start_date'  => 'required|date',
+                'student_limit' => 'required|integer|min:1|max:20',
                 'end_date'    => 'required|date|after_or_equal:start_date',
             ]);
 
@@ -72,6 +75,7 @@ class CreateCourse extends Component
                 'status'           => $this->status,
                 'visibility'       => $this->visibility,
                 'start_date'       => $this->start_date,
+                'student_limit' => $this->student_limit, // ✅ this line
                 'end_date'         => $this->end_date,
             ]);
 

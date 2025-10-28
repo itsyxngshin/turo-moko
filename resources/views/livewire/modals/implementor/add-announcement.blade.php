@@ -2,7 +2,7 @@
     <!-- Trigger button -->
     <div 
         @click="open = true" 
-        class="flex flex-col items-center justify-center border border-gray-200 p-8 rounded-lg shadow-md cursor-pointer hover:shadow-lg hover:scale-105 transition"
+        class="flex flex-col items-center justify-center p-8 rounded-lg cursor-pointer hover:shadow-lg hover:scale-105 transition"
     >
         <!-- Chat Bubble Icon -->
         <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-blue-500 mb-2" viewBox="0 0 48 48" fill="currentColor">

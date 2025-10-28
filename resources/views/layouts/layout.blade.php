@@ -30,6 +30,9 @@
             }
         }
     </script>
+
+
+<link rel="stylesheet" href="https://unpkg.com/trix@2.0.0/dist/trix.css">
     
 </head>
 <body class="bg-gray-50 font-sans">

@@ -194,4 +194,3 @@
       </section>
   </div>
 @section('content')
-
