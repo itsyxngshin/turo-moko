@@ -3,6 +3,7 @@
 namespace App\Livewire\Auth;
 use Livewire\Attributes\Rule;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Layout;
 use App\Models\Role; 
 use App\Models\Profile; 
 use Livewire\Component;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth; // Import Auth facade
 use Illuminate\Support\Facades\Hash; // Import Hash facade
 
+#[Layout('layouts.auth')]
 class Register extends Component
 {
     public string $roleName = 'implementor'; 
@@ -57,6 +59,62 @@ class Register extends Component
     #[Computed]
     public function role(): ?Role{
         return Role::where('role_name', $this->roleName)->first();
+    }
+    
+    #[Computed]
+    public function passwordStrength()
+    {
+        $password = $this->password;
+        $score = 0;
+
+        // Return empty array if password is empty
+        if (empty($password)) {
+            return [
+                'strength' => '',
+                'color'    => 'bg-gray-200',
+                'width'    => '0%'
+            ];
+        }
+
+        // Add points for criteria
+        if (strlen($password) >= 8) $score++;      // Length 8+
+        if (strlen($password) >= 12) $score++;     // Length 12+
+        if (preg_match('/[a-z]/', $password)) $score++; // Lowercase
+        if (preg_match('/[A-Z]/', $password)) $score++; // Uppercase
+        if (preg_match('/[0-9]/', $password)) $score++; // Numbers
+        if (preg_match('/[\W_]/', $password)) $score++; // Symbols (non-word chars)
+
+        // Determine strength based on score
+        switch ($score) {
+            case 0:
+            case 1:
+            case 2:
+                return [
+                    'strength' => 'Weak',
+                    'color'    => 'bg-red-500',
+                    'width'    => '33%'
+                ];
+            case 3:
+            case 4:
+                return [
+                    'strength' => 'Medium',
+                    'color'    => 'bg-yellow-500',
+                    'width'    => '66%'
+                ];
+            case 5:
+            case 6:
+                return [
+                    'strength' => 'Strong',
+                    'color'    => 'bg-green-500',
+                    'width'    => '100%'
+                ];
+            default:
+                return [
+                    'strength' => 'Weak',
+                    'color'    => 'bg-red-500',
+                    'width'    => '33%'
+                ];
+        }
     }
     
     /**
@@ -113,6 +171,6 @@ class Register extends Component
     }
     public function render()
     {
-        return view('livewire.auth.register');
+        return view('livewire.auth.register')->with(['layout' => 'layouts.auth']);
     }
 }
