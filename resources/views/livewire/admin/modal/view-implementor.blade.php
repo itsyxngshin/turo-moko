@@ -24,14 +24,27 @@
         <div class="px-6 py-6 space-y-5">
             <!-- Profile Header -->
             <div class="flex items-center gap-4">
-                <img 
-                    src="{{ $implementor->profile->photos->photos ?? asset('storage/implementor/course/thumbnail.jpg') }}" 
-                    alt="Profile Photo"
-                    class="w-20 h-20 rounded-full object-cover border"
-                />
+                
+                    @if ($implementor && $implementor->profile && $implementor->profile->photo && $implementor->profile->photo->photos)
+                        <img 
+                            src="{{ asset('storage/' . $implementor->profile->photo->photos) }}" 
+                            alt="Profile Photo" 
+                            class="w-32 h-32 rounded-full object-cover border"
+                        >
+                    @else
+                        <img 
+                            src="{{ asset('images/default-profile.png') }}" 
+                            alt="Default Photo" 
+                            class="w-32 h-32 rounded-full object-cover border"
+                        >
+                    @endif
+               
+
+
+
                 <div>
                     <h3 class="text-xl font-semibold text-gray-800">
-                        {{ $implementor->profile->first_name ?? $implementor->name ?? 'N/A' }} {{ $implementor->profile->last_name ?? '' }}
+                        {{ $implementor->profile->first_name ?? 'N/A' }} {{ $implementor->profile->last_name ?? '' }}
                     </h3>
                     <p class="text-gray-500">{{ $implementor->role->name ?? 'Implementor' }}</p>
                 </div>

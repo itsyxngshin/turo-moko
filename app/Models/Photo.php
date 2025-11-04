@@ -8,8 +8,11 @@ class Photo extends Model
 {
     protected $fillable = ['photos'];
 
-    public function profile()
-    {
-        return $this->belongsTo(Profile::class);
-    }
+    
+    public function profiles()
+{
+    return $this->hasMany(Profile::class, 'photo_id');
+}
+
+
 }

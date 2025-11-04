@@ -15,6 +15,11 @@
             <i data-lucide="book" class="w-6 h-6 text-gray-600"></i>
         </a>
 
+        <a href="#" class="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-gray-100" aria-label="Courses">
+            <i data-lucide="message-circle" class="w-7 h-7 text-gray-600"></i>        
+        </a>
+       
+
         <!-- Settings -->
         <a href="{{ route('learner.settings') }}" class="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-gray-100" aria-label="Settings">
             <i data-lucide="settings" class="w-6 h-6 text-gray-600"></i>

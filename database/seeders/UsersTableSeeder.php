@@ -12,7 +12,7 @@ class UsersTableSeeder extends Seeder
     {
         DB::table('users')->insert([
             [
-                'name' => 'Admin User',
+               
                 'profile_id' => 1, // You need to ensure a profile with id=1 exists
                 'role_id' => 3, // Admin
                 'username' => 'admin',
@@ -23,7 +23,7 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'name' => 'Instructor User',
+              
                 'profile_id' => 2, // You need to ensure profile exists
                 'role_id' => 2, // Instructor
                 'username' => 'instructor',
@@ -34,7 +34,7 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'name' => 'Learner User',
+                
                 'profile_id' => 3,
                 'role_id' => 1, // Learner
                 'username' => 'learner',

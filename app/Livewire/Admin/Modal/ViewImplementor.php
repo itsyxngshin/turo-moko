@@ -14,7 +14,9 @@ class ViewImplementor extends Component
 
     public function loadImplementor($id)
     {
-        $this->implementor = User::with(['profile', 'role'])->find($id);
+        // ✅ Make sure to load nested relation 'profile.photo'
+        $this->implementor = User::with(['profile.photo', 'role'])->find($id);
+
         $this->showModal = true;
     }
 

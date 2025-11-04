@@ -31,10 +31,9 @@
             <!-- Options Row -->
 <div class="flex justify-center items-stretch gap-4 mt-6 pb-6 overflow-x-auto ">
     
-    <!-- Forum -->
-    <div class="flex-none w-40 h-40 flex flex-col justify-center items-center border border-gray-200 p-4 rounded-lg shadow-md cursor-pointer hover:shadow-lg hover:scale-105 transition">
+   
         @livewire('modals.implementor.add-announcement', [], key('add-announcement'))
-    </div>
+    
 
     <!-- Assignment -->
     <a href="{{ route('implementor.implementors.add-assignment', ['courseId' => $courseId]) }}"

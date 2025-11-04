@@ -26,22 +26,20 @@
         }
     </script>
 </head>
-<body class="bg-gray-50 font-sans m-0 p-0">
-    <div class="flex h-screen w-full ">
+<body class="bg-gray-50 font-sans">
+    <div class="flex h-screen">
         
         <!-- Sidebar Component -->
         <x-sidebar />
 
         <!-- Main Section -->
-        <div class="flex-1 flex flex-col h-full pt-5">
-            <!-- Top Bar: Name + Navbar -->
-            <div class="flex justify-between items-center h-[60px] w-full">
-                <x-namelayout />
-                <x-navbar />
-            </div>
+        <div class="flex-1 flex flex-col">
+            
+            <!-- Navbar Component -->
+            <x-navbar2 />
 
             <!-- Page Content -->
-            <main class="@yield('main_class', 'm-0 pl-3 pr-8 h-full w-full')">
+            <main class="p-6">
                 @yield('content')
             </main>
         </div>

@@ -8,7 +8,7 @@
 <div class="min-h-screen bg-[#fdfaf8] flex">
 
     <!-- Main Content -->
-    <main class="flex-1 px-10">
+    <main class="flex-1 pl-5 py-3">
         <!-- Header -->
         <div class="flex justify-between items-center mb-2">
             <h1 class="text-2xl font-semibold text-gray-800">{{ $course->name }}</h1>

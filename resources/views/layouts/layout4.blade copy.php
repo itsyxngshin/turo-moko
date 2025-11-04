@@ -27,21 +27,21 @@
     </script>
 </head>
 <body class="bg-gray-50 font-sans m-0 p-0">
-    <div class="flex h-screen w-full ">
+    <div class="flex h-screen w-full overflow-hidden">
         
         <!-- Sidebar Component -->
         <x-sidebar />
 
         <!-- Main Section -->
         <div class="flex-1 flex flex-col h-full pt-5">
-            <!-- Top Bar: Name + Navbar -->
+            <!-- Top Bar: Name + Navbar2 -->
             <div class="flex justify-between items-center h-[60px] w-full">
                 <x-namelayout />
-                <x-navbar />
+                <x-navbar2 />
             </div>
 
             <!-- Page Content -->
-            <main class="@yield('main_class', 'm-0 pl-3 pr-8 h-full w-full')">
+            <main class="@yield('main_class', 'm-0 p-0 h-full w-full')">
                 @yield('content')
             </main>
         </div>

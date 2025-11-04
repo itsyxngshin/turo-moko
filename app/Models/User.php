@@ -18,16 +18,20 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'profile_id', 'role_id', 'username', 'email', 'password', 'phone_number'
+        'profile_id', 'role_id', 'username', 'email', 'password', 'phonenum'
     ];
     protected $hidden = [
         'password',
         'remember_token',
     ];
+    public function user()
+{
+    return $this->belongsTo(User::class);
+}
 
     public function profile()
     {
-        return $this->belongsTo(Profile::class, 'profile_id');
+        return $this->belongsTo(Profile::class);
     }
 
 

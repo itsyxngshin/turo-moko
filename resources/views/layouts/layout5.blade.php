@@ -27,24 +27,11 @@
     </script>
 </head>
 <body class="bg-gray-50 font-sans m-0 p-0">
-    <div class="flex h-screen w-full ">
-        
-        <!-- Sidebar Component -->
-        <x-sidebar />
-
-        <!-- Main Section -->
-        <div class="flex-1 flex flex-col h-full pt-5">
-            <!-- Top Bar: Name + Navbar -->
-            <div class="flex justify-between items-center h-[60px] w-full">
-                <x-namelayout />
-                <x-navbar />
-            </div>
-
-            <!-- Page Content -->
-            <main class="@yield('main_class', 'm-0 pl-3 pr-8 h-full w-full')">
-                @yield('content')
-            </main>
-        </div>
+    <div class="flex flex-col min-h-screen w-full overflow-x-hidden">
+        <!-- Page Content -->
+        <main class="@yield('main_class', 'flex-1 w-full overflow-y-auto')">
+            @yield('content')
+        </main>
     </div>
 
     <!-- Init Lucide -->

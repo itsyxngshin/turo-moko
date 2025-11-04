@@ -84,11 +84,11 @@ Route::prefix('implementor')->name('implementor.')->group(function () {
     Route::get('/course-information/{course}', [ImplementorCourseInformationController::class, 'show'])
          ->name('course-information');
 
-    Route::delete('/implementor/announcement/{id}', [ImplementorCourseInformationController::class, 'deleteAnnouncement'])
+    Route::delete('/announcement/{id}', [ImplementorCourseInformationController::class, 'deleteAnnouncement'])
         ->name('implementor.announcement.delete');
 
     
-Route::get('/implementors/{courseId}/add-assignment', [ImplementorAddAssignmentController::class, 'create'])
+Route::get('/{courseId}/add-assignment', [ImplementorAddAssignmentController::class, 'create'])
     ->name('implementors.add-assignment');
     
     Route::get('/myprofile', function () {

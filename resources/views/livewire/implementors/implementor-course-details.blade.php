@@ -21,8 +21,11 @@
             <!-- Overlay -->
             <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col px-8 text-white rounded-lg">
                 <h1 class="text-3xl font-bold mt-auto mb-1">{{ $course->name ?? '--' }}</h1>
-                <p class="max-w-2xl mb-8">{{ $course->background ?? '--' }}</p>
-                
+                <p class="max-w-2xl mb-2">{{ $course->background ?? '--' }}</p>
+                 <!-- Student count -->
+                <p class="text-sm text-gray-300 mb-8">
+                    {{ $course->enrollees->count() }}/{{ $course->student_limit}} {{ Str::plural('Student', $course->enrollees->count()) }} Enrolled
+                </p>
                 <!-- Button - bottom right -->
                 <div class="absolute bottom-4 right-4">
                     <livewire:modals.implementor.edit-course :courseId="$course->id" />
@@ -38,7 +41,6 @@
                 <!-- + Button pinned top right -->
                 <div class="absolute top-0 right-0 flex items-center gap-2">
                    
-
                     <livewire:modals.implementor.add-resource :courseId="$course->id" />
                     <div x-data="{ open: false }" x-cloak class="relative inline-block text-left">
                         <!-- Three-dot button -->
@@ -78,6 +80,7 @@
                     
                 </div>
             </div>
+            
 
             <!-- Module -->
             <div class="space-y-4">
@@ -285,7 +288,8 @@
             
             
                     </div>
-
+                        </div>
+                        </div>
 
         
         
