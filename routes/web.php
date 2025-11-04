@@ -19,7 +19,7 @@ use App\Livewire\Learner\Dashboard as LearnerDashboard;
 use App\Livewire\Implementer\Dashboard as ImplementerDashboard;
 // Ensure the ForgotPassword class exists in the specified namespace or replace it with the correct class
 use App\Livewire\Auth\ForgetPassword;
-use App\Livewire\Auth\Reset;
+use App\Livewire\Auth\ResetPassword;
 // -----------------------------
 // Public Pages
 // -----------------------------
@@ -32,7 +32,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', Login::class)->name('auth.login');
     Route::get('/register', Register::class)->name('auth.register');
     Route::get('/forgot-password', ForgetPassword::class)->name('auth.forget-password'); 
-    Route::get('/reset-password/{token}', Reset::class)->name('auth.reset'); 
+    Route::get('/reset-password/{token}', ResetPassword::class)->name('auth.reset-password'); 
 });
 
 Route::get('/password-reset', function () {
