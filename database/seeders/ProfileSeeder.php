@@ -30,6 +30,23 @@ class ProfileSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
                 ],
+
+                [
+                'photo_id' => null,
+                'first_name' => 'Jose',
+                'middle_name' => 'Abad',
+                'last_name' => 'Reyes',
+                'created_at' => now(),
+                'updated_at' => now(),
+                ],
+                [
+                'photo_id' => null,
+                'first_name' => 'Adornado',
+                'middle_name' => 'Balingit',
+                'last_name' => 'Cabalbag',
+                'created_at' => now(),
+                'updated_at' => now(),
+                ], 
             ]);
     }
 }

@@ -4,7 +4,9 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.main')]
 class Welcome extends Component
 {
     public function logout()
@@ -18,6 +20,6 @@ class Welcome extends Component
     
     public function render()
     {
-        return view('livewire.welcome')->layout('layouts.main');
+        return view('livewire.welcome');
     }
 }

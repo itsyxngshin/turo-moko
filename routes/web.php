@@ -91,9 +91,7 @@ Route::middleware(['auth', 'role:learner'])->group(function () {
 Route::middleware(['auth', 'role:admin'])->group(function () {
         //LINK THE BLADES EXCLUSIVE FOR THE ADMIN SIDE
     Route::prefix('admin')->group(function () {
-        Route::get('/hub', function () {
-            return view('livewire.admin.dashboard');
-            })->name('admin.hub');
+        Route::get('/hub', AdminDashboard::class)->name('admin.hub');
 
         Route::get('/implementors', function () {
             return view('livewire.admin.implementors');
