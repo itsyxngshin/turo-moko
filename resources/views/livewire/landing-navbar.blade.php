@@ -85,15 +85,9 @@
                     <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Dashboard
                     </a>
-
                     <form method="POST" action="{{ route('auth.logout') }}">
                         @csrf
-
-                        <a href="{{ route('auth.logout') }}"
-                        class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onclick="event.preventDefault(); this.closest('form').submit();">
-                            Logout
-                        </a>
+                        <button class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" type="submit">Logout</button>
                     </form>
                 </div>
             </div>

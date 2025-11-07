@@ -1,25 +1,35 @@
 <?php
 
 namespace App\Livewire\Auth;
-use Illuminate\Support\Facades\Auth;
 
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class Logout extends Component
 {
-     protected $listeners = ['logoutConfirmed' => 'logout'];
-
     public function logout()
     {
-        Auth::logout();
-        session()->invalidate();
-        session()->regenerateToken();
+        // Use the 'web' guard if you're using multiple guards
+        Auth::guard('web')->logout();
 
-        return $this->redirectRoute('auth.login'); // change to your homepage route
+        // Invalidate the session
+        request()->session()->invalidate();
+
+        // Regenerate the session token
+        request()->session()->regenerateToken();
+        return $this->redirect('/login', navigate: true);
     }
 
+    /**
+     * Render the component.
+     */
     public function render()
     {
-        return view('livewire.auth.logout');
+        // You can render a view or an inline blade template
+        return <<<'BLADE'
+            <button wire:click="logout" class="text-sm text-gray-700 underline">
+                {{ __('Log Out') }}
+            </button>
+        BLADE;
     }
 }
