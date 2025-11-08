@@ -34,6 +34,25 @@
         lucide.createIcons();
     </script>
     @livewireScripts
+
+    <script>
+        // Wait for Livewire to initialize
+        document.addEventListener('livewire:initialized', () => {
+            
+            // Listen for the 'swal:alert' event
+            @this.on('swal:alert', (event) => {
+                let data = event[0]; // Get the event data
+                Swal.fire({
+                    icon: data.type,
+                    title: data.title,
+                    text: data.text,
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            });
+        });
+    </script>
     @stack('scripts')
+    
 </body>
 </html>

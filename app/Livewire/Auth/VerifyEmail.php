@@ -4,9 +4,11 @@ namespace App\Livewire\Auth;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Layout;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 
+#[Layout('layouts.auth')] 
 class VerifyEmail extends Component
 {
     public $code = ['', '', '', ''];
@@ -28,7 +30,21 @@ class VerifyEmail extends Component
             User::save();
 
             session()->flash('success', 'Your account has been verified successfully.');
-            return redirect()->route('dashboard');
+            // Check the role and redirect accordingly
+            if ($user->role === 'admin') {
+                return redirect()->route('admin.hub');
+            } 
+            elseif ($user->role === 'implementer') {
+                return redirect()->route('implementer.hub');
+            } 
+            elseif ($user->role === 'learner') {
+                return redirect()->route('learner.hub');
+
+            } 
+            else {
+                // Default for regular users or any other role
+                return redirect()->route('homepage');
+            }
         }
 
         session()->flash('error', 'Invalid verification code.');

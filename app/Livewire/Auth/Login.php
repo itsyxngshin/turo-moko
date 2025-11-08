@@ -45,7 +45,7 @@ class Login extends Component
                 default => route('homepage'),
             };
 
-            $this->dispatchBrowserEvent('swal:success', [
+            $this->dispatch('swal:success', [
                 'title' => 'Welcome, ' . $user->profile->first_name . '!',
                 'text' => 'Login successful! Redirecting to your dashboard...',
                 'icon' => 'success',

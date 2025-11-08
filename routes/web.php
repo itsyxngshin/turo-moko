@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\EmailVerificationRequest; // Add this import to fix the error
 // Ensure the Verify class is imported or replace it with the correct class
 use App\Livewire\Auth\VerifyEmail; // Add this import at the top if Verify exists in this namespace
 
@@ -28,7 +29,7 @@ use App\Http\Livewire\Chat; // Ensure this class exists in the specified namespa
 
 Route::get('/', function () {
     return view('welcome'); 
-});
+})->name('homepage');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', Login::class)->name('auth.login');
@@ -65,7 +66,7 @@ Route::get('/verify-email', VerifyEmail::class)->name('auth.verify');
 
 */
 
-Route::middleware(['auth', 'role:learner'])->group(function () {
+Route::middleware(['auth', 'role:learner', 'verified'])->group(function () {
     Route::prefix('learner')->group(function () {
         Route::get('/hub', function () {
             return view('livewire.learner.dashboard');
@@ -90,7 +91,7 @@ Route::middleware(['auth', 'role:learner'])->group(function () {
         });
     }); 
     
-Route::middleware(['auth', 'role:admin'])->group(function () {
+Route::middleware(['auth', 'role:admin', 'verified'])->group(function () {
         //LINK THE BLADES EXCLUSIVE FOR THE ADMIN SIDE
     Route::prefix('admin')->group(function () {
         Route::get('/hub', AdminDashboard::class)->name('admin.hub');
@@ -113,9 +114,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     });
 }); 
     
-Route::middleware(['auth', 'role:implementer'])->group(function () {
+Route::middleware(['auth', 'role:implementer', 'verified'])->group(function () {
         //LINK THE BLADES EXCLUSIVE FOR THE TEACHER/IMPLEMENTER SIDE
-    Route::prefix('admin')->group(function () {
+    Route::prefix('implementer')->group(function () {
         Route::get('/hub', function () {
             return view(view: 'livewire.implementer.profile');
             })->name('implementer.hub');   
@@ -124,5 +125,29 @@ Route::middleware(['auth', 'role:implementer'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     //Route::get('/chat/{conversation}', Chat::class)->name('chat.view'); // Ensure the Chat class is correctly imported and exists
     Route::post('/logout', [LogoutController::class, 'logout'])->name('auth.logout');
+    
 }); 
+
+ Route::prefix('email')->group(function () {
+       // Email verification notice page
+    Route::get('/verify', function () {
+        return view('livewire.auth.verify-email');
+    })->middleware('auth')->name('verification.notice'); 
+    
+    // Email verification handler (link clicked)
+    Route::get('/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+        $request->fulfill(); // Mark email as verified
+        return redirect()->route('homepage'); // redirect anywhere you want
+    })->middleware(['auth', 'signed'])->name('verification.verify');
+
+    // Resend verification email
+    Route::post('/verification-notification', function (Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+        return back()->with('message', 'Verification link sent!');
+    })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+    });
+
+
+
+
 

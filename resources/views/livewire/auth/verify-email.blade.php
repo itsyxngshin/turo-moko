@@ -1,47 +1,71 @@
-@extends('layouts.main') 
-@section('title', 'Verify')
+@section('title', 'Verify your TURO-MOKO Account')
 
-@section('content')
-<div class="flex items-center justify-center h-screen w-screen bg-gray-50">
-    <div class="bg-white shadow-lg rounded-xl p-6 w-96 text-center">
-        <h2 class="text-lg font-semibold text-gray-800 mb-2">Mobile Phone Verification</h2>
-        <p class="text-gray-500 mb-6">Enter the 4-digit verification code that was sent to your phone number.</p>
+<div class="min-h-screen lg:grid lg:grid-cols-2">
 
-        <form wire:submit.prevent="verify" class="space-y-4">
-            <div class="flex justify-center gap-3">
-                @foreach($code as $index => $digit)
-                    <input 
-                        type="text" 
-                        maxlength="1"
-                        wire:model.lazy="code.{{ $index }}"
-                        class="w-12 h-12 text-center border rounded-lg text-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                    >
-                @endforeach
+    <div class="flex flex-col justify-center bg-white px-6 py-12 sm:px-12 lg:px-20 xl:px-24">
+        <div class="mx-auto w-full max-w-md">
+
+            <div>
+                <svg class="h-10 w-auto text-orange-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672L13.684 16.6m0 0l-2.5-5.001-2.5 5.001m2.5 0l-1.316-.318m1.316.318l-1.37-2.74m0 0l-1.37 2.74m1.37-2.74l1.37 2.74m0 0l1.37-2.74m-1.37 2.74l-1.37 2.74m1.37-2.74l2.5-5.001m-2.5 5.001l2.5 5.001m-2.5-5.001L12 21.672" />
+                </svg>
             </div>
 
-            <button 
-                type="submit" 
-                class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
-            >
-                Verify Account
-            </button>
-        </form>
+            <div class="mt-8">
+                <svg class="h-12 w-12 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91A2.25 2.25 0 012.25 6.993V6.75" />
+                </svg>
+                <h2 class="mt-4 text-3xl font-bold tracking-tight text-gray-900">
+                    Check your inbox
+                </h2>
+                <p class="mt-2 text-gray-600">
+                    Thanks for signing up! We've sent a verification link to your email.
+                </p>
+            </div>
 
-        <div class="mt-4">
-            <p class="text-sm text-gray-500">
-                Didn’t receive code? 
-                <button wire:click="resend" class="text-blue-600 hover:underline">Resend</button>
-            </p>
+            <div class="mt-6 space-y-6">
+
+                @if (session('message'))
+                    <div class="rounded-md bg-green-50 p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-green-800">
+                                    {{ session('message') }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('verification.send') }}">
+                    @csrf
+                    <button type="submit"
+                        class="flex w-full justify-center rounded-md bg-orange-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-orange-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600">
+                        Resend Verification Email
+                    </button>
+                </form>
+
+                <div class="text-center">
+                    <form method="POST" action="{{ route('auth.logout') }}" class="inline">
+                        @csrf
+                        <button type="submit" class="text-sm font-medium text-gray-500 hover:text-gray-800 hover:underline">
+                            Log Out
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
-
-        @if(session()->has('success'))
-            <p class="mt-4 text-green-600">{{ session('success') }}</p>
-        @endif
-
-        @if(session()->has('error'))
-            <p class="mt-4 text-red-600">{{ session('error') }}</p>
-        @endif
     </div>
-</div>
-@endsection
 
+    <div class="relative hidden lg:block">
+        <img class="absolute inset-0 h-full w-full object-cover" 
+             src="httpsopen.com/img/auth.jpg" 
+             alt="An abstract orange-themed background image">
+    </div>
+
+</div>

@@ -126,18 +126,6 @@ class UserSeeder extends Seeder
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
-
-            [
-                'username' => 'ador_cabalbag',
-                'email' => 'acabalbag22@gmail.com',
-                'phonenum' => '+639491232598',
-                'password' => Hash::make('acabalbag22'),
-                'role_id' => 3,
-                'profile_id' => 4,
-                'email_verified_at' => Carbon::now(),
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
         ];
 
         DB::table('users')->insert($users);
