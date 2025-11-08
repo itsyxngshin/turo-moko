@@ -11,11 +11,12 @@ use App\Models\User; // Import the User model
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth; // Import Auth facade
 use Illuminate\Support\Facades\Hash; // Import Hash facade
+use Illuminate\Auth\Events\Registered;
 
 #[Layout('layouts.auth')]
 class Register extends Component
 {
-    public string $roleName = 'implementor'; 
+    public string $roleName = 'learner'; // Default role
 
     #[Rule('required|string|max:255')]
     public string $firstName = '';
@@ -155,26 +156,23 @@ class Register extends Component
         // Eager load the profile relationship for the welcome message.
         $user->load('profile');
 
-        //Log-in the user
+        // Fire event to send verification email
+        event(new Registered($user));
+
+        // Automatically log in the user
         Auth::login($user);
 
-        $redirect = match ($user->role->role_name) {
-                'admin' => route('admin.hub'),
-                'learner' => route('learner.hub'),
-                'implementer' => route('implementer.hub'),
-                default => route('homepage'),
-            };
-
-        //Dispatch SweetAlert2 success notification and redirect event
-        $this->dispatch('swal-redirect', [
-            'title' => 'Registration Successful!',
-            'text'  => 'Welcome! You will be redirected to your dashboard.',
-            'icon'  => 'success',
-            'redirect'   => $redirect // Or whatever your target route is
+        $this->dispatch('swal:alert', [
+            'type'        => 'success',
+            'title'       => 'Registration Successful!',
+            'text'        => 'We\'ve sent a verification link to your email. Redirecting...',
+            'timer'       => 5000, // 5-second timer
+            'redirectUrl' => route('verification.notice') // Pass the URL here
         ]);
+
     }
     public function render()
     {
-        return view('livewire.auth.register')->with(['layout' => 'layouts.auth']);
+        return view('livewire.auth.register');
     }
 }

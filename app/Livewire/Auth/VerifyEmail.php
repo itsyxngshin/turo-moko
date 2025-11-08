@@ -25,29 +25,49 @@ class VerifyEmail extends Component
 
         $enteredCode = implode('', $this->code);
         if ($enteredCode === $user->verification_code) {
+            
+            // --- SUCCESS ---
             $user->email_verified_at = now();
             $user->verification_code = null;
             User::save();
 
-            session()->flash('success', 'Your account has been verified successfully.');
-            // Check the role and redirect accordingly
-            if ($user->role === 'admin') {
-                return redirect()->route('admin.hub');
-            } 
-            elseif ($user->role === 'implementer') {
-                return redirect()->route('implementer.hub');
-            } 
-            elseif ($user->role === 'learner') {
-                return redirect()->route('learner.hub');
+            $roleName = $user->role->role_name; // e.g., 'admin', 'implementer'
+            $redirectUrl = '';
 
+            if ($roleName === 'admin') {
+                $redirectUrl = route('admin.hub');
+            } 
+            elseif ($roleName === 'implementer') {
+                $redirectUrl = route('implementer.hub');
+            } 
+            elseif ($roleName === 'learner') {
+                $redirectUrl = route('learner.hub');
             } 
             else {
-                // Default for regular users or any other role
-                return redirect()->route('homepage');
+                $redirectUrl = route('homepage');
             }
-        }
 
-        session()->flash('error', 'Invalid verification code.');
+            // 2. Dispatch one alert that will redirect on close
+            $this->dispatch('swal:alert', [
+                'type' => 'success',
+                'title' => 'Verification Successful!',
+                'text' => 'Your account is verified. You will now be redirected.',
+                'timer' => 5000,
+                'redirectUrl' => $redirectUrl // Send the URL to the listener
+            ]);
+        } 
+        
+        else {
+            
+            // --- FAILURE ---
+            // Dispatch a failure alert
+            $this->dispatch('swal:alert', [
+                'type' => 'error',
+                'title' => 'Invalid Code',
+                'text' => 'The verification code you entered is incorrect.',
+                'timer' => 3000
+            ]);
+        }
     }
 
     public function resend()
@@ -67,6 +87,6 @@ class VerifyEmail extends Component
 
     public function render()
     {
-        return view('livewire.auth.verify-email')->with(['layout' => 'layouts.layout2']);
+        return view('livewire.auth.verify-email');
     }
 }

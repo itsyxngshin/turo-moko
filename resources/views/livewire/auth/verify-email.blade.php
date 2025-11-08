@@ -5,12 +5,6 @@
     <div class="flex flex-col justify-center bg-white px-6 py-12 sm:px-12 lg:px-20 xl:px-24">
         <div class="mx-auto w-full max-w-md">
 
-            <div>
-                <svg class="h-10 w-auto text-orange-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672L13.684 16.6m0 0l-2.5-5.001-2.5 5.001m2.5 0l-1.316-.318m1.316.318l-1.37-2.74m0 0l-1.37 2.74m1.37-2.74l1.37 2.74m0 0l1.37-2.74m-1.37 2.74l-1.37 2.74m1.37-2.74l2.5-5.001m-2.5 5.001l2.5 5.001m-2.5-5.001L12 21.672" />
-                </svg>
-            </div>
-
             <div class="mt-8">
                 <svg class="h-12 w-12 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91A2.25 2.25 0 012.25 6.993V6.75" />
@@ -62,10 +56,32 @@
         </div>
     </div>
 
-    <div class="relative hidden lg:block">
-        <img class="absolute inset-0 h-full w-full object-cover" 
-             src="httpsopen.com/img/auth.jpg" 
-             alt="An abstract orange-themed background image">
+    <div class="relative hidden lg:block"
+         x-data="{ images: [
+            '{{ asset('/images/cover.jpg') }}', 
+            '{{ asset('/images/cover7.jpg') }}', 
+            '{{ asset('/images/cover3.jpg') }}'
+         ], index: 0 }"
+         x-init="setInterval(() => { index = (index + 1) % images.length }, 5000)">
+      
+      <template x-for="(image, i) in images" :key="i">
+        <img 
+          :src="image" 
+          alt="Students using computer"
+          class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out brightness-50"
+          x-show="index === i"
+          x-transition:enter="opacity-0"
+          x-transition:enter-start="opacity-0"
+          x-transition:enter-end="opacity-100"
+          x-transition:leave="opacity-100"
+          x-transition:leave-end="opacity-0"
+        />
+      </template>
+  
+      <div class="absolute bottom-6 left-6 flex items-center gap-3">
+        <img src="{{ asset('/images/turo_moko_logo_white.png') }}" alt="Turo-Moko Logo" class="w-10 h-10 object-contain" />
+        <span class="text-white text-3xl font-bold">TURO-MOKO</span>
+      </div>
     </div>
 
 </div>

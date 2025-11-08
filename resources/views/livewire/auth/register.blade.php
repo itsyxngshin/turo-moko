@@ -30,20 +30,7 @@
     </div>
   
     {{-- Right Column (Form) --}}
-    <div class="w-full md:w-1/2 flex justify-center bg-white overflow-y-auto py-12"
-        x-on:swal-redirect.window="
-            Swal.fire({
-                title: event.detail.title,
-                text: event.detail.text,
-                icon: event.detail.icon,
-                timer: 6000,
-                timerProgressBar: true,
-                showConfirmButton: false
-            }).then(() => {
-                window.location.href = event.detail.url;
-            });
-        ">
-
+    <div class="w-full md:w-1/2 flex justify-center bg-white overflow-y-auto py-12">
         {{-- Loading Overlay --}}
         <div wire:loading.flex wire:target="register" 
             class="absolute inset-0 z-50 flex items-center justify-center bg-white bg-opacity-75 backdrop-blur-sm rounded-xl">
@@ -244,6 +231,5 @@
             </p>
 
         </div> 
-        </div> {{-- RIGHT COLUMN ENDS HERE --}}
-  
+    </div> {{-- RIGHT COLUMN ENDS HERE --}}
 </div>

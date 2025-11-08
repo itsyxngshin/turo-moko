@@ -125,27 +125,25 @@ Route::middleware(['auth', 'role:implementer', 'verified'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     //Route::get('/chat/{conversation}', Chat::class)->name('chat.view'); // Ensure the Chat class is correctly imported and exists
     Route::post('/logout', [LogoutController::class, 'logout'])->name('auth.logout');
-    
+    Route::prefix('email')->group(function () {
+       // Email verification notice page
+        Route::get('/verify', VerifyEmail::class)->name('verification.notice');
+        
+        // Email verification handler (link clicked)
+        Route::get('/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+            $request->fulfill(); // Mark email as verified
+            return redirect()->route('homepage'); // redirect anywhere you want
+        })->middleware(['signed'])->name('verification.verify');
+
+        // Resend verification email
+        Route::post('/verification-notification', function (Request $request) {
+            $request->user()->sendEmailVerificationNotification();
+            return back()->with('message', 'Verification link sent!');
+        })->middleware(['throttle:6,1'])->name('verification.send');
+    });
 }); 
 
- Route::prefix('email')->group(function () {
-       // Email verification notice page
-    Route::get('/verify', function () {
-        return view('livewire.auth.verify-email');
-    })->middleware('auth')->name('verification.notice'); 
-    
-    // Email verification handler (link clicked)
-    Route::get('/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-        $request->fulfill(); // Mark email as verified
-        return redirect()->route('homepage'); // redirect anywhere you want
-    })->middleware(['auth', 'signed'])->name('verification.verify');
-
-    // Resend verification email
-    Route::post('/verification-notification', function (Request $request) {
-        $request->user()->sendEmailVerificationNotification();
-        return back()->with('message', 'Verification link sent!');
-    })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
-    });
+ 
 
 
 
