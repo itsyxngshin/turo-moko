@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('messages', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // Who sent it
-            $table->foreignId('conversation_id')->constrained('conversations')->onDelete('cascade'); // Where it was sent
-            $table->text('body');
+            $table->foreignId('conversation_id')->constrained()->onDelete('cascade');
+            $table->foreignId('sender_id')->constrained('users')->onDelete('cascade');
+            $table->text('content');
+            $table->boolean('is_read')->default(false);
             $table->timestamps();
         });
     }

@@ -3,24 +3,27 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Auth;
 
 class Message extends Model
 {
-    protected $fillable = [
-        'user_id',
-        'conversation_id', // <-- Add this
-        'body',
-    ];
+    use HasFactory;
 
-    // A Message belongs to one Conversation
+    protected $fillable = ['conversation_id', 'sender_id', 'content'];
+
     public function conversation()
     {
         return $this->belongsTo(Conversation::class);
     }
 
-    // A Message belongs to one User
-    public function user()
+    public function sender()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'sender_id');
+    }
+
+    public function isMine()
+    {
+        return $this->sender_id === Auth::user()->id;
     }
 }

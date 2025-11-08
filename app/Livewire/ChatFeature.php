@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Livewire\Learner;
+namespace App\Livewire;
 
 use Livewire\Component;
-use App\Models\Message;
 use App\Models\Conversation;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Message;
 use App\Events\MessageSent;
+use Illuminate\Support\Facades\Auth;
 
-class Chat extends Component
+class ChatFeature extends Component
 {
     public Conversation $conversation;
     public $messages;
@@ -30,7 +30,7 @@ class Chat extends Component
     {
         if (trim($this->content) === '') return;
 
-        $message = Message::create([
+        $message = Message::create([ 
             'conversation_id' => $this->conversation->id,
             'sender_id' => Auth::id(),
             'content' => $this->content,
@@ -46,9 +46,8 @@ class Chat extends Component
     {
         $this->messages->push(Message::find($event['message']['id']));
     }
-
     public function render()
     {
-        return view('livewire.learner.chat');
+        return view('livewire.chat-feature');
     }
 }

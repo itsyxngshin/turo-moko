@@ -13,6 +13,7 @@ use App\Http\Controllers\AuthController; // Ensure this class exists in the spec
 use App\Livewire\Auth\Login;
 use App\Livewire\Auth\Register;
 use App\Livewire\Auth\Logout;
+use App\Http\Controllers\Auth\LogoutController; // Add this import to fix the error
 use App\Livewire\Auth\Verify; // Ensure this class exists in the specified namespace
 use App\Livewire\Admin\Dashboard as AdminDashboard;
 use App\Livewire\Learner\Dashboard as LearnerDashboard;
@@ -20,6 +21,7 @@ use App\Livewire\Implementer\Dashboard as ImplementerDashboard;
 // Ensure the ForgotPassword class exists in the specified namespace or replace it with the correct class
 use App\Livewire\Auth\ForgetPassword;
 use App\Livewire\Auth\ResetPassword;
+use App\Http\Livewire\Chat; // Ensure this class exists in the specified namespace
 // -----------------------------
 // Public Pages
 // -----------------------------
@@ -120,12 +122,7 @@ Route::middleware(['auth', 'role:implementer'])->group(function () {
         });
 }); 
 Route::middleware(['auth'])->group(function () {
-    Route::post('/logout', function (Request $request) {
-    Auth::logout();  
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-    
-    return redirect('/login');
-        })->name('auth.logout');
+    //Route::get('/chat/{conversation}', Chat::class)->name('chat.view'); // Ensure the Chat class is correctly imported and exists
+    Route::post('/logout', [LogoutController::class, 'logout'])->name('auth.logout');
 }); 
 

@@ -12,10 +12,10 @@
                 Email
             </label>
             <input wire:model="email" id="email" name="email" type="email"
-                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-50 focus:border-indigo-500 focus:ring-indigo-500"
+                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-50 focus:border-red-500 focus:ring-red-500"
                    readonly>
             @error('email')
-                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
             @enderror
         </div>
 
@@ -24,10 +24,10 @@
                 Password
             </label>
             <input wire:model="password" id="password" name="password" type="password"
-                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
                    required>
             @error('password')
-                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
             @enderror
         </div>
 
@@ -36,13 +36,13 @@
                 Confirm Password
             </label>
             <input wire:model="passwordConfirmation" id="passwordConfirmation" name="passwordConfirmation" type="password"
-                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
                    required>
         </div>
 
         <div class="flex items-center justify-end mt-4">
             <button type="submit"
-                    class="w-full justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                    class="w-full justify-center rounded-md bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500">
                 <span wire:loading.remove wire:target="resetPassword">
                     Reset Password
                 </span>
