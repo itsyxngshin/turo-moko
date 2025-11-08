@@ -98,7 +98,7 @@ class Register extends Component
             case 4:
                 return [
                     'strength' => 'Medium',
-                    'color'    => 'bg-yellow-500',
+                    'color'    => 'bg-orange-500',
                     'width'    => '66%'
                 ];
             case 5:
@@ -106,7 +106,7 @@ class Register extends Component
                 return [
                     'strength' => 'Strong',
                     'color'    => 'bg-green-500',
-                    'width'    => '100%'
+                    'width'    => '99%'
                 ];
             default:
                 return [
@@ -158,15 +158,19 @@ class Register extends Component
         //Log-in the user
         Auth::login($user);
 
-        // Create the dynamic URL
-        $redirectUrl = '/' . $user->role->role_name . '/dashboard';
+        $redirect = match ($user->role->role_name) {
+                'admin' => route('admin.hub'),
+                'learner' => route('learner.hub'),
+                'implementer' => route('implementer.hub'),
+                default => route('homepage'),
+            };
 
         //Dispatch SweetAlert2 success notification and redirect event
         $this->dispatch('swal-redirect', [
             'title' => 'Registration Successful!',
             'text'  => 'Welcome! You will be redirected to your dashboard.',
             'icon'  => 'success',
-            'url'   => route($redirectUrl) // Or whatever your target route is
+            'redirect'   => $redirect // Or whatever your target route is
         ]);
     }
     public function render()
