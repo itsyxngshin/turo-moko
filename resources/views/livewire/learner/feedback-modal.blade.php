@@ -5,31 +5,46 @@
 
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 relative overflow-hidden animate-fade-in"
          x-data="{
-             currentStep: 1,
-             courseRatings: {1:0,2:0,3:0,4:0},
-             implementorRatings: {6:0,7:0,8:0,9:0},
-             courseComment:'',
-             implementorComment:'',
-             totalSteps: 10,
-             get progress() {
-                 return (this.currentStep / this.totalSteps) * 100;
-             },
-             init() {
-                 this.$watch('$wire.feedbackSubmitted', value => { if(value) this.reset(); });
-             },
-             reset() {
-                 this.currentStep = 1;
-                 this.courseRatings = {1:0,2:0,3:0,4:0};
-                 this.implementorRatings = {6:0,7:0,8:0,9:0};
-                 this.courseComment = '';
-                 this.implementorComment = '';
-             }
-         }"
+    currentStep: 1,
+    courseRatings: {1:0,2:0,3:0,4:0},
+    implementorRatings: {6:0,7:0,8:0,9:0},
+    courseComment:'',
+    implementorComment:'',
+    totalSteps: 10,
+    fadingOut: false,
+    get progress() {
+        return (this.currentStep / this.totalSteps) * 100;
+    },
+    init() {
+        lucide.createIcons();
+
+        this.$watch('$wire.feedbackSubmitted', value => {
+            if (value) {
+                // Wait 2 seconds to show thank-you message
+                setTimeout(() => {
+                    this.fadingOut = true;
+                    // After fade-out animation, close and reset
+                    setTimeout(() => {
+                        this.reset();
+                        this.$wire.closeModal();
+                        this.fadingOut = false;
+                    }, 500); // fade-out duration (0.5s)
+                }, 2000); // keep thank-you visible for 2s
+            }
+        });
+    },
+    reset() {
+        this.currentStep = 1;
+        this.courseRatings = {1:0,2:0,3:0,4:0};
+        this.implementorRatings = {6:0,7:0,8:0,9:0};
+        this.courseComment = '';
+        this.implementorComment = '';
+    }
+}"
+:class="{'opacity-0 pointer-events-none scale-95 transition duration-500 ease-in-out': fadingOut}"
+
          x-init="
             lucide.createIcons();
-            $watch('currentStep', () => { 
-                setTimeout(() => lucide.createIcons(), 50);
-            });
         ">
 
         <!-- Close -->
@@ -134,9 +149,11 @@
                                   placeholder="Your thoughts about the implementor..."></textarea>
 
                         <div class="mt-4 text-green-600 font-medium"
-                             x-show="$wire.feedbackSubmitted" x-transition>
-                             Thank you for your feedback!
-                        </div>
+     x-show="$wire.feedbackSubmitted"
+     x-transition.opacity.duration.500ms>
+     Thank you for your feedback!
+</div>
+
                     @endif
                 </div>
             @endforeach
