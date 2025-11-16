@@ -105,7 +105,7 @@
 
                     <!-- Actions -->
                     <div class="mt-4 flex justify-between items-center">
-                        <a href="{{ route('implementor.course-information', ['course' => $course->id]) }}">
+                        <a href="{{ route('implementor.course-information', $course->course_code) }}">
                             View Details
                         </a>
 

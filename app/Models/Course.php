@@ -11,10 +11,33 @@ class Course extends Model
     use HasFactory;
 
     protected $fillable = [
-        'implementer_id', 'organization_id', 'category_id',
+        'implementer_id', 'organization_id', 'category_id', 'course_code',
         'name', 'background', 'status', 'visibility',
         'start_date', 'end_date'
     ];
+
+    protected static function boot()
+{
+    parent::boot();
+
+    static::creating(function ($course) {
+        $course->course_code = self::generateUniqueCode();
+    });
+}
+
+protected static function generateUniqueCode()
+{
+    do {
+        $code = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 5);
+    } while (self::where('course_code', $code)->exists());
+
+    return $code;
+}
+
+public function getRouteKeyName()
+{
+    return 'course_code';
+}
 
      public function users()
     {

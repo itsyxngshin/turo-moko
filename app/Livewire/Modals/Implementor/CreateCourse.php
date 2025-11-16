@@ -67,7 +67,7 @@ class CreateCourse extends Component
 
             // Create course
             $course = Course::create([
-                'implementer_id'   => Auth::id() ?? 2, // fallback for now
+                'implementer_id'   => Auth::id() ?? 4, // fallback for now
                 'organization_id'  => 1, // adjust if dynamic
                 'category_id'      => $this->category_id,
                 'name'             => $this->name,
@@ -111,12 +111,17 @@ class CreateCourse extends Component
             ]);
 
         } catch (\Exception $e) {
-            // Fire error event
-            $this->dispatch('swal:error', [
-                'title' => 'Error!',
-                'text'  => 'Something went wrong. Please try again.',
-            ]);
-        }
+    // ✅ Display real error message for debugging
+    $this->dispatch('swal:error', [
+        'title' => 'Error!',
+        'text'  => $e->getMessage(),
+    ]);
+
+    // (optional) log it in storage/logs/laravel.log
+    \Log::error('CreateCourse error: ' . $e->getMessage(), [
+        'trace' => $e->getTraceAsString(),
+    ]);
+}
     }
 
     public function render()

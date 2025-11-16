@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Implementors;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Course;
 use App\Models\Module;
 use App\Models\Assignment;
@@ -15,19 +14,19 @@ use App\Models\Announcement;
 
 class ImplementorCourseInformationController extends Controller
 {
-    public function show($courseId)
+    public function show(Course $course)
     {
-        // Get the logged-in implementor (replace hardcoded 2 with auth()->id() later)
-        $implementor = User::where('id', 2)
+        // Get the logged-in implementor (temporary hardcoded ID = 4)
+        $implementor = User::where('id', 4)
             ->where('role_id', 2)
             ->firstOrFail();
 
-        // Fetch the specific course belonging to this implementor
-        $course = Course::where('id', $courseId)
-            ->where('implementer_id', $implementor->id)
-            ->firstOrFail();
+        // Ensure this course belongs to the implementor
+        if ($course->implementer_id !== $implementor->id) {
+            abort(403, 'Unauthorized access to this course.');
+        }
 
-        // ✅ Fetch only announcements, modules, assignments, etc. related to this course
+        // Fetch related data
         $announcements = Announcement::where('course_id', $course->id)
             ->orderBy('created_at', 'desc')
             ->get();
@@ -37,7 +36,7 @@ class ImplementorCourseInformationController extends Controller
         $evaluations = ProgramEvaluation::where('course_id', $course->id)->get();
         $quiz = Quiz::where('course_id', $course->id)->get();
 
-        // ✅ Return everything to the Blade
+        // Return to view
         return view('livewire.implementors.implementor-course-details', [
             'course'        => $course,
             'courseId'      => $course->id,

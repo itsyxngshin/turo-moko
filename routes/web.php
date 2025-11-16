@@ -81,10 +81,10 @@ Route::prefix('implementor')->name('implementor.')->group(function () {
     Route::get('/dashboard', [ImplementorDashboardController::class, 'index'])
         ->name('dashboard');
 
-    Route::get('/course-information/{course}', [ImplementorCourseInformationController::class, 'show'])
+    Route::get('/course-information/{course:course_code}', [ImplementorCourseInformationController::class, 'show'])
          ->name('course-information');
 
-    Route::delete('/announcement/{id}', [ImplementorCourseInformationController::class, 'deleteAnnouncement'])
+    Route::delete('/announcement/{course:course_code}', [ImplementorCourseInformationController::class, 'deleteAnnouncement'])
         ->name('implementor.announcement.delete');
 
     

@@ -13,7 +13,7 @@ use App\Models\Assignment;
 class ImplementorDashboardController extends Controller
 {public function index()
 {
-    $instructor = User::where('id', 2)->where('role_id', 2)->first();
+    $instructor = User::where('id', 4)->where('role_id', 2)->first();
 
     $courses = $instructor
         ? Course::where('implementer_id', $instructor->id)->get()

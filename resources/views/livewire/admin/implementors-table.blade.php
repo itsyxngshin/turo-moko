@@ -13,7 +13,7 @@
             />
             <x-heroicon-o-magnifying-glass class="absolute left-[32%] top-2.5 w-5 h-5 text-gray-400"/>
 
-            <!-- 🔽 Sort Dropdown -->
+            <!-- Sort Dropdown -->
             <select wire:model.live="sortField" class="border-gray-300 rounded-full px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400">
                 <option value="username">Sort by Name (A–Z)</option>
                 <option value="created_at">Sort by Date Created</option>

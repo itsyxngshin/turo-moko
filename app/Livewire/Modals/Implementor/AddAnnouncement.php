@@ -32,7 +32,7 @@ class AddAnnouncement extends Component
     {
         $this->uploadKey = uniqid(); // 👈 generate unique key
 
-        $this->userId = auth()->check() ? auth()->id() : 2;
+        $this->userId = auth()->check() ? auth()->id() : 4;
 
         if ($courseId) {
             $this->courseId = $courseId;
@@ -76,6 +76,7 @@ class AddAnnouncement extends Component
         $this->uploadKey = uniqid();
 
         // ✅ SweetAlert and modal event
+        
         $this->dispatch('swal:success', [
             'title' => 'Success!',
             'text'  => 'Announcement created successfully.',

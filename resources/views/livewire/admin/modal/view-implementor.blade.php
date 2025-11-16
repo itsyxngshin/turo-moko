@@ -63,14 +63,26 @@
                     <p class="text-sm text-gray-500">Phone Number</p>
                     <p class="font-medium">{{ $implementor->phonenum ?? '—' }}</p>
                 </div>
+                <div>
+                    <p class="text-sm text-gray-500">Total no. of courses</p>
+                    <p class="font-medium">--</p>
+                </div>
                 
             </div>
 
-            <div class="mt-6">
-                <p class="text-sm text-gray-500">Bio / Description</p>
-                <p class="mt-1 text-gray-700">
-                    {{ $implementor->profile->bio ?? 'No bio available.' }}
-                </p>
+            <div class="grid grid-cols-2 gap-4 mt-4">
+                <div>
+                    <p class="text-sm text-gray-500">Bio / Description</p>
+                    <p class="mt-1 text-gray-700">
+                        {{ $implementor->profile->bio ?? 'No bio available.' }}
+                    </p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Ratings</p>
+                    <p class="mt-1 text-gray-700">
+                       --
+                    </p>
+                </div>
             </div>
         </div>
 

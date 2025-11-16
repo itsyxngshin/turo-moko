@@ -25,6 +25,12 @@
             }
         }
     </script>
+    <style>
+.swal2-container {
+    z-index: 9999 !important; /* or higher than your modal backdrop */
+}
+</style>
+
 </head>
 <body class="bg-gray-50 font-sans m-0 p-0">
     <div class="flex h-screen w-full ">
