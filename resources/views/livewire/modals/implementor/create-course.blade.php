@@ -1,4 +1,5 @@
-<div x-data="{ open: false }">
+<div x-data="{ open: false }" x-ref="createCourseModal">
+
     <!-- Trigger Button -->
     <button 
         @click="open = true"
@@ -84,6 +85,16 @@
                                 class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
                                 required>
                         </div>
+                    </div>
+
+                    <!-- Visibility -->
+                    <div>
+                        <label class="block text-gray-700 mb-1">Visibility</label>
+                        <select wire:model="visibility" 
+                                class="w-full text-black px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300">
+                            <option value="public">Public</option>
+                            <option value="private">Private</option>
+                        </select>
                     </div>
 
                     <div>
@@ -172,11 +183,7 @@
 
 
     <!-- Alpine listens for Livewire event -->
-    <script>
-        window.addEventListener('course-saved', () => {
-            document.querySelector('[x-data]').__x.$data.open = false;
-        });
-    </script>
+    
     <script>
 function fileUpload() {
     return {
@@ -213,36 +220,36 @@ function fileUpload() {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // Close modal after save
-        Livewire.on('course-saved', () => {
-            document.querySelector('[x-ref=createCourseModal]').__x.$data.open = false;
-        });
+window.addEventListener('course-saved', () => {
+    document.querySelector('[x-ref=createCourseModal]').__x.$data.open = false;
+});
 
-        // SweetAlert success popup
-        Livewire.on('swal:success', (event) => {
-            Swal.fire({
-                icon: 'success',
-                iconColor: '#000000',
-                title: 'Success!',
-                text: 'Course Created Successfully!',
-                confirmButtonColor: '#000000',
-                confirmButtonText: 'OK'
-            });
-        });
-
-        // SweetAlert error popup
-        Livewire.on('swal:error', (event) => {
-            Swal.fire({
-                icon: 'error',
-                iconColor: '#000000',
-                title: 'Error!',
-                text: 'Something Went Wrong! Please Try Again.',
-                confirmButtonColor: '#000000',
-                confirmButtonText: 'Retry'
-            });
-        });
+window.addEventListener('swal:success', (event) => {
+    Swal.fire({
+        icon: 'success', // lowercase 'success' for a check icon
+            title: 'Succes!',
+            text: 'Course Updated Successfully!', // optional message passed from Livewire
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#000000ff', // green button
+            background: '#ffffffff', // light green background
+            iconColor: '#000000ff',
+    }).then(() => {
+        // Refresh the page after user clicks OK
+        window.location.reload();
     });
+});
+
+window.addEventListener('swal:error', (event) => {
+    Swal.fire({
+        icon: 'error',
+        title: event.detail.title || 'Error!',
+        text: event.detail.text || 'Something went wrong',
+        confirmButtonColor: '#000000ff', // green button
+            background: '#ffffffff', // light green background
+            iconColor: '#000000ff',
+    });
+});
 </script>
+
 
 </div>

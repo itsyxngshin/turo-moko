@@ -8,13 +8,14 @@ use App\Http\Livewire\Admin\Modal\ModifyCourse;
 use App\Http\Livewire\Admin\Modal\ModifyUser; // Ensure this class exists in the specified namespace
 use App\Http\Livewire\Admin\Modal\ViewUser;
 use App\Http\Controllers\AuthController; // Ensure this class exists in the specified namespace
-
+use App\Http\Controllers\Admin\ViewCourseController;
 
 use App\Http\Controllers\Implementors\ImplementorDashboardController;
 use App\Http\Controllers\Implementors\ImplementorCourseInformationController;
 use App\Http\Controllers\Implementors\ImplementorAddAnnouncementController;
 use App\Http\Controllers\Learner\CourseController;
 use App\Http\Controllers\Implementors\ImplementorAddAssignmentController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -129,6 +130,8 @@ Route::prefix('admin')->group(function () {
         return view('livewire.admin.reports');
         })->name('admin.reports');    
 
+    Route::get('/course/{courseCode}', [ViewCourseController::class, 'show'])
+    ->name('course.view');
         /*
     //Route::get('/add-course', [AddCourse::class, 'create'])->name('addcourse');
     //Route::post('/add-course', [AddCourse::class, 'store'])->name('course.store'); 

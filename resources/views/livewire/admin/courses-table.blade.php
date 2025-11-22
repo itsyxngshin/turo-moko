@@ -1,14 +1,22 @@
 <div>
     <!-- Search -->
-    <div class="flex justify-between items-center mb-4">
-        <input 
-            type="text"
-            wire:model.debounce.300ms="search"
-            placeholder="Search courses..."
-            class="border rounded-full px-4 py-2 w-1/3 focus:ring-2 focus:ring-blue-400"
-        >
-        <div class="text-sm text-gray-500">Showing {{ $courses->firstItem() }}–{{ $courses->lastItem() }} of {{ $courses->total() }}</div>
+    <div class="mb-4 flex justify-between items-center">
+    <input 
+        type="text"
+        wire:model.live="search"
+        placeholder="Search courses..."
+        class="border rounded-full px-4 py-2 w-1/3 focus:ring-2 focus:ring-blue-400"
+    >
+    <div class="text-sm text-gray-500">
+        @if($courses->total() > 0)
+            Showing {{ $courses->firstItem() }}–{{ $courses->lastItem() }} of {{ $courses->total() }}
+        @else
+            No courses found
+        @endif
     </div>
+</div>
+    
+
 
     <!-- Table -->
     <div class="bg-white rounded-xl shadow overflow-hidden">
@@ -33,15 +41,19 @@
                             {{ ucfirst($course->status) }}
                         </td>
                         <td class="px-6 py-4">
-    {{ $course->implementer->profile->first_name ?? '—' }} {{ $course->implementer->profile->last_name ?? '' }}
-</td>
+                            {{ $course->implementer->profile->first_name ?? '—' }} {{ $course->implementer->profile->last_name ?? '' }}
+                        </td>
 
 
                         <td class="px-6 py-4 text-blue-500 flex space-x-4">
-                            <button class="hover:underline">View</button>
-                            @livewire('admin.modal.modify-course', ['courseId' => $course->id], key($course->id))
-                            <button class="hover:underline">Moderate</button>
-                            <button class="hover:underline">Archive</button>
+ <a href="{{ route('course.view', $course->course_code) }}" 
+       class="px-3 py-2 text-blue rounded transition hover:underline">
+        View
+    </a>        
+        @livewire('admin.modal.modify-course', ['courseId' => $course->id], key('modify-course-'.$course->id))
+        
+        <button class="hover:underline">Moderate</button>
+        <button class="hover:underline">Archive</button>
                         </td>
                     </tr>
                 @empty

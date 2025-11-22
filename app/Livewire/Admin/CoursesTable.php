@@ -5,7 +5,6 @@ namespace App\Livewire\Admin;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Course;
-use App\Models\User;
 
 class CoursesTable extends Component
 {
@@ -13,23 +12,28 @@ class CoursesTable extends Component
 
     public $search = '';
 
+    protected $updatesQueryString = ['search'];
+
+    // Reset pagination when search term changes
     public function updatingSearch()
     {
         $this->resetPage();
     }
 
     public function render()
-{
-    $courses = \App\Models\Course::with(['implementer.profile', 'category'])
-        ->when($this->search, function ($query) {
-            $query->where('name', 'like', "%{$this->search}%")
-                  ->orWhere('background', 'like', "%{$this->search}%");
-        })
-        ->paginate(10);
+    {
+        $query = Course::query()->orderBy('created_at', 'desc');
 
-    return view('livewire.admin.courses-table', [
-        'courses' => $courses,
-    ]);
-}
+        if (!empty($this->search)) {
+            $query->where('name', 'like', '%' . $this->search . '%')
+                  ->orWhereHas('category', fn($q) => 
+                      $q->where('category_name', 'like', '%' . $this->search . '%'));
+        }
 
+        $courses = $query->paginate(10);
+
+        return view('livewire.admin.courses-table', [
+            'courses' => $courses,
+        ]);
+    }
 }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Turo-Moko')</title>
-
+    
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
@@ -13,6 +13,8 @@
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+<!-- Alpine.js -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs"></script>
 
     <script>
         tailwind.config = {
@@ -26,6 +28,8 @@
         }
     </script>
     <style>
+        [x-cloak] { display: none !important; }
+
 .swal2-container {
     z-index: 9999 !important; /* or higher than your modal backdrop */
 }

@@ -18,7 +18,7 @@ class CreateCourse extends Component
     public $subject;
     public $background;
     public $status = 'Active'; // default
-    public $visibility = 'Visible'; // default
+    public $visibility = 'public'; // default
     public $start_date;
     public $end_date;
     public $category_id;
@@ -51,6 +51,7 @@ class CreateCourse extends Component
         // Load categories for dropdown
         $this->categories = Category::all();
     }
+    
 
     public function saveCourse()
     {
@@ -61,6 +62,7 @@ class CreateCourse extends Component
                 'category_id' => 'required|exists:categories,id',
                 'thumbnail'   => 'nullable|image|max:2048',
                 'start_date'  => 'required|date',
+                'visibility'     => 'required|in:public,private',
                 'student_limit' => 'required|integer|min:1|max:20',
                 'end_date'    => 'required|date|after_or_equal:start_date',
             ]);
@@ -77,6 +79,7 @@ class CreateCourse extends Component
                 'start_date'       => $this->start_date,
                 'student_limit' => $this->student_limit, // ✅ this line
                 'end_date'         => $this->end_date,
+                'course_code'      => Course::generateUniqueCode(),
             ]);
 
             // Handle cover photo upload
