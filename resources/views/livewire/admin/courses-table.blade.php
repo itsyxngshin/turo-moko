@@ -52,7 +52,10 @@
     </a>        
         @livewire('admin.modal.modify-course', ['courseId' => $course->id], key('modify-course-'.$course->id))
         
-        <button class="hover:underline">Moderate</button>
+        <a href="{{ route('moderation.course', $course->id) }}" 
+        class="px-3 py-2 text-blue rounded transition hover:underline">
+            Moderate
+        </a>
         <button class="hover:underline">Archive</button>
                         </td>
                     </tr>

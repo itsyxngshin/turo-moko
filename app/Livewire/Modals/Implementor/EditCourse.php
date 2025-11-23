@@ -91,6 +91,7 @@ $this->end_date = $this->course->end_date
         $course->category_id = $this->category;
         $course->start_date  = $this->start_date;
         $course->end_date    = $this->end_date;
+        
         $course->save();
 
         // Update tags

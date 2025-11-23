@@ -18,7 +18,7 @@ class CreateCourse extends Component
     public $subject;
     public $background;
     public $status = 'Active'; // default
-    public $visibility = 'public'; // default
+    public $visibility = 'visible'; // default
     public $start_date;
     public $end_date;
     public $category_id;

@@ -38,7 +38,7 @@ class ModifyCourse extends Component
         $this->name            = $this->course->name;
         $this->background      = $this->course->background;
         $this->category        = $this->course->category_id;
-        $this->visibility      = $this->course->visibility ?? 'public'; // Set default if null
+        $this->visibility      = $this->course->visibility ?? 'visible'; // Set default if null
         $this->student_limit   = $this->course->student_limit;
         $this->start_date      = $this->course->start_date
                                     ? \Carbon\Carbon::parse($this->course->start_date)->format('Y-m-d')

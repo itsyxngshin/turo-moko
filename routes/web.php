@@ -126,9 +126,13 @@ Route::prefix('admin')->group(function () {
         return view('livewire.admin.courses');
         })->name('admin.courses');
     
-    Route::get('/reports', function () {
-        return view('livewire.admin.reports');
-        })->name('admin.reports');    
+    Route::get('/course-moderation', function () {
+        return view('livewire.admin.course-moderation');
+        })->name('admin.course-moderation');  
+    
+    Route::get('/moderation/course/{course}', [CourseModerationController::class, 'index'])
+    ->name('moderation.course');
+
 
     Route::get('/course/{courseCode}', [ViewCourseController::class, 'show'])
     ->name('course.view');
