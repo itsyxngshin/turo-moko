@@ -15,14 +15,14 @@ use App\Livewire\Auth\Login;
 use App\Livewire\Auth\Register;
 use App\Livewire\Auth\Logout;
 use App\Http\Controllers\Auth\LogoutController; // Add this import to fix the error
-use App\Livewire\Auth\Verify; // Ensure this class exists in the specified namespace
+use App\Livewire\Auth\Verify;
 use App\Livewire\Admin\Dashboard as AdminDashboard;
 use App\Livewire\Learner\Dashboard as LearnerDashboard;
 use App\Livewire\Implementer\Dashboard as ImplementerDashboard;
 // Ensure the ForgotPassword class exists in the specified namespace or replace it with the correct class
 use App\Livewire\Auth\ForgetPassword;
 use App\Livewire\Auth\ResetPassword;
-use App\Http\Livewire\Chat; // Ensure this class exists in the specified namespace
+use App\Livewire\ChatFeature; // Ensure this class exists in the specified namespace
 // -----------------------------
 // Public Pages
 // -----------------------------
@@ -35,7 +35,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', Login::class)->name('auth.login');
     Route::get('/register', Register::class)->name('auth.register');
     Route::get('/forgot-password', ForgetPassword::class)->name('auth.forget-password'); 
-    Route::get('/reset-password/{token}', ResetPassword::class)->name('auth.reset-password'); 
+    Route::get('/reset-password/{token}', ResetPassword::class)->name('password.reset'); 
 });
 
 Route::get('/password-reset', function () {
@@ -123,13 +123,14 @@ Route::middleware(['auth', 'role:implementer', 'verified'])->group(function () {
         });
 }); 
 Route::middleware(['auth'])->group(function () {
+    Route::get('/chat/{conversation?}', ChatFeature::class)->name('auth.chat'); 
     //Route::get('/chat/{conversation}', Chat::class)->name('chat.view'); // Ensure the Chat class is correctly imported and exists
     Route::post('/logout', [LogoutController::class, 'logout'])->name('auth.logout');
     Route::prefix('email')->group(function () {
        // Email verification notice page
         Route::get('/verify', VerifyEmail::class)->name('verification.notice');
         
-        // Email verification handler (link clicked)
+        // Email verification handler (link clicked) 
         Route::get('/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
             $request->fulfill(); // Mark email as verified
             return redirect()->route('homepage'); // redirect anywhere you want

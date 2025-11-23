@@ -6,8 +6,10 @@ use Livewire\Component;
 use Livewire\Attributes\Rule;
 use Illuminate\Support\Facades\Password;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 
 #[Layout('layouts.password')]
+#[Title('Forgot Password')]
 
 class ForgetPassword extends Component
 {
@@ -20,15 +22,23 @@ class ForgetPassword extends Component
      * Handle the form submission.
      */
     public function sendResetLink(){
-        $this->validate();
+       $this->validate();
 
-        $status = Password::sendResetLink(
-            ['email' => $this->email]
-        );
+        $status = Password::sendResetLink(['email' => $this->email]);
 
-        return $status === Password::RESET_LINK_SENT
-            ? $this->message = __($status)
-            : $this->addError('email', __($status));
+        if ($status === Password::RESET_LINK_SENT) {
+            // Clear the email field
+            $this->email = '';
+
+            // Dispatch the event to the frontend with the success message
+            $this->dispatch('reset-link-sent', [
+                'message' => __($status)
+            ]);
+
+            return;
+        }
+
+        $this->addError('email', __($status));
     }
 
     public function render(){
