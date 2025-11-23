@@ -35,8 +35,10 @@
     background-color: transparent;
 }
     </style>
+    @livewireStyles
+
 </head>
-<body class="bg-gray-50 bg-opacity-0 font-sans">
+<body class="bg-gray-50 font-sans overflow-x-hidden">
     <div class="flex h-screen overflow-hidden">
         
         <!-- Sidebar (fixed) -->
@@ -56,6 +58,8 @@
     <!-- Page Content (scrollable) -->
     <main class="flex-1 overflow-y-auto p-6 bg-transparent">
         @yield('content')
+        
+        {{ $slot ?? '' }}
     </main>
 </div>
 

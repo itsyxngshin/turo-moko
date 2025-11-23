@@ -27,7 +27,7 @@
         }
     </script>
 </head>
-<body class="bg-gray-50 font-sans">
+<body class="bg-gray-50 font-sans overflow-x-hidden">
     <div class="flex h-screen">
         
         <!-- Sidebar Component -->
@@ -43,6 +43,8 @@
             <!-- Page Content -->
             <main class="p-6">
                 @yield('content')
+
+                {{ $slot ?? '' }}
             </main>
         </div>
     </div>

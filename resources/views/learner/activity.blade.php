@@ -4,5 +4,5 @@
 @section('page-title', 'Course Activity')
 
 @section('content')
-    <livewire:learner.activity :id="$id" />
+    <livewire:learner.assignment-component :id="$id" />
 @endsection

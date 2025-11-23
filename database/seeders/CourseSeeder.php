@@ -2,19 +2,6 @@
 
 namespace Database\Seeders;
 
-<<<<<<< Updated upstream
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-
-class CourseSeeder extends Seeder
-{
-    /**
-     * Run the database seeds.
-     */
-    public function run(): void
-    {
-        //
-=======
 use Illuminate\Database\Seeder;
 use App\Models\Course;
 use App\Models\User;
@@ -89,6 +76,5 @@ class CourseSeeder extends Seeder
         if ($user) {
             $user->recentCourses()->attach($webDev->id, ['last_accessed' => Carbon::now()]);
         }
->>>>>>> Stashed changes
     }
 }

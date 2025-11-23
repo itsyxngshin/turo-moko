@@ -7,20 +7,25 @@ use App\Models\Course;
 
 class Dashboard extends Component
 {
-    public $courses;
-
-    public function mount()
+    
+      public function index()
     {
-        // Fetch only visible and active courses
-        $this->courses = Course::where('status', 'Active')
-            ->where('visibility', 'Visible')
-            ->latest()
-            ->take(4)
-            ->get();
-    }
+        $enrolleesCount = User::where('role', 'student')->count();
+        $implementorsCount = User::where('role', 'mentor')->count();
+        $coursesCount = Course::count();
 
-    public function render()
-    {
-        return view('livewire.learner.dashboard');
+        $activeStudents = $enrolleesCount > 0 ? round(($enrolleesCount / User::count()) * 100) : 0;
+        $activeMentors = $implementorsCount > 0 ? round(($implementorsCount / User::count()) * 100) : 0;
+
+        $latestCourses = Course::latest()->take(6)->get();
+
+        return view('admin.dashboard', compact(
+            'enrolleesCount',
+            'implementorsCount',
+            'coursesCount',
+            'activeStudents',
+            'activeMentors',
+            'latestCourses'
+        ));
     }
 }

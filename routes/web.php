@@ -8,9 +8,6 @@ use App\Http\Livewire\Admin\Modal\ModifyCourse;
 use App\Http\Livewire\Admin\Modal\ModifyUser; // Ensure this class exists in the specified namespace
 use App\Http\Livewire\Admin\Modal\ViewUser;
 
-<<<<<<< Updated upstream
-=======
-
 
 // ✅ Import learner Livewire components
 use App\Http\Livewire\Learner\Dashboard;
@@ -31,10 +28,20 @@ use App\Http\Controllers\Learner\DashboardController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\Learner\CoursesController;
 use App\Http\Livewire\Learner\EvaluationStatus;
+use App\Livewire\Learner\ArchivedCourses;
+use App\Livewire\Learner\Notifications;
+
+Route::get('/learner/activity/{id}', function($id) {
+    return app(Activity::class)->mount($id)->html();
+})->name('learner.activity.show');
+
+
+Route::get('/learner/notifications', function () {
+    return view('learner.notifications-page'); // Blade wrapper
+})->name('learner.notifications');
 
 
 
->>>>>>> Stashed changes
 Route::get('/', function () {
     return view('welcome');
 });
@@ -84,21 +91,33 @@ Route::prefix('learner')->name('learner.')->group(function () {
     Route::get('/courses', [CoursesController::class, 'index'])->name('courses.index');
     Route::get('/courses/{course}', [CoursesController::class, 'show'])->name('courses.show');
     Route::get('/completed-courses', [CoursesController::class, 'completed'])->name('courses.completed');
-
+    
     // ✅ Correct route
     Route::get('/evaluation-status', function () {
         return view('learner.evaluation-status');
     })->name('evaluation-status');
 
     Route::get('/activities', [ActivitiesController::class, 'index'])->name('activities');
+
+    Route::get('/archived-courses', ArchivedCourses::class)->name('archived-courses');
+
+    Route::get('/profile/edit', \App\Livewire\Learner\EditProfile::class)->name('profile.edit');
+
+    Route::get('/assignment/{id}', function ($id) {
+    return view('learner.assignment', compact('id'));
+})->name('learner.assignment');
+ 
+
+    
 });
 
 
-<<<<<<< Updated upstream
+
+
 // -----------------------------
 // Admin Pages
 // -----------------------------
-=======
+
 
 Route::prefix('implementor')->name('implementor.')->group(function () {
     Route::get('/dashboard', [ImplementorDashboardController::class, 'index'])
@@ -119,7 +138,7 @@ Route::prefix('implementor')->name('implementor.')->group(function () {
     
 });
 
->>>>>>> Stashed changes
+
 Route::prefix('admin')->group(function () {
     Route::get('/hub', function () {
         return view('livewire.admin.dashboard');

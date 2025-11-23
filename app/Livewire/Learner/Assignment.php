@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Http\Livewire\Learner;
+namespace App\Livewire\Learner;
 
 use Livewire\Component;
-use App\Models\Assignment;
 
-class Activity extends Component
+
+class Assignment extends Component
 {
      public $assignment;
 
-    public function mount()
+    public function mount($id)
     {
-        $id = request()->route('id');
+        // Load assignment by ID
         $this->assignment = Assignment::findOrFail($id);
     }
 
