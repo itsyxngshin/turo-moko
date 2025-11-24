@@ -98,6 +98,10 @@ Route::prefix('implementor')->group(function () {
     
     Route::put('/assessment-builder/{id}', [AssessmentBuilderController::class, 'update'])
         ->name('implementor.assessment-builder.update');
+
+    Route::get('/assessment-results', function () {
+        return view('implementor.assessment-results');
+    })->name('implementor.assessment-results');
     
     // Test route to verify form submission
     Route::post('/test-form', function(Request $request) {
