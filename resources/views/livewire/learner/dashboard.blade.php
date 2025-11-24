@@ -74,6 +74,5 @@
       </div>
     </section>
 
-    @livewire('learner.feedback-modal')
 </div>
 @endsection
