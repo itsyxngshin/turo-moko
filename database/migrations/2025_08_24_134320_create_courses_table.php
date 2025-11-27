@@ -20,8 +20,8 @@ return new class extends Migration
             $table->foreignId('cover_photo_id')->nullable();
             $table->string('name'); 
             $table->text('background'); 
-            $table->enum('status', ['Archived', 'Active', 'Deleted', 'Closed'])->default('Active');
-            $table->enum('visibility', ['Visible', 'Hidden'])->default('Visible');
+            $table->enum('status', ['archived', 'active', 'deleted', 'closed'])->default('Active');
+            $table->enum('visibility', ['visible', 'hidden'])->default('visible');
             $table->datetime('start_date'); 
             $table->datetime('end_date'); 
             $table->timestamps();

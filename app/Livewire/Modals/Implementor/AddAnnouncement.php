@@ -17,21 +17,19 @@ class AddAnnouncement extends Component
     public $course;
     public $title;
     public $details;
-    public $attachments = [];
+    public $attachment; // single file
     public $userId;
-    public $uploadKey; // 👈 unique key to force input re-render
+    public $uploadKey; // force re-render
 
     protected $rules = [
         'title' => 'required|string|max:255',
         'details' => 'required|string',
-        'attachments' => 'nullable|array|max:2',
-        'attachments.*' => 'nullable|file|max:102400',
+        'attachment' => 'nullable|file|max:102400', // single attachment
     ];
 
     public function mount($courseId = null)
     {
-        $this->uploadKey = uniqid(); // 👈 generate unique key
-
+        $this->uploadKey = uniqid();
         $this->userId = auth()->check() ? auth()->id() : 4;
 
         if ($courseId) {
@@ -55,28 +53,24 @@ class AddAnnouncement extends Component
             'content'   => $this->details,
         ]);
 
-        if (!empty($this->attachments)) {
+        if ($this->attachment) {
             if (!Storage::disk('public')->exists('course_attachments')) {
                 Storage::disk('public')->makeDirectory('course_attachments');
             }
 
-            foreach ($this->attachments as $file) {
-                $path = $file->store('course_attachments', 'public');
+            $path = $this->attachment->store('course_attachments', 'public');
 
-                AnnouncementAttachment::create([
-                    'announcement_id' => $announcement->id,
-                    'file_path'       => $path,
-                    'original_name'   => $file->getClientOriginalName(),
-                ]);
-            }
+            AnnouncementAttachment::create([
+                'announcement_id' => $announcement->id,
+                'file_path'       => $path,
+                'original_name'   => $this->attachment->getClientOriginalName(),
+            ]);
         }
 
-        // ✅ Reset form & regenerate uploadKey to clear preview
-        $this->reset(['title', 'details', 'attachments']);
+        // Reset form
+        $this->reset(['title', 'details', 'attachment']);
         $this->uploadKey = uniqid();
 
-        // ✅ SweetAlert and modal event
-        
         $this->dispatch('swal:success', [
             'title' => 'Success!',
             'text'  => 'Announcement created successfully.',
@@ -84,14 +78,13 @@ class AddAnnouncement extends Component
             'button' => 'OK'
         ]);
 
-
         $this->dispatch('announcement-saved');
     }
 
     public function resetForm()
     {
-        $this->reset(['title', 'details', 'attachments']);
-        $this->uploadKey = uniqid(); // 👈 reset file preview too
+        $this->reset(['title', 'details', 'attachment']);
+        $this->uploadKey = uniqid();
         $this->dispatch('reset-upload-box');
     }
 

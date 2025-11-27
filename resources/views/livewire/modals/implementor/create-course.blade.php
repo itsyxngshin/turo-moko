@@ -137,10 +137,11 @@
                                 <div class="relative w-full h-40 flex items-center justify-center">
                                     <img :src="imagePreview" class="w-full h-full object-cover rounded-lg">
                                     <button 
-                                        @click.stop="removeImage" 
+                                        @click.stop="removeImage(); $wire.clearThumbnail()" 
                                         class="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-xl p-1 rounded-full shadow-md">
                                         &times;
                                     </button>
+
                                 </div>
                             </template>
 
@@ -164,9 +165,6 @@
                             @change="showPreview($event)"
                         >
 
-                        <div wire:loading wire:target="thumbnail" class="text-sm text-gray-500 mt-1">
-                            Uploading...
-                        </div>
                         @error('thumbnail') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
                 </div>

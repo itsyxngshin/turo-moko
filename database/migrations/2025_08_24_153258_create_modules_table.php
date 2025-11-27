@@ -11,16 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('modules', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('lesson_id')->constrained('lessons');
-            $table->string('module_title');
-            $table->text('description')->nullable();
-            $table->text('discussion')->nullable();
-            $table->binary('attachments')->nullable();
-            $table->enum('status', ['Hidden', 'Visible'])->default('Visible');  
-            $table->timestamps();
-        });
+       Schema::create('modules', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('course_id')->constrained('courses')->onDelete('cascade'); // module belongs to course
+        $table->integer('module_number'); // order/number of the module
+        $table->string('module_title'); // module title
+        $table->text('description')->nullable();
+        $table->enum('status', ['Hidden', 'Visible'])->default('Visible');
+        $table->timestamps();
+    });
+
     }
 
     /**

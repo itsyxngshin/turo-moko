@@ -12,7 +12,7 @@ class Course extends Model
     protected $fillable = [
         'implementer_id', 'organization_id', 'category_id', 'course_code',
         'name', 'background', 'status', 'visibility',
-        'start_date', 'end_date'
+        'start_date', 'end_date', 'student_limit'
     ];
 
     protected static function boot()

@@ -56,6 +56,8 @@ class EditAnnouncement extends Component
             $this->course = Course::find($this->courseId);
 
             $attachment = $announcement->attachments->first();
+
+            
             $this->existingAttachment = $attachment ? [
                 'path' => $attachment->file_path,
                 'name' => $attachment->original_name,

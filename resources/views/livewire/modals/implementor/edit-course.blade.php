@@ -100,8 +100,8 @@
                 <label class="block text-gray-700 mb-1">Visibility</label>
                 <select wire:model="visibility" 
                         class="w-full text-black px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300">
-                    <option value="public">Public</option>
-                    <option value="private">Private</option>
+                    <option value="visible">Visible</option>
+                    <option value="hidden">Hidden</option>
                 </select>
             </div>
 
@@ -127,15 +127,21 @@
             </div>
 
             <!-- Cover Photo Upload -->
-            <div x-data="fileUpload()" class="w-full">
+<div x-data="{open: false, imagePreview: '{{$existingThumbnail}}', dragging: false,
+        removeImage() { 
+            this.imagePreview = null; 
+            @this.removeExistingThumbnail = true; <!-- optionally mark removal -->
+        } }">
                 <label for="courseThumbnail" class="text-black">Cover Photo</label>
-                <div 
-                    x-bind:class="dragging ? 'bg-gray-200' : 'bg-gray-50'"
-                    class="relative mt-2 my-3 flex items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-lg p-4 cursor-pointer"
-                    @click="$refs.fileInput.click()"
-                    @dragover.prevent="dragging = true"
-                    @dragleave.prevent="dragging = false"
-                    @drop.prevent="handleDrop($event)">
+                <div x-data="{ dragging: false }"
+     x-bind:class="dragging ? 'bg-gray-200' : 'bg-gray-50'"
+     class="relative mt-2 my-3 flex items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-lg p-4 cursor-pointer"
+     @click="$refs.fileInput.click()"
+     @dragover.prevent="dragging = true"
+     @dragleave.prevent="dragging = false"
+     @drop.prevent="handleDrop($event)">
+    
+
 
                     <!-- Preview -->
                     <template x-if="imagePreview">
@@ -165,7 +171,7 @@
                     x-ref="fileInput" 
                     hidden 
                     accept="image/*"
-                    @change="showPreview($event)">
+                   @change="imagePreview = URL.createObjectURL($event.target.files[0]); @this.removeExistingThumbnail = false">
             </div>
         </div>
     </div>
@@ -190,53 +196,60 @@
 </div>
 <script>
 document.addEventListener('alpine:init', () => {
-    Alpine.data('fileUpload', () => ({
-        dragging: false,
-        imagePreview: @js($existingThumbnail ? asset('storage/' . $existingThumbnail) : null),
+    Alpine.data('fileUpload', (initialImage = null) => ({
+    dragging: false,
+    imagePreview: initialImage,
 
-        showPreview(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+    showPreview(event) {
+        const file = event.target.files[0];
+        if (!file) return;
 
-            const reader = new FileReader();
-            reader.onload = e => this.imagePreview = e.target.result;
-            reader.readAsDataURL(file);
-        },
+        const reader = new FileReader();
+        reader.onload = e => this.imagePreview = e.target.result;
+        reader.readAsDataURL(file);
+    },
 
-        handleDrop(event) {
-            event.preventDefault();
-            this.dragging = false;
-            const file = event.dataTransfer.files[0];
-            if (!file) return;
+    handleDrop(event) {
+        event.preventDefault();
+        this.dragging = false;
+        const file = event.dataTransfer.files[0];
+        if (!file) return;
 
-            this.$refs.fileInput.files = event.dataTransfer.files; // Update actual input
-            this.showPreview({ target: { files: [file] } });
-        },
+        this.$refs.fileInput.files = event.dataTransfer.files; // Update input
+        this.showPreview({ target: { files: [file] } });
+    },
 
-        removeImage() {
-            this.imagePreview = null;
-            this.$refs.fileInput.value = null;
-            @this.set('thumbnail', null);
-        }
-    }))
-})
+    removeImage() {
+        this.imagePreview = null;
+        this.$refs.fileInput.value = null;
+
+        @this.set('thumbnail', null);
+        @this.set('removeExistingThumbnail', true);
+    }
+}));
+
+});
 
 </script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+function swalListener() {
+    return {}
+}
+
 document.addEventListener('alpine:init', () => {
     window.addEventListener('swal', event => {
         Swal.fire({
-           icon: 'success', // lowercase 'success' for a check icon
-            title: 'Succes!',
-            text: 'Course Updated Successfully!', // optional message passed from Livewire
+            icon: 'success',
+            title: 'Success!',
+            text: 'Course Updated Successfully!',
             confirmButtonText: 'OK',
-            confirmButtonColor: '#000000ff', // green button
-            background: '#ffffffff', // light green background
-            iconColor: '#000000ff', // check icon color
+            confirmButtonColor: '#000000ff',
+            background: '#ffffffff',
+            iconColor: '#000000ff',
         }).then(() => {
-            location.reload(); // refresh page after OK
+            location.reload();
         });
     });
 });

@@ -36,7 +36,7 @@
                 </div>
                 <div class="flex space-x-3 mt-4">
                     <button class="px-4 py-2 border rounded-lg hover:bg-gray-100">Approve Entire Course</button>
-                    <button class="px-4 py-2 border rounded-lg hover:bg-gray-100">Publish Course</button>
+                    <button class="px-4 py-2 border rounded-lg hover:bg-gray-100">Hide Course</button>
                     <button class="px-4 py-2 border rounded-lg hover:bg-gray-100">Archive Course</button>
                 </div>
             </div>

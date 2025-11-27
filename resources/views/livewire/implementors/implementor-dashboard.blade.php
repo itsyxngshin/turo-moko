@@ -34,7 +34,9 @@
     @if($recentCourse)
     <!-- Featured Course -->
     <div class="relative mb-1">
-        <img src="{{ asset('storage/' . $recentCourse->activeCoverPhoto->path) }}"
+        <img src="{{ optional($recentCourse->activeCoverPhoto)->path 
+            ? asset('storage/' . $recentCourse->activeCoverPhoto->path) 
+            : asset('storage/implementor/course/thumbnail.jpg') }}"
              alt="Course Cover"
              class="rounded-lg w-full h-56 object-cover">
 
@@ -42,14 +44,17 @@
             {{ $recentCourse->subject ?? 'Subject here' }}
         </div>
 
-        <div class="absolute bottom-4 left-4 text-white">
+        <div class="absolute bottom-4 left-4 text-white ">
             <h2 class="text-xl font-semibold">{{ $recentCourse->name ?? '--' }}</h2>
-            <div class="flex items-center gap-2 mt-2">
-                <div class="w-8 h-8 bg-white text-black rounded-full flex items-center justify-center">
-                    <i class="fas fa-play"></i>
+
+            <!-- Continue Course Button -->
+            <a href="{{ route('implementor.course-information', $recentCourse->course_code) }}" 
+               class="flex items-center gap-2 mt-2 w-max bg-nonepx-3 py-1 rounded hover:bg-opacity-70 transform transition duration-500 hover:scale-110 hover:translate-x-2">
+                <div class="w-8 h-8 bg-black bg-opacity-50 text-black rounded-full flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="white" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6.906 4.537A.6.6 0 0 0 6 5.053v13.894a.6.6 0 0 0 .906.516l11.723-6.947a.6.6 0 0 0 0-1.032z"/></svg>                
                 </div>
-                <span>Continue course</span>
-            </div>
+                    <span>Continue course</span>
+            </a>
         </div>
     </div>
 @endif
@@ -58,16 +63,17 @@
    <div class="pt-3 pb-6 ">
     <h1 class="text-2xl font-bold mb-3"> 
         @isset($instructor) 
-            {{ $instructor->name }}'s Courses 
+            {{ $instructor->profile->first_name }}'s Courses 
         @else 
            No Instructor Found  
         @endisset 
     </h1>
 
 @if(!empty($courses) && $courses->isNotEmpty())
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        @foreach($courses as $course)
-            <div class="bg-white rounded-lg shadow-md border overflow-hidden">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
+        @foreach($courses->sortByDesc('created_at')->take(3) as $course)
+
+            <div class="bg-white rounded-lg shadow-md border overflow-hidden transform transition duration-500 hover:scale-105">
                 <!-- Thumbnail -->
                 @if($course->activeCoverPhoto)
                  <img 
@@ -78,7 +84,7 @@
                     class="w-full h-40 object-cover">
 
                 @else
-                    <img src="{{ asset('implementor/thumbnail.jpg') }}"
+                    <img src="{{ asset('storage/implementor/course/thumbnail.jpg') }}"
                         alt="Default Cover"
                         class="w-full h-40 object-cover">
                 @endif
@@ -93,19 +99,21 @@
                         Category: {{ $course->category->category_name ?? '--' }}
                     </p>
                     <p class="text-sm text-gray-500 mt-1">
-                        Instructor: {{ $instructor->name ?? '--' }}
+                        Instructor: {{ $instructor->profile->first_name ?? '--'}} {{$instructor->profile->last_name  ?? '' }}
                     </p>
                     <p class="text-sm text-gray-500 mt-1">
-                        Start Date: {{ $course->start_date ?? '--' }}
+                        Start Date: {{ $course->start_date ? \Carbon\Carbon::parse($course->start_date)->format('m-d-Y') : '--' }}
                     </p>
                     <p class="text-sm text-gray-500 mt-1">
-                        End Date: {{ $course->end_date ?? '--' }}
+                        End Date: {{ $course->end_date ? \Carbon\Carbon::parse($course->end_date)->format('m-d-Y') : '--' }}
                     </p>
+
+
 
 
                     <!-- Actions -->
                     <div class="mt-4 flex justify-between items-center">
-                        <a href="{{ route('implementor.course-information', $course->course_code) }}">
+                        <a href="{{ route('implementor.course-information', $course->course_code) }}" class="transform transition hover:scale-105 text-white text-[12px] bg-black rounded-xl border px-3 py-2 hover:bg-transparent hover:text-black hover:border-black">
                             View Details
                         </a>
 

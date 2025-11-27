@@ -16,6 +16,8 @@ class ImplementorCourseInformationController extends Controller
 {
     public function show(Course $course)
     {
+        
+
         // Get the logged-in implementor (temporary hardcoded ID = 4)
         $implementor = User::where('id', 4)
             ->where('role_id', 2)
@@ -31,17 +33,22 @@ class ImplementorCourseInformationController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $modules = Module::where('lesson_id', $course->id)->get();
-        $assignments = Assignment::where('lesson_id', $course->id)->get();
+       // $modules = Module::where('lesson_id', $course->id)->get();
+       // $assignments = Assignment::where('lesson_id', $course->id)->get();
         $evaluations = ProgramEvaluation::where('course_id', $course->id)->get();
         $quiz = Quiz::where('course_id', $course->id)->get();
 
-        // Return to view
-        return view('livewire.implementors.implementor-course-details', [
+        // Fetch modules for this course
+        $module = Module::where('course_id', $course->id)
+                    ->orderBy('module_number', 'asc')
+                    ->with('lessons') // optional: eager load lessons
+                    ->get();
+
+    return view('livewire.implementors.implementor-course-details', [
             'course'        => $course,
             'courseId'      => $course->id,
-            'modules'       => $modules,
-            'assignments'   => $assignments,
+            'modules'       => $module,
+            //'assignments'   => $assignments,
             'evaluations'   => $evaluations,
             'quiz'          => $quiz,
             'announcements' => $announcements,

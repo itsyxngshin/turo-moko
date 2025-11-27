@@ -61,86 +61,75 @@
                     </div>
 
                  <!-- File Upload -->
-<div 
-    x-data="fileUpload()" 
-    class="w-full text-left"
-    x-on:reset-upload-box.window="resetFileUpload()"
->
-    <label class="text-black">Attachment</label><br>
+<div x-data="fileUpload()" class="w-full text-left" x-on:reset-upload-box.window="resetFileUpload()">
+    <label class="text-black font-medium">Attachment</label>
 
     <!-- Upload Box -->
     <div 
-        x-bind:class="dragging ? 'bg-gray-100' : 'bg-gray-50'"
-        class="relative mt-2 my-3 flex items-center justify-center w-full border rounded-md border-gray-300 p-4 cursor-pointer"
+        :class="dragging ? 'bg-gray-100 z-50' : 'bg-gray-50 z-50'"
+        class="relative mt-2 my-3 flex flex-col items-center justify-center w-full min-h-[140px] border rounded-md border-gray-300 p-4 cursor-pointer"
         @click="$refs.fileInput.click()"
         @dragover.prevent="dragging = true"
         @dragleave.prevent="dragging = false"
         @drop.prevent="handleDrop($event)"
     >
-        <!-- Preview (file icon + name) -->
-        <template x-if="filePreview">
-            <div class="flex flex-col items-center text-gray-600">
-                <span class="text-4xl">📄</span> <!-- generic file icon -->
-                <p class="text-sm mt-2" x-text="fileName"></p>
-                <button 
-                    @click.stop="removeFile" 
-                    class="mt-2 text-red-500 underline text-sm">
-                    Remove
-                </button>
-            </div>
-        </template>
+        <!-- Preview -->
+        <div x-show="filePreview" class="flex flex-col items-center text-gray-600">
+            <span class="text-4xl" x-text="fileIcon"></span>
+            <p class="text-sm mt-2 break-all" x-text="fileName"></p>
+            <button @click.stop="removeFile" class="mt-2 text-red-500 underline text-sm">Remove</button>
+        </div>
 
         <!-- Placeholder -->
-        <template x-if="!filePreview">
-            <div class="flex flex-col items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24">
-                    <path fill="#4b5563" d="M23 18h-3v-3h-2v3h-3v2h3v3h2v-3h3M6 2a2 2 0 0 0-2 2v16c0 1.11.89 2 2 2h7.81c-.36-.62-.61-1.3-.73-2H6V4h7v5h5v4.08c.33-.05.67-.08 1-.08c.34 0 .67.03 1 .08V8l-6-6M8 12v2h8v-2m-8 4v2h5v-2Z"/>
-                </svg>
-                <p class="mt-2 text-sm text-gray-600 text-center">
-                    Drag & drop a file or <span class="text-blue-500">click here to upload</span>
-                </p>
-            </div>
-        </template>
+        <div x-show="!filePreview" class="flex flex-col items-center text-gray-600">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24">
+                <path fill="#4b5563" d="M23 18h-3v-3h-2v3h-3v2h3v3h2v-3h3M6 2a2 2 0 0 0-2 2v16c0 1.11.89 2 2 2h7.81c-.36-.62-.61-1.3-.73-2H6V4h7v5h5v4.08c.33-.05.67-.08 1-.08c.34 0 .67.03 1 .08V8l-6-6M8 12v2h8v-2m-8 4v2h5v-2Z"/>
+            </svg>
+            <p class="mt-2 text-sm text-gray-600 text-center">
+                Drag & drop a file or <span class="text-blue-500">click here to upload</span>
+            </p>
+        </div>
     </div>
 
     <!-- Hidden File Input -->
     <input 
         type="file" 
-        wire:model="attachments" 
-        wire:key="{{ $uploadKey }}"
-        x-ref="fileInput" 
-        hidden 
+        wire:model="attachment"
+        x-ref="fileInput"
+        hidden
         @change="showPreview($event)"
         accept="image/*,video/*,.pdf,.doc,.docx"
     >
 
-    <!-- Livewire Upload Progress -->
-    <div wire:loading wire:target="attachments" class="text-sm text-gray-500 mt-1">
-        Uploading...
-    </div>
-    @error('attachments') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+    @error('attachment') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
 </div>
 
 <script>
-function fileUpload() {
-    return {
+document.addEventListener('alpine:init', () => {
+    Alpine.data('fileUpload', () => ({
         dragging: false,
-        filePreview: false, // show generic icon instead of actual preview
+        filePreview: false,
         fileName: '',
+        fileIcon: '',
 
         showPreview(event) {
             const file = event.target.files[0];
             if (!file) return;
-
-            this.filePreview = true; // just show icon
+            this.filePreview = true;
             this.fileName = file.name;
+
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (['jpg','jpeg','png','gif','webp'].includes(ext)) this.fileIcon = '🖼️';
+            else if (['mp4','mov','avi','mkv'].includes(ext)) this.fileIcon = '🎞️';
+            else if (['pdf'].includes(ext)) this.fileIcon = '📕';
+            else if (['doc','docx'].includes(ext)) this.fileIcon = '📘';
+            else this.fileIcon = '📄';
         },
 
         handleDrop(event) {
             this.dragging = false;
             const file = event.dataTransfer.files[0];
             if (!file) return;
-
             this.$refs.fileInput.files = event.dataTransfer.files;
             this.showPreview({ target: { files: [file] } });
         },
@@ -148,15 +137,16 @@ function fileUpload() {
         removeFile() {
             this.filePreview = false;
             this.fileName = '';
+            this.fileIcon = '';
             this.$refs.fileInput.value = '';
-            this.$dispatch('input', []); // clear Livewire value
+            this.$dispatch('input', null);
         },
 
         resetFileUpload() {
             this.removeFile();
         }
-    };
-}
+    }));
+});
 </script>
 
 

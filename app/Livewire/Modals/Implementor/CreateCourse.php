@@ -52,6 +52,11 @@ class CreateCourse extends Component
         $this->categories = Category::all();
     }
     
+    public function clearThumbnail()
+{
+    $this->thumbnail = null;
+}
+
 
     public function saveCourse()
     {
@@ -62,7 +67,7 @@ class CreateCourse extends Component
                 'category_id' => 'required|exists:categories,id',
                 'thumbnail'   => 'nullable|image|max:2048',
                 'start_date'  => 'required|date',
-                'visibility'     => 'required|in:public,private',
+                'visibility'     => 'required|in:visible,hidden',
                 'student_limit' => 'required|integer|min:1|max:20',
                 'end_date'    => 'required|date|after_or_equal:start_date',
             ]);
