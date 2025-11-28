@@ -18,7 +18,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'profile_id', 'role_id', 'username', 'email', 'password', 'phone_number'
+        'name', 'profile_id', 'role_id', 'username', 'email', 'password', 'phonenum'
     ];
     protected $hidden = [
         'password',
@@ -27,7 +27,7 @@ class User extends Authenticatable
 
     public function profile()
     {
-        return $this->hasOne(Profile::class);
+        return $this->belongsTo(Profile::class);
     }
 
     public function role()

@@ -11,8 +11,8 @@ class Course extends Model
     use HasFactory;
 
     protected $fillable = [
-        'implementer_id', 'organization_id', 'category_id',
-        'name', 'subject', 'background', 'status', 'visibility',
+        'implementer_id', 'organization_id', 'category_id', 'subcat_id', 'cover_photo_id',
+        'course_title', 'name', 'background', 'status', 'visibility',
         'start_date', 'end_date'
     ];
 

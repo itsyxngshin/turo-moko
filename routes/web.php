@@ -6,6 +6,7 @@ use App\Http\Livewire\Admin\Modal\ModifyCourse;
 use App\Http\Livewire\Admin\Modal\ModifyUser; // Ensure this class exists in the specified namespace
 use App\Http\Livewire\Admin\Modal\ViewUser;
 use App\Http\Controllers\AssessmentBuilderController;
+use App\Http\Controllers\AssessmentResultsController;
 use App\Http\Controllers\CourseController;
 
 Route::get('/', function () {
@@ -99,9 +100,18 @@ Route::prefix('implementor')->group(function () {
     Route::put('/assessment-builder/{id}', [AssessmentBuilderController::class, 'update'])
         ->name('implementor.assessment-builder.update');
 
-    Route::get('/assessment-results', function () {
-        return view('implementor.assessment-results');
-    })->name('implementor.assessment-results');
+    // Assessment Results routes
+    Route::get('/assessment-results', [AssessmentResultsController::class, 'index'])
+        ->name('implementor.assessment-results');
+    
+    Route::get('/assessment-results/{quiz}', [AssessmentResultsController::class, 'show'])
+        ->name('implementor.assessment-results.show');
+    
+    Route::post('/assessment-results/grade', [AssessmentResultsController::class, 'grade'])
+        ->name('implementor.assessment-results.grade');
+    
+    Route::get('/assessment-results/{quiz}/export', [AssessmentResultsController::class, 'export'])
+        ->name('implementor.assessment-results.export');
     
     // Test route to verify form submission
     Route::post('/test-form', function(Request $request) {

@@ -8,7 +8,7 @@ class Quiz extends Model
 {
     protected $fillable = [
         'course_id', 'quiz_title', 'description',
-        'status', 'start_date', 'end_date', 'timer_hours', 'timer_minutes', 'submission_limit', 'visibility'
+        'status', 'start_date', 'end_date', 'visibility'
     ];
 
     public function course()
