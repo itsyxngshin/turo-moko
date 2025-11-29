@@ -12,18 +12,23 @@ return new class extends Migration
     public function up(): void
     {
        Schema::create('lessons', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('module_id')->constrained('modules')->onDelete('cascade');
-        $table->string('title');
-        $table->text('content')->nullable();
-        $table->enum('status', ['Draft', 'Published', 'Archived'])->default('Draft');
-        $table->date('start_date')->nullable();
-        $table->date('end_date')->nullable();
-        $table->integer('order')->nullable();
-        $table->boolean('visibility')->default(true);
-        $table->json('attachments')->nullable(); // <-- JSON column for attachments
-        $table->timestamps();
-    });
+    $table->id();
+    $table->foreignId('module_id')
+          ->constrained('modules')
+          ->onDelete('cascade');
+    
+    $table->string('title');
+    $table->text('content')->nullable();
+    $table->enum('status', ['Draft', 'Published', 'Archived'])->default('Draft');
+    $table->date('start_date')->nullable();
+    $table->date('end_date')->nullable();
+    $table->integer('order')->nullable();
+    $table->boolean('visibility')->default(true);
+    $table->json('attachments')->nullable();
+
+    $table->timestamps();
+});
+
 
     }
 

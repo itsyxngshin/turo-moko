@@ -89,8 +89,10 @@ Route::prefix('implementor')->name('implementor.')->group(function () {
         ->name('implementor.announcement.delete');
 
     
-Route::get('/{courseId}/add-assignment', [ImplementorAddAssignmentController::class, 'create'])
-    ->name('implementors.add-assignment');
+Route::get('/implementor/course/{courseId}/assignment/create', 
+    [ImplementorAddAssignmentController::class, 'create']
+)->name('implementors.add-assignment');
+
     
     Route::get('/myprofile', function () {
         return view('livewire.implementors.teacher-profile');

@@ -12,7 +12,8 @@ class ImplementorAddAssignmentController extends Controller
 {
     public function create($courseId)
     {
-        $implementor = User::where('id', 2)->where('role_id', 2)->first();
+        
+        $implementor = User::where('id', 4)->where('role_id', 2)->first(); // Hardcoded pa to, palitan nalang
 
         $course = Course::where('id', $courseId)
         ->where('implementer_id', $implementor->id)
@@ -20,7 +21,11 @@ class ImplementorAddAssignmentController extends Controller
 
 
 
-        return view('livewire.implementors.add-assignment', compact('course'));
+        return view('livewire.implementors.add-assignment', [
+    'course' => $course,
+    'implementor' => $implementor
+]);
+
     }
 
     public function store(Request $request, $courseId)
