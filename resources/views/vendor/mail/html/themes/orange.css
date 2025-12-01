@@ -1,0 +1,313 @@
+/* Base */
+
+body,
+body *:not(html):not(style):not(br):not(tr):not(code) {
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    position: relative;
+}
+
+body {
+    -webkit-text-size-adjust: none;
+    background-color: #F3F4F6; /* Softer, modern gray background */
+    color: #555555; /* Darker text for better readability */
+    height: 100%;
+    line-height: 1.4;
+    margin: 0;
+    padding: 0;
+    width: 100% !important;
+}
+
+p,
+ul,
+ol,
+blockquote {
+    line-height: 1.4;
+    text-align: left;
+}
+
+a {
+    color: #F97316; /* Your brand orange */
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+a img {
+    border: none;
+}
+
+/* Typography */
+
+h1 {
+    color: #222222; /* Darker heading */
+    font-size: 22px; /* Larger */
+    font-weight: bold;
+    margin-top: 0;
+    margin-bottom: 24px;
+    text-align: left;
+}
+
+h2 {
+    color: #222222;
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 0;
+    text-align: left;
+}
+
+h3 {
+    color: #222222;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 0;
+    text-align: left;
+}
+
+p {
+    font-size: 16px;
+    line-height: 1.6; /* More line spacing */
+    margin-top: 0;
+    text-align: left;
+    color: #555555;
+}
+
+p.sub {
+    font-size: 13px;
+    color: #777777;
+}
+
+img {
+    max-width: 100%;
+}
+
+/* Layout */
+
+.wrapper {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    background-color: #F3F4F6; /* Softer, modern gray background */
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.content {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+/* Header */
+
+.header {
+    padding: 25px 0;
+    text-align: center;
+}
+
+.header a {
+    color: #3d4852;
+    font-size: 19px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+/* Logo */
+
+.logo {
+    height: 75px;
+    max-height: 75px;
+    width: 75px;
+}
+
+/* Body */
+
+.body {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    background-color: #F3F4F6;
+    border-bottom: 1px solid #F3F4F6;
+    border-top: 1px solid #F3F4F6;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.inner-body {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 570px;
+    background-color: #ffffff;
+    border: 1px solid #E5E7EB; /* Subtle border */
+    border-radius: 8px; /* Softer corners */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Modern, soft shadow */
+    margin: 0 auto;
+    padding: 0;
+    width: 570px;
+}
+
+.inner-body a {
+    word-break: break-all;
+}
+
+/* Subcopy */
+
+.subcopy {
+    border-top: 1px solid #E5E7EB;
+    margin-top: 32px;
+    padding-top: 32px;
+}
+
+.subcopy p {
+    font-size: 14px;
+    color: #9CA3AF;
+}
+
+/* Footer */
+
+.footer {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 570px;
+    margin: 0 auto;
+    padding: 32px 0; /* More footer spacing */
+    text-align: center;
+    width: 570px;
+}
+
+.footer p {
+    color: #9CA3AF; /* Lighter footer text */
+    font-size: 12px;
+    text-align: center;
+}
+
+.footer a {
+    color: #9CA3AF;
+    text-decoration: underline;
+}
+
+/* Tables */
+
+.table table {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    margin: 30px auto;
+    width: 100%;
+}
+
+.table th {
+    border-bottom: 1px solid #edeff2;
+    margin: 0;
+    padding-bottom: 8px;
+}
+
+.table td {
+    color: #74787e;
+    font-size: 15px;
+    line-height: 18px;
+    margin: 0;
+    padding: 10px 0;
+}
+
+.content-cell {
+    max-width: 100vw;
+    padding: 40px; /* More padding for a cleaner look */
+}
+
+/* Buttons */
+
+.action {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    margin: 30px auto;
+    padding: 0;
+    text-align: center;
+    width: 100%;
+    float: unset;
+}
+
+.button {
+    -webkit-text-size-adjust: none;
+    border-radius: 8px; /* Softer corners */
+    color: #ffffff;
+    display: inline-block;
+    overflow: hidden;
+    text-decoration: none;
+    font-weight: 600; /* Bolder button text */
+    
+    /* NEW: Replaced borders with padding */
+    padding: 12px 24px;
+}
+
+.button-blue,
+.button-primary {
+    background-color: #F97316; /* Your orange */
+}
+
+.button-green,
+.button-success {
+    background-color: #22C55E; /* Brighter green */
+}
+
+.button-red,
+.button-error {
+    background-color: #EF4444; /* Brighter red */
+}
+
+/* Button Hovers */
+
+.button-primary:hover {
+    background-color: #EA580C; /* Darker orange */
+}
+
+.button-success:hover {
+    background-color: #16A34A; /* Darker green */
+}
+
+.button-error:hover {
+    background-color: #DC2626; /* Darker red */
+}
+
+/* Panels */
+
+.panel {
+    margin: 21px 0;
+    border-radius: 6px;
+    overflow: hidden; /* Contains the panel content */
+}
+
+.panel-content {
+    background-color: #FFFBEB; /* Lighter, yellowish panel */
+    color: #718096;
+    padding: 20px;
+    border-left: 4px solid #FDBA74; /* Light orange accent border */
+}
+
+.panel-content p {
+    color: #718096;
+}
+
+.panel-item {
+    padding: 0;
+}
+
+.panel-item p:last-of-type {
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+/* Utilities */
+
+.break-all {
+    word-break: break-all;
+}
