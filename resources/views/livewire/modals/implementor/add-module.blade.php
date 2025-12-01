@@ -23,7 +23,7 @@
             
             <!-- HEADER -->
             <div class="flex justify-between border-b pb-2 mb-4">
-                <h2 class="text-xl font-semibold">Add Module & Lesson</h2>
+                <h2 class="text-xl font-semibold">Add Module</h2>
                 <button @click="open = false" class="text-gray-500 hover:text-black">✖</button>
             </div>
 
@@ -49,7 +49,7 @@
         </div>
 
         <!-- MODULE TITLE -->
-        <div class="mb-6">
+        <div class="mb-3">
             <label class="block text-md mb-1 text-black">Module Title</label>
             <input 
                 type="text" 
@@ -61,40 +61,8 @@
                 <span class="text-red-500 text-sm">{{ $message }}</span> 
             @enderror
         </div>
-    </div>
-
-    <!-- RIGHT COLUMN: Lesson Information -->
-    <div>
-        <h2 class="text-lg text-gray-700 font-semibold mb-4">Lesson Information</h2>
-
-        <!-- LESSON TITLE -->
-        <div class="mb-4">
-            <label class="block text-md mb-1 text-black">Lesson Title</label>
-            <input 
-                type="text" 
-                wire:model="title"
-                placeholder="Enter Lesson Title"
-                class="w-full border rounded p-2"
-            >
-            @error('title') 
-                <span class="text-red-500 text-sm">{{ $message }}</span> 
-            @enderror
-        </div>
-
-        <!-- LESSON CONTENT -->
-        <div class="mb-4">
-            <label class="block text-md mb-1 text-black">Lesson Description</label>
-            <textarea 
-                wire:model="content"
-                placeholder="Write lesson content here..."
-                class="w-full border rounded p-2 h-32"
-            ></textarea>
-            @error('content') 
-                <span class="text-red-500 text-sm">{{ $message }}</span> 
-            @enderror
-        </div>
-
-       <div x-data="fileUpload('attachments')" x-on:reset-upload-box.window="resetFileUpload()">
+        <label class="block text-md mb-1 text-black">Attachment/s</label>
+        <div x-data="fileUpload('attachments')" x-on:reset-upload-box.window="resetFileUpload()">
 
     <input 
         type="file" 
@@ -128,6 +96,25 @@
     </div>
 
 </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Lesson Information -->
+    <div>
+
+        <!-- LESSON CONTENT -->
+        <div class="mb-4">
+            <label class="block text-md mb-1 text-black">Module Content</label>
+            <textarea 
+                wire:model="content"
+                placeholder="Write your module content here..."
+                class="w-full border rounded p-2 h-80"
+            ></textarea>
+            @error('content') 
+                <span class="text-red-500 text-sm">{{ $message }}</span> 
+            @enderror
+        </div>
+
+       
     <!-- FOOTER BUTTONS (Full Width) -->
     <div class="col-span-1 md:col-span-2 flex justify-end gap-x-3 mt-6">
         <button 
@@ -140,7 +127,7 @@
         </button>
 
         <button type="submit" class="px-6 py-2 bg-black text-white rounded-full hover:bg-gray-800">
-            Create Module & Lesson
+            Create Module
         </button>
     </div>
 </form>
@@ -198,7 +185,7 @@ document.addEventListener('alpine:init', () => {
         filePreview: false,
         fileName: '',
         fileIcon: '',
-
+ uploading: false, // <-- new
         showPreview(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -222,6 +209,8 @@ document.addEventListener('alpine:init', () => {
         },
 
         removeFile() {
+              if (this.uploading) return;
+              
             this.filePreview = false;
             this.fileName = '';
             this.fileIcon = '';

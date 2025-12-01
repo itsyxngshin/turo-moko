@@ -12,6 +12,7 @@ use App\Models\ProgramEvaluation;
 use App\Models\Quiz;
 use App\Models\Announcement;
 
+
 class ImplementorCourseInformationController extends Controller
 {
     public function show(Course $course)
@@ -40,9 +41,10 @@ class ImplementorCourseInformationController extends Controller
 
         // Fetch modules for this course
         $module = Module::where('course_id', $course->id)
-                    ->orderBy('module_number', 'asc')
-                    ->with('lessons') // optional: eager load lessons
-                    ->get();
+            ->orderBy('module_number', 'asc')
+            ->with('lessons') // hasOne relation
+            ->get();
+
 
     return view('livewire.implementors.implementor-course-details', [
             'course'        => $course,
@@ -54,4 +56,13 @@ class ImplementorCourseInformationController extends Controller
             'announcements' => $announcements,
         ]);
     }
+
+    public function destroy(Module $module)
+
+{
+    $module->delete();
+
+    return redirect()->back()->with('success', 'Module deleted successfully.');
+}
+
 }

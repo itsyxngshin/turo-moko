@@ -17,6 +17,6 @@ class Module extends Model
 
     public function lessons()
 {
-    return $this->hasMany(Lesson::class);
+    return $this->hasOne(Lesson::class, 'module_id');
 }
 }

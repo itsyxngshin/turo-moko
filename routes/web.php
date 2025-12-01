@@ -19,6 +19,8 @@ use App\Http\Controllers\Implementors\ImplementorCourseInformationController;
 use App\Http\Controllers\Implementors\ImplementorAddAnnouncementController;
 
 use App\Http\Controllers\Implementors\ImplementorAddAssignmentController;
+use App\Http\Controllers\Admin\CourseModerationController;
+
 
 
 Route::get('/', function () {
@@ -93,9 +95,13 @@ Route::prefix('implementor')->name('implementor.')->group(function () {
         ->name('implementor.announcement.delete');
 
     
-Route::get('/implementor/course/{courseId}/assignment/create', 
-    [ImplementorAddAssignmentController::class, 'create']
-)->name('implementors.add-assignment');
+    Route::get('/implementor/course/{courseId}/assignment/create', 
+        [ImplementorAddAssignmentController::class, 'create']
+    )->name('implementors.add-assignment');
+
+    Route::delete('/modules/{module}', 
+    [ImplementorCourseInformationController::class, 'destroy'])
+    ->name('modules.destroy');
 
     
     Route::get('/myprofile', function () {

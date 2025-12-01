@@ -15,7 +15,6 @@ class AddModule extends Component
 
     public $module_number;
     public $module_title;
-    public $title;
     public $content;
     public $attachments;
     public $attachments_removed = false; // Flag for removed file
@@ -33,16 +32,19 @@ class AddModule extends Component
             $this->validate([
                 'module_number' => 'required|integer',
                 'module_title'  => 'required|string|max:255',
-                'title'         => 'required|string|max:255',
                 'content'       => 'required|string',
-                'attachments'   => 'nullable|file|max:10240',
+                 'attachments'   => 'nullable|file|max:10240',
             ]);
 
             // Determine file path
-            $filePath = null;
-            if (!$this->attachments_removed && $this->attachments) {
-                $filePath = $this->attachments->store('attachments', 'public');
-            }
+           $filePath = null;
+$originalName = null;
+
+if ($this->attachments) {
+    $filePath = $this->attachments->store('attachments', 'public'); 
+    $originalName = $this->attachments->getClientOriginalName();
+}
+
 
             $module = Module::create([
                 'course_id'     => $this->courseId,
@@ -50,12 +52,14 @@ class AddModule extends Component
                 'module_title'  => $this->module_title,
             ]);
 
-            Lesson::create([
-                'module_id'   => $module->id,
-                'title'       => $this->title,
-                'content'     => $this->content,
-                'attachments' => $filePath,
-            ]);
+           
+           
+Lesson::create([
+    'module_id'                 => $module->id,
+    'content'                   => $this->content,
+    'attachments'               => $filePath,
+    'attachments_original_name' => $originalName,
+]);
 
             $this->resetForm();
 
@@ -67,16 +71,13 @@ class AddModule extends Component
             ]);
 
         } catch (\Throwable $e) {
-            $this->dispatch('swal:module-error', [
-                'title' => 'Error!',
-                'text'  => $e->getMessage(),
-            ]);
+             dd($e->getMessage());
         }
     }
 
     public function resetForm()
     {
-        $this->reset(['module_number', 'module_title', 'title', 'content', 'attachments', 'attachments_removed']);
+        $this->reset(['module_number', 'module_title', 'content', 'attachments', 'attachments_removed']);
         $this->dispatch('reset-upload-box');
     }
 
