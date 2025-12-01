@@ -27,12 +27,12 @@ use App\Http\Controllers\Implementors\ImplementorCourseInformationController;
 use App\Http\Controllers\Implementors\ImplementorAddAnnouncementController;
 use App\Http\Controllers\Learner\CourseController;
 use App\Http\Controllers\Implementors\ImplementorAddAssignmentController;
-use App\Http\Controllers\Learner\CourseController;
+//use App\Http\Controllers\Learner\CourseController;
 use App\Http\Livewire\Admin\Modal\ModifyUser; // Ensure this class exists in the specified namespace
 use App\Http\Livewire\Admin\Modal\ViewUser;
 use App\Http\Controllers\AssessmentBuilderController;
 use App\Http\Controllers\AssessmentResultsController;
-use App\Http\Controllers\CourseController;
+//use App\Http\Controllers\CourseController;
 
 // Chat
 use App\Livewire\ChatFeature;
