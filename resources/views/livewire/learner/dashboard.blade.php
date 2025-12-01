@@ -3,6 +3,7 @@
 @section('title', 'Learner Dashboard')
 @section('page-title', 'Learner Dashboard')
 
+@section('main_class', 'p-6') 
 @section('content')
 <div>
     <!-- Banner -->

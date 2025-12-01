@@ -58,6 +58,11 @@
             <!-- Top Bar: Name + Navbar -->
             <div class="flex justify-between items-center h-[60px] w-full">
                 <x-namelayout />
+        <!-- Main Section -->
+        <div class="flex-1 flex flex-col h-full pt-5">
+            <!-- Top Bar: Name + Navbar -->
+            <div class="flex justify-between items-center h-[60px] w-full">
+                <x-namelayout />
                 <x-navbar />
             </div>
 
