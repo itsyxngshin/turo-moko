@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Lesson extends Model
 {
     protected $fillable = [
-        'module_id', 'title', 'content', 'status',
-        'start_date', 'end_date', 'order', 'attachments', 'visibility'
+        'module_id', 'content', 'status',
+        'start_date', 'end_date', 'order','attachments_original_name', 'attachments', 'visibility'
     ];
 
     public function course()

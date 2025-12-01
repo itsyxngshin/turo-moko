@@ -11,6 +11,13 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- Trix Editor CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/trix/2.0.0/trix.min.css">
+
+<!-- Trix Editor JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/trix/2.0.0/trix.umd.min.js"></script>
+
+
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 <!-- Alpine.js -->
