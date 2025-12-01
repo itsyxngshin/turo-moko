@@ -4,9 +4,11 @@ namespace App\Livewire\Auth;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Layout;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 
+#[Layout('layouts.auth')] 
 class VerifyEmail extends Component
 {
     public $code = ['', '', '', ''];
@@ -23,15 +25,49 @@ class VerifyEmail extends Component
 
         $enteredCode = implode('', $this->code);
         if ($enteredCode === $user->verification_code) {
+            
+            // --- SUCCESS ---
             $user->email_verified_at = now();
             $user->verification_code = null;
             User::save();
 
-            session()->flash('success', 'Your account has been verified successfully.');
-            return redirect()->route('dashboard');
-        }
+            $roleName = $user->role->role_name; // e.g., 'admin', 'implementer'
+            $redirectUrl = '';
 
-        session()->flash('error', 'Invalid verification code.');
+            if ($roleName === 'admin') {
+                $redirectUrl = route('admin.hub');
+            } 
+            elseif ($roleName === 'implementer') {
+                $redirectUrl = route('implementer.hub');
+            } 
+            elseif ($roleName === 'learner') {
+                $redirectUrl = route('learner.hub');
+            } 
+            else {
+                $redirectUrl = route('homepage');
+            }
+
+            // 2. Dispatch one alert that will redirect on close
+            $this->dispatch('swal:alert', [
+                'type' => 'success',
+                'title' => 'Verification Successful!',
+                'text' => 'Your account is verified. You will now be redirected.',
+                'timer' => 5000,
+                'redirectUrl' => $redirectUrl // Send the URL to the listener
+            ]);
+        } 
+        
+        else {
+            
+            // --- FAILURE ---
+            // Dispatch a failure alert
+            $this->dispatch('swal:alert', [
+                'type' => 'error',
+                'title' => 'Invalid Code',
+                'text' => 'The verification code you entered is incorrect.',
+                'timer' => 3000
+            ]);
+        }
     }
 
     public function resend()
@@ -51,6 +87,6 @@ class VerifyEmail extends Component
 
     public function render()
     {
-        return view('livewire.auth.verify-email')->with(['layout' => 'layouts.layout2']);
+        return view('livewire.auth.verify-email');
     }
 }

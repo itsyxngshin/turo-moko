@@ -4,9 +4,9 @@
         <div class="flex items-center space-x-6">
             <img src="/images/banner.jpg" alt="Profile" class="w-24 h-24 rounded-full object-cover">
             <div>
-                <h2 class="text-xl font-semibold">{{ $studentName }}</h2>
-                <p class="text-gray-500 text-sm">{{ $description }}</p>
-                <p class="text-gray-500 text-sm">{{ $email }}</p>
+                <h2 class="text-xl font-semibold">{{ Auth::user()->profile->first_name }} {{ Auth::user()->profile->last_name }}</h2>
+                <p class="text-gray-500 text-sm">{{ Auth::user()->role->role_name ?? 'User' }}</p>
+                <p class="text-gray-500 text-sm">{{ Auth::user()->email }}</p>
             </div>
         </div>
     </div>

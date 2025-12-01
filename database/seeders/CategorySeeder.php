@@ -11,14 +11,14 @@ class CategorySeeder extends Seeder
     {
         Category::create([
             'id' => 1,
-            'category_name' => 'Web Development',
-            'category_description' => 'Courses related to HTML, CSS, JavaScript, and backend frameworks.',
+             'category_name' => 'Advocacy',
+            'category_description' => 'Promoting and supporting causes or policies for social change',
         ]);
 
         Category::create([
             'id' => 2,
-            'category_name' => 'Digital Literacy',
-            'category_description' => 'Covers essential computer skills, internet usage, and digital safety.',
+             'category_name' => 'Social Justice',
+            'category_description' => 'Advancing equality and fairness in society',
         ]);
     }
 }
