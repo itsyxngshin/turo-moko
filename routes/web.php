@@ -16,6 +16,7 @@ use App\Http\Controllers\Implementors\ImplementorAddAnnouncementController;
 use App\Http\Controllers\Learner\CourseController;
 use App\Http\Controllers\Implementors\ImplementorAddAssignmentController;
 use App\Http\Controllers\Admin\CourseModerationController;
+use App\Livewire\Implementors\CourseParticipants;
 
 
 
@@ -114,8 +115,13 @@ Route::prefix('implementor')->name('implementor.')->group(function () {
     
     Route::get('/courses/create', [CourseController::class, 'create'])->name('courses.create');
     Route::post('/courses', [CourseController::class, 'store'])->name('courses.store');
+Route::get('/course/{course:course_code}/participants', CourseParticipants::class)
+    ->name('course-participants');
     
 });
+
+
+
 
 Route::prefix('admin')->group(function () {
     Route::get('/hub', function () {

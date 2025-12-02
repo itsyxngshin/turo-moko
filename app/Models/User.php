@@ -24,10 +24,7 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
-    public function user()
-{
-    return $this->belongsTo(User::class);
-}
+  
 
     public function profile()
     {
@@ -46,9 +43,9 @@ class User extends Authenticatable
     }
 
     public function enrollments()
-    {
-        return $this->hasMany(CourseEnrollee::class);
-    }
+{
+    return $this->hasMany(CourseEnrollee::class, 'enrollee_id');
+}
 
     public function engagements()
     {

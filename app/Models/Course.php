@@ -49,17 +49,17 @@ class Course extends Model
      * ENROLLEES (Correct Pivot Relationship)
      * --------------------------------------
      */
-    public function enrollees()
-    {
-        return $this->belongsToMany(
-            User::class,
-            'course_enrollees',
-            'course_id',
-            'enrollee_id' // correct column name from your pivot table
-        )
-        ->withPivot('enrollment_date', 'completion_date', 'status')
-        ->where('role_id', 1); // only learners (role_id = 1)
-    }
+        public function enrollees()
+        {
+            return $this->belongsToMany(
+                User::class,
+                'course_enrollees',
+                'course_id',
+                'enrollee_id'
+            )
+            ->withPivot('enrollment_date', 'completion_date', 'status')
+            ->where('role_id', 1); // only learners
+        }
 
     /**
      * If you ever need the raw pivot model:

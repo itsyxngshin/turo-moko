@@ -17,9 +17,10 @@ class Profile extends Model
 ];
 
     public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+{
+    return $this->hasOne(User::class, 'profile_id', 'id');
+}
+
 
     public function portfolioSets()
     {
@@ -29,5 +30,7 @@ class Profile extends Model
 {
     return $this->belongsTo(Photo::class, 'photo_id'); // ensure this matches your DB column
 }
+
+
 
 }
