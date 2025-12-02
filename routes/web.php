@@ -47,7 +47,7 @@ use App\Http\Controllers\Implementors\ImplementorDashboardController;
 use App\Http\Controllers\Implementors\ImplementorCourseInformationController;
 use App\Http\Controllers\Implementors\ImplementorAddAnnouncementController;
 use App\Http\Controllers\Implementors\ImplementorAddAssignmentController;
-use App\Http\Controllers\Admin\CourseModerationController;
+use App\Livewire\Admin\CourseModeration;
 use App\Livewire\Implementors\CourseParticipants;
 
 
@@ -191,8 +191,9 @@ Route::prefix('admin')->group(function () {
         return view('livewire.admin.course-moderation');
         })->name('admin.course-moderation');  
     
-    Route::get('/moderation/course/{course}', [CourseModerationController::class, 'index'])
-    ->name('moderation.course');
+Route::get('/implementor/course-moderation/{id}', CourseModeration::class)
+    ->name('course-moderation');
+
 
 
     Route::get('/course/{courseCode}', [ViewCourseController::class, 'show'])
