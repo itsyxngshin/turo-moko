@@ -1,4 +1,7 @@
-<section class="bg-white rounded-2xl shadow-md p-6 mt-0">
+@section('title', 'Learner Activities')
+
+@section('content')
+<div class="bg-white rounded-2xl shadow-md p-6 mt-0">
   <!-- Header -->
   <div class="flex justify-between items-center mb-6">
     <h3 class="font-semibold text-lg">Pending Activities</h3>
@@ -51,4 +54,5 @@
     @endforelse
 
   </div>
-</section>
+</div>
+@endsection

@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
 class CourseEnrollee extends Model
 {
     protected $fillable = [
@@ -22,17 +21,17 @@ class CourseEnrollee extends Model
 
     public function quizResults()
     {
-        return $this->hasMany(QuizResult::class);
+        return $this->hasMany(QuizResult::class, 'enrollee_id');
     }
 
     public function answers()
     {
-        return $this->hasMany(Answer::class);
+        return $this->hasMany(Answer::class, 'enrollee_id');
     }
 
     public function submissions()
     {
-        return $this->hasMany(Submission::class);
+        return $this->hasMany(Submission::class, 'enrollee_id');
     }
 
     public function implementerEvaluations()

@@ -84,7 +84,7 @@
       <p class="text-sm text-center mt-6 text-gray-600">
         Don’t have an account?
         <!-- Sign Up Button -->
-      <a href="{{ route('signup') }}" 
+      <a href="#" 
         class=" text-sm font-medium text-gray-800 hover:text-orange-500">
         Sign Up here.
       </a>

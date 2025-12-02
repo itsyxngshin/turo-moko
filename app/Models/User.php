@@ -18,17 +18,19 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name', 'profile_id', 'role_id', 'username', 'email', 'password', 'phonenum'
+        'profile_id', 'role_id', 'username', 'email', 'password', 'phonenum'
     ];
     protected $hidden = [
         'password',
         'remember_token',
     ];
+  
 
     public function profile()
     {
         return $this->belongsTo(Profile::class);
     }
+
 
     public function role()
     {
@@ -41,9 +43,9 @@ class User extends Authenticatable
     }
 
     public function enrollments()
-    {
-        return $this->hasMany(CourseEnrollee::class);
-    }
+{
+    return $this->hasMany(CourseEnrollee::class, 'enrollee_id');
+}
 
     public function engagements()
     {

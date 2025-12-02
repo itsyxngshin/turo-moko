@@ -74,13 +74,13 @@
   <!-- Right: Login Dropdown and Sign Up -->
   <div class="flex items-center gap-4 relative">
     <!-- Log In Button -->
-<a href="{{ route('login') }}" 
+<a href="{{ route('auth.login') }}" 
    class="text-sm font-medium text-gray-800 hover:text-orange-500">
    Log In
 </a>
 
     <!-- Sign Up Button -->
-<a href="{{ route('signup') }}" 
+<a href="{{ route('auth.register') }}" 
    class="bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold py-2 px-4 rounded-full">
    Sign Up
 </a>
