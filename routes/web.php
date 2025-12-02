@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 // Ensure the Verify class is imported or replace it with the correct class
 use App\Livewire\Auth\VerifyEmail; // Add this import at the top if Verify exists in this namespace
 
+use Illuminate\Http\Request;
 use App\Http\Livewire\Admin\Modal\ModifyCourse;
 use App\Http\Livewire\Admin\Modal\ModifyUser; // Ensure this class exists in the specified namespace
 use App\Http\Livewire\Admin\Modal\ViewUser;
@@ -50,6 +51,9 @@ use App\Http\Controllers\Implementors\ImplementorAddAssignmentController;
 use App\Http\Controllers\Admin\CourseModerationController;
 use App\Livewire\Implementors\CourseParticipants;
 
+
+use App\Http\Controllers\AssessmentBuilderController;
+use App\Http\Controllers\AssessmentResultsController;
 
 
 Route::get('/', function () {
@@ -223,11 +227,40 @@ Route::prefix('admin')->group(function () {
 
     /*Route::middleware(['guest'])->group(function () {
         //OPEN FOR ALL / WEBSITE & LOGIN FACE
-        Route::get('/register', [AuthController::class, 'registerView'])->name('register');
-        Route::post('/passRegister', [AuthController::class, 'register'])->name('passRegister');
-        Route::post('/shopRegister', [AuthController::class, 'shopRegister'])->name('shopRegister');
-        Route::get('/login', [AuthController::class, 'loginView'])->name('login');
-    Route::post('/passLogin', [AuthController::class, 'login'])->name('passLogin');
         }); 
 
-        */
+
+
+// IMPLEMENTOR
+
+Route::prefix('implementor')->group(function () {
+    Route::get('/assessment-builder', [AssessmentBuilderController::class, 'create'])
+        ->name('implementor.assessment-builder');
+    
+    Route::post('/assessment-builder', [AssessmentBuilderController::class, 'store'])
+        ->name('implementor.assessment-builder.store');
+    
+    Route::put('/assessment-builder/{id}', [AssessmentBuilderController::class, 'update'])
+        ->name('implementor.assessment-builder.update');
+
+    // Assessment Results routes
+    Route::get('/assessment-results', [AssessmentResultsController::class, 'index'])
+        ->name('implementor.assessment-results');
+    
+    Route::get('/assessment-results/{quiz}', [AssessmentResultsController::class, 'show'])
+        ->name('implementor.assessment-results.show');
+    
+    Route::post('/assessment-results/grade', [AssessmentResultsController::class, 'grade'])
+        ->name('implementor.assessment-results.grade');
+    
+    Route::get('/assessment-results/{quiz}/export', [AssessmentResultsController::class, 'export'])
+        ->name('implementor.assessment-results.export');
+    
+    // Test route to verify form submission
+    Route::post('/test-form', function(Request $request) {
+        return response()->json([
+            'message' => 'Form received successfully!',
+            'data' => $request->all()
+        ]);
+    })->name('implementor.test-form');
+});
