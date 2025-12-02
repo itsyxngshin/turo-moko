@@ -52,7 +52,7 @@ class Login extends Component
                 'redirect' => $redirect,
             ]);
 
-            return;
+            return $this->redirect($redirect, navigate: true);
         }
 
         $this->addError('email', 'The provided credentials do not match our records.');

@@ -82,7 +82,7 @@
                 <div class="mb-3">
                     <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
                     <input 
-                        wire:model.live="firstName"
+                        wire:model.blur="firstName"
                         type="text" 
                         id="firstName" 
                         placeholder="Juan" 
@@ -94,7 +94,7 @@
                 <div class="mb-3">
                     <label for="middleName" class="block text-sm font-medium text-gray-700">Middle Name <span class="text-gray-400">(Optional)</span></label>
                     <input 
-                        wire:model.live="middleName"
+                        wire:model.blur="middleName"
                         type="text" 
                         id="middleName" 
                         placeholder="Santos" 
@@ -106,7 +106,7 @@
                 <div class="mb-3">
                     <label for="lastName" class="block text-sm font-medium text-gray-700">Last Name</label>
                     <input 
-                        wire:model.live="lastName"
+                        wire:model.blur="lastName"
                         type="text" 
                         id="lastName" 
                         placeholder="dela Cruz" 
@@ -118,7 +118,7 @@
                 <div class="mb-3">
                     <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
                     <input 
-                        wire:model.live="email"
+                        wire:model.blur="email"
                         type="email" 
                         id="email" 
                         placeholder="Enter your email here" 
@@ -130,7 +130,7 @@
                 <div class="mb-3">
                     <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
                     <input 
-                        wire:model.live="username"
+                        wire:model.blur="username"
                         type="text" 
                         id="username" 
                         placeholder="juan_delacruz" 
@@ -144,7 +144,7 @@
                     <div class="relative mt-1">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-lg">🇵🇭</span>
                         <input
-                            wire:model.live="phonenum"
+                            wire:model.blur="phonenum"
                             type="text"
                             id="phonenum"
                             placeholder="+639XX-XXXX-XXX"
@@ -157,7 +157,7 @@
                 <div class="mb-3">
                     <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
                     <input 
-                        wire:model.live="password"
+                        wire:model.live.debounce.500ms="password"
                         type="password" 
                         id="password" 
                         placeholder="Enter password" 
@@ -188,7 +188,7 @@
                     <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Confirm Password</label>
 
                     <input 
-                        wire:model.live="password_confirmation"
+                        wire:model.blur="password_confirmation"
                         type="password" 
                         id="password_confirmation" 
                         placeholder="Confirm password" 

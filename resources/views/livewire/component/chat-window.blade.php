@@ -33,7 +33,7 @@
                                 : 'bg-white text-gray-800 border border-gray-100 rounded-r-2xl rounded-tl-2xl rounded-bl-none' 
                             }}">
                             
-                            <p class="text-sm leading-relaxed">{{ $message->body }}</p>
+                            <p class="text-sm leading-relaxed">{{ $message->content }}</p>
                             
                             <div class="text-[10px] mt-1 {{ $isMe ? 'text-orange-100' : 'text-gray-400' }} text-right">
                                 {{ $message->created_at->format('g:i A') }}
@@ -68,7 +68,7 @@
                 </button>
 
                 <input type="text" 
-                    wire:model="body" 
+                    wire:model="content" 
                     wire:keydown.enter="sendMessage"
                     placeholder="Type your message..." 
                     class="flex-1 bg-transparent border-none focus:ring-0 text-gray-700 placeholder-gray-400"

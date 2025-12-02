@@ -162,13 +162,12 @@ class Register extends Component
         // Automatically log in the user
         Auth::login($user);
 
-        $this->dispatch('swal:alert', [
-            'type'        => 'success',
-            'title'       => 'Registration Successful!',
-            'text'        => 'We\'ve sent a verification link to your email. Redirecting...',
-            'timer'       => 5000, // 5-second timer
-            'redirectUrl' => route('verification.notice') // Pass the URL here
+        session()->flash('swal:success', [
+            'title' => 'Registration Successful!',
+            'text' => 'We\'ve sent a verification link to your email.',
         ]);
+
+        return $this->redirect(route('verification.notice'), navigate: true);
 
     }
     public function render()

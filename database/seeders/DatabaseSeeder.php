@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class, // ✅ add this
             OrganizationSeeder::class,
             CourseSeeder::class,
+            ConversationSeeder::class, 
 
         ]);
     }

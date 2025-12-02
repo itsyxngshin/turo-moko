@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 class ChatWindow extends Component
 {
 
-     public $conversationId;
+    public $conversationId;
     public $messages;
     public $body;
     public $typingUser = null;
@@ -45,7 +45,7 @@ class ChatWindow extends Component
         $message = Message::create([
             'conversation_id' => $this->conversationId,
             'sender_id' => Auth::id(),
-            'body' => $this->body,
+            'content' => $this->body,
         ]);
 
         $this->body = '';
