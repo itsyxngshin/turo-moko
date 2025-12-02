@@ -7,6 +7,9 @@ use App\Models\Conversation;
 use App\Models\Message;
 use App\Events\MessageSent;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Layout;
+
+#[Layout('layouts.chat-layout')]
 
 class ChatFeature extends Component
 {

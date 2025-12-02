@@ -1,11 +1,15 @@
-<div class="flex h-[80vh] border rounded-lg overflow-hidden shadow">
-    <!-- Sidebar -->
-    <div class="w-1/3 border-r bg-white">
-        @livewire('conversation-list')
+<aside class="w-80 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col z-20 shadow-lg">
+    
+    <div class="h-16 flex items-center justify-between px-6 border-b border-gray-100 flex-shrink-0 bg-white">
+        <h1 class="text-xl font-bold text-gray-800 tracking-tight">Messages</h1>
+        <button class="group p-2 rounded-full hover:bg-orange-50 transition-colors duration-200">
+            <svg class="w-5 h-5 text-gray-500 group-hover:text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+            </svg>
+        </button>
     </div>
 
-    <!-- Chat window -->
-    <div class="flex-1 bg-gray-50">
-        @livewire('chat-window')
+    <div class="flex-1 overflow-y-auto custom-scrollbar">
+         @livewire('component.conversation-list')
     </div>
-</div>
+</aside>

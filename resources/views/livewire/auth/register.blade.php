@@ -217,11 +217,6 @@
                 <a href="#" class="underline font-medium text-orange-500 hover:text-orange-600">Privacy Policy</a>.
             </p>
 
-            <button class="w-full border border-gray-300 rounded-xl py-2 flex items-center justify-center gap-2 hover:bg-gray-100 text-sm font-medium mb-4 transition-colors duration-200">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5" />
-                Continue with Google
-            </button>
-
             <p class="text-sm text-center text-gray-600">
                 Already have an account?
                 <a href="{{ route('auth.login') }}"

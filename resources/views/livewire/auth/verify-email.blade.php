@@ -1,24 +1,30 @@
 @section('title', 'Verify your TURO-MOKO Account')
 
-<div class="min-h-screen lg:grid lg:grid-cols-2">
+<div class="flex min-h-screen flex-col justify-center bg-gray-50 py-12 sm:px-6 lg:px-8">
+    
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+        <img class="mx-auto h-12 w-auto" src="{{ asset('/images/turo_moko_logo.png') }}" alt="TURO-MOKO" 
+             style="filter: invert(1) brightness(0);"> 
+             <h3 class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
+            Verify your email
+        </h3>
+    </div>
 
-    <div class="flex flex-col justify-center bg-white px-6 py-12 sm:px-12 lg:px-20 xl:px-24">
-        <div class="mx-auto w-full max-w-md">
-
-            <div class="mt-8">
-                <svg class="h-12 w-12 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10">
+            
+            <div class="flex flex-col items-center text-center">
+                <svg class="h-16 w-16 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91A2.25 2.25 0 012.25 6.993V6.75" />
                 </svg>
-                <h2 class="mt-4 text-3xl font-bold tracking-tight text-gray-900">
-                    Check your inbox
-                </h2>
-                <p class="mt-2 text-gray-600">
-                    Thanks for signing up! We've sent a verification link to your email.
+                
+                <h3 class="mt-4 text-xl font-semibold text-gray-900">Check your inbox</h3>
+                <p class="mt-2 text-sm text-gray-600">
+                    Thanks for signing up! We've sent a verification link to your email address.
                 </p>
             </div>
 
             <div class="mt-6 space-y-6">
-
                 @if (session('message'))
                     <div class="rounded-md bg-green-50 p-4">
                         <div class="flex">
@@ -44,10 +50,11 @@
                     </button>
                 </form>
 
-                <div class="text-center">
+                <div class="text-center border-t border-gray-200 pt-4">
+                    <p class="text-sm text-gray-600">Wrong email or change of mind?</p>
                     <form method="POST" action="{{ route('auth.logout') }}" class="inline">
                         @csrf
-                        <button type="submit" class="text-sm font-medium text-gray-500 hover:text-gray-800 hover:underline">
+                        <button type="submit" class="mt-2 text-sm font-medium text-orange-600 hover:text-orange-500 hover:underline">
                             Log Out
                         </button>
                     </form>
@@ -55,33 +62,4 @@
             </div>
         </div>
     </div>
-
-    <div class="relative hidden lg:block"
-         x-data="{ images: [
-            '{{ asset('/images/cover.jpg') }}', 
-            '{{ asset('/images/cover7.jpg') }}', 
-            '{{ asset('/images/cover3.jpg') }}'
-         ], index: 0 }"
-         x-init="setInterval(() => { index = (index + 1) % images.length }, 5000)">
-      
-      <template x-for="(image, i) in images" :key="i">
-        <img 
-          :src="image" 
-          alt="Students using computer"
-          class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out brightness-50"
-          x-show="index === i"
-          x-transition:enter="opacity-0"
-          x-transition:enter-start="opacity-0"
-          x-transition:enter-end="opacity-100"
-          x-transition:leave="opacity-100"
-          x-transition:leave-end="opacity-0"
-        />
-      </template>
-  
-      <div class="absolute bottom-6 left-6 flex items-center gap-3">
-        <img src="{{ asset('/images/turo_moko_logo_white.png') }}" alt="Turo-Moko Logo" class="w-10 h-10 object-contain" />
-        <span class="text-white text-3xl font-bold">TURO-MOKO</span>
-      </div>
-    </div>
-
 </div>
