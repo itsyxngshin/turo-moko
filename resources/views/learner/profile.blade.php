@@ -1,6 +1,6 @@
-@extends('layouts.layout')
+@extends('layouts.layout2')
 
-@section('title', 'Learner Profile')
+@section('title', 'Profile')
 
 @section('content')
     @livewire('learner.profile')

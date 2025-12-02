@@ -10,28 +10,47 @@
         <!-- Username -->
         <div>
             <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
-            <input type="text" id="username" name="username" value="Username123"
-                class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:border-black focus:ring-black p-3" disabled>
+            <input 
+                type="text" 
+                id="username" 
+                name="username" 
+                value="demouser"  <!-- static demo user -->
+                class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:border-black focus:ring-black p-3" 
+                disabled
+            >
         </div>
 
         <!-- Email -->
         <div>
             <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-            <input type="email" id="email" name="email" value="user@example.com"
-                class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:border-black focus:ring-black p-3" disabled>
+            <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                value="demo@example.com" <!-- static demo email -->
+                class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:border-black focus:ring-black p-3" 
+                disabled
+            >
         </div>
 
         <!-- Password -->
         <div>
             <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-            <input type="password" id="password" name="password" value="••••••••"
-                class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:border-black focus:ring-black p-3" disabled>
+            <input 
+                type="password" 
+                id="password" 
+                name="password" 
+                value="••••••••" <!-- placeholder password -->
+                class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:border-black focus:ring-black p-3" 
+                disabled
+            >
         </div>
 
         <!-- Save Button -->
         <div class="flex justify-center pt-4">
-            <button type="button"
-                class="px-6 py-3 bg-black text-white rounded-full hover:bg-gray-800 cursor-not-allowed">
+            <button 
+                type="button"
+                class="px-6 py-3 bg-black text-white rounded-full cursor-not-allowed opacity-50">
                 Save Changes
             </button>
         </div>

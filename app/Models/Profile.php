@@ -22,7 +22,7 @@ class Profile extends Model
 }
 
 
-    public function portfolioSets()
+    public function render()
     {
         return $this->hasMany(PortfolioSet::class);
     }
