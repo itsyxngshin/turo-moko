@@ -1,46 +1,26 @@
 <?php
 
-namespace App\Livewire\Implementor;
+namespace App\Livewire\Implementors;
 
 use Livewire\Component;
-use App\Models\Course; // check course model deets
-use Livewire\WithPagination; //opt
+use App\Models\Course;
 
-class ShowCourses extends Component
+class AllCourses extends Component
 {
-    use WithPagination;
+    public $courses;
+    public $instructor;
 
-    public $search = '';
-    public $filterSemester = 'All';
-    public $viewType = 'Card';
-
-    public function updatingSearch()
+    public function mount()
     {
-        $this->resetPage();
+        $this->instructor = auth()->user(); // or pass id param
+        $this->courses = Course::with(['activeCoverPhoto','category'])->latest()->get();
     }
 
     public function render()
     {
-        $query = Course::query();
-
-        // Sorting by most recently used/opened
-        if ($this->filterRecent) { 
-            $query->orderBy('updated_at', 'desc'); 
-        }
-
-        // Searching by course name or category
-        if ($this->search) {
-            $query->where(function ($q) {
-                $q->where('name', 'like', "%{$this->search}%")
-                ->orWhere('category', 'like', "%{$this->search}%");
-            });
-        }
-
-
-        $courses = $query->latest()->paginate(6);
-
-        return view('livewire.implementor.show-courses', [
-            'courses' => $courses,
-        ]);
-    }
+         return view('livewire.implementors.allcourses', [
+        'courses' => Course::all(),
+    ]);
+    
+}
 }
