@@ -95,6 +95,15 @@ class ProfileSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
                 ],
+
+                [
+                'photo_id' => null,
+                'first_name' => 'Mico',
+                'middle_name' => null,
+                'last_name' => 'Diaz',
+                'created_at' => now(),
+                'updated_at' => now(),
+                ],
             ]);
     }
 }

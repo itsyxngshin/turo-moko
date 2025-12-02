@@ -17,10 +17,11 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class, 
             SubcategorySeeder::class,
             ProfileSeeder::class,
-            UserSeeder::class, // ✅ add this
+            UserSeeder::class,
             OrganizationSeeder::class,
             CourseSeeder::class,
             ConversationSeeder::class, 
+            CourseTagSeeder::class, 
 
         ]);
     }

@@ -50,4 +50,9 @@ class Course extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function coverPhoto()
+    {
+        return $this->belongsTo(Photo::class, 'cover_photo_id');
+    }
 }

@@ -14,6 +14,11 @@ export default {
         "./resources/**/*.ts",
         "./resources/**/*.tsx",
     ],
+    safelist: [
+        {
+            pattern: /(bg|text|border)-(red|blue|green|emerald|purple|orange|yellow)-(50|100|500|600)/,
+        },
+    ],
 
     theme: {
         extend: {

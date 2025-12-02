@@ -14,6 +14,7 @@ use App\Http\Controllers\AuthController; // Ensure this class exists in the spec
 use App\Livewire\Auth\Login;
 use App\Livewire\Auth\Register;
 use App\Livewire\Auth\Logout;
+use App\Livewire\Learner\CourseMenu;
 use App\Http\Controllers\Auth\LogoutController; // Add this import to fix the error
 use App\Livewire\Auth\Verify;
 use App\Livewire\Admin\Dashboard as AdminDashboard;
@@ -71,6 +72,7 @@ Route::middleware(['auth', 'role:learner', 'verified'])->group(function () {
         Route::get('/hub', function () {
             return view('livewire.learner.dashboard');
             })->name('learner.hub');
+        Route::get('/courses', CourseMenu::class)->name('learner.courses');
 
         Route::get('/profile', function () {
             return view('livewire.learner.profile');
