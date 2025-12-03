@@ -52,7 +52,7 @@ class Register extends Component
     public function setRole(string $role)
     {
         // Basic validation to ensure only allowed roles can be set.
-        if (in_array($role, ['implementor', 'learner'])) {
+        if (in_array($role, ['implementer', 'learner'])) {
             $this->roleName = $role;
         }
     }
