@@ -57,6 +57,29 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsToMany(Conversation::class);
     }
 
+    public function courses()
+    {
+        // 2nd argument: Foreign key on courses table
+        // 3rd argument: Local key on users table
+        return $this->hasMany(Course::class, 'implementer_id', 'id');
+    }
+
+    public function portfolioSet() {
+        // Since PortfolioSet belongs to a Profile, and User belongs to a Profile,
+        // we access it via the Profile relationship.
+        return $this->hasOneThrough(
+            PortfolioSet::class, 
+            Profile::class, 
+            'id', // Foreign key on profiles table (user.profile_id is actually on users table, so we might need a different approach if schema is strict)
+            'profile_id', // Foreign key on portfolio_sets table
+            'profile_id', // Local key on users table
+            'id' // Local key on profiles table
+        );
+        
+        // ALTERNATIVE (Simpler if you just chain in Blade):
+        // You don't strictly need this method if you access it like $user->profile->portfolioSet
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *

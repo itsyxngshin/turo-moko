@@ -20,6 +20,7 @@ use App\Livewire\Auth\Verify;
 use App\Livewire\Admin\Dashboard as AdminDashboard;
 use App\Livewire\Learner\Dashboard as LearnerDashboard;
 use App\Livewire\Implementer\Dashboard as ImplementerDashboard;
+use App\Livewire\Implementer\Profile as ImplementerProfile;
 // Ensure the ForgotPassword class exists in the specified namespace or replace it with the correct class
 use App\Livewire\Auth\ForgetPassword;
 use App\Livewire\Auth\ResetPassword;
@@ -120,9 +121,11 @@ Route::middleware(['auth', 'role:implementer', 'verified'])->group(function () {
         //LINK THE BLADES EXCLUSIVE FOR THE TEACHER/IMPLEMENTER SIDE
     Route::prefix('implementer')->group(function () {
         Route::get('/hub', function () {
-            return view(view: 'livewire.implementer.profile');
+            return view(view: 'livewire.implementer.hub');
             })->name('implementer.hub');   
-        });
+        Route::get('/profile', ImplementerProfile::class)->name('implementer.profile');
+    });
+        
 }); 
 Route::middleware(['auth'])->group(function () {
     Route::get('/chat/{conversation?}', ChatFeature::class)->name('auth.chat'); 
