@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth; // Import Auth facade
 use Illuminate\Support\Facades\Hash; // Import Hash facade
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\VerificationCodeMail;
 
 #[Layout('layouts.auth')]
 class Register extends Component
@@ -133,8 +135,10 @@ class Register extends Component
             ]);
             return;
         }
+        // Create user (Add verification_code here)
+        $code = rand(100000, 999999); // Generate 6-digit code
 
-        $user = DB::transaction(function () use ($validated) {
+        $user = DB::transaction(function () use ($validated, $code) {
             // Create the profile first
             $profile = Profile::create([
                 'first_name' => $validated['firstName'],
@@ -142,7 +146,6 @@ class Register extends Component
                 'last_name' => $validated['lastName'],
             ]);
 
-            // Create the user and link it to the new profile
             return User::create([
                 'email' => $validated['email'],
                 'username' => $validated['username'],
@@ -150,14 +153,16 @@ class Register extends Component
                 'password' => Hash::make($validated['password']),
                 'role_id' => $this->role->id,
                 'profile_id' => $profile->id,
+                'verification_code' => $code, // Save the code immediately
             ]);
+            
         });
 
         // Eager load the profile relationship for the welcome message.
         $user->load('profile');
 
-        // Fire event to send verification email
-        event(new Registered($user));
+       // SEND THE CUSTOM EMAIL INSTEAD OF THE EVENT
+        Mail::to($user->email)->send(new VerificationCodeMail($code));
 
         // Automatically log in the user
         Auth::login($user);

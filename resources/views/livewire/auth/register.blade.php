@@ -64,13 +64,13 @@
                         </button>
                         <button
                             type="button"
-                            wire:click="$set('roleName', 'implementor')"
+                            wire:click="$set('roleName', 'implementer')"
                             wire:loading.attr="disabled"
                             wire:target="roleName"
                             class="flex-1 py-2 text-center transition-all duration-200 rounded-lg 
-                                   {{ strtolower($roleName) === 'implementor' ? 'bg-orange-500 text-white shadow-md' : 'text-gray-600 hover:bg-gray-200' }}"
+                                   {{ strtolower($roleName) === 'implementer' ? 'bg-orange-500 text-white shadow-md' : 'text-gray-600 hover:bg-gray-200' }}"
                         >
-                            Implementor
+                            Implementer
                         </button>
                     </div>
                     <p class="mt-2 text-xs text-center text-gray-500">
@@ -121,7 +121,7 @@
                         wire:model.blur="email"
                         type="email" 
                         id="email" 
-                        placeholder="Enter your email here" 
+                        placeholder="example@turo-moko.com" 
                         class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 @error('email') border-red-500 @enderror" 
                     />
                     @error('email') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
