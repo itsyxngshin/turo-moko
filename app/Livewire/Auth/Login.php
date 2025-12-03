@@ -45,11 +45,12 @@ class Login extends Component
                 default => route('homepage'),
             };
 
-            $this->dispatch('swal:success', [
-                'title' => 'Welcome, ' . $user->profile->first_name . '!',
-                'text' => 'Login successful! Redirecting to your dashboard...',
-                'icon' => 'success',
-                'redirect' => $redirect,
+            $this->dispatch('swal:alert', [
+                'type' => 'success', // matches 'icon' in your global script
+                'title' => 'Welcome Back!',
+                'text'  => 'Login successful. Redirecting...',
+                'timer' => 2000,
+                'redirectUrl' => $redirect // matches 'redirectUrl' in global script
             ]);
 
             return $this->redirect($redirect, navigate: true);
