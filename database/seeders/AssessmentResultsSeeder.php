@@ -43,7 +43,6 @@ class AssessmentResultsSeeder extends Seeder
         $implementer = User::firstOrCreate(
             ['email' => 'implementer@example.com'],
             [
-                'name' => 'Sample Implementer',
                 'profile_id' => $implementerProfile->id,
                 'role_id' => $implementerRole->id,
                 'username' => 'sampleimplementer',
@@ -86,28 +85,40 @@ class AssessmentResultsSeeder extends Seeder
         ];
 
         foreach ($sampleNames as $index => $name) {
-            $profile = Profile::create([
-                'first_name' => $name[0],
-                'last_name' => $name[1],
-            ]);
+            $email = strtolower($name[0]) . '.' . strtolower($name[1]) . '@example.com';
+            
+            // Check if user already exists
+            $user = User::where('email', $email)->first();
+            
+            if (!$user) {
+                $profile = Profile::create([
+                    'first_name' => $name[0],
+                    'last_name' => $name[1],
+                ]);
 
-            $user = User::create([
-                'name' => $name[0] . ' ' . $name[1],
-                'profile_id' => $profile->id,
-                'role_id' => $learnerRole->id,
-                'username' => strtolower($name[0] . $name[1]),
-                'email' => strtolower($name[0]) . '.' . strtolower($name[1]) . '@example.com',
-                'password' => Hash::make('password'),
-                'phonenum' => '0917' . str_pad($index + 1, 7, '0', STR_PAD_LEFT),
-            ]);
+                $user = User::create([
+                    'profile_id' => $profile->id,
+                    'role_id' => $learnerRole->id,
+                    'username' => strtolower($name[0] . $name[1]),
+                    'email' => $email,
+                    'password' => Hash::make('password'),
+                    'phonenum' => '0917' . str_pad($index + 1, 7, '0', STR_PAD_LEFT),
+                ]);
+            }
 
-            // Enroll learner in the course
-            $enrollee = CourseEnrollee::create([
-                'enrollee_id' => $user->id,
-                'course_id' => $course->id,
-                'enrollment_date' => now()->subDays(rand(1, 30)),
-                'status' => 'Active',
-            ]);
+            // Check if already enrolled
+            $enrollee = CourseEnrollee::where('enrollee_id', $user->id)
+                ->where('course_id', $course->id)
+                ->first();
+                
+            if (!$enrollee) {
+                $enrollee = CourseEnrollee::create([
+                    'enrollee_id' => $user->id,
+                    'course_id' => $course->id,
+                    'enrollment_date' => now()->subDays(rand(1, 30)),
+                    'status' => 'Active',
+                ]);
+            }
 
             $learners[] = $enrollee;
         }
@@ -217,6 +228,15 @@ class AssessmentResultsSeeder extends Seeder
         ];
 
         foreach ($learners as $index => $enrollee) {
+            // Skip if this learner already has a quiz result
+            $existingResult = QuizResult::where('quiz_id', $quiz->id)
+                ->where('course_enrollee_id', $enrollee->id)
+                ->first();
+                
+            if ($existingResult) {
+                continue;
+            }
+            
             $profileAccuracy = $performanceProfiles[$index] ?? ['mc' => 0.7, 'tf' => 0.7];
             $totalScore = 0;
             $hasUngraded = false;

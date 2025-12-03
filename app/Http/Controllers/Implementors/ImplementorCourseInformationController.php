@@ -39,7 +39,10 @@ class ImplementorCourseInformationController extends Controller
        // $modules = Module::where('lesson_id', $course->id)->get();
        // $assignments = Assignment::where('lesson_id', $course->id)->get();
         $evaluations = ProgramEvaluation::where('course_id', $course->id)->get();
-        $quiz = Quiz::where('course_id', $course->id)->get();
+        $quiz = Quiz::where('course_id', $course->id)
+            ->withCount('results')
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         // Fetch modules for this course
         $module = Module::where('course_id', $course->id)

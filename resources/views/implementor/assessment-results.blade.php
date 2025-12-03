@@ -546,7 +546,7 @@
 <script>
 document.addEventListener('alpine:init', () => {
     Alpine.data('assessmentResults', () => ({
-        selectedQuizId: '',
+        selectedQuizId: '{{ request()->get("quiz_id") ?? "" }}',
         loading: false,
         quizData: null,
         modalOpen: false,
@@ -576,6 +576,11 @@ document.addEventListener('alpine:init', () => {
                     lucide.createIcons();
                 }
             });
+            
+            // Auto-load quiz if quiz_id is in URL
+            if (this.selectedQuizId) {
+                this.loadQuizResults();
+            }
         },
 
         async loadQuizResults() {

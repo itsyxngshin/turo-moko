@@ -263,6 +263,34 @@
 
 
 
+                {{-- Assessments/Quizzes Section --}}
+                @foreach ($quiz as $assessment)
+                <a href="{{ route('implementor.assessment-builder') }}?quiz_id={{ $assessment->id }}" 
+                   class="bg-white w-full flex py-10 rounded-lg justify-between shadow-sm border p-4 mb-6 hover:shadow-md transition-shadow">
+                    <div class="flex items-center px-5 gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 48 48">
+                            <g fill="#F44336">
+                                <path d="M20 18.6L17.75 24h4.5z"/>
+                                <path fill-rule="evenodd" d="M38 15L28 4H14a4 4 0 0 0-4 4v32a4 4 0 0 0 4 4h20a4 4 0 0 0 4-4zm-18 0a1 1 0 0 1 .923.615l5 12a1 1 0 0 1-1.846.77L23.083 26h-6.166l-.994 2.385a1 1 0 0 1-1.846-.77l5-12A1 1 0 0 1 20 15m-5 17a1 1 0 1 0 0 2h18a1 1 0 1 0 0-2zm-1 5a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H15a1 1 0 0 1-1-1m17-15a1 1 0 1 0-2 0v2h-2a1 1 0 1 0 0 2h2v2a1 1 0 1 0 2 0v-2h2a1 1 0 1 0 0-2h-2zM28 7l7 8h-6a1 1 0 0 1-1-1z" clip-rule="evenodd"/>
+                            </g>
+                        </svg>
+                        <div>
+                            <span class="font-medium">{{ $assessment->quiz_title }}</span>
+                            <span class="ml-2 px-2 py-1 text-xs rounded-full {{ $assessment->status === 'Published' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700' }}">
+                                {{ $assessment->status }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center px-5 gap-4">
+                        <span class="text-sm text-gray-500">
+                            {{ $assessment->results_count ?? 0 }} {{ Str::plural('submission', $assessment->results_count ?? 0) }}
+                        </span>
+                        <span class="text-sm text-gray-500">
+                            Due {{ \Carbon\Carbon::parse($assessment->end_date)->format('M d') }}
+                        </span>
+                    </div>
+                </a>
+                @endforeach
                
                 @foreach ($evaluations as $evaluation)
                 <button class="bg-white w-full flex py-10 rounded-lg justify-between shadow-sm border p-4 mb-6">

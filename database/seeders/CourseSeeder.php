@@ -16,14 +16,14 @@ class CourseSeeder extends Seeder
             'organization_id'  => 1, // must exist in organizations table
             'category_id'      => 1, // must exist in categories table
             'subcat_id'        => null,
-            'cover_photo_id'   => null,
             'name'             => 'Introduction to Web Development',
             'course_title'     => 'Introduction to Web Development',
             'background'       => 'This course introduces learners to HTML, CSS, and JavaScript basics.',
-            'status'           => 'Active',
-            'visibility'       => 'Visible',
+            'status'           => 'active',
+            'visibility'       => 'visible',
             'start_date'       => Carbon::now(),
             'end_date'         => Carbon::now()->addMonths(3),
+            'student_limit'    => 30,
         ]);
 
         Course::create([
@@ -31,14 +31,14 @@ class CourseSeeder extends Seeder
             'organization_id'  => 1,
             'category_id'      => 2,
             'subcat_id'        => null,
-            'cover_photo_id'   => null,
             'name'             => 'Digital Skills 101',
             'course_title'     => 'Digital Skills 101',
             'background'       => 'Covers computer basics, internet navigation, and online safety.',
-            'status'           => 'Active',
-            'visibility'       => 'Visible',
+            'status'           => 'active',
+            'visibility'       => 'visible',
             'start_date'       => Carbon::now(),
             'end_date'         => Carbon::now()->addMonths(6),
+            'student_limit'    => 25,
         ]);
     }
 }

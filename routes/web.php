@@ -25,6 +25,7 @@ use App\Http\Controllers\Learner\CourseController as LearnerCourseController;
 // Assessment Controllers (CRITICAL - DO NOT REMOVE)
 use App\Http\Controllers\AssessmentBuilderController;
 use App\Http\Controllers\AssessmentResultsController;
+use App\Http\Controllers\Learner\LearnerAssessmentController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -38,6 +39,16 @@ Route::get('/fake-login', function() {
     }
     \Auth::login($user);
     return redirect()->route('implementor.dashboard')->with('success', 'Logged in as ' . $user->email);
+});
+
+// TEMPORARY: Fake login as learner for testing
+Route::get('/fake-login-learner', function() {
+    $user = \App\Models\User::where('role_id', 1)->first();
+    if (!$user) {
+        return 'No learner user found. Run: php artisan db:seed --class=UsersTableSeeder';
+    }
+    \Auth::login($user);
+    return redirect('/learner/assessments')->with('success', 'Logged in as learner: ' . $user->email);
 });
 
 Route::get('/test-login', function () {
@@ -87,7 +98,17 @@ Route::prefix('learner')->group(function () {
     Route::get('/course', fn() => view('livewire.learner.course'))->name('learner.course');
     Route::get('/activitytest', fn() => view('livewire.learner.activitytest'))->name('learner.activitytest');
     Route::get('/submission', fn() => view('livewire.learner.submission'))->name('learner.submission');
-    Route::get('/assessment', fn() => view('learner.assessment'))->name('learner.assessment');
+    
+    // Assessment routes
+    Route::get('/assessments', [LearnerAssessmentController::class, 'index'])
+        ->name('learner.assessments');
+    Route::get('/assessment/{quiz}', [LearnerAssessmentController::class, 'show'])
+        ->name('learner.assessment.show');
+    Route::post('/assessment/{quiz}/submit', [LearnerAssessmentController::class, 'submit'])
+        ->name('learner.assessment.submit');
+    Route::get('/assessment/{quiz}/result', [LearnerAssessmentController::class, 'result'])
+        ->name('learner.assessment.result');
+    
     Route::get('/evaluation', fn() => view('livewire.learner.evaluation'))->name('learner.evaluation');
     Route::get('/settings', fn() => view('livewire.learner.settings'))->name('learner.settings');
 });
@@ -150,6 +171,9 @@ Route::prefix('implementor')->name('implementor.')->group(function () {
     
     Route::put('/assessment-builder/{id}', [AssessmentBuilderController::class, 'update'])
         ->name('assessment-builder.update');
+    
+    Route::delete('/assessment-builder/{id}', [AssessmentBuilderController::class, 'destroy'])
+        ->name('assessment-builder.destroy');
 
     // Assessment Results routes
     Route::get('/assessment-results', [AssessmentResultsController::class, 'index'])
