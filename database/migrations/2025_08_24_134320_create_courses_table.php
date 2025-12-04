@@ -13,6 +13,8 @@ return new class extends Migration
             $table->foreignId('organization_id')->nullable()->constrained('organizations')->onDelete('set null');
             $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
             $table->foreignId('subcat_id')->nullable()->constrained('subcategories')->onDelete('set null');
+            $table->foreignId('cover_photo_id')->nullable()->constrained('photos')->onDelete('set null');
+            $table->string('course_title'); 
             $table->string('name'); 
             $table->text('background'); 
             $table->enum('status', ['archived', 'active', 'deleted', 'closed'])->default('active');

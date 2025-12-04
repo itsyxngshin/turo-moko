@@ -1,16 +1,18 @@
 <?php
 
 namespace App\Livewire\Auth;
+
 use Livewire\Attributes\Rule;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use App\Models\Role; 
 use App\Models\Profile; 
+use App\Models\Log; // <--- IMPORT THIS
 use Livewire\Component;
-use App\Models\User; // Import the User model
+use App\Models\User; 
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth; // Import Auth facade
-use Illuminate\Support\Facades\Hash; // Import Hash facade
+use Illuminate\Support\Facades\Auth; 
+use Illuminate\Support\Facades\Hash; 
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\VerificationCodeMail;
@@ -47,14 +49,10 @@ class Register extends Component
 
     /**
      * A computed property to fetch the Role model based on the selected role name.
-     * This avoids storing a separate roleId and keeps the data consistent.
-     * The result is cached for the lifecycle of a single request.
      */
-
     public function setRole(string $role)
     {
-        // Basic validation to ensure only allowed roles can be set.
-        if (in_array($role, ['implementer', 'learner'])) {
+        if (in_array($role, ['implementor', 'learner'])) {
             $this->roleName = $role;
         }
     }
@@ -70,7 +68,6 @@ class Register extends Component
         $password = $this->password;
         $score = 0;
 
-        // Return empty array if password is empty
         if (empty($password)) {
             return [
                 'strength' => '',
@@ -79,55 +76,44 @@ class Register extends Component
             ];
         }
 
-        // Add points for criteria
-        if (strlen($password) >= 8) $score++;      // Length 8+
-        if (strlen($password) >= 12) $score++;     // Length 12+
-        if (preg_match('/[a-z]/', $password)) $score++; // Lowercase
-        if (preg_match('/[A-Z]/', $password)) $score++; // Uppercase
-        if (preg_match('/[0-9]/', $password)) $score++; // Numbers
-        if (preg_match('/[\W_]/', $password)) $score++; // Symbols (non-word chars)
+        if (strlen($password) >= 8) $score++;      
+        if (strlen($password) >= 12) $score++;     
+        if (preg_match('/[a-z]/', $password)) $score++; 
+        if (preg_match('/[A-Z]/', $password)) $score++; 
+        if (preg_match('/[0-9]/', $password)) $score++; 
+        if (preg_match('/[\W_]/', $password)) $score++; 
 
-        // Determine strength based on score
         switch ($score) {
             case 0:
             case 1:
             case 2:
-                return [
-                    'strength' => 'Weak',
-                    'color'    => 'bg-red-500',
-                    'width'    => '33%'
-                ];
+                return ['strength' => 'Weak', 'color' => 'bg-red-500', 'width' => '33%'];
             case 3:
             case 4:
-                return [
-                    'strength' => 'Medium',
-                    'color'    => 'bg-orange-500',
-                    'width'    => '66%'
-                ];
+                return ['strength' => 'Medium', 'color' => 'bg-orange-500', 'width' => '66%'];
             case 5:
             case 6:
-                return [
-                    'strength' => 'Strong',
-                    'color'    => 'bg-green-500',
-                    'width'    => '99%'
-                ];
+                return ['strength' => 'Strong', 'color' => 'bg-green-500', 'width' => '99%'];
             default:
-                return [
-                    'strength' => 'Weak',
-                    'color'    => 'bg-red-500',
-                    'width'    => '33%'
-                ];
+                return ['strength' => 'Weak', 'color' => 'bg-red-500', 'width' => '33%'];
         }
     }
     
-    /**
-     * The main registration method triggered on form submission.
-     */
     public function register()
     {
         $validated = $this->validate();
 
         if (!$this->role) {
+            // [LOGGING]: Log attempt with invalid role
+            Log::create([
+                'user_id' => null,
+                'action' => 'auth.register_failed',
+                'description' => 'Registration failed: Invalid role selected or role not found.',
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'properties' => ['attempted_role' => $this->roleName]
+            ]);
+
             $this->dispatch('swal-error', [
                 'title' => 'Invalid Role',
                 'text' => 'The selected role is not valid.',
@@ -135,46 +121,76 @@ class Register extends Component
             ]);
             return;
         }
-        // Create user (Add verification_code here)
-        $code = rand(100000, 999999); // Generate 6-digit code
 
-        $user = DB::transaction(function () use ($validated, $code) {
-            // Create the profile first
-            $profile = Profile::create([
-                'first_name' => $validated['firstName'],
-                'middle_name' => $validated['middleName'],
-                'last_name' => $validated['lastName'],
+        $code = rand(100000, 999999); 
+
+        // Use try-catch to log unexpected database errors (Optional but recommended)
+        try {
+            $user = DB::transaction(function () use ($validated, $code) {
+                
+                $profile = Profile::create([
+                    'first_name' => $validated['firstName'],
+                    'middle_name' => $validated['middleName'],
+                    'last_name' => $validated['lastName'],
+                ]);
+
+                return User::create([
+                    'email' => $validated['email'],
+                    'username' => $validated['username'],
+                    'phonenum' => $validated['phonenum'],
+                    'password' => Hash::make($validated['password']),
+                    'role_id' => $this->role->id,
+                    'profile_id' => $profile->id,
+                    'verification_code' => $code, 
+                ]);
+            });
+
+            // [LOGGING]: SUCCESSFUL REGISTRATION
+            // We place this AFTER the transaction ensures the user actually exists
+            Log::create([
+                'user_id' => $user->id,
+                'action' => 'auth.register',
+                'description' => 'New user registered successfully.',
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'properties' => [
+                    'role' => $this->roleName,
+                    'email_domain' => substr(strrchr($validated['email'], "@"), 1) // Analytics: track which email providers are used
+                ]
             ]);
 
-            return User::create([
-                'email' => $validated['email'],
-                'username' => $validated['username'],
-                'phonenum' => $validated['phonenum'],
-                'password' => Hash::make($validated['password']),
-                'role_id' => $this->role->id,
-                'profile_id' => $profile->id,
-                'verification_code' => $code, // Save the code immediately
+            $user->load('profile');
+
+            Mail::to($user->email)->send(new VerificationCodeMail($code));
+
+            Auth::login($user);
+
+            session()->flash('swal:success', [
+                'title' => 'Registration Successful!',
+                'text' => 'We\'ve sent a verification link to your email.',
             ]);
-            
-        });
 
-        // Eager load the profile relationship for the welcome message.
-        $user->load('profile');
+            return $this->redirect(route('verification.notice'), navigate: true);
 
-       // SEND THE CUSTOM EMAIL INSTEAD OF THE EVENT
-        Mail::to($user->email)->send(new VerificationCodeMail($code));
+        } catch (\Exception $e) {
+            // [LOGGING]: CRITICAL ERROR
+            // This captures if the DB Transaction fails
+            Log::create([
+                'user_id' => null,
+                'action' => 'auth.register_error',
+                'description' => 'Database error during registration.',
+                'ip_address' => request()->ip(),
+                'properties' => [
+                    'error_message' => $e->getMessage(),
+                    'email_attempt' => $this->email
+                ]
+            ]);
 
-        // Automatically log in the user
-        Auth::login($user);
-
-        session()->flash('swal:success', [
-            'title' => 'Registration Successful!',
-            'text' => 'We\'ve sent a verification link to your email.',
-        ]);
-
-        return $this->redirect(route('verification.notice'), navigate: true);
-
+            // Re-throw the error so Livewire/Laravel handles the UI feedback usually
+            throw $e;
+        }
     }
+
     public function render()
     {
         return view('livewire.auth.register');

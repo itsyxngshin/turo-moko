@@ -124,22 +124,6 @@
                   </a>
               </p>
           </form>
-
-          <script>
-              window.addEventListener('swal:success', event => {
-                  Swal.fire({
-                      title: event.detail.title,
-                      text: event.detail.text,
-                      icon: event.detail.icon,
-                      timer: 2000,
-                      showConfirmButton: false
-                  }).then(() => {
-                      if (event.detail.redirect) {
-                          window.location.href = event.detail.redirect;
-                      }
-                  });
-              });
-          </script>
       </div>
   </div>
 

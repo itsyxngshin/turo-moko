@@ -64,13 +64,13 @@
                         </button>
                         <button
                             type="button"
-                            wire:click="$set('roleName', 'implementer')"
+                            wire:click="$set('roleName', 'implementor')"
                             wire:loading.attr="disabled"
                             wire:target="roleName"
                             class="flex-1 py-2 text-center transition-all duration-200 rounded-lg 
-                                   {{ strtolower($roleName) === 'implementer' ? 'bg-orange-500 text-white shadow-md' : 'text-gray-600 hover:bg-gray-200' }}"
+                                   {{ strtolower($roleName) === 'implementor' ? 'bg-orange-500 text-white shadow-md' : 'text-gray-600 hover:bg-gray-200' }}"
                         >
-                            Implementer
+                            Implementor
                         </button>
                     </div>
                     <p class="mt-2 text-xs text-center text-gray-500">
