@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Message;
 use App\Models\Conversation;
 use App\Models\User;
+use Livewire\Attributes\On;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -15,8 +16,6 @@ class ConversationList extends Component
     public $selectedConversationId = null;
     
     // NEW: Search properties
-    public $searchQuery = '';
-    public $searchResults = [];
     public $isSearching = false;
 
     public function mount()
@@ -35,29 +34,8 @@ class ConversationList extends Component
             ->get();
     }
 
-    public function updatedSearchQuery()
-    {
-        // 1. If search is too short, hide the dropdown
-        if (strlen($this->searchQuery) < 2) {
-            $this->searchResults = [];
-            return;
-        }
-
-        // 2. Search Users via Profile (First/Last Name) or Email
-        $this->searchResults = User::where('id', '!=', Auth::id())
-            ->with('profile') // Eager load to avoid N+1 queries
-            ->where(function(Builder $query) {
-                $query->whereHas('profile', function(Builder $q) {
-                    $q->where('first_name', 'like', '%' . $this->searchQuery . '%')
-                    ->orWhere('last_name', 'like', '%' . $this->searchQuery . '%');
-                })
-                ->orWhere('email', 'like', '%' . $this->searchQuery . '%');
-            })
-            ->limit(5) // Limit to 5 results so the dropdown doesn't get too long
-            ->get();
-    }
-
     // NEW: Start or open conversation
+    #[On('startConversation')]
     public function startConversation($userId)
     {
         // 1. Check if conversation already exists
@@ -75,15 +53,11 @@ class ConversationList extends Component
             ]);
         }
 
-        // 3. Reset search and select
-        $this->searchQuery = '';
-        $this->searchResults = [];
         $this->isSearching = false;
         
         // 4. Reload list to show the new/updated conversation at top
-        $this->loadConversations(); 
+        $this->loadConversations();
         
-        $this->selectConversation($conversation->id);
     }
 
     public function selectConversation($conversationId)

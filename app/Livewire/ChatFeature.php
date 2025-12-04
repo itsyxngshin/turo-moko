@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Conversation;
+use Livewire\Attributes\On;
 use App\Models\Message;
 use App\Events\MessageSent;
 use Illuminate\Support\Facades\Auth;
@@ -18,6 +19,14 @@ class ChatFeature extends Component
     public $content = '';
 
     protected $listeners = [];
+    public $selectedConversationId;
+
+    // This listener catches the event from your ConversationList sidebar
+    #[On('conversationSelected')]
+    public function loadConversation($conversationId)
+    {
+        $this->selectedConversationId = $conversationId;
+    }
 
     public function mount(Conversation $conversation)
     {
@@ -49,6 +58,7 @@ class ChatFeature extends Component
     {
         $this->messages->push(Message::find($event['message']['id']));
     }
+
     public function render()
     {
         return view('livewire.chat-feature');

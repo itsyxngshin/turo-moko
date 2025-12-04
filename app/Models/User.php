@@ -80,6 +80,16 @@ class User extends Authenticatable implements MustVerifyEmail
         // You don't strictly need this method if you access it like $user->profile->portfolioSet
     }
 
+    public function getProfileRouteAttribute()
+    {
+        return match($this->role_id) {
+            3 => 'admin.profile',   // If Role 3 (Admin)
+            2 => 'implementer.profile', // If Role 2 (Teacher/Implementer)
+            1 => 'learner.profile', // If Role 1 (Student/Learner)
+            default => 'homepage', // Fallback
+        };
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
