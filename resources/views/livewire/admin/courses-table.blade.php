@@ -46,7 +46,7 @@
 
 
                         <td class="px-6 py-4 text-blue-500 flex space-x-4">
- <a href="{{ route('course.view', $course->course_code) }}" 
+ <a href="{{ route('admin.course.view', $course->course_code) }}" 
        class="px-3 py-2 text-blue rounded transition hover:underline">
         View
     </a>        

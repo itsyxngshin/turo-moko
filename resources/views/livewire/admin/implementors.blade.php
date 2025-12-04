@@ -1,6 +1,6 @@
 @extends('layouts.layout') 
 
-@section('title', 'Admin | Implementors')
+@section('title', 'TURO-MOKO Admin')
 
 @section('content')
 <div class="flex h-screen p-5 bg-[#f2f9fb]">

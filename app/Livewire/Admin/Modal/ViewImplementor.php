@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\Modal;
 
 use Livewire\Component;
+use Livewire\Attributes\On; 
 use App\Models\User;
 
 class ViewImplementor extends Component
@@ -10,14 +11,21 @@ class ViewImplementor extends Component
     public $showModal = false;
     public $implementor;
 
-    protected $listeners = ['view-implementor' => 'loadImplementor'];
-
+    #[On('view-implementor')] 
     public function loadImplementor($id)
     {
-        // ✅ Make sure to load nested relation 'profile.photo'
+        // Load relationships including role
         $this->implementor = User::with(['profile.photo', 'role'])->find($id);
 
-        $this->showModal = true;
+        if ($this->implementor) {
+            $this->showModal = true;
+        }
+    }
+
+    public function closeModal()
+    {
+        $this->showModal = false;
+        $this->implementor = null; // Clear data
     }
 
     public function render()

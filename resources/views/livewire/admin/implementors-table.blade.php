@@ -2,10 +2,10 @@
     x-data 
     x-on:print-table.window="window.print()"
 >
-    <!-- Search bar and Add Implementor -->
+    <!-- Search bar and Actions -->
     <div class="flex justify-between items-center mb-4">
         <div class="relative">
-           <input 
+            <input 
                 wire:model.live="search"
                 type="text" 
                 placeholder="Search implementors"
@@ -13,7 +13,7 @@
             />
             <x-heroicon-o-magnifying-glass class="absolute left-[32%] top-2.5 w-5 h-5 text-gray-400"/>
 
-            <!-- Sort Dropdown -->
+            <!-- Sort Dropdowns -->
             <select wire:model.live="sortField" class="border-gray-300 rounded-full px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400">
                 <option value="username">Sort by Name (A–Z)</option>
                 <option value="created_at">Sort by Date Created</option>
@@ -25,12 +25,7 @@
             </select>
         </div>
 
-        
-    
-
-
         <div class="flex items-center gap-2">
-            <!-- ✅ CSV and Print Buttons -->
             <button 
                 wire:click="downloadCSV"
                 class="bg-black hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm">
@@ -43,7 +38,13 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M7 17h10v5H7zm12 3v-5H5v5H3a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1zM5 10v2h3v-2zm2-8h10a1 1 0 0 1 1 1v3H6V3a1 1 0 0 1 1-1"/></svg>
             </button>
 
-            <livewire:admin.modal.add-implementor />
+            <!-- FIX: Use @click for reliable client-side dispatch -->
+            <button 
+                type="button"
+                @click="$dispatch('open-add-implementor')" 
+                class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors">
+                <span class="text-xl leading-none">+</span> Add Implementor
+            </button>
         </div>
     </div>
 
@@ -76,22 +77,26 @@
                             <td class="px-6 py-4">{{ $user->phonenum ?? '—' }}</td>
                             <td class="px-6 py-4">{{ $user->profile?->status ?? 'Active' }}</td>
                             <td class="pl-6 pr-10 py-4 text-blue-500 flex space-x-4 justify-between">
+                                <!-- FIX: Use type="button" and @click -->
                                 <button 
-                                    wire:click="$dispatch('view-implementor', { id: {{ $user->id }} })" 
+                                    type="button"
+                                    @click="$dispatch('view-implementor', { id: {{ $user->id }} })" 
                                     class="hover:underline"
                                 >
                                     View
                                 </button>
-
+                                
                                 <button 
-                                    wire:click="$dispatch('modify-implementor', { id: {{ $user->id }} })" 
+                                    type="button"
+                                    @click="$dispatch('modify-implementor', { id: {{ $user->id }} })" 
                                     class="hover:underline"
                                 >
                                     Edit
                                 </button>
-
+                                
                                 <button 
-                                    wire:click="$dispatch('deactivate-implementor', { id: {{ $user->id }} })" 
+                                    type="button"
+                                    @click="$dispatch('deactivate-implementor', { id: {{ $user->id }} })" 
                                     class="hover:underline text-red-500"
                                 >
                                     Deactivate
@@ -100,9 +105,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">
-                                No implementors found.
-                            </td>
+                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">No implementors found.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -110,29 +113,13 @@
         </div>
     </div>
 
-    <!-- ✅ Pagination -->
     <div class="mt-4">
         {{ $implementors->links() }}
     </div>
 
-    <!-- 👇 Place modals OUTSIDE the loop -->
+    <!-- Modals are loaded here, but hidden by default via their internal logic -->
+    <livewire:admin.modal.add-implementor /> 
     <livewire:admin.modal.view-implementor />
     <livewire:admin.modal.modify-implementor />
 
-    
 </div>
-@push('scripts')
-<script>
-    window.addEventListener('printTable', () => {
-        const printContents = document.getElementById('printableTable').innerHTML;
-        const printWindow = window.open('', '', 'width=800,height=600');
-        printWindow.document.write('<html><head><title>Implementors</title>');
-        printWindow.document.write('<style>table{width:100%;border-collapse:collapse;}th,td{border:1px solid #ccc;padding:8px;text-align:left;}th{background:#f5f5f5;}</style>');
-        printWindow.document.write('</head><body>');
-        printWindow.document.write(printContents);
-        printWindow.document.write('</body></html>');
-        printWindow.document.close();
-        printWindow.print();
-    });
-</script>
-@endpush
