@@ -1,36 +1,72 @@
-<aside class="h-[750px] w-[70px] bg-white rounded-3xl border border-gray-200 shadow-sm flex flex-col items-center py-6 ml-4 mt-2">
-    <div class="flex flex-col items-center gap-8">
-        <!-- Logo -->
-        <div class="h-10 w-10 rounded-full bg-orange-300 flex items-center justify-center text-white font-bold text-sm">
-            TM
+<!-- Alpine.js -->
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+<style>
+    /* Prevent flicker before Alpine initializes */
+    [x-cloak] {
+        display: none !important;
+    }
+</style>
+
+<aside 
+    x-data="{ expanded: false, windowWidth: window.innerWidth }"
+    x-init="$watch('windowWidth', value => { expanded = value >= 1024 })"
+    x-on:resize.window="windowWidth = window.innerWidth"
+    :class="expanded ? 'w-56' : 'w-[70px]'"
+    class="transition-all duration-300 ease-in-out h-[750px] bg-white rounded-3xl border border-gray-200 shadow-sm flex flex-col py-6 ml-4 mt-2 overflow-hidden"
+>
+    <!-- Sidebar Content -->
+    <div class="flex flex-col gap-8 w-full px-4">
+        <!-- Logo (Left aligned, expands on click for large screens only) -->
+        <div 
+            @click="if (windowWidth >= 1024) expanded = !expanded" 
+            class="flex items-center gap-2 cursor-pointer transition-all duration-300"
+        >
+            <img src="{{ asset('images/turo_moko_logo.png') }}" 
+     alt="TURO-MOKO Logo" 
+     class="h-10 w-10 rounded-full object-cover">
+
+            <span 
+                x-show="expanded" 
+                x-transition.opacity.duration.300ms 
+                x-cloak
+                class="text-gray-800 font-semibold text-base whitespace-nowrap"
+            >
+                Turo-Moko
+            </span>
         </div>
 
-        <!-- Home -->
-        <a href="{{ route('learner.dashboard') }}" class="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-gray-100" aria-label="Home">
-            <i data-lucide="home" class="w-6 h-6 text-gray-600"></i>
-        </a>
+        <!-- Navigation Links -->
+        <div class="flex flex-col items-start w-full gap-3 mt-6">
+            <a href="{{ route('learner.dashboard') }}" class="flex items-center gap-3 w-full px-2 py-2 rounded-lg hover:bg-gray-100 transition">
+                <i data-lucide="home" class="w-7 h-7 text-gray-600"></i>
+                <span x-show="expanded" x-transition.opacity.duration.200ms x-cloak class="text-gray-700 text-sm font-medium">Home</span>
+            </a>
 
-        <!-- Courses -->
-        <a href="{{ route('learner.classes') }}" class="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-gray-100" aria-label="Courses">
-            <i data-lucide="book" class="w-6 h-6 text-gray-600"></i>
-        </a>
+            <a href="{{ route('learner.classes') }}" class="flex items-center gap-3 w-full px-2 py-2 rounded-lg hover:bg-gray-100 transition">
+                <i data-lucide="book" class="w-7 h-7 text-gray-600"></i>
+                <span x-show="expanded" x-transition.opacity.duration.200ms x-cloak class="text-gray-700 text-sm font-medium">Courses</span>
+            </a>
 
-        <a href="#" class="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-gray-100" aria-label="Courses">
-            <i data-lucide="message-circle" class="w-7 h-7 text-gray-600"></i>        
-        </a>
-       
+            <a href="{{ route('learner.dashboard') }}" class="flex items-center gap-3 w-full px-2 py-2 rounded-lg hover:bg-gray-100 transition">
+                <i data-lucide="message-circle" class="w-7 h-7 text-gray-600"></i>
+                <span x-show="expanded" x-transition.opacity.duration.200ms x-cloak class="text-gray-700 text-sm font-medium">Chat</span>
+            </a>
 
-        <!-- Settings -->
-        <a href="{{ route('learner.settings') }}" class="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-gray-100" aria-label="Settings">
-            <i data-lucide="settings" class="w-6 h-6 text-gray-600"></i>
-        </a>
+        </div>
     </div>
 
-
     <!-- Logout -->
-    <div class="mt-auto">
-        <button class="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-gray-100" aria-label="Logout">
-            <i data-lucide="log-out" class="w-6 h-6 text-gray-600"></i>
+    <div class="mt-auto mb-2 w-full px-4">
+        <button class="flex items-center gap-3 w-full px-2 py-2 rounded-lg hover:bg-gray-100 transition" aria-label="Logout">
+            <i data-lucide="log-out" class="w-7 h-7 text-gray-600"></i>
+            <span x-show="expanded" x-transition.opacity.duration.200ms x-cloak class="text-gray-700 text-sm font-medium">Logout</span>
         </button>
     </div>
 </aside>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        lucide.createIcons();
+    });
+</script>

@@ -1,13 +1,16 @@
 <div 
-    x-data="{ open: @entangle('showModal') }"
+    x-data="{ open: false }"
     x-show="open"
     x-cloak
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+    x-init="
+        window.addEventListener('view-implementor', event => {
+            @this.loadImplementor(event.detail.id); // call Livewire to load data
+            open = true; // then open modal
+        });
+    "
 >
-    <div 
-        @click.away="open = false"
-        class="bg-white w-full max-w-2xl rounded-2xl shadow-lg overflow-hidden transform transition-all"
-    >
+    <div @click.away="open = false" class="bg-white w-full max-w-2xl rounded-2xl shadow-lg overflow-hidden transform transition-all">
         <!-- Header -->
         <div class="flex justify-between items-center px-6 py-4 border-b">
             <h2 class="text-lg font-semibold text-gray-800">

@@ -74,7 +74,7 @@ class CreateCourse extends Component
 
             // Create course
             $course = Course::create([
-                'implementer_id'   => Auth::id() ?? 3, // fallback for now
+                'implementer_id'   => Auth::id() ?? 4, // fallback for now
                 'organization_id'  => 1, // adjust if dynamic
                 'category_id'      => $this->category_id,
                 'name'             => $this->name,

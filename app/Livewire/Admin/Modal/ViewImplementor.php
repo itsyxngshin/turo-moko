@@ -10,7 +10,11 @@ class ViewImplementor extends Component
     public $showModal = false;
     public $implementor;
 
-    protected $listeners = ['view-implementor' => 'loadImplementor'];
+    protected $listeners = [
+    'modify-implementor' => 'loadImplementor',
+    'view-implementor' => 'loadImplementor', // or your view method
+];
+
 
     public function loadImplementor($id)
     {

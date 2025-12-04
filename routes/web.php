@@ -228,7 +228,7 @@ Route::prefix('admin')->group(function () {
     /*Route::middleware(['guest'])->group(function () {
         //OPEN FOR ALL / WEBSITE & LOGIN FACE
         }); 
-
+        */
 
 
 // IMPLEMENTOR
