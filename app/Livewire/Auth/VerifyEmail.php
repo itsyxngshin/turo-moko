@@ -37,13 +37,20 @@ class VerifyEmail extends Component
 
             // Redirect Logic (Kept your existing logic)
             $roleName = $user->role->role_name ?? 'learner';
-            
+        
             $redirectUrl = match($roleName) {
                 'admin' => route('admin.hub'),
                 'implementer' => route('implementer.hub'), 
                 'learner' => route('learner.hub'),
                 default => route('homepage'),
             };
+
+            $user->notify(new \App\Notifications\GeneralNotification(
+                'Now Verified', 
+                'You can now access your account!.', 
+                $redirectUrl
+            ));
+
 
             $this->dispatch('swal:alert', [
                 'type' => 'success',
@@ -52,7 +59,8 @@ class VerifyEmail extends Component
                 'timer' => 2000,
                 'redirectUrl' => $redirectUrl
             ]);
-        } else {
+        } 
+        else {
             // --- FAILURE ---
             $this->dispatch('swal:alert', [
                 'type' => 'error',

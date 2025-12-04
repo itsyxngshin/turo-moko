@@ -56,10 +56,7 @@
         </div>
 
         {{-- Notification Bell --}}
-        <button class="relative p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors">
-            <i data-lucide="bell" class="w-6 h-6"></i>
-            <span class="absolute top-2 right-2.5 h-2 w-2 bg-red-500 rounded-full border border-white"></span>
-        </button>
+        <livewire:partials.navbar-notifications />
     </div>
 
 </nav>

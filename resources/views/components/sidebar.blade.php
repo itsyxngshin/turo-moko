@@ -26,6 +26,24 @@
                 <i data-lucide="users" class="w-6 h-6"></i>
             </a>
 
+            <a href="{{ route('admin.implementors') }}" 
+               class="h-10 w-10 flex items-center justify-center rounded-lg transition-colors {{ request()->routeIs('admin.users') ? 'bg-orange-100 text-orange-600' : 'hover:bg-gray-100 text-gray-600' }}" 
+               aria-label="Implementors">
+                <i data-lucide="bell-electric" class="w-6 h-6"></i>
+            </a>
+
+            <a href="{{ route('admin.courses') }}" 
+               class="h-10 w-10 flex items-center justify-center rounded-lg transition-colors {{ request()->routeIs('admin.users') ? 'bg-orange-100 text-orange-600' : 'hover:bg-gray-100 text-gray-600' }}" 
+               aria-label="Courses">
+                <i data-lucide="notebook-tabs" class="w-6 h-6"></i>
+            </a>
+
+            <a href="{{ route('admin.course-moderation') }}" 
+               class="h-10 w-10 flex items-center justify-center rounded-lg transition-colors {{ request()->routeIs('admin.users') ? 'bg-orange-100 text-orange-600' : 'hover:bg-gray-100 text-gray-600' }}" 
+               aria-label="Learner Roster Management">
+                <i data-lucide="bookmark-checked" class="w-6 h-6"></i>
+            </a>
+
             <a href="{{ route('admin.settings') }}" 
                class="h-10 w-10 flex items-center justify-center rounded-lg transition-colors {{ request()->routeIs('admin.settings') ? 'bg-orange-100 text-orange-600' : 'hover:bg-gray-100 text-gray-600' }}" 
                aria-label="Settings">
