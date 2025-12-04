@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('profile_id')->nullable()->constrained('profiles');
+            $table->foreignId('role_id')->default(1); // 1 = learner, 2 = instructor, 3 = admin 
             $table->string(column: 'username')->unique();
             $table->string('email')->unique();
             $table->string(column: 'phonenum')->unique();

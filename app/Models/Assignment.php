@@ -2,15 +2,27 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Assignment extends Model
 {
+    use HasFactory; // ← Add this
+
     protected $fillable = [
-        'lesson_id', 'title', 'instruction', 'status',
-        'start_date', 'end_date', 'deadline', 'order',
-        'filetype_allowed', 'visibility', 'post_date'
+        'lesson_id',
+        'title',
+        'instruction',
+        'status',
+        'start_date',
+        'end_date',
+        'filetype_allowed',
+        'order',
+        'visibility',
+        'post_date',
     ];
+
+
 
     public function lesson()
     {

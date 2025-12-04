@@ -8,8 +8,11 @@ class Photo extends Model
 {
     protected $table = 'photos'; // Specify the table name if it's not the plural of the model name
 
-    public function profile()
-    {
-        return $this->belongsTo(Profile::class);
-    }
+    
+    public function profiles()
+{
+    return $this->hasMany(Profile::class, 'photo_id');
+}
+
+
 }

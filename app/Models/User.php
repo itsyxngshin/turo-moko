@@ -26,11 +26,16 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'remember_token',
     ];
+    public function user()
+{
+    return $this->belongsTo(User::class);
+}
 
     public function profile()
     {
         return $this->belongsTo(Profile::class);
     }
+
 
     public function role()
     {

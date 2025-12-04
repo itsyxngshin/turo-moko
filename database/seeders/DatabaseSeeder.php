@@ -7,22 +7,21 @@ use App\Models\User;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
         $this->call([
             RoleSeeder::class,
+            #UsersTableSeeder::class,
             CategorySeeder::class, 
             SubcategorySeeder::class,
             ProfileSeeder::class,
-            UserSeeder::class,
+            UserSeeder::class, // ✅ add this
             OrganizationSeeder::class,
             CourseSeeder::class,
-            ConversationSeeder::class, 
-            CourseTagSeeder::class, 
+            LessonSeeder::class,          // lessons depend on courses
+            AssignmentSeeder::class,  
 
         ]);
     }
 }
+

@@ -3,15 +3,14 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Course;
 use Illuminate\Database\Seeder;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class CourseSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
-    public function run(): void
+     public function run(): void
     {
         $now = now();
 
@@ -263,6 +262,6 @@ class CourseSeeder extends Seeder
                 'start_date' => '2026-08-05 09:00:00', 'end_date' => '2026-08-25 17:00:00',
                 'created_at' => $now, 'updated_at' => $now,
             ],
-        ]);
+        ]); 
     }
 }

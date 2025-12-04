@@ -1,4 +1,7 @@
-@extends('layouts.layout2')  
+@extends('layouts.layout')
+
+@section('title', 'Learner Dashboard')
+@section('page-title', 'Learner Dashboard')
 
 @section('content')
 <div>

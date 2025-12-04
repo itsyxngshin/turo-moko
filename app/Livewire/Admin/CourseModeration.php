@@ -4,10 +4,10 @@ namespace App\Livewire\Admin;
 
 use Livewire\Component;
 
-class Reports extends Component
+class CourseModeration extends Component
 {
     public function render()
     {
-        return view('livewire.admin.reports');
+        return view('livewire.admin.course-moderation');
     }
 }

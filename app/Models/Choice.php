@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Choice extends Model
 {
     protected $fillable = [
-        'question_id', 'choice_text', 'isCorrect'
+        'question_id', 'choice_text', 'is_correct'
     ];
 
     public function question()

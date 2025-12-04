@@ -1,7 +1,9 @@
-@extends('layouts.admin-layout') 
+@extends('layouts.layout') 
 
 @section('title', 'Dashboard')
 @section('page-title', 'Dashboard')
+
+@section('content')
   <div class="max-w-[1720px] mx-auto px-6 pb-16">
       <!-- Stats Row -->
       <section class="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -193,5 +195,4 @@
         </div>
       </section>
   </div>
-@section('content')
-
+@endsection
