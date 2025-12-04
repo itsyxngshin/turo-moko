@@ -10,6 +10,7 @@ use App\Http\Livewire\Admin\Modal\ModifyUser;
 use App\Http\Livewire\Admin\Modal\ViewUser;
 use App\Livewire\Implementors\CourseParticipants;
 use App\Livewire\Implementors\AddAssignment;
+use App\Livewire\Implementors\CourseGrades as ImplementorCourseGrades;
 
 // Controllers
 use App\Http\Controllers\AuthController;
@@ -128,11 +129,8 @@ Route::prefix('implementor')->name('implementor.')->group(function () {
     Route::get('/course-information/{course:course_code}', [ImplementorCourseInformationController::class, 'show'])
          ->name('course-information');
 
-    Route::get('/course/{course:course_code}/grades', function (\App\Models\Course $course) {
-        return view('livewire.implementors.course-grades', [
-            'course' => $course
-        ]);
-    })->name('course-grades');
+    Route::get('/course/{course:course_code}/grades', ImplementorCourseGrades::class)
+        ->name('course-grades');
 
     Route::delete('/announcement/{course:course_code}', [ImplementorCourseInformationController::class, 'deleteAnnouncement'])
         ->name('implementor.announcement.delete');

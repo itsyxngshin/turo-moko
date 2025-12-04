@@ -77,9 +77,9 @@
     Assessment Results
 </a>
 
-                            <button class="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded-b-xl">
+                            <a href="{{ route('implementor.course-grades', ['course' => $course->course_code]) }}" class="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded-b-xl">
                                 Grades
-                            </button>
+                            </a>
                         </div>
                     </div>
 
