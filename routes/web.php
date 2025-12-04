@@ -17,8 +17,7 @@ use App\Livewire\Auth\ResetPassword;
 // Livewire Dashboards
 use App\Livewire\Admin\Dashboard as AdminDashboard;
 use App\Livewire\Learner\Dashboard as LearnerDashboard;
-use App\Livewire\Implementor\Dashboard as ImplementorDashboard;
-
+ 
 // Controllers
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Admin\ViewCourseController;
@@ -28,6 +27,9 @@ use App\Http\Controllers\Implementors\ImplementorCourseInformationController;
 use App\Http\Controllers\Implementors\ImplementorAddAnnouncementController;
 use App\Http\Controllers\Learner\CourseController;
 use App\Http\Controllers\Implementors\ImplementorAddAssignmentController;
+
+use App\Livewire\Admin\Settings as AdminSettings;
+
 //use App\Http\Controllers\Learner\CourseController;
 use App\Http\Livewire\Admin\Modal\ModifyUser; // Ensure this class exists in the specified namespace
 use App\Http\Livewire\Admin\Modal\ViewUser;
@@ -43,12 +45,10 @@ use App\Livewire\ChatFeature;
 | PUBLIC ROUTES
 |--------------------------------------------------------------------------
 */
-use App\Livewire\Implementer\Dashboard as ImplementerDashboard;
-use App\Livewire\Implementer\Profile as ImplementerProfile;
+use App\Livewire\Implementor\Dashboard as ImplementorDashboard;
+use App\Livewire\Implementors\Profile as ImplementorProfile;
+
 // Ensure the ForgotPassword class exists in the specified namespace or replace it with the correct class
-use App\Livewire\Auth\ForgetPassword;
-use App\Livewire\Auth\ResetPassword;
-use App\Livewire\ChatFeature; // Ensure this class exists in the specified namespace
 // -----------------------------
 // Public Pages
 // -----------------------------
@@ -109,36 +109,12 @@ Route::middleware(['auth', 'role:learner', 'verified'])->group(function () {
         });
     }); 
     
-Route::middleware(['auth', 'role:admin', 'verified'])->group(function () {
-        //LINK THE BLADES EXCLUSIVE FOR THE ADMIN SIDE
-    Route::prefix('admin')->group(function () {
-        Route::get('/hub', AdminDashboard::class)->name('admin.hub');
-
-        Route::get('/implementors', function () {
-            return view('livewire.admin.implementors');
-            })->name('admin.implementors');
-        
-        Route::get('/enrollees', function () {
-            return view('livewire.admin.enrollees'); 
-            })->name('admin.enrollees');
-
-        Route::get('/courses', function () {
-            return view('livewire.admin.courses');
-            })->name('admin.courses');
-        
-        Route::get('/reports', function () {
-            return view('livewire.admin.reports');
-            })->name('admin.reports');    
-    });
-}); 
-    
-Route::middleware(['auth', 'role:implementer', 'verified'])->group(function () {
+Route::middleware(['auth', 'role:implementor', 'verified'])->group(function () {
         //LINK THE BLADES EXCLUSIVE FOR THE TEACHER/IMPLEMENTER SIDE
     Route::prefix('implementer')->group(function () {
         Route::get('/hub', function () {
             return view(view: 'livewire.implementer.hub');
             })->name('implementer.hub');   
-        Route::get('/profile', ImplementerProfile::class)->name('implementer.profile');
     });
         
 }); 
@@ -181,20 +157,22 @@ Route::middleware(['auth'])->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'role:learner', 'verified'])->prefix('learner')->name('learner.')->group(function () {
+Route::middleware(['auth', 'role:learner', 'verified'])->name('learner.')->group(function () {
+    Route::prefix('learner')->group(function () {
+        Route::get('/hub', LearnerDashboard::class)->name('hub');
+        Route::get('/profile', fn() => view('livewire.learner.profile'))->name('profile');
+        Route::get('/classes', fn() => view('livewire.learner.classes'))->name('classes');
 
-    Route::get('/hub', LearnerDashboard::class)->name('hub');
-    Route::get('/profile', fn() => view('livewire.learner.profile'))->name('profile');
-    Route::get('/classes', fn() => view('livewire.learner.classes'))->name('classes');
-
-    Route::get('/enrolled', fn() => view('livewire.learner.enrolled'))->name('enrolled');
-    Route::get('/activity', fn() => view('livewire.learner.activities'))->name('activity');
-    Route::get('/course', fn() => view('livewire.learner.course'))->name('course');
-    Route::get('/activitytest', fn() => view('livewire.learner.activitytest'))->name('activitytest');
-    Route::get('/submission', fn() => view('livewire.learner.submission'))->name('submission');
-    Route::get('/assessment', fn() => view('livewire.learner.assessment'))->name('assessment');
-    Route::get('/evaluation', fn() => view('livewire.learner.evaluation'))->name('evaluation');
-    Route::get('/settings', fn() => view('livewire.learner.settings'))->name('settings');
+        Route::get('/enrolled', fn() => view('livewire.learner.enrolled'))->name('enrolled');
+        Route::get('/activity', fn() => view('livewire.learner.activities'))->name('activity');
+        Route::get('/course', fn() => view('livewire.learner.course'))->name('course');
+        Route::get('/activitytest', fn() => view('livewire.learner.activitytest'))->name('activitytest');
+        Route::get('/submission', fn() => view('livewire.learner.submission'))->name('submission');
+        Route::get('/assessment', fn() => view('livewire.learner.assessment'))->name('assessment');
+        Route::get('/evaluation', fn() => view('livewire.learner.evaluation'))->name('evaluation');
+        Route::get('/settings', fn() => view('livewire.learner.settings'))->name('settings');
+    });
+    
 });
 
 
@@ -204,22 +182,24 @@ Route::middleware(['auth', 'role:learner', 'verified'])->prefix('learner')->name
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'role:admin', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'role:admin', 'verified'])->name('admin.')->group(function () {
+    Route::prefix('admin')->group(function () {
+        Route::get('/hub', AdminDashboard::class)->name('hub');
 
-    Route::get('/hub', AdminDashboard::class)->name('hub');
+        Route::get('/implementors', fn() => view('livewire.admin.implementors'))->name('implementors');
+        Route::get('/enrollees', fn() => view('livewire.admin.enrollees'))->name('enrollees');
+        Route::get('/courses', fn() => view('livewire.admin.courses'))->name('courses');
 
-    Route::get('/implementors', fn() => view('livewire.admin.implementors'))->name('implementors');
-    Route::get('/enrollees', fn() => view('livewire.admin.enrollees'))->name('enrollees');
-    Route::get('/courses', fn() => view('livewire.admin.courses'))->name('courses');
+        Route::get('/course-moderation', fn() => view('livewire.admin.course-moderation'))->name('course-moderation'); 
 
-    Route::get('/course-moderation', fn() => view('livewire.admin.course-moderation'))
-        ->name('course-moderation');
+        Route::get('/moderation/course/{course}', [CourseModerationController::class, 'index'])
+            ->name('moderation.course');
 
-    Route::get('/moderation/course/{course}', [CourseModerationController::class, 'index'])
-        ->name('moderation.course');
-
-    Route::get('/course/{courseCode}', [ViewCourseController::class, 'show'])
-        ->name('course.view');
+        Route::get('/course/{courseCode}', [ViewCourseController::class, 'show'])
+            ->name('course.view');
+        Route::get('/settings', AdminSettings::class)->name('settings');
+    });
+    
 });
 
 
@@ -236,7 +216,7 @@ Route::middleware(['auth', 'role:implementor', 'verified'])
 
         // Dashboard
         Route::get('/dashboard', [ImplementorDashboardController::class, 'index'])
-            ->name('dashboard');
+            ->name('hub');
 
         // Course information
         Route::get('/course-information/{course:course_code}', 
@@ -258,6 +238,9 @@ Route::middleware(['auth', 'role:implementor', 'verified'])
             [ImplementorCourseInformationController::class, 'destroy'])
             ->name('modules.destroy');
 
+         Route::get('/profile', ImplementorProfile::class) 
+            ->name('implementor.profile');   
+
         // Implementor profile/pages
         Route::get('/myprofile', fn() => view('livewire.implementors.teacher-profile'))
             ->name('myprofile');
@@ -277,9 +260,6 @@ Route::middleware(['auth', 'role:implementor', 'verified'])
         Route::post('/courses', [CourseController::class, 'store'])
             ->name('courses.store');
 });
-
-
-
 
 // IMPLEMENTOR
 
