@@ -48,7 +48,7 @@ Route::get('/fake-login-learner', function() {
         return 'No learner user found. Run: php artisan db:seed --class=UsersTableSeeder';
     }
     \Auth::login($user);
-    return redirect('/learner/assessments')->with('success', 'Logged in as learner: ' . $user->email);
+    return redirect()->route('learner.hub')->with('success', 'Logged in as learner: ' . $user->email);
 });
 
 Route::get('/test-login', function () {
@@ -96,12 +96,15 @@ Route::prefix('learner')->group(function () {
     Route::get('/enrolled', fn() => view('livewire.learner.enrolled'))->name('learner.enrolled');
     Route::get('/activity', fn() => view('livewire.learner.activities'))->name('learner.activity');
     Route::get('/course', fn() => view('livewire.learner.course'))->name('learner.course');
+    Route::get('/course/{course:course_code}', [\App\Http\Controllers\Learner\CourseController::class, 'show'])
+        ->name('learner.course.show');
     Route::get('/activitytest', fn() => view('livewire.learner.activitytest'))->name('learner.activitytest');
     Route::get('/submission', fn() => view('livewire.learner.submission'))->name('learner.submission');
     
     // Assessment routes
-    Route::get('/assessments', [LearnerAssessmentController::class, 'index'])
-        ->name('learner.assessments');
+    // REMOVED: Standalone assessments page - assessments are now accessed through course pages
+    // Route::get('/assessments', [LearnerAssessmentController::class, 'index'])
+    //     ->name('learner.assessments');
     Route::get('/assessment/{quiz}', [LearnerAssessmentController::class, 'show'])
         ->name('learner.assessment.show');
     Route::post('/assessment/{quiz}/submit', [LearnerAssessmentController::class, 'submit'])

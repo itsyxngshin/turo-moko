@@ -166,21 +166,28 @@
                             <div>
                                 <input type="text" placeholder="Enter question..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText"  />
                                 <div class="mt-4">
-                                    <input type="text" placeholder="Short answer field" class="px-4 py-2 rounded-xl border bg-white shadow-sm min-w-[200px] max-w-full" x-model="item.shortAnswerField"  />
-                                </div>
-                                <div class="mt-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Model Answer (Optional)</label>
-                                    <input type="text" placeholder="Enter the correct answer..." class="px-4 py-2 rounded-xl border bg-white shadow-sm w-full" x-model="item.modelAnswer"  />
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Answer</label>
+                                    <input 
+                                        type="text" 
+                                        placeholder="Enter the correct answer..." 
+                                        class="px-4 py-2 rounded-xl border bg-white shadow-sm w-full" 
+                                        x-model="item.modelAnswer"
+                                        required
+                                    />
                                 </div>
                             </div>
                         </template>
                         <template x-if="item.type === 'long_answer'">
                             <div>
                                 <input type="text" placeholder="Enter question..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText"  />
-                                <textarea placeholder="Long answer field" class="w-full border rounded-lg p-3 min-h-[80px]" rows="3" x-model="item.longAnswerField" ></textarea>
                                 <div class="mt-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Model Answer (Optional)</label>
-                                    <textarea placeholder="Enter the correct answer..." class="w-full border rounded-lg p-3 min-h-[80px]" rows="3" x-model="item.modelAnswer" ></textarea>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Model Answer</label>
+                                    <textarea 
+                                        placeholder="Enter the model answer (optional)" 
+                                        class="w-full border rounded-lg p-3 min-h-[80px]" 
+                                        rows="3" 
+                                        x-model="item.modelAnswer"
+                                    ></textarea>
                                 </div>
                             </div>
                         </template>
@@ -739,7 +746,7 @@
                                     <label class="block text-lg font-medium">${questionText || 'Enter question...'}</label>
                                     <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">${points} point${points !== 1 ? 's' : ''}</span>
                                 </div>
-                                <input type="text" placeholder="Your answer here..." value="${shortAnswerField || ''}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                <input type="text" placeholder="Your answer here..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                             </div>
                         `;
                     
@@ -750,7 +757,7 @@
                                     <label class="block text-lg font-medium">${questionText || 'Enter question...'}</label>
                                     <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">${points} point${points !== 1 ? 's' : ''}</span>
                                 </div>
-                                <textarea placeholder="Your answer here..." rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical">${longAnswerField || ''}</textarea>
+                                <textarea placeholder="Your answer here..." rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"></textarea>
                             </div>
                         `;
                     

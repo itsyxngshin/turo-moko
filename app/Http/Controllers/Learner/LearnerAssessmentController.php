@@ -15,8 +15,12 @@ use Illuminate\Support\Facades\DB;
 class LearnerAssessmentController extends Controller
 {
     /**
-     * Display list of available assessments for enrolled courses
+     * REMOVED: Display list of available assessments for enrolled courses
+     * Assessments are now accessed through course pages, not as a standalone page
+     * 
+     * This method has been disabled - assessments should be integrated into course detail pages
      */
+    /*
     public function index()
     {
         $user = Auth::user();
@@ -74,6 +78,7 @@ class LearnerAssessmentController extends Controller
 
         return view('learner.assessments', compact('assessments'));
     }
+    */
 
     /**
      * Display a specific assessment for taking
@@ -206,6 +211,32 @@ class LearnerAssessmentController extends Controller
                         break;
 
                     case 'short_answer':
+                        // Auto-grade short answer based on model answer
+                        $studentAnswerRaw = $answerValue ?? '';
+                        $answerData['answer_text'] = $studentAnswerRaw;
+
+                        $modelAnswerRaw = (string) ($question->model_answer ?? '');
+                        $studentNormalized = trim(mb_strtolower($studentAnswerRaw));
+                        $modelNormalized = trim(mb_strtolower($modelAnswerRaw));
+
+                        // If no model answer is defined (legacy quizzes), fall back to manual grading
+                        if ($modelNormalized === '') {
+                            $answerData['is_correct'] = false;
+                            $answerData['points'] = -1; // ungraded
+                            $hasUngradedAnswers = true;
+                        } else {
+                            // Treat empty student answer as incorrect with 0 points
+                            if ($studentNormalized !== '' && $studentNormalized === $modelNormalized) {
+                                $answerData['is_correct'] = true;
+                                $answerData['points'] = $question->points;
+                                $totalScore += $answerData['points'];
+                            } else {
+                                $answerData['is_correct'] = false;
+                                $answerData['points'] = 0;
+                            }
+                        }
+                        break;
+
                     case 'long_answer':
                         // Store text answer, mark for manual grading
                         $answerData['answer_text'] = $answerValue ?? '';

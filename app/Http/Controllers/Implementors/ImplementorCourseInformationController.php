@@ -36,8 +36,11 @@ class ImplementorCourseInformationController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-       // $modules = Module::where('lesson_id', $course->id)->get();
-       // $assignments = Assignment::where('lesson_id', $course->id)->get();
+        // Fetch assignments for this course
+        $assignments = Assignment::where('course_id', $course->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         $evaluations = ProgramEvaluation::where('course_id', $course->id)->get();
         $quiz = Quiz::where('course_id', $course->id)
             ->withCount('results')
@@ -55,7 +58,7 @@ class ImplementorCourseInformationController extends Controller
             'course'        => $course,
             'courseId'      => $course->id,
             'modules'       => $module,
-            //'assignments'   => $assignments,
+            'assignments'   => $assignments,
             'evaluations'   => $evaluations,
             'quiz'          => $quiz,
             'announcements' => $announcements,

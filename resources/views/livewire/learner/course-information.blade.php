@@ -32,10 +32,7 @@
                 <p class="text-sm text-gray-300 mb-8">
                     {{ $course->enrollees->count() }}/{{ $course->student_limit}} {{ Str::plural('Student', $course->enrollees->count()) }} Enrolled
                 </p>
-                <!-- Button - bottom right -->
-                <div class="absolute bottom-4 right-4">
-                    <livewire:modals.implementor.edit-course :courseId="$course->id" />
-                </div>
+                {{-- Implementor editing controls intentionally omitted for learners --}}
             </div>
         </div>
             
@@ -44,48 +41,6 @@
         <!-- Course Intro -->
         <div class="px-9 py-6 rounded-lg my-6 border shadow-sm bg-white">
             <div class="relative">
-                <!-- + Button pinned top right -->
-                <div class="absolute top-0 right-0 flex items-center gap-2">
-                   
-                    <livewire:modals.implementor.add-resource :courseId="$course->id" />
-                    <div x-data="{ open: false }" x-cloak class="relative inline-block text-left">
-                        <!-- Three-dot button -->
-                        <button @click="open = !open" class="p-2 rounded-full hover:bg-gray-100 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" 
-                                width="24" height="24" viewBox="0 0 24 24" 
-                                class="cursor-pointer hover:scale-110 transition">
-                                <path fill="currentColor" d="M7 12a2 2 0 1 1-4 0a2 2 0 0 1 4 0m7 0a2 2 0 1 1-4 0a2 2 0 0 1 4 0m7 0a2 2 0 1 1-4 0a2 2 0 0 1 4 0"/>
-                            </svg>
-                        </button>
-
-                        <!-- Dropdown -->
-                        <div 
-                            x-show="open" 
-                            @click.away="open = false"
-                            x-transition
-                            class="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border border-gray-200 z-50"
-                        >
-                            <button class="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded-t-xl">
-                                Settings
-                            </button>
-                           <a href="{{ route('implementor.course-participants', $course->course_code) }}"
-   class="block w-full text-left px-4 py-2 hover:bg-gray-100">
-    Participants
-</a>
-                            <a href="{{ route('implementor.assessment-results', ['course_id' => $course->id]) }}"
-   class="block w-full text-left px-4 py-2 hover:bg-gray-100">
-    Assessment Results
-</a>
-
-                            <button class="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded-b-xl">
-                                Grades
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
-
-
                 <!-- Centered Title + Description -->
                 <div class="text-center">
                     <h2 class="text-[30px] font-bold mb-2">Course Introduction</h2>
@@ -132,61 +87,6 @@
             <div class="flex justify-between items-center border-b pb-2">
                 <h2 class="text-xl font-bold">Module {{$module->module_number}}: {{ $module->module_title }}</h2>
             
-                <div x-data="{ open: false, confirmDelete: false }" class="absolute top-5 right-14">
-                    <!-- Three-dot Button -->
-                    <button @click="open = !open" class="p-2 rounded-full hover:bg-gray-200">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                            <path fill="currentColor" d="M7 12a2 2 0 1 1-4 0a2 2 0 0 1 4 0m7 0a2 2 0 1 1-4 0a2 2 0 0 1 4 0m7 0a2 2 0 1 1-4 0a2 2 0 0 1 4 0"/>
-                        </svg>
-                    </button>
-
-                    <!-- Dropdown Menu -->
-                    <div 
-                        x-show="open" 
-                        @click.outside="open = false" 
-                        x-transition
-                        class="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg z-50"
-                    >
-                        <!-- Edit Module Livewire Modal Trigger -->
-                       @livewire('modals.implementor.edit-module', ['moduleId' => $module->id], key($module->id))
-
-
-                        <!-- Delete Module Confirmation Trigger -->
-                        <button 
-                    
-                            @click="confirmDelete = true; open = false" 
-                            class="w-full text-left px-4 py-2 hover:bg-gray-100"
-                        >
-                            Delete Module
-                        </button>
-                    </div>
-
-                    <!-- Confirmation Modal -->
-                    <div 
-                        x-show="confirmDelete" 
-                        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
-                    >
-                        <div class="bg-white p-6 rounded-xl shadow-lg w-96 text-center">
-                            <h3 class="text-lg font-semibold mb-4">Confirm Deletion</h3>
-                            <p class="mb-6">Are you sure you want to delete this module? This action cannot be undone.</p>
-
-                            <div class="flex justify-end gap-3 justify-center ">
-                                <button @click="confirmDelete = false" class="px-4 py-2 rounded-xl border hover:bg-gray-100">Cancel</button>
-                                
-                                <form method="POST" action="{{ route('implementor.modules.destroy', $module->id) }}">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="px-4 py-2 bg-black text-white rounded-xl">
-                                        Delete
-                                    </button>
-                                </form>
-
-                            </div>
-                        </div>
-                    </div>
-
-                   
-                </div>
           <button @click="open = false" class="absolute top-6 right-7 text-gray-600 hover:text-gray-800 text-xl">&times;</button>
                
                 
@@ -270,19 +170,19 @@
                     <div class="flex items-center px-5 gap-3">
                         <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24">
                             <g fill="none">
-                                <path fill="url(#assignment-gradient1)" d="M4 6.25A2.25 2.25 0 0 1 6.25 4h11.5A2.25 2.25 0 0 1 20 6.25v13.5A2.25 2.25 0 0 1 17.75 22H6.25A2.25 2.25 0 0 1 4 19.75z"/>
-                                <path fill="url(#assignment-gradient2)" d="M8 4.25a2.25 2.25 0 0 0 2.25 2.25h3.5a2.25 2.25 0 0 0 0-4.5h-3.5A2.25 2.25 0 0 0 8 4.25"/>
-                                <path fill="url(#assignment-gradient3)" fill-opacity="0.9" d="M17.03 11.03a.75.75 0 1 0-1.06-1.06L11 14.94l-1.97-1.97a.75.75 0 0 0-1.06 1.06l2.5 2.5a.75.75 0 0 0 1.06 0z"/>
+                                <path fill="url(#assignment-gradient1-learner)" d="M4 6.25A2.25 2.25 0 0 1 6.25 4h11.5A2.25 2.25 0 0 1 20 6.25v13.5A2.25 2.25 0 0 1 17.75 22H6.25A2.25 2.25 0 0 1 4 19.75z"/>
+                                <path fill="url(#assignment-gradient2-learner)" d="M8 4.25a2.25 2.25 0 0 0 2.25 2.25h3.5a2.25 2.25 0 0 0 0-4.5h-3.5A2.25 2.25 0 0 0 8 4.25"/>
+                                <path fill="url(#assignment-gradient3-learner)" fill-opacity="0.9" d="M17.03 11.03a.75.75 0 1 0-1.06-1.06L11 14.94l-1.97-1.97a.75.75 0 0 0-1.06 1.06l2.5 2.5a.75.75 0 0 0 1.06 0z"/>
                                 <defs>
-                                    <linearGradient id="assignment-gradient1" x1="4" x2="18.146" y1="5.8" y2="23.483" gradientUnits="userSpaceOnUse">
+                                    <linearGradient id="assignment-gradient1-learner" x1="4" x2="18.146" y1="5.8" y2="23.483" gradientUnits="userSpaceOnUse">
                                         <stop stop-color="#36dff1"/>
                                         <stop offset="1" stop-color="#0094f0"/>
                                     </linearGradient>
-                                    <linearGradient id="assignment-gradient2" x1="12" x2="12" y1="2" y2="6.5" gradientUnits="userSpaceOnUse">
+                                    <linearGradient id="assignment-gradient2-learner" x1="12" x2="12" y1="2" y2="6.5" gradientUnits="userSpaceOnUse">
                                         <stop stop-color="#ffe06b"/>
                                         <stop offset="1" stop-color="#fab500"/>
                                     </linearGradient>
-                                    <linearGradient id="assignment-gradient3" x1="18" x2="10.265" y1="18.5" y2="7.732" gradientUnits="userSpaceOnUse">
+                                    <linearGradient id="assignment-gradient3-learner" x1="18" x2="10.265" y1="18.5" y2="7.732" gradientUnits="userSpaceOnUse">
                                         <stop stop-color="#9deaff"/>
                                         <stop offset="1" stop-color="#fff"/>
                                     </linearGradient>
@@ -297,9 +197,6 @@
                         </div>
                     </div>
                     <div class="flex items-center px-5 gap-4">
-                        <span class="text-sm text-gray-500">
-                            {{ $assignment->submissions_count ?? 0 }} {{ Str::plural('submission', $assignment->submissions_count ?? 0) }}
-                        </span>
                         @if($assignment->end_date)
                         <span class="text-sm text-gray-500">
                             Due {{ \Carbon\Carbon::parse($assignment->end_date)->format('M d') }}
@@ -311,7 +208,7 @@
 
                 {{-- Assessments/Quizzes Section --}}
                 @foreach ($quiz as $assessment)
-                <a href="{{ route('implementor.assessment-builder') }}?quiz_id={{ $assessment->id }}" 
+                <a href="{{ route('learner.assessment.show', $assessment) }}" 
                    class="bg-white w-full flex py-10 rounded-lg justify-between shadow-sm border p-4 mb-6 hover:shadow-md transition-shadow">
                     <div class="flex items-center px-5 gap-3">
                         <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 48 48">
@@ -322,9 +219,15 @@
                         </svg>
                         <div>
                             <span class="font-medium">{{ $assessment->quiz_title }}</span>
-                            <span class="ml-2 px-2 py-1 text-xs rounded-full {{ $assessment->status === 'Published' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700' }}">
-                                {{ $assessment->status }}
-                            </span>
+                            @if(($assessment->learner_status ?? 'Available') === 'Completed')
+                                <span class="ml-2 px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700">
+                                    Completed
+                                </span>
+                            @else
+                                <span class="ml-2 px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">
+                                    Available
+                                </span>
+                            @endif
                         </div>
                     </div>
                     <div class="flex items-center px-5 gap-4">
@@ -359,11 +262,7 @@
 
 
                 @foreach($announcements as $announcement)
-                <div x-data="{ open:false,
-                        confirmDelete(id) {
-                            window.dispatchEvent(new CustomEvent('confirm-delete', { detail: { id } }))
-                        }
-                    }"
+                <div x-data="{ open:false }"
                     x-transition
                     x-cloak
                     class="mb-4">
@@ -408,34 +307,6 @@
 
                                  <!--User Name-->
                                 <h3 class="my-auto ml-2 ">{{ $announcement->user->profile->first_name ?? '--' }}</h3>
-                                
-                               
-                            <!-- Three-dot button at top-right -->
-                            <div x-data="{ open: false }" class="absolute top-7 right-14 ">
-                                <button @click="open = !open" class="p-2 rounded-full hover:bg-gray-200">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                                        <path fill="currentColor" d="M7 12a2 2 0 1 1-4 0a2 2 0 0 1 4 0m7 0a2 2 0 1 1-4 0a2 2 0 0 1 4 0m7 0a2 2 0 1 1-4 0a2 2 0 0 1 4 0"/>
-                                    </svg>
-                                </button>
-
-                                <!-- Dropdown menu -->
-                                <div x-show="open" @click.outside="open = false" 
-                                    x-transition 
-                                    class="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg z-50">
-                                   @livewire('modals.implementor.edit-announcement', [
-                                        'courseId' => $courseId,
-                                        'announcementId' => $announcement->id
-                                    ], key('edit-announcement-' . $announcement->id))
-
-                                    @livewire('implementors.delete-announcement', [
-                                        'courseId' => $courseId,
-                                        'announcementId' => $announcement->id
-                                    ], key('delete-announcement-' . $announcement->id))
-
-                                </div>
-                           
-
-                                </div>
                                 <!-- Close Button -->
                                 <button @click="open = false" class="absolute top-8 right-7 text-gray-600 hover:text-gray-800 text-xl">&times;</button>
                         

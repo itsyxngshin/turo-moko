@@ -5,9 +5,9 @@
 @section('content')
 <div class="space-y-6">
     <!-- Back button -->
-    <a href="{{ route('learner.assessments') }}" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900">
+    <a href="{{ route('learner.course.show', $quiz->course) }}" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900">
         <i data-lucide="arrow-left" class="w-4 h-4"></i>
-        <span>Back to Assessments</span>
+        <span>Back to Course</span>
     </a>
 
     <!-- Result Summary Card -->
@@ -122,17 +122,10 @@
                         <span class="text-gray-900">{{ $question['your_answer'] }}</span>
                     </div>
 
-                    @if($question['is_graded'] && !$question['is_correct'] && $question['points_earned'] == 0)
+                    @if(!empty($question['correct_answer']))
                     <div class="flex items-start gap-2">
                         <span class="font-semibold text-gray-700 min-w-[120px]">Correct Answer:</span>
                         <span class="text-green-700 font-medium">{{ $question['correct_answer'] }}</span>
-                    </div>
-                    @endif
-
-                    @if($question['model_answer'] && in_array($question['type'], ['short_answer', 'long_answer']))
-                    <div class="flex items-start gap-2">
-                        <span class="font-semibold text-gray-700 min-w-[120px]">Model Answer:</span>
-                        <span class="text-gray-600 italic">{{ $question['model_answer'] }}</span>
                     </div>
                     @endif
                 </div>
@@ -144,10 +137,10 @@
     <!-- Actions -->
     <div class="flex justify-center gap-4">
         <a 
-            href="{{ route('learner.assessments') }}" 
+            href="{{ route('learner.course.show', $quiz->course) }}" 
             class="px-8 py-3 bg-gray-600 text-white rounded-full hover:bg-gray-700 transition-colors font-medium"
         >
-            Back to Assessments
+            Back to Course
         </a>
         @if($quiz->submission_limit && $quizResult->course_enrollee_id)
             @php

@@ -137,6 +137,13 @@ class AssessmentBuilderController extends Controller
                         $validator->errors()->add("questions.{$index}.options", 'Multiple choice questions must have at least 2 non-empty options.');
                     }
                 }
+
+                // Short answer questions must have a correct answer defined
+                if ($question['type'] === 'short_answer') {
+                    if (empty($question['modelAnswer']) || trim($question['modelAnswer']) === '') {
+                        $validator->errors()->add("questions.{$index}.modelAnswer", 'Answer is required for short answer questions.');
+                    }
+                }
             }
         });
 
@@ -333,6 +340,13 @@ class AssessmentBuilderController extends Controller
                     
                     if (count($validOptions) < 2) {
                         $validator->errors()->add("questions.{$index}.options", 'Multiple choice questions must have at least 2 non-empty options.');
+                    }
+                }
+
+                // Short answer questions must have a correct answer defined
+                if ($question['type'] === 'short_answer') {
+                    if (empty($question['modelAnswer']) || trim($question['modelAnswer']) === '') {
+                        $validator->errors()->add("questions.{$index}.modelAnswer", 'Answer is required for short answer questions.');
                     }
                 }
             }

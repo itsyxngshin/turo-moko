@@ -7,6 +7,7 @@ use App\Models\Answer;
 use App\Models\Question;
 use App\Models\QuizResult;
 use App\Models\CourseEnrollee;
+use App\Models\Course;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -16,14 +17,20 @@ class AssessmentResultsController extends Controller
     /**
      * Display list of quizzes with response counts
      */
-    public function index()
+    public function index(Request $request)
     {
-        $quizzes = Quiz::with(['course', 'questions'])
+        $query = Quiz::with(['course', 'questions'])
             ->withCount(['results as total_submissions'])
             ->withCount(['results as pending_grading' => function ($query) {
                 $query->where('status', 'Pending');
-            }])
-            ->orderBy('created_at', 'desc')
+            }]);
+        
+        // Filter by course_id if provided
+        if ($request->has('course_id') && $request->course_id) {
+            $query->where('course_id', $request->course_id);
+        }
+        
+        $quizzes = $query->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($quiz) {
                 // Calculate total possible points
@@ -51,7 +58,10 @@ class AssessmentResultsController extends Controller
                 ];
             });
 
-        return view('implementor.assessment-results', compact('quizzes'));
+        $courseId = $request->get('course_id');
+        $course = $courseId ? Course::find($courseId) : null;
+        
+        return view('implementor.assessment-results', compact('quizzes', 'courseId', 'course'));
     }
 
     /**
@@ -137,9 +147,9 @@ class AssessmentResultsController extends Controller
                 ->with(['question', 'choice'])
                 ->get();
 
-            // Check if there are any ungraded essay/short answers (points = -1 means ungraded)
+            // Check if there are any ungraded long-answer questions (points = -1 means ungraded)
             $hasUngradedEssays = $answers->filter(function ($answer) {
-                return in_array($answer->question->type, ['short_answer', 'long_answer']) 
+                return in_array($answer->question->type, ['long_answer']) 
                     && $answer->points < 0;
             })->count() > 0;
 
@@ -172,7 +182,7 @@ class AssessmentResultsController extends Controller
                         'correct_answer' => $correctChoice->choice_text ?? $question->model_answer,
                         'is_correct' => $answer->is_correct,
                         'points_earned' => $answer->points >= 0 ? $answer->points : 0,
-                        'needs_grading' => in_array($question->type, ['short_answer', 'long_answer']) 
+                        'needs_grading' => in_array($question->type, ['long_answer']) 
                             && $answer->points < 0,
                     ];
                 }),

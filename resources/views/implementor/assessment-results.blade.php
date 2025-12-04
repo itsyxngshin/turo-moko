@@ -13,7 +13,13 @@
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900">Assessment Results</h1>
-                <p class="text-gray-500 text-sm mt-1">View and grade student submissions</p>
+                <p class="text-gray-500 text-sm mt-1">
+                    @if($course)
+                        Viewing assessments for: <span class="font-semibold text-gray-700">{{ $course->name ?? $course->course_title ?? 'Course' }}</span>
+                    @else
+                        View and grade student submissions
+                    @endif
+                </p>
             </div>
             
             <div class="flex items-center gap-4">
@@ -455,8 +461,8 @@
                                         </div>
                                     </template>
                                     
-                                    <!-- For Essay/Short Answer - Show answer with grading interface -->
-                                    <template x-if="['short_answer', 'long_answer'].includes(answer.question_type)">
+                                    <!-- For Long Answer - Show answer with grading interface -->
+                                    <template x-if="['long_answer'].includes(answer.question_type)">
                                         <div>
                                             <!-- Student's Answer -->
                                             <div class="bg-white rounded-lg p-3 mb-3 border border-gray-200">
