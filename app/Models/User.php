@@ -91,6 +91,16 @@ class User extends Authenticatable implements MustVerifyEmail
             default => 'homepage', // Fallback
         };
     }
+
+    public function enrolledCourses(){
+    // 1. Related Model: Course
+    // 2. Pivot Table: course_enrollees
+    // 3. Foreign Key on Pivot (User): enrollee_id
+    // 4. Foreign Key on Pivot (Course): course_id
+    return $this->belongsToMany(Course::class, 'course_enrollees', 'enrollee_id', 'course_id')
+                ->withPivot('status', 'enrollment_date', 'completion_date')
+                ->withTimestamps();
+}
     public function recentCourses()
     {
     return $this->belongsToMany(Course::class, 'course_user')

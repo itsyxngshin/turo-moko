@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Learner;
 
 use Livewire\Component;
 use App\Models\Course;
+use App\Models\User;
 
 class Dashboard extends Component
 {
