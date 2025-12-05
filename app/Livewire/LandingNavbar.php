@@ -38,7 +38,7 @@ class LandingNavbar extends Component
 
         return match($user->role->role_name) {
             'admin'       => route('homepage'), // Admins often don't have a public profile page
-            'implementor' => route('implementer.profile'), 
+            'implementor' => route('implementor.profile'), 
             'learner'     => route('learner.profile'),
             default       => route('homepage'),
         };

@@ -387,7 +387,7 @@ Route::middleware(['auth', 'role:implementor', 'verified'])
             ->name('modules.destroy');
 
          Route::get('/profile', ImplementorProfile::class) 
-            ->name('implementor.profile');   
+            ->name('profile');   
 
         // Implementor profile/pages
         Route::get('/myprofile', fn() => view('livewire.implementors.teacher-profile'))
@@ -407,38 +407,34 @@ Route::middleware(['auth', 'role:implementor', 'verified'])
 
         Route::post('/courses', [CourseController::class, 'store'])
             ->name('courses.store');
-});
+        
+        Route::get('/assessment-builder', [AssessmentBuilderController::class, 'create'])
+        ->name('assessment-builder');
+    
+        Route::post('/assessment-builder', [AssessmentBuilderController::class, 'store'])
+            ->name('assessment-builder.store');
+        
+        Route::put('/assessment-builder/{id}', [AssessmentBuilderController::class, 'update'])
+            ->name('assessment-builder.update');
 
-// IMPLEMENTOR
-
-Route::prefix('implementor')->group(function () {
-    Route::get('/assessment-builder', [AssessmentBuilderController::class, 'create'])
-        ->name('implementor.assessment-builder');
-    
-    Route::post('/assessment-builder', [AssessmentBuilderController::class, 'store'])
-        ->name('implementor.assessment-builder.store');
-    
-    Route::put('/assessment-builder/{id}', [AssessmentBuilderController::class, 'update'])
-        ->name('implementor.assessment-builder.update');
-
-    // Assessment Results routes
-    Route::get('/assessment-results', [AssessmentResultsController::class, 'index'])
-        ->name('implementor.assessment-results');
-    
-    Route::get('/assessment-results/{quiz}', [AssessmentResultsController::class, 'show'])
-        ->name('implementor.assessment-results.show');
-    
-    Route::post('/assessment-results/grade', [AssessmentResultsController::class, 'grade'])
-        ->name('implementor.assessment-results.grade');
-    
-    Route::get('/assessment-results/{quiz}/export', [AssessmentResultsController::class, 'export'])
-        ->name('implementor.assessment-results.export');
-    
-    // Test route to verify form submission
-    Route::post('/test-form', function(Request $request) {
-        return response()->json([
-            'message' => 'Form received successfully!',
-            'data' => $request->all()
-        ]);
-    })->name('implementor.test-form');
+        // Assessment Results routes
+        Route::get('/assessment-results', [AssessmentResultsController::class, 'index'])
+            ->name('assessment-results');
+        
+        Route::get('/assessment-results/{quiz}', [AssessmentResultsController::class, 'show'])
+            ->name('assessment-results.show');
+        
+        Route::post('/assessment-results/grade', [AssessmentResultsController::class, 'grade'])
+            ->name('assessment-results.grade');
+        
+        Route::get('/assessment-results/{quiz}/export', [AssessmentResultsController::class, 'export'])
+            ->name('assessment-results.export');
+        
+        // Test route to verify form submission
+        Route::post('/test-form', function(Request $request) {
+            return response()->json([
+                'message' => 'Form received successfully!',
+                'data' => $request->all()
+            ]);
+        })->name('test-form');
 });
