@@ -89,8 +89,11 @@
         <div class="bg-white rounded-2xl shadow-md flex overflow-hidden border h-52">
             <!-- Course Image -->
             <div class="w-1/2">
-                <img src="{{ $course->background ?? '/images/course1.jpg' }}" 
-                     alt="{{ $course->name }}" class="w-full h-full object-cover">
+                <img src="{{ $course->cover_photo_id ? $course->cover_photo->path : '/images/course1.jpg' }}" ...>
+
+                <p class="text-xs text-gray-400 mt-1 line-clamp-3">
+                    {{ $course->background ?? 'No description available.' }}
+                </p>
             </div>
 
             <!-- Course Info -->
