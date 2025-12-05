@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\VerificationCodeMail;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Notification;
 
 #[Layout('layouts.auth')] 
 class VerifyEmail extends Component
@@ -24,6 +25,9 @@ class VerifyEmail extends Component
         ]);
 
         $user = User::find(Auth::id());
+        $admins = User::whereHas('role', function ($query) {
+            $query->where('role_name', 'admin');
+        })->get();
 
         // Convert array to string
         $enteredCode = implode('', $this->code);
@@ -40,7 +44,7 @@ class VerifyEmail extends Component
         
             $redirectUrl = match($roleName) {
                 'admin' => route('admin.hub'),
-                'implementer' => route('implementer.hub'), 
+                'implementer' => route('implementor.hub'), 
                 'learner' => route('learner.hub'),
                 default => route('homepage'),
             };
@@ -50,6 +54,21 @@ class VerifyEmail extends Component
                 'You can now access your account!.', 
                 $redirectUrl
             ));
+
+            $match = match($roleName) {
+                'implementer' => route('admin.implementors'), 
+                'learner' => route('admin.enrollees'),
+                default => route('homepage'),
+            };
+
+            $notification = new \App\Notifications\GeneralNotification(
+                'Verification Successful', 
+                "The user {$user->username} has been verified.", 
+                route('admin.enrollees') // Link admins to the list
+            );
+
+            // 3. Send to all admins at once using the Facade
+            Notification::send($admins, $notification);
 
 
             $this->dispatch('swal:alert', [

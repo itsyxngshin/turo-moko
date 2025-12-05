@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\VerificationCodeMail;
+use Illuminate\Support\Facades\Notification;
 
 #[Layout('layouts.auth')]
 class Register extends Component
@@ -126,6 +127,10 @@ class Register extends Component
 
         // Use try-catch to log unexpected database errors (Optional but recommended)
         try {
+
+            $admins = User::whereHas('role', function ($query) {
+                $query->where('role_name', 'admin');
+            })->get();
             $user = DB::transaction(function () use ($validated, $code) {
                 
                 $profile = Profile::create([
@@ -163,8 +168,25 @@ class Register extends Component
 
             Mail::to($user->email)->send(new VerificationCodeMail($code));
 
-            Auth::login($user);
+            $roleName = $user->role->role_name ?? 'learner';
+        
+            $match = match($roleName) {
+                'implementer' => route('admin.implementors'), 
+                'learner' => route('admin.enrollees'),
+                default => route('homepage'),
+            };
 
+            $notification = new \App\Notifications\GeneralNotification(
+                'Registration Successful', 
+                "The user {$user->username} has been registered and ready for verification.", 
+                route('admin.implementors') // Link admins to the list
+            );
+
+            // 3. Send to all admins at once using the Facade
+            Notification::send($admins, $notification);
+
+            Auth::login($user);
+            
             session()->flash('swal:success', [
                 'title' => 'Registration Successful!',
                 'text' => 'We\'ve sent a verification link to your email.',
@@ -172,7 +194,21 @@ class Register extends Component
 
             return $this->redirect(route('verification.notice'), navigate: true);
 
-        } catch (\Exception $e) {
+        } 
+        catch (\Exception $e) {
+            $admins = User::whereHas('role', function ($query) {
+                $query->where('role_name', 'admin');
+            })->get();
+
+            $notification = new \App\Notifications\GeneralNotification(
+                'Registration Error', 
+                "An error was detected during a registration process. See the logs", 
+                route('admin.settings') // Link admins to the list
+            );
+
+            // 3. Send to all admins at once using the Facade
+            Notification::send($admins, $notification);
+
             // [LOGGING]: CRITICAL ERROR
             // This captures if the DB Transaction fails
             Log::create([

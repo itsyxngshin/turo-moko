@@ -24,6 +24,7 @@ class CourseSeeder extends Seeder
                 'status' => 'Active', 'visibility' => 'Visible',
                 'start_date' => '2025-01-15 08:00:00', 'end_date' => '2025-04-15 17:00:00',
                 'created_at' => $now, 'updated_at' => $now,
+                'course_code' => Course::generateUniqueCode(),
             ],
             [
                 'implementer_id' => 2, 'organization_id' => 2, 'category_id' => 5, // Community Dev
@@ -34,6 +35,7 @@ class CourseSeeder extends Seeder
                 'status' => 'Active', 'visibility' => 'Visible',
                 'start_date' => '2025-02-01 09:00:00', 'end_date' => '2025-06-30 16:00:00',
                 'created_at' => $now, 'updated_at' => $now,
+                'course_code' => Course::generateUniqueCode(),
             ],
             [
                 'implementer_id' => 3, 'organization_id' => null, 'category_id' => 2, // Social Justice
@@ -44,6 +46,7 @@ class CourseSeeder extends Seeder
                 'status' => 'Active', 'visibility' => 'Visible',
                 'start_date' => '2025-03-10 10:00:00', 'end_date' => '2025-07-20 17:00:00',
                 'created_at' => $now, 'updated_at' => $now,
+                'course_code' => Course::generateUniqueCode(),
             ],
             [
                 'implementer_id' => 1, 'organization_id' => 1, 'category_id' => 3, // Environmental
@@ -54,6 +57,7 @@ class CourseSeeder extends Seeder
                 'status' => 'Active', 'visibility' => 'Visible',
                 'start_date' => '2025-04-05 08:00:00', 'end_date' => '2025-08-05 17:00:00',
                 'created_at' => $now, 'updated_at' => $now,
+                'course_code' => Course::generateUniqueCode(),
             ],
             [
                 'implementer_id' => 2, 'organization_id' => 2, 'category_id' => 8, // Technology
@@ -64,6 +68,7 @@ class CourseSeeder extends Seeder
                 'status' => 'Active', 'visibility' => 'Visible',
                 'start_date' => '2025-05-01 09:30:00', 'end_date' => '2025-05-31 15:00:00',
                 'created_at' => $now, 'updated_at' => $now,
+                'course_code' => Course::generateUniqueCode(),
             ],
             [
                 'implementer_id' => 1, 'organization_id' => 1, 'category_id' => 7, // Health
@@ -74,6 +79,7 @@ class CourseSeeder extends Seeder
                 'status' => 'Active', 'visibility' => 'Visible',
                 'start_date' => '2025-06-12 08:00:00', 'end_date' => '2025-06-14 17:00:00',
                 'created_at' => $now, 'updated_at' => $now,
+                'course_code' => Course::generateUniqueCode(),
             ],
             // 7. Governance
             [
@@ -85,6 +91,7 @@ class CourseSeeder extends Seeder
                 'status' => 'Active', 'visibility' => 'Visible',
                 'start_date' => '2025-07-20 08:00:00', 'end_date' => '2025-07-25 20:00:00',
                 'created_at' => $now, 'updated_at' => $now,
+                'course_code' => Course::generateUniqueCode(),
             ],
             // 8. Environmental
             [
@@ -96,6 +103,7 @@ class CourseSeeder extends Seeder
                 'status' => 'Active', 'visibility' => 'Visible',
                 'start_date' => '2025-08-01 07:00:00', 'end_date' => '2025-10-01 17:00:00',
                 'created_at' => $now, 'updated_at' => $now,
+                'course_code' => Course::generateUniqueCode(),
             ],
             // 9. Finance
             [
@@ -107,6 +115,7 @@ class CourseSeeder extends Seeder
                 'status' => 'Active', 'visibility' => 'Visible',
                 'start_date' => '2025-08-15 18:00:00', 'end_date' => '2025-09-15 20:00:00',
                 'created_at' => $now, 'updated_at' => $now,
+                'course_code' => Course::generateUniqueCode(),
             ],
             // 10. Health
             [
@@ -118,6 +127,7 @@ class CourseSeeder extends Seeder
                 'status' => 'Active', 'visibility' => 'Visible',
                 'start_date' => '2025-09-10 09:00:00', 'end_date' => '2025-09-10 17:00:00',
                 'created_at' => $now, 'updated_at' => $now,
+                'course_code' => Course::generateUniqueCode(),
             ],
             // 11. Tech
             [
@@ -129,6 +139,7 @@ class CourseSeeder extends Seeder
                 'status' => 'Active', 'visibility' => 'Visible',
                 'start_date' => '2025-10-01 13:00:00', 'end_date' => '2025-12-20 16:00:00',
                 'created_at' => $now, 'updated_at' => $now,
+                'course_code' => Course::generateUniqueCode(),
             ],
             // 12. Governance
             [
@@ -140,6 +151,7 @@ class CourseSeeder extends Seeder
                 'status' => 'Active', 'visibility' => 'Visible',
                 'start_date' => '2025-10-15 09:00:00', 'end_date' => '2025-11-30 17:00:00',
                 'created_at' => $now, 'updated_at' => $now,
+                'course_code' => Course::generateUniqueCode(),
             ],
             // 13. Human Rights
             [
@@ -151,6 +163,7 @@ class CourseSeeder extends Seeder
                 'status' => 'Active', 'visibility' => 'Visible',
                 'start_date' => '2025-11-05 08:30:00', 'end_date' => '2025-11-07 16:30:00',
                 'created_at' => $now, 'updated_at' => $now,
+                'course_code' => Course::generateUniqueCode(),
             ],
             // 14. Governance / Arts (Public Speaking)
             [
@@ -162,6 +175,7 @@ class CourseSeeder extends Seeder
                 'status' => 'Active', 'visibility' => 'Visible',
                 'start_date' => '2025-12-01 10:00:00', 'end_date' => '2025-12-15 12:00:00',
                 'created_at' => $now, 'updated_at' => $now,
+                'course_code' => Course::generateUniqueCode(),
             ],
             // 15. Tech
             [
@@ -173,6 +187,8 @@ class CourseSeeder extends Seeder
                 'status' => 'Active', 'visibility' => 'Visible',
                 'start_date' => '2026-01-10 09:00:00', 'end_date' => '2026-02-10 17:00:00',
                 'created_at' => $now, 'updated_at' => $now,
+                'course_code' => Course::generateUniqueCode(),
+
             ],
             // 16. Social Justice
             [
@@ -184,6 +200,7 @@ class CourseSeeder extends Seeder
                 'status' => 'Active', 'visibility' => 'Visible',
                 'start_date' => '2026-02-15 08:00:00', 'end_date' => '2026-02-16 17:00:00',
                 'created_at' => $now, 'updated_at' => $now,
+                'course_code' => Course::generateUniqueCode(),
             ],
             // 17. Arts
             [
@@ -195,6 +212,7 @@ class CourseSeeder extends Seeder
                 'status' => 'Active', 'visibility' => 'Visible',
                 'start_date' => '2026-03-01 18:00:00', 'end_date' => '2026-04-01 20:00:00',
                 'created_at' => $now, 'updated_at' => $now,
+                'course_code' => Course::generateUniqueCode(),
             ],
             // 18. Arts
             [
@@ -206,6 +224,7 @@ class CourseSeeder extends Seeder
                 'status' => 'Active', 'visibility' => 'Visible',
                 'start_date' => '2026-03-15 09:00:00', 'end_date' => '2026-03-20 17:00:00',
                 'created_at' => $now, 'updated_at' => $now,
+                'course_code' => Course::generateUniqueCode(),
             ],
             // 19. Community Dev
             [
@@ -217,6 +236,7 @@ class CourseSeeder extends Seeder
                 'status' => 'Active', 'visibility' => 'Visible',
                 'start_date' => '2026-04-10 08:00:00', 'end_date' => '2026-04-12 17:00:00',
                 'created_at' => $now, 'updated_at' => $now,
+                'course_code' => Course::generateUniqueCode(),
             ],
             // 20. Business / Marketing
             [
@@ -228,6 +248,7 @@ class CourseSeeder extends Seeder
                 'status' => 'Active', 'visibility' => 'Visible',
                 'start_date' => '2026-05-01 10:00:00', 'end_date' => '2026-06-01 16:00:00',
                 'created_at' => $now, 'updated_at' => $now,
+                'course_code' => Course::generateUniqueCode(),
             ],
             // 21. Business
             [
@@ -239,6 +260,7 @@ class CourseSeeder extends Seeder
                 'status' => 'Active', 'visibility' => 'Visible',
                 'start_date' => '2026-06-15 09:00:00', 'end_date' => '2026-06-30 17:00:00',
                 'created_at' => $now, 'updated_at' => $now,
+                'course_code' => Course::generateUniqueCode(),
             ],
             // 22. Tech
             [
@@ -250,6 +272,7 @@ class CourseSeeder extends Seeder
                 'status' => 'Active', 'visibility' => 'Visible',
                 'start_date' => '2026-07-01 13:00:00', 'end_date' => '2026-07-15 17:00:00',
                 'created_at' => $now, 'updated_at' => $now,
+                'course_code' => Course::generateUniqueCode(),
             ],
             // 23. Arts / Tech
             [
@@ -261,6 +284,7 @@ class CourseSeeder extends Seeder
                 'status' => 'Active', 'visibility' => 'Visible',
                 'start_date' => '2026-08-05 09:00:00', 'end_date' => '2026-08-25 17:00:00',
                 'created_at' => $now, 'updated_at' => $now,
+                'course_code' => Course::generateUniqueCode(),
             ],
         ]); 
     }
