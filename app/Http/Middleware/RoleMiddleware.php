@@ -18,7 +18,7 @@ class RoleMiddleware
          $user = $request->user();
 
         // Define the roles that are allowed
-        $roles = ['admin', 'implementer', 'learner'];
+        $roles = ['admin', 'implementor', 'learner'];
 
         // Check if user is authenticated and has a role
         if (!$user || !in_array($user->role->role_name, $roles)) {

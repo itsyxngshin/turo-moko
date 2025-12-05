@@ -205,7 +205,7 @@ class Profile extends Component
             default:       $query->latest('start_date'); break;
         }
 
-        return view('livewire.implementer.profile', [
+        return view('livewire.implementors.profile', [
             'courses' => $query->paginate(5) // Pagination!
         ]);
     }
