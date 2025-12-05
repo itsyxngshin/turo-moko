@@ -19,7 +19,7 @@
 
         <!-- Overlay -->
         <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col px-8 text-white rounded-lg">
-            <h1 class="text-3xl font-bold mt-auto mb-1">{{ $course->name ?? '--' }}</h1>
+            <h1 class="text-3xl font-bold mt-auto mb-1">{{ $course->course_title ?? '--' }}</h1>
             <p class="max-w-2xl mb-2">{{ $course->background ?? '--' }}</p>
 
             <p class="text-sm text-gray-300 mb-8">
@@ -117,7 +117,7 @@
                             : asset('implementor/course/thumbnail.png') }}" 
                     alt="User Profile" class="w-10 h-10 rounded-full mt-1"
                 />
-                <h3 class="my-auto ml-2">{{ $announcement->user->name ?? '--' }}</h3>
+                <h3 class="my-auto ml-2">{{ $announcement->user->course_title ?? '--' }}</h3>
 
                 <button @click="open = false" class="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-xl">&times;</button>
             </div>

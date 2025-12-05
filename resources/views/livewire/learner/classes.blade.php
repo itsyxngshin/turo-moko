@@ -49,20 +49,20 @@
 
     <!-- Recently Accessed -->
     @if($recentCourses->isNotEmpty())
-        @php $course = $recentCourses->first(); @endphp
-        <div class="relative rounded-2xl overflow-hidden shadow-lg h-60">
-            <img src="{{ asset($course->background ?? 'images/banner.jpg') }}" 
-                 alt="{{ $course->name }}" 
-                 class="absolute inset-0 w-full h-full object-cover">
-            <div class="absolute inset-0 bg-black/40"></div>
-            <div class="relative z-10 h-full flex flex-col justify-center px-8 text-white">
-                <p class="text-sm">{{ $course->subject }}</p>
-                <h2 class="text-2xl font-bold">{{ $course->name }}</h2>
-                <button class="mt-4 bg-white text-black px-4 py-2 rounded-full w-fit hover:bg-gray-200 flex items-center gap-2">
-                    <i data-lucide="play" class="w-4 h-4"></i> Continue course
-                </button>
-            </div>
+    @php $course = $recentCourses->first(); @endphp
+    <div class="relative rounded-2xl overflow-hidden shadow-lg h-60">
+        <img src="{{ asset($course->background ?? 'images/banner.jpg') }}" 
+             alt="{{ $course->course_title }}" 
+             class="absolute inset-0 w-full h-full object-cover">
+        <div class="absolute inset-0 bg-black/40"></div>
+        <div class="relative z-10 h-full flex flex-col justify-center px-8 text-white">
+            <p class="text-sm">{{ $course->subject }}</p>
+            <h2 class="text-2xl font-bold">{{ $course->course_title }}</h2>
+            <button class="mt-4 bg-white text-black px-4 py-2 rounded-full w-fit hover:bg-gray-200 flex items-center gap-2">
+                <i data-lucide="play" class="w-4 h-4"></i> Continue course
+            </button>
         </div>
+    </div>
     @else
         <p class="text-gray-500">No recently accessed courses.</p>
     @endif
@@ -87,30 +87,34 @@
                         </p>
                     </div>
 
-                    <!-- Course Info -->
-                    <div class="p-4 flex flex-col justify-between w-1/2 h-full">
-                        <div>
-                            <p class="text-xs text-gray-400">{{ $course->semester ?? 'Ongoing' }}</p>
-                            <p class="text-sm text-gray-500">Instructor: {{ $course->instructor ?? 'TBA' }}</p>
-                            <h3 class="text-lg font-bold">{{ $course->name }}</h3>
-                            <p class="text-xs text-gray-400 mt-1 line-clamp-3">
-                                {{ $course->description ?? 'No description available.' }}
-                            </p>
-                        </div>
-                        <div class="flex justify-end mt-2">
-                            <a href="{{ route('learner.courses.show', $course->id) }}"
-                               class="bg-black text-white px-4 py-1.5 rounded-full hover:bg-gray-800">
-                                View Course
-                            </a>
-                        </div>
-                    </div>
+            <!-- Course Info -->
+            <div class="p-4 flex flex-col justify-between w-1/2 h-full">
+                <div>
+                    <p class="text-xs text-gray-400">
+                        {{ $course->semester ?? 'Ongoing' }}
+                    </p>
+                    <p class="text-sm text-gray-500">
+                        Instructor: {{ $course->instructor ?? 'TBA' }}
+                    </p>
+                    <h3 class="text-lg font-bold">{{ $course->course_title }}</h3>
+                    <p class="text-xs text-gray-400 mt-1 line-clamp-3">
+                        {{ $course->description ?? 'No description available.' }}
+                    </p>
                 </div>
-            @empty
-                <div class="col-span-2 text-center text-gray-500 py-10">
-                    <p class="text-lg font-semibold">No active courses yet 📚</p>
+                <div class="flex justify-end mt-2">
+                    <a href="{{ route('learner.courses.show', $course->id) }}"
+                       class="bg-black text-white px-4 py-1.5 rounded-full hover:bg-gray-800">
+                        View Course
+                    </a>
                 </div>
-            @endforelse
+            </div>
         </div>
-    </section>
+   @empty
+   <div class="col-span-2 text-center text-gray-500 py-10">
+       <p class="text-lg font-semibold">No active courses yet 📚</p>
+   </div>
+@endforelse
+</div>
+</section>
 
 </div> <!-- END SINGLE ROOT ELEMENT -->

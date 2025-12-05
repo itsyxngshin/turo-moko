@@ -26,7 +26,7 @@
 
             <!-- Overlay -->
             <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col px-8 text-white rounded-lg">
-                <h1 class="text-3xl font-bold mt-auto mb-1">{{ $course->name ?? '--' }}</h1>
+                <h1 class="text-3xl font-bold mt-auto mb-1">{{ $course->course_title ?? '--' }}</h1>
                 <p class="max-w-2xl mb-2">{{ $course->background ?? '--' }}</p>
                  <!-- Student count -->
                 <p class="text-sm text-gray-300 mb-8">
@@ -241,9 +241,9 @@
                                     </div>
                                 @endif
 
-<p class="text-xs text-center truncate w-full">
-    {{ $module->lessons->attachments_original_name ?? '-' }}
-</p>
+                                <p class="text-xs text-center truncate w-full">
+                                    {{ $module->lessons->attachments_original_name ?? '-' }}
+                                </p>
                             </a>
                     
                         @endif

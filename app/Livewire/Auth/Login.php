@@ -67,7 +67,7 @@ class Login extends Component
             $redirect = match ($user->role->role_name) {
                 'admin' => route('admin.hub'),
                 'learner' => route('learner.hub'),
-                'implementor' => route('implementor.hub'),
+                'implementor' => route('implementor.dashboard'),
                 default => route('homepage'),
             };
 

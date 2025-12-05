@@ -14,7 +14,7 @@ class ModifyCourse extends Component
     use WithFileUploads;
 
     public $courseId;
-    public $name;
+    public $course_title;
     public $background;
     public $category;
     public $visibility;         // Added visibility
@@ -35,7 +35,7 @@ class ModifyCourse extends Component
         $this->course = Course::with('activeCoverPhoto', 'implementer.profile' )->findOrFail($courseId);
 
         $this->courseId        = $this->course->id;
-        $this->name            = $this->course->name;
+        $this->course_title            = $this->course->course_title;
         $this->background      = $this->course->background;
         $this->category        = $this->course->category_id;
         $this->visibility      = $this->course->visibility ?? 'visible'; // Set default if null
@@ -73,7 +73,7 @@ public function removeTag($tag)
     public function saveCourse()
     {
         $this->validate([
-            'name'           => 'required|string',
+            'course_title'   => 'required|string',
             'background'     => 'required|string',
             'category'       => 'required|integer',
             'visibility'     => 'required|in:public,private', // Validate visibility
@@ -86,7 +86,7 @@ public function removeTag($tag)
 
             // Update course info including visibility
             $course->update([
-                'name'         => $this->name,
+                'course_title' => $this->course_title,
                 'background'   => $this->background,
                 'category_id'  => $this->category,
                 'visibility'   => $this->visibility, // Save visibility

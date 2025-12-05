@@ -37,6 +37,7 @@ use App\Http\Controllers\Implementors\ImplementorDashboardController;
 use App\Http\Controllers\Implementors\ImplementorCourseInformationController;
 use App\Http\Controllers\Implementors\ImplementorAddAnnouncementController;
 use App\Http\Controllers\Implementors\ImplementorAddAssignmentController;
+use App\Livewire\Admin\CourseModeration;
 use App\Livewire\Implementors\CourseParticipants;
 use App\Livewire\Implementors\Profile as ImplementorProfile;
 use App\Http\Controllers\CourseController;
@@ -203,7 +204,6 @@ Route::middleware(['auth', 'role:admin'])
     Route::get('/courses', fn() => view('livewire.admin.courses'))->name('courses');
     
     // Moderation
-    Route::get('/course-moderation', fn() => view('livewire.admin.course-moderation'))->name('course-moderation'); 
-    Route::get('/moderation/course/{course}', [CourseModerationController::class, 'index'])->name('moderation.course');
+Route::get('/course-moderation/{id}', CourseModeration::class)->name('course-moderation');
     Route::get('/course/{courseCode}', [ViewCourseController::class, 'show'])->name('course.view');
 });

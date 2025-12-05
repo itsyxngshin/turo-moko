@@ -13,7 +13,7 @@ use App\Models\Assignment;
 class ImplementorDashboardController extends Controller
 {public function index()
 {
-    $instructor = User::where('id', 4)->where('role_id', 2)->first();
+$instructor = auth()->user();
 
     $courses = $instructor
         ? Course::where('implementer_id', $instructor->id)->get()
@@ -33,7 +33,7 @@ class ImplementorDashboardController extends Controller
         $submissionsCount = Submission::whereIn('assignment_id', $assignmentIds)->count();
     }
 
-    $courseName = $courses->first()?->name ?? '--';
+    $courseName = $courses->first()?->course_title ?? '--';
 
     // 🔹 Get most recently updated course for that instructor
     $recentCourse = $instructor

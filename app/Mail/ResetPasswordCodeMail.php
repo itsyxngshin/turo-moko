@@ -9,7 +9,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class VerificationCodeMail extends Mailable
+class ResetPasswordCodeMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -23,16 +23,33 @@ class VerificationCodeMail extends Mailable
         $this->code = $code;
     }
 
+    /**
+     * Get the message envelope.
+     */
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: '[TURO-MOKO] Verify your Account',
+            subject: '[TURO-MOKO] Your Password Reset Code',
         );
     }
-    
-    public function build()
+
+    /**
+     * Get the message content definition.
+     */
+    public function content(): Content
     {
-        return $this->subject('Your Verification Code')
-                    ->view('emails.verification-code'); // We will create this view next
+        return new Content(
+            view: 'emails.reset-code',
+        );
+    }
+
+    /**
+     * Get the attachments for the message.
+     *
+     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     */
+    public function attachments(): array
+    {
+        return [];
     }
 }

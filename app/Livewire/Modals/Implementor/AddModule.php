@@ -46,20 +46,23 @@ if ($this->attachments) {
 }
 
 
+            // Create the module
             $module = Module::create([
                 'course_id'     => $this->courseId,
                 'module_number' => $this->module_number,
                 'module_title'  => $this->module_title,
+                
+    // Set module hidden for learners
             ]);
 
-           
-           
-Lesson::create([
-    'module_id'                 => $module->id,
-    'content'                   => $this->content,
-    'attachments'               => $filePath,
-    'attachments_original_name' => $originalName,
-]);
+            // Create lesson/content for this module
+            Lesson::create([
+                'module_id'                 => $module->id,
+                'content'                   => $this->content,
+                'attachments'               => $filePath,
+                'attachments_original_name' => $originalName,
+            ]);
+
 
             $this->resetForm();
 

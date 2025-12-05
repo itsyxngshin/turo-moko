@@ -34,7 +34,7 @@
             <tbody class="divide-y">
                 @forelse ($courses as $course)
                     <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4">{{ $course->name }}</td>
+                        <td class="px-6 py-4">{{ $course->course_title }}</td>
                         <td class="px-6 py-4">{{ $course->category->category_name }}</td>
                         <td class="px-6 py-4">{{ $course->course_code }}</td>
                         <td class="px-6 py-4 text-{{ $course->status == 'Active' ? 'green' : ($course->status == 'Pending' ? 'yellow' : 'red') }}-600">

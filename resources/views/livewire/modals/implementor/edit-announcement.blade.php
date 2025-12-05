@@ -24,7 +24,7 @@
             class="bg-white rounded-2xl shadow-lg w-full max-w-3xl p-6 text-left"
         > <!-- Modal Header -->
             <div class="flex justify-between border-b text-left pb-2 mb-4">
-                <h2 class="text-xl font-semibold">{{ $course->name ?? '--' }}</h2>
+                <h2 class="text-xl font-semibold">{{ $course->course_title ?? '--' }}</h2>
                 <button 
         @click="
             Swal.fire({

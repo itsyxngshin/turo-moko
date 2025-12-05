@@ -102,7 +102,7 @@
     <section class="mt-10 bg-white rounded-2xl shadow-md border border-black/20">
         <div class="flex items-center justify-between px-6 py-4">
             <h2 class="text-2xl md:text-[28px] font-semibold">
-                @isset($instructor) {{ $instructor->name }}'s Courses @else No Instructor Found @endisset
+                @isset($instructor) {{ $instructor->profile->first_name }}'s Courses @else No Instructor Found @endisset
             </h2>
         </div>
 
@@ -115,9 +115,9 @@
                              class="w-full md:w-[360px] h-[200px] object-cover rounded-xl flex-shrink-0" />
                         <div class="pr-4 flex flex-col justify-between">
                             <div>
-                                <h3 class="text-lg md:text-xl font-medium text-black">{{ $course->name ?? '--' }}</h3>
+                                <h3 class="text-lg md:text-xl font-medium text-black">{{ $course->course_title ?? '--' }}</h3>
                                 <p class="mt-1 text-sm text-gray-600">Category: {{ $course->category->category_name ?? '--' }}</p>
-                                <p class="mt-1 text-sm text-gray-600">Instructor: {{ $instructor->name ?? '--' }}</p>
+                                <p class="mt-1 text-sm text-gray-600">Instructor: {{ $instructor->profile->first_name ?? '--' }}</p>
                                 <p class="mt-1 text-sm text-gray-600">Start: {{ $course->start_date ?? '--' }} | End: {{ $course->end_date ?? '--' }}</p>
                             </div>
                             <div class="mt-4">

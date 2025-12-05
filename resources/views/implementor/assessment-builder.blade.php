@@ -28,7 +28,7 @@
                 <select x-model="assessment.course_id" name="course_id" class="block border rounded-lg p-3 cursor-pointer hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 <option value="">Select course</option>
                     @foreach($courses as $course)
-                        <option value="{{ $course->id }}">{{ $course->name }}</option>
+                        <option value="{{ $course->id }}">{{ $course->course_title }}</option>
                     @endforeach
             </select>
         </div>

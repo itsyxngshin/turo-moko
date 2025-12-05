@@ -19,7 +19,6 @@ return new class extends Migration
     
    // $table->string('title')->nullable();
     $table->text('content')->nullable();
-    $table->enum('status', ['Draft', 'Published', 'Archived'])->default('Draft');
     $table->date('start_date')->nullable();
     $table->date('end_date')->nullable();
     $table->integer('order')->nullable();

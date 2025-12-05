@@ -42,7 +42,7 @@
             <div>
                 <label class="block text-gray-700 mb-1">Course Title</label>
                 <input type="text" 
-                       wire:model="name" 
+                       wire:model="course_title" 
                        class="w-full text-black px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300" 
                        placeholder="Enter course title">
             </div>
