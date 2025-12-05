@@ -13,7 +13,7 @@ return new class extends Migration
     $table->integer('module_number');
     $table->string('module_title');
     $table->text('description')->nullable();
-    $table->enum('status', ['Hidden', 'Visible'])->default('Visible');
+    
     $table->timestamps();
 });
 

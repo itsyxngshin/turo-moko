@@ -12,12 +12,26 @@ return new class extends Migration
     public function up(): void
     {
        Schema::table('modules', function (Blueprint $table) {
-  
 
-    // Add new 'status' column for moderation
-    $table->enum('status', ['pending', 'approved', 'rejected', 'revision_required'])
-          ->default('pending')
-          ->after('visibility');
+    // Add visibility only if missing
+    if (!Schema::hasColumn('modules', 'visibility')) {
+        $table->enum('visibility', ['visible', 'hidden'])
+            ->default('visible')
+            ->after('module_number');
+    }
+
+    // Add status only if missing
+    if (!Schema::hasColumn('modules', 'status')) {
+        $table->enum('status', [
+            'pending',
+            'approved',
+            'rejected',
+            'revision_required',
+            'resubmitted'
+        ])
+        ->default('pending')
+        ->after('visibility');
+    }
 });
 
     }
@@ -28,7 +42,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('modules', function (Blueprint $table) {
-            //
+
+            // Remove the added columns
+            $table->dropColumn('visibility');
+            $table->dropColumn('status');
         });
     }
 };

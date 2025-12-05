@@ -204,7 +204,6 @@ Route::middleware(['auth', 'role:admin'])
     Route::get('/courses', fn() => view('livewire.admin.courses'))->name('courses');
     
     // Moderation
-    Route::get('/course-moderation', fn() => view('livewire.admin.course-moderation'))->name('course-moderation'); 
-    Route::get('/moderation/course/{course}', [CourseModerationController::class, 'index'])->name('moderation.course');
+Route::get('/course-moderation/{id}', CourseModeration::class)->name('course-moderation');
     Route::get('/course/{courseCode}', [ViewCourseController::class, 'show'])->name('course.view');
 });

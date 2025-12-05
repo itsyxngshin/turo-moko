@@ -51,8 +51,8 @@ if ($this->attachments) {
                 'course_id'     => $this->courseId,
                 'module_number' => $this->module_number,
                 'module_title'  => $this->module_title,
-                'status'        => 'pending',    // Set module as pending
-                'visibility'    => 'visible',     // Set module hidden for learners
+                
+    // Set module hidden for learners
             ]);
 
             // Create lesson/content for this module
