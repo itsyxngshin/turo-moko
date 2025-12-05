@@ -19,6 +19,10 @@
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs"></script>
+
+
     <script>
         tailwind.config = {
             theme: {
@@ -38,8 +42,8 @@
     <!-- ✅ ADD THIS: Livewire Styles -->
     @livewireStyles
 </head>
-<body class="bg-gray-50 font-sans m-0 p-0">
-    <div class="flex h-screen w-full ">
+<body class="bg-gray-50 font-sans overflow-x-hidden">
+    <div class="flex h-screen">
         
         <!-- Sidebar Component -->
         <x-sidebar />
@@ -55,6 +59,8 @@
             <!-- Page Content -->
             <main class="@yield('main_class', 'm-0 pl-3 pr-8 h-full w-full')">
                 @yield('content')
+
+                {{ $slot ?? '' }}
             </main>
         </div>
     </div>

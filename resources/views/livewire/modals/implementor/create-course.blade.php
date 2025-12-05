@@ -92,8 +92,8 @@
                         <label class="block text-gray-700 mb-1">Visibility</label>
                         <select wire:model="visibility" 
                                 class="w-full text-black px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300">
-                            <option value="public">Public</option>
-                            <option value="private">Private</option>
+                            <option value="visible">Visible</option>
+                            <option value="hidden">Hidden</option>
                         </select>
                     </div>
 

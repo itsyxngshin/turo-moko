@@ -26,10 +26,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'remember_token',
     ];
-    public function user()
-{
-    return $this->belongsTo(User::class);
-}
+  
 
     public function profile()
     {
@@ -48,9 +45,9 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     public function enrollments()
-    {
-        return $this->hasMany(CourseEnrollee::class);
-    }
+{
+    return $this->hasMany(CourseEnrollee::class, 'enrollee_id');
+}
 
     public function engagements()
     {
@@ -94,6 +91,13 @@ class User extends Authenticatable implements MustVerifyEmail
             default => 'homepage', // Fallback
         };
     }
+    public function recentCourses()
+    {
+    return $this->belongsToMany(Course::class, 'course_user')
+                ->withPivot('last_accessed')
+                ->orderByDesc('pivot_last_accessed');
+    }
+
 
     /**
      * The attributes that should be hidden for serialization.

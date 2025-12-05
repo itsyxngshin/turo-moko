@@ -11,11 +11,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- Icons-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Tailwind Config -->
     <script>
         tailwind.config = {
             theme: {
@@ -27,25 +33,39 @@
             }
         }
     </script>
+    <style>
+        body {
+    background-color: transparent;
+}
+    </style>
+    @livewireStyles
+
 </head>
-<body class="bg-gray-50 font-sans m-0 p-0">
-    <div class="flex h-screen w-full overflow-hidden">
+<body class="bg-gray-50 font-sans overflow-x-hidden">
+    <div class="flex h-screen overflow-hidden">
         
-        <!-- Sidebar Component -->
-        <x-sidebar />
-
-        <!-- Main Section -->
-        <div class="flex-1 flex flex-col h-full pt-5">
-            <!-- Navbar (Right-Aligned, Slight Top Padding) -->
-            <div class="flex justify-end items-center h-[60px]">
-                <x-navbar />
-            </div>
-
-            <!-- Page Content (No Padding/Margin) -->
-            <main class="@yield('main_class', 'm-0 p-0 h-full w-full')">
-                @yield('content')
-            </main>
+        <!-- Sidebar (fixed) -->
+        <div class="sticky top-0 h-screen">
+            <x-sidebar />
         </div>
+<!-- Main Section -->
+<div class="flex-1 flex flex-col overflow-hidden bg-gray-50 bg-opacity-50">
+    <!-- Header (sticky) -->
+    <div class="sticky top-0 z-10 bg-transparent">
+        <div class="flex justify-between items-center">
+            <x-namelayout />
+            <x-navbar />
+        </div>
+    </div>
+
+    <!-- Page Content (scrollable) -->
+    <main class="flex-1 overflow-y-auto p-6 bg-transparent">
+        @yield('content')
+        
+        {{ $slot ?? '' }}
+    </main>
+</div>
+
     </div>
 
     <!-- Init Lucide -->

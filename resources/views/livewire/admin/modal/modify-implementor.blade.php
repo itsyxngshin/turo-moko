@@ -17,7 +17,6 @@
                 <form wire:submit.prevent="update" class="space-y-6">
                     <div class="flex flex-col md:flex-row gap-8">
                         
-                        <!-- Photo Upload Section -->
                         <div class="flex flex-col items-center justify-start pt-4 relative min-w-[160px]">
                             <label for="photoEdit" class="cursor-pointer group">
                                 <div class="w-40 h-40 rounded-full bg-gray-100 border flex items-center justify-center overflow-hidden relative">
@@ -26,7 +25,6 @@
                                         <img src="{{ $photo->temporaryUrl() }}" class="w-full h-full object-cover">
                                         <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center text-white text-sm opacity-0 group-hover:opacity-100 transition">Change</div>
                                     @elseif ($existingPhoto)
-                                        {{-- If using 'public' disk, Storage::url is needed --}}
                                         <img src="{{ Storage::url($existingPhoto) }}" class="w-full h-full object-cover">
                                         <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center text-white text-sm opacity-0 group-hover:opacity-100 transition">Change</div>
                                     @else
@@ -52,45 +50,43 @@
                             @error('photo') <span class="text-red-500 text-sm text-center">{{ $message }}</span> @enderror
                         </div>
 
-                        <!-- Fields Section -->
                         <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="text-sm font-medium">First Name</label>
-                                <input type="text" wire:model="first_name" class="w-full border rounded px-3 py-2 outline-none focus:ring-2 focus:ring-[#C28A56]">
+                                <input type="text" wire:model.defer="first_name" class="w-full border rounded px-3 py-2 outline-none focus:ring-2 focus:ring-[#C28A56]">
                                 @error('first_name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                             </div>
                             <div>
                                 <label class="text-sm font-medium">Middle Name</label>
-                                <input type="text" wire:model="middle_name" class="w-full border rounded px-3 py-2 outline-none focus:ring-2 focus:ring-[#C28A56]">
+                                <input type="text" wire:model.defer="middle_name" class="w-full border rounded px-3 py-2 outline-none focus:ring-2 focus:ring-[#C28A56]">
                             </div>
                             <div>
                                 <label class="text-sm font-medium">Last Name</label>
-                                <input type="text" wire:model="last_name" class="w-full border rounded px-3 py-2 outline-none focus:ring-2 focus:ring-[#C28A56]">
+                                <input type="text" wire:model.defer="last_name" class="w-full border rounded px-3 py-2 outline-none focus:ring-2 focus:ring-[#C28A56]">
                                 @error('last_name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                             </div>
                             <div>
                                 <label class="text-sm font-medium">Phone</label>
-                                <input type="text" wire:model="phonenum" class="w-full border rounded px-3 py-2 outline-none focus:ring-2 focus:ring-[#C28A56]">
+                                <input type="text" wire:model.defer="phonenum" class="w-full border rounded px-3 py-2 outline-none focus:ring-2 focus:ring-[#C28A56]">
                                 @error('phonenum') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                             </div>
                             <div>
                                 <label class="text-sm font-medium">Email</label>
-                                <input type="email" wire:model="email" class="w-full border rounded px-3 py-2 outline-none focus:ring-2 focus:ring-[#C28A56]">
+                                <input type="email" wire:model.defer="email" class="w-full border rounded px-3 py-2 outline-none focus:ring-2 focus:ring-[#C28A56]">
                                 @error('email') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                             </div>
                             <div>
                                 <label class="text-sm font-medium">Username</label>
-                                <input type="text" wire:model="username" class="w-full border rounded px-3 py-2 outline-none focus:ring-2 focus:ring-[#C28A56]">
+                                <input type="text" wire:model.defer="username" class="w-full border rounded px-3 py-2 outline-none focus:ring-2 focus:ring-[#C28A56]">
                                 @error('username') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                             </div>
 
-                            <!-- Password Section with Inline Alpine Logic -->
                             <div class="col-span-1 md:col-span-2 border-t pt-4 mt-2">
                                 <p class="text-xs text-gray-500 mb-2">Leave blank to keep current password.</p>
                                 
                                 <div x-data="{
-                                        password: @entangle('password').live,
-                                        confirmation: @entangle('password_confirmation').live,
+                                        password: @entangle('password').defer,
+                                        password_confirmation: @entangle('password_confirmation').defer,
                                         get strength() {
                                             let s = 0;
                                             if (!this.password) return 0;
@@ -113,13 +109,12 @@
                                         }
                                      }" 
                                      class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                     
+                                    
                                     <div>
                                         <label class="text-sm font-medium">New Password</label>
                                         <input type="password" x-model="password" class="w-full border rounded px-3 py-2 outline-none focus:ring-2 focus:ring-[#C28A56]">
                                         @error('password') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
 
-                                        <!-- Strength Bar -->
                                         <template x-if="password && password.length > 0">
                                             <div class="mt-2">
                                                 <div class="w-full bg-gray-200 rounded-full h-1.5">
@@ -132,26 +127,29 @@
 
                                     <div>
                                         <label class="text-sm font-medium">Confirm Password</label>
-                                        <input type="password" x-model="confirmation" class="w-full border rounded px-3 py-2 outline-none focus:ring-2 focus:ring-[#C28A56]">
+                                        <input type="password" x-model="password_confirmation" class="w-full border rounded px-3 py-2 outline-none focus:ring-2 focus:ring-[#C28A56]">
                                         
-                                        <template x-if="password && password.length > 0 && confirmation && confirmation.length > 0">
-                                            <p class="text-xs mt-2 font-medium" :class="password === confirmation ? 'text-green-600' : 'text-red-500'">
-                                                <span x-text="password === confirmation ? '✅ Match' : '❌ Mismatch'"></span>
+                                        <template x-if="password && password.length > 0 && password_confirmation && password_confirmation.length > 0">
+                                            <p class="text-xs mt-2 font-medium" :class="password === password_confirmation ? 'text-green-600' : 'text-red-500'">
+                                                <span x-text="password === password_confirmation ? '✅ Match' : '❌ Mismatch'"></span>
                                             </p>
                                         </template>
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
 
-                    <div class="flex justify-end gap-3 mt-4">
+                    <div class="flex justify-end gap-3 mt-4 border-t pt-4">
+                        {{-- FIXED: Changed from @click to wire:click because logic is server-side --}}
                         <button type="button" wire:click="closeModal" class="px-4 py-2 border rounded-lg hover:bg-gray-50 transition">Cancel</button>
-                        <button type="submit" class="px-4 py-2 bg-[#D7A86E] text-white rounded-lg hover:bg-[#c28a56] transition shadow-sm">Update</button>
+                        
+                        <button type="submit" class="px-4 py-2 bg-[#D7A86E] text-white rounded-lg hover:bg-[#c28a56] transition shadow-md">
+                            Update
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     @endif
-</div>  
+</div>

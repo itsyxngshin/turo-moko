@@ -1,9 +1,9 @@
 <?php
 
 namespace App\Http\Livewire\Learner;
+use App\Models\Activity;
 
 use Livewire\Component;
-use App\Models\Assignment; // adjust if your model name differs
 
 class Activities extends Component
 {
@@ -11,8 +11,10 @@ class Activities extends Component
 
     public function mount()
     {
-        // Fetch only pending activities (adjust query as needed)
-        $this->activities = Assignment::where('status', 'pending')->get();
+        $this->activities = Activity::all(); // Or filter as needed
+        $this->pendingActivities = Activity::where('status', 'Open')
+                                        ->where('visibility', 'Active')
+                                        ->count();
     }
 
     public function render()

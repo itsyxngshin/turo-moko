@@ -68,9 +68,13 @@
                             <button class="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded-t-xl">
                                 Settings
                             </button>
-                            <button class="block w-full text-left px-4 py-2 hover:bg-gray-100">
-                                Participants
-                            </button>
+                           <a href="{{ route('implementor.course-participants', $course->course_code) }}"
+   class="block w-full text-left px-4 py-2 hover:bg-gray-100">
+    Participants
+</a>
+
+
+
                             <button class="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded-b-xl">
                                 Grades
                             </button>
