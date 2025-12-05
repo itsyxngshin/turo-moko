@@ -50,7 +50,7 @@ use App\Livewire\Learner\ArchivedCourses;
 use App\Livewire\Learner\Notifications;
 
 Route::get('/learner/activity/{id}', function($id) {
-    return app(Assignment::class)->mount($id)->html();
+    return app(Activity::class)->mount($id)->html();
 })->name('learner.activity.show');
 
 
@@ -110,7 +110,7 @@ Route::get('/verify-email', VerifyEmail::class)->name('auth.verify');
 // Learner Routes using Controller (better than pointing to Livewire view)
 Route::prefix('learner')->name('learner.')->group(function () {
     Route::get('/classes', [ClassesController::class, 'index'])->name('classes');
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/hub', [DashboardController::class, 'index'])->name('hub');
     Route::get('/profile', fn() => view('learner.profile'))->name('profile');
     Route::get('/enrolled', fn() => view('learner.enrolled'))->name('enrolled');
     Route::get('/activity', fn() => view('learner.activity'))->name('activity');
@@ -213,7 +213,10 @@ Route::prefix('admin')->group(function () {
 
     Route::get('/course/{courseCode}', [ViewCourseController::class, 'show'])
     ->name('course.view');
-        /*
+        
+}); 
+
+/*
     //Route::get('/add-course', [AddCourse::class, 'create'])->name('addcourse');
     //Route::post('/add-course', [AddCourse::class, 'store'])->name('course.store'); 
     Route::get('/update-course', [ModifyCourse::class, 'edit'])->name('updatecourse');
@@ -223,8 +226,8 @@ Route::prefix('admin')->group(function () {
     Route::get('/view-user', [ViewUser::class, 'render'])->name('review');
 
 */
-}); 
 
+/*
 Route::middleware(['auth', 'role:learner', 'verified'])->group(function () {
     Route::prefix('learner')->group(function () {
         Route::get('/courses', CourseMenu::class)->name('learner.courses');
@@ -245,9 +248,10 @@ Route::middleware(['auth', 'role:learner', 'verified'])->group(function () {
         Route::get('/assessment', fn() => view('livewire.learner.assessment'))->name('learner.assessment');
         Route::get('/evaluation', fn() => view('livewire.learner.evaluation'))->name('learner.evaluation');
         Route::get('/settings', fn() => view('livewire.learner.settings'))->name('learner.settings');
-        });
-    }); 
-    
+    });
+}); 
+*/
+
 Route::middleware(['auth', 'role:implementor', 'verified'])->group(function () {
         //LINK THE BLADES EXCLUSIVE FOR THE TEACHER/IMPLEMENTER SIDE
     Route::prefix('implementer')->group(function () {
@@ -296,9 +300,9 @@ Route::middleware(['auth'])->group(function () {
 |--------------------------------------------------------------------------
 */
 
+/*
 Route::middleware(['auth', 'role:learner', 'verified'])->name('learner.')->group(function () {
     Route::prefix('learner')->group(function () {
-        Route::get('/hub', LearnerDashboard::class)->name('hub');
         Route::get('/profile', fn() => view('livewire.learner.profile'))->name('profile');
         Route::get('/classes', fn() => view('livewire.learner.classes'))->name('classes');
 
@@ -313,6 +317,7 @@ Route::middleware(['auth', 'role:learner', 'verified'])->name('learner.')->group
     });
     
 });
+*/ 
 
 
 /*
