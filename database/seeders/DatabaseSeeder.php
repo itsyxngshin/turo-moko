@@ -18,8 +18,12 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class, // ✅ add this
             OrganizationSeeder::class,
             CourseSeeder::class,
+            CourseTagSeeder::class,
             LessonSeeder::class,          // lessons depend on courses
             AssignmentSeeder::class,  
+            CourseEnrolleesSeeder::class,
+            ConversationSeeder::class, 
+            MessageSeeder::class,
 
         ]);
     }

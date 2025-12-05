@@ -194,6 +194,19 @@
             @endif
 
             <!-- TAB 4: SECURITY & LOGS -->
+            <style>
+                /* Hide scrollbar for Chrome, Safari and Opera */
+                .no-scrollbar::-webkit-scrollbar {
+                    display: none;
+                }
+                /* Hide scrollbar for IE, Edge and Firefox */
+                .no-scrollbar {
+                    -ms-overflow-style: none;  /* IE and Edge */
+                    scrollbar-width: none;  /* Firefox */
+                }
+            </style>
+
+            <!-- TAB 4: SECURITY & LOGS -->
             @if($activeTab === 'security')
                 <div class="space-y-6">
                     <div class="flex justify-between items-end">
@@ -207,22 +220,22 @@
                     </div>
                     <hr>
 
-                    <!-- Logs Table -->
-                    <div class="overflow-x-auto rounded-xl border border-gray-200">
+                    <!-- Logs Table Wrapper -->
+                    <!-- Added: max-h-[600px], overflow-y-auto, no-scrollbar -->
+                    <div class="overflow-x-auto overflow-y-auto max-h-[600px] rounded-xl border border-gray-200 no-scrollbar relative">
                         <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
+                            <thead class="bg-gray-50 sticky top-0 z-10 shadow-sm"> <!-- Added sticky top-0 -->
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP Address</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">User</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Action</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Description</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">IP Address</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Time</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse($logs as $log)
                                     <tr class="hover:bg-gray-50 transition">
-                                        <!-- User Column -->
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             @if($log->user)
                                                 <div class="flex items-center">
@@ -240,19 +253,13 @@
                                                 </span>
                                             @endif
                                         </td>
-
-                                        <!-- Action Column -->
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span class="text-xs font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded">
                                                 {{ $log->action }}
                                             </span>
                                         </td>
-
-                                        <!-- Description Column -->
                                         <td class="px-6 py-4">
                                             <p class="text-sm text-gray-700">{{ $log->description }}</p>
-                                            
-                                            {{-- If there are properties, show a small toggle or detail --}}
                                             @if(!empty($log->properties))
                                                 <details class="mt-1">
                                                     <summary class="text-xs text-blue-500 cursor-pointer hover:underline">View Details</summary>
@@ -260,13 +267,9 @@
                                                 </details>
                                             @endif
                                         </td>
-
-                                        <!-- IP Address -->
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $log->ip_address }}
                                         </td>
-
-                                        <!-- Time -->
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $log->created_at->format('M d, H:i A') }}
                                             <span class="block text-xs text-gray-400">{{ $log->created_at->diffForHumans() }}</span>
