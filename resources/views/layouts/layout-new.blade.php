@@ -79,5 +79,6 @@
             lucide.createIcons();
         });
     </script>
+<livewire:partials.notif-modal />
 </body>
 </html>

@@ -180,7 +180,7 @@ class Register extends Component
             $notification = new \App\Notifications\GeneralNotification(
                 'Registration Successful', 
                 "The user {$user->username} has been registered and ready for verification.", 
-                route('admin.implementors') // Link admins to the list
+                $match, // Link admins to the list
             );
 
             // 3. Send to all admins at once using the Facade

@@ -53,7 +53,6 @@
             <!-- Top Bar: Name + Navbar -->
             <div class="flex justify-between items-center h-[60px] w-full">
                 <x-namelayout />
-                <x-navbar />
             </div>
 
             <!-- Page Content -->
@@ -63,6 +62,7 @@
                 {{ $slot ?? '' }}
             </main>
         </div>
+        <livewire:partials.notif-modal />
     </div>
 
     <!-- Init Lucide -->

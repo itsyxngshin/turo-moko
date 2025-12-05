@@ -44,7 +44,7 @@
                         <!-- Content -->
                         <div class="flex-1">
                             <p class="text-sm font-semibold text-gray-800">
-                                {{ $notification->data['title'] ?? 'Notification' }}
+                                {{ $notification->data['subject'] ?? 'Notification' }}
                             </p>
                             <p class="text-xs text-gray-500 mt-0.5 line-clamp-2">
                                 {{ $notification->data['message'] ?? '' }}
@@ -73,8 +73,11 @@
         </div>
 
         <!-- Footer -->
-        <a href="#" class="block bg-gray-50 text-center py-2 text-xs font-medium text-gray-600 hover:text-orange-500 hover:bg-gray-100 transition-colors">
+         <button 
+            type="button"
+            @click="$dispatch('open-notifications-modal'); open = false" 
+            class="block w-full bg-gray-50 text-center py-2 text-xs font-medium text-gray-600 hover:text-orange-500 hover:bg-gray-100 transition-colors">
             View All Notifications
-        </a>
+        </button>
     </div>
 </div>

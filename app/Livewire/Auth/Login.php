@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Log;
 use Livewire\Attributes\Layout;
+use Illuminate\Support\Facades\Notification;
 
 #[Layout('layouts.auth')] 
 class Login extends Component
@@ -33,6 +34,9 @@ class Login extends Component
             request()->session()->regenerate();
 
             $user = User::with('role', 'profile')->find(Auth::id());
+            $admins = User::whereHas('role', function ($query) {
+                $query->where('role_name', 'admin');
+            })->get();
 
             // CHECK: User has no role
             if (!$user || !$user->role) {
@@ -45,6 +49,22 @@ class Login extends Component
                     'ip_address' => request()->ip(),
                     'user_agent' => request()->userAgent(),
                 ]);
+
+                $identify = $user->role->role_name ?? 'learner';
+        
+                $match = match($identify) {
+                    'implementer' => route('admin.settings'), 
+                    'learner' => route('admin.settings'),
+                    default => route('homepage'),
+                };
+
+                $notification = new \App\Notifications\GeneralNotification(
+                    'Login Successful', 
+                    "The user {$user->username} has logged into the system", 
+                    $match // Link admins to the list
+                );
+                Notification::send($admins, $notification);
+                
 
                 $this->addError('email', 'No role assigned to user.');
                 Auth::logout();

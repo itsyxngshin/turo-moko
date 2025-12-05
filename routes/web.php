@@ -29,6 +29,7 @@ use App\Http\Controllers\Learner\DashboardController;
 use App\Http\Controllers\Learner\CoursesController;
 use App\Http\Controllers\Learner\ActivitiesController;
 use App\Livewire\Learner\ArchivedCourses;
+use App\Livewire\Learner\CourseMenu;
 use App\Livewire\Learner\EditProfile;
 use App\Models\Activity;
 
@@ -109,11 +110,12 @@ Route::middleware(['auth', 'role:learner', 'verified'])
     Route::get('/hub', [DashboardController::class, 'index'])->name('hub');
     Route::get('/classes', [ClassesController::class, 'index'])->name('classes');
     Route::get('/courses', [CoursesController::class, 'index'])->name('courses.index');
+    Route::get('/course-menu', CourseMenu::class)->name('course-menu');
     Route::get('/courses/{course}', [CoursesController::class, 'show'])->name('courses.show');
     Route::get('/completed-courses', [CoursesController::class, 'completed'])->name('courses.completed');
     Route::get('/activities', [ActivitiesController::class, 'index'])->name('activities');
     Route::get('/archived-courses', ArchivedCourses::class)->name('archived-courses');
-    Route::get('/profile/edit', EditProfile::class)->name('profile.edit');
+    Route::get('/profile/edit', EditProfile::class)->name('profile.edit'); 
 
     // Simple Views
     Route::get('/profile', fn() => view('learner.profile'))->name('profile');
@@ -148,8 +150,8 @@ Route::middleware(['auth', 'role:implementor', 'verified'])
     ->group(function () {
 
     // Dashboard & Profile
-    Route::get('/dashboard', [ImplementorDashboardController::class, 'index'])->name('dashboard'); // NOTE: Changed from 'hub' to 'dashboard' to match controller, or alias it.
-    Route::get('/hub', fn() => view('livewire.implementor.dashboard'))->name('hub'); // Alternative dashboard?
+    Route::get('/hub', [ImplementorDashboardController::class, 'index'])->name('hub'); // NOTE: Changed from 'hub' to 'dashboard' to match controller, or alias it.
+    Route::get('/dashboard', fn() => view('livewire.implementor.dashboard'))->name('hub'); // Alternative dashboard?
     Route::get('/profile', ImplementorProfile::class)->name('profile'); 
     Route::get('/myprofile', fn() => view('livewire.implementors.teacher-profile'))->name('myprofile');
 

@@ -5,6 +5,10 @@ use Livewire\Component;
 use App\Models\User;
 use App\Models\Course;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Layout;
+use Illuminate\Support\Facades\Notification;
+
+#[Layout('layouts.second-layout')] 
 
 class ImplementorDashboard extends Component
 {
