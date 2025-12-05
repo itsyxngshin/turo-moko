@@ -18,32 +18,32 @@
             href="#home" 
             @click="active = 'home'" 
             :class="active === 'home' 
-            ? 'text-orange-500 border border-orange-400 px-3 py-1 rounded-full' 
-            : 'text-gray-700 hover:text-orange-500 px-3 py-1 rounded-full'">
+             ? 'text-orange-500 border border-orange-400 px-3 py-1 rounded-full transition-all duration-300' 
+        : 'text-gray-700 hover:text-orange-500 px-3 py-1 rounded-full transition-colors duration-300'">
             Dashboard
         </a>
         <a 
             href="#courses" 
             @click="active = 'courses'" 
             :class="active === 'courses' 
-            ? 'text-orange-500 border border-orange-400 px-3 py-1 rounded-full' 
-            : 'text-gray-700 hover:text-orange-500 px-3 py-1 rounded-full'">
+             ? 'text-orange-500 border border-orange-400 px-3 py-1 rounded-full transition-all duration-300' 
+        : 'text-gray-700 hover:text-orange-500 px-3 py-1 rounded-full transition-colors duration-300'">
             Courses
         </a>
         <a 
             href="#community" 
             @click="active = 'community'" 
             :class="active === 'community' 
-            ? 'text-orange-500 border border-orange-400 px-3 py-1 rounded-full' 
-            : 'text-gray-700 hover:text-orange-500 px-3 py-1 rounded-full'">
+            ? 'text-orange-500 border border-orange-400 px-3 py-1 rounded-full transition-all duration-300' 
+        : 'text-gray-700 hover:text-orange-500 px-3 py-1 rounded-full transition-colors duration-300'">
             Community
         </a>
         <a 
             href="#about" 
             @click="active = 'about'" 
             :class="active === 'about' 
-            ? 'text-orange-500 border border-orange-400 px-3 py-1 rounded-full' 
-            : 'text-gray-700 hover:text-orange-500 px-3 py-1 rounded-full'">
+             ? 'text-orange-500 border border-orange-400 px-3 py-1 rounded-full transition-all duration-300' 
+        : 'text-gray-700 hover:text-orange-500 px-3 py-1 rounded-full transition-colors duration-300'">
             About
         </a>
         </div>
@@ -148,3 +148,18 @@
         @endauth
     </div>
 </div>
+
+<script>
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                window.scrollTo({
+                    top: target.offsetTop - 80, // adjust for navbar height
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+</script>

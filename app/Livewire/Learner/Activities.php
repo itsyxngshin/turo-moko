@@ -11,8 +11,8 @@ class Activities extends Component
 
     public function mount()
     {
-        $this->activities = Activity::all(); // Or filter as needed
-        $this->pendingActivities = Activity::where('status', 'Open')
+        $this->activities = Activities::all(); // Or filter as needed
+        $this->pendingActivities = Activities::where('status', 'Open')
                                         ->where('visibility', 'Active')
                                         ->count();
     }

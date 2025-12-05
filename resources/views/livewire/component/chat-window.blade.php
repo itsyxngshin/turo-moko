@@ -148,4 +148,17 @@
             });
     });
 </script>
+
+<script>
+document.addEventListener('livewire:load', () => {
+    // Initial render
+    lucide.createIcons();
+
+    // Re-render icons after Livewire updates
+    Livewire.hook('message.processed', (message, component) => {
+        lucide.createIcons();
+    });
+});
+</script>
+<script src="https://unpkg.com/lucide@latest"></script>
 @endscript

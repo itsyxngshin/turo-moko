@@ -2,7 +2,7 @@
 
 @section('title', 'Dashboard')
 @section('content')
-<div class="h-screen overflow-y-auto space-y-8 pl-6">
+<div class="h-screen overflow-hidden space-y-8 pl-6 pr-3"> <!-- changed overflow-y-auto to overflow-hidden -->
 
     <!-- Recently Accessed (Featured Style) -->
     @if($recentCourses->isNotEmpty())
@@ -25,38 +25,39 @@
     @endif
 
     <!-- Suggested Courses Section -->
-    <div class="bg-white rounded-2xl shadow-md p-6 container mx-auto mt-8">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold">Course Suggestions</h3>
-            <a href="#" class="text-sm text-gray-500 hover:underline">View All</a>
-        </div>
+<div class="bg-white rounded-2xl shadow-md p-6 container mx-auto mt-8">
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold">Course Suggestions</h3>
+        <a href="#" class="text-sm text-gray-500 hover:underline">View All</a>
+    </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            @forelse($suggestedCourses as $course)
-            <div class="bg-gray-50 rounded-2xl shadow flex overflow-hidden h-56">
-                <div class="w-1/2 h-full">
-                    <img src="{{ asset($course->background ?? 'images/banner.jpg') }}" 
-                         alt="{{ $course->name }}" class="w-full h-full object-cover">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        @forelse($suggestedCourses->take(2) as $course)
+        <div class="bg-gray-50 rounded-2xl shadow flex overflow-hidden h-56">
+            <div class="w-1/2 h-full">
+                <img src="{{ asset($course->background ?? 'images/banner.jpg') }}" 
+                     alt="{{ $course->name }}" class="w-full h-full object-cover">
+            </div>
+            <div class="p-4 flex flex-col justify-between w-1/2 h-full">
+                <div>
+                    <p class="text-xs text-gray-400">1st Sem SY 2024-2025</p>
+                    <p class="text-sm text-gray-500">{{ $course->subject }}</p>
+                    <h3 class="text-lg font-bold">{{ $course->name }}</h3>
+                    <p class="text-xs text-gray-400 mt-1">{{ $course->background }}</p>
                 </div>
-                <div class="p-4 flex flex-col justify-between w-1/2 h-full">
-                    <div>
-                        <p class="text-xs text-gray-400">1st Sem SY 2024-2025</p>
-                        <p class="text-sm text-gray-500">{{ $course->subject }}</p>
-                        <h3 class="text-lg font-bold">{{ $course->name }}</h3>
-                        <p class="text-xs text-gray-400 mt-1">{{ $course->background }}</p>
-                    </div>
-                    <div class="flex justify-end mt-2">
-                        <button class="bg-black text-white px-4 py-1 rounded-full hover:bg-gray-800">
-                            Start
-                        </button>
-                    </div>
+                <div class="flex justify-end mt-2">
+                    <button class="bg-black text-white px-4 py-1 rounded-full hover:bg-gray-800">
+                        Start
+                    </button>
                 </div>
             </div>
-            @empty
-            <p class="text-gray-500 col-span-2">No suggested courses available.</p>
-            @endforelse
         </div>
+        @empty
+        <p class="text-gray-500 col-span-2">No suggested courses available.</p>
+        @endforelse
     </div>
+</div>
+
 
 </div>
 @endsection

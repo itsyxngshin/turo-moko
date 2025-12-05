@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'TURO-MOKO')</title>
+    <title>@yield('title', 'TuroMoko')</title>
     <link rel="icon" href="{{ asset('images/turo_moko_logo.png') }}" type="image/png">
     
     <!-- Google Fonts -->
@@ -43,25 +43,27 @@
     @livewireStyles
 </head>
 <body class="bg-gray-50 font-sans overflow-x-hidden">
-    <div class="flex h-screen">
-        
-        <!-- Sidebar Component -->
-        <x-sidebar />
+    <div class="flex h-screen overflow-hidden pt-4">
+
+        <!-- Sidebar Component (sticky) -->
+        <div class="flex-shrink-0 h-full sticky top-0">
+            <x-sidebar />
+        </div>
 
         <!-- Main Section -->
-        <div class="flex-1 flex flex-col h-full pt-5">
-            <!-- Top Bar: Name + Navbar -->
-            <div class="flex justify-between items-center h-[60px] w-full">
+        <div class="flex-1 flex flex-col h-full overflow-hidden">
+            
+            <!-- Top Bar: Name + Navbar (sticky) -->
+            <div class="flex justify-between items-center h-[60px] w-full sticky top-0 z-50 bg-gray-50 shadow-sm px-3">
                 <x-namelayout />
-                <x-navbar />
             </div>
 
-            <!-- Page Content -->
-            <main class="@yield('main_class', 'm-0 pl-3 pr-8 h-full w-full')">
+            <!-- Page Content (scrollable, hidden scrollbar) -->
+            <main class="@yield('main_class', 'flex-1 overflow-y-auto scrollbar-hide p-4')">
                 @yield('content')
-
                 {{ $slot ?? '' }}
             </main>
+
         </div>
     </div>
 
@@ -70,5 +72,20 @@
         lucide.createIcons();
     </script>
     @livewireScripts
+
+    <style>
+        /* Hide scrollbar for all browsers */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none; /* Firefox */
+        }
+    </style>
+    @livewireScripts
+@livewireStyles
+
 </body>
+
 </html>
