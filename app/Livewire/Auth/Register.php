@@ -131,6 +131,7 @@ class Register extends Component
             $admins = User::whereHas('role', function ($query) {
                 $query->where('role_name', 'admin');
             })->get();
+
             $user = DB::transaction(function () use ($validated, $code) {
                 
                 $profile = Profile::create([
@@ -168,9 +169,9 @@ class Register extends Component
 
             Mail::to($user->email)->send(new VerificationCodeMail($code));
 
-            $roleName = $user->role->role_name ?? 'learner';
+            $identify = $user->role->role_name ?? 'learner';
         
-            $match = match($roleName) {
+            $match = match($identify) {
                 'implementer' => route('admin.implementors'), 
                 'learner' => route('admin.enrollees'),
                 default => route('homepage'),
