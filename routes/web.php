@@ -85,9 +85,6 @@ Route::get('/verify-email', VerifyEmail::class)->name('auth.verify');
 
 Route::middleware(['auth', 'role:learner', 'verified'])->group(function () {
     Route::prefix('learner')->group(function () {
-        Route::get('/hub', function () {
-            return view('livewire.learner.dashboard');
-            })->name('learner.hub');
         Route::get('/courses', CourseMenu::class)->name('learner.courses');
 
         Route::get('/profile', function () {
