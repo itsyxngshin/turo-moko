@@ -166,4 +166,11 @@ class Course extends Model
     {
         return $this->hasMany(Engagement::class, 'course_id');
     }
+
+    public function modules()
+{
+    return $this->hasMany(Module::class, 'course_id', 'id')
+        ->orderBy('module_number');
+}
+
 }

@@ -37,6 +37,7 @@ use App\Http\Controllers\Implementors\ImplementorDashboardController;
 use App\Http\Controllers\Implementors\ImplementorCourseInformationController;
 use App\Http\Controllers\Implementors\ImplementorAddAnnouncementController;
 use App\Http\Controllers\Implementors\ImplementorAddAssignmentController;
+use App\Livewire\Admin\CourseModeration;
 use App\Livewire\Implementors\CourseParticipants;
 use App\Livewire\Implementors\Profile as ImplementorProfile;
 use App\Http\Controllers\CourseController;

@@ -241,9 +241,9 @@
                                     </div>
                                 @endif
 
-<p class="text-xs text-center truncate w-full">
-    {{ $module->lessons->attachments_original_name ?? '-' }}
-</p>
+                                <p class="text-xs text-center truncate w-full">
+                                    {{ $module->lessons->attachments_original_name ?? '-' }}
+                                </p>
                             </a>
                     
                         @endif
