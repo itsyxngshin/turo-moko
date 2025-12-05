@@ -80,7 +80,7 @@
     <section class="mt-10 bg-white rounded-2xl shadow-md border border-black/20">
         <div class="flex items-center justify-between px-6 py-4">
             <h2 class="text-2xl md:text-[28px] font-semibold">All courses</h2>
-            <a href="{{ route('courses.index') }}" class="inline-flex items-center justify-center h-10 px-6 rounded-full border border-gray-300 text-base bg-white hover:bg-gray-50">View all</a>
+            <a href="{{ route('admin.courses') }}" class="inline-flex items-center justify-center h-10 px-6 rounded-full border border-gray-300 text-base bg-white hover:bg-gray-50">View all</a>
         </div>
 
         <div class="px-6 pb-8 grid grid-cols-1 xl:grid-cols-2 gap-6">
