@@ -56,6 +56,7 @@ class AssessmentBuilderController extends Controller
             'questions' => 'required|string', // Changed to string since we're sending JSON
         ]);
 
+        
         // Add custom validation for questions array
         $validator->after(function ($validator) use ($questionsData) {
             if (empty($questionsData)) {

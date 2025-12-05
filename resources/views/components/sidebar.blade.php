@@ -54,13 +54,13 @@
         {{-- IMPLEMENTOR LINKS                          --}}
         {{-- ========================================== --}}
         @elseif($role === 'implementor' || $role === 'implementer') {{-- Handle both spellings just in case --}}
-            <a href="{{ route('implementor.hub') }}" 
+            <a href="{{ route('implementor.dashboard') }}" 
                class="h-10 w-10 flex items-center justify-center rounded-lg transition-colors {{ request()->routeIs('implementer.hub') ? 'bg-orange-100 text-orange-600' : 'hover:bg-gray-100 text-gray-600' }}" 
                aria-label="Home">
                 <i data-lucide="home" class="w-6 h-6"></i>
             </a>
 
-            <a href="{{ route('implementor.courses') }}" 
+            <a href="{{ route('implementor.all-courses') }}" 
                class="h-10 w-10 flex items-center justify-center rounded-lg transition-colors {{ request()->routeIs('implementer.courses') ? 'bg-orange-100 text-orange-600' : 'hover:bg-gray-100 text-gray-600' }}" 
                aria-label="My Classes">
                 <i data-lucide="presentation" class="w-6 h-6"></i>
@@ -70,7 +70,7 @@
                 <i data-lucide="message-circle" class="w-6 h-6"></i>        
             </a>
 
-            <a href="{{ route('implementor.settings') }}" 
+            <a href="#" 
                class="h-10 w-10 flex items-center justify-center rounded-lg transition-colors {{ request()->routeIs('implementer.settings') ? 'bg-orange-100 text-orange-600' : 'hover:bg-gray-100 text-gray-600' }}" 
                aria-label="Settings">
                 <i data-lucide="settings" class="w-6 h-6"></i>

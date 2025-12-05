@@ -22,12 +22,12 @@
         <div class="bg-white rounded-2xl shadow-lg w-full max-w-3xl p-6">
             <!-- Modal Header -->
             <div class="flex justify-between border-b text-left pb-2 mb-4">
-                <h2 class="text-xl font-semibold">{{ $course->name ?? '--' }}</h2>
+                <h2 class="text-xl font-semibold">{{ $course->course_title ?? '--' }}</h2>
                 <button @click="open = false" class="text-gray-500 hover:text-black">✖</button>
             </div>
 
             <!-- Form 
-            <h1 class="text-lg text-left font-semibold mb-1">{{ $course->name ?? '--' }}</h1>-->
+            <h1 class="text-lg text-left font-semibold mb-1">{{ $course->course_title ?? '--' }}</h1>-->
 
             <!-- General Section -->
           <form wire:submit.prevent="saveAnnouncement" enctype="multipart/form-data">

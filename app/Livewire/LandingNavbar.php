@@ -20,7 +20,7 @@ class LandingNavbar extends Component
 
         return match($user->role->role_name) {
             'admin'       => route('admin.hub'),
-            'implementor' => route('implementor.hub'), 
+            'implementor' => route('implementor.dashboard'), 
             'learner'     => route('learner.hub'),
             default       => route('homepage'),
         };

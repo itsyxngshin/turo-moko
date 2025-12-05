@@ -149,7 +149,6 @@ Route::middleware(['auth', 'role:implementor', 'verified'])
 
     // Dashboard & Profile
     Route::get('/dashboard', [ImplementorDashboardController::class, 'index'])->name('dashboard'); // NOTE: Changed from 'hub' to 'dashboard' to match controller, or alias it.
-    Route::get('/hub', fn() => view('livewire.implementor.dashboard'))->name('hub'); // Alternative dashboard?
     Route::get('/profile', ImplementorProfile::class)->name('profile'); 
     Route::get('/myprofile', fn() => view('livewire.implementors.teacher-profile'))->name('myprofile');
 

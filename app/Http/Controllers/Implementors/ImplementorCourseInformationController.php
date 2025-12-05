@@ -12,21 +12,21 @@ use App\Models\ProgramEvaluation;
 use App\Models\Quiz;
 use App\Models\Announcement;
 
-
 class ImplementorCourseInformationController extends Controller
 {
     public function show(Course $course)
     {
-        
+        // Get logged-in user
+        $implementor = auth()->user();
 
-        // Get the logged-in implementor (temporary hardcoded ID = 4)
-        $implementor = User::where('id', 4)
-            ->where('role_id', 2)
-            ->firstOrFail();
+        // Ensure the user is an implementor
+        if (!$implementor || $implementor->role_id != 2) {
+            abort(403, 'Unauthorized: Only implementors can access this page.');
+        }
 
-        // Ensure this course belongs to the implementor
+        // Ensure the implementor OWNS this course
         if ($course->implementer_id !== $implementor->id) {
-            abort(403, 'Unauthorized access to this course.');
+            abort(403, 'Unauthorized: You do not own this course.');
         }
 
         // Fetch related data
@@ -34,23 +34,19 @@ class ImplementorCourseInformationController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-       // $modules = Module::where('lesson_id', $course->id)->get();
-       // $assignments = Assignment::where('lesson_id', $course->id)->get();
         $evaluations = ProgramEvaluation::where('course_id', $course->id)->get();
         $quiz = Quiz::where('course_id', $course->id)->get();
 
-        // Fetch modules for this course
-        $module = Module::where('course_id', $course->id)
+        // Fetch modules
+        $modules = Module::where('course_id', $course->id)
             ->orderBy('module_number', 'asc')
-            ->with('lessons') // hasOne relation
+            ->with('lessons')
             ->get();
 
-
-    return view('livewire.implementors.implementor-course-details', [
+        return view('livewire.implementors.implementor-course-details', [
             'course'        => $course,
             'courseId'      => $course->id,
-            'modules'       => $module,
-            //'assignments'   => $assignments,
+            'modules'       => $modules,
             'evaluations'   => $evaluations,
             'quiz'          => $quiz,
             'announcements' => $announcements,
@@ -58,11 +54,9 @@ class ImplementorCourseInformationController extends Controller
     }
 
     public function destroy(Module $module)
+    {
+        $module->delete();
 
-{
-    $module->delete();
-
-    return redirect()->back()->with('success', 'Module deleted successfully.');
-}
-
+        return redirect()->back()->with('success', 'Module deleted successfully.');
+    }
 }

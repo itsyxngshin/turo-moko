@@ -27,7 +27,7 @@
         <div class="flex-1 p-5 flex flex-col justify-between">
           <div>
             <div class="flex justify-between items-start mb-2">
-              <p class="text-xs text-gray-400">Course: {{ $activity->course_name }}</p>
+              <p class="text-xs text-gray-400">Course: {{ $activity->course_title }}</p>
               <span class="text-xs 
                 @if($activity->due_date->isPast()) bg-red-100 text-red-600 
                 @else bg-yellow-100 text-yellow-600 @endif 

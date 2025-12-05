@@ -14,7 +14,7 @@ class EditCourse extends Component
     use WithFileUploads;
 
     public $courseId;
-    public $name;
+    public $course_title;
     public $background;
     public $category;
     public $thumbnail;           // new uploaded file
@@ -37,7 +37,7 @@ class EditCourse extends Component
         $this->course = Course::with('activeCoverPhoto')->findOrFail($courseId);
 
         $this->courseId   = $this->course->id;
-        $this->name       = $this->course->name;
+        $this->course_title = $this->course->course_title;
         $this->background = $this->course->background;
         $this->category   = $this->course->category_id;
         $this->student_limit   = $this->course->student_limit;
@@ -85,7 +85,7 @@ public $removeExistingThumbnail = false;
   public function saveCourse()
 {
     $this->validate([
-        'name'          => 'required|string',
+        'course_title'          => 'required|string',
         'background'    => 'required|string',
         'category'      => 'required|integer',
         'visibility'    => 'required|in:visible,hidden',
@@ -98,7 +98,7 @@ public $removeExistingThumbnail = false;
 
         // Update course info
         $course->update([
-            'name'          => $this->name,
+            'course_title'  => $this->course_title,
             'background'    => $this->background,
             'category_id'   => $this->category,
             'start_date'    => $this->start_date,
