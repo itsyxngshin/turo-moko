@@ -24,37 +24,39 @@ class Classes extends Component
 
     public function mount()
     {
+        /** @var \App\Models\User $user */ // <--- ADD THIS LINE
         $user = Auth::user();
 
+        if (!$user) {
+            return redirect()->route('auth.login');
+        }
+
         // 1. Active Courses 
-        // Logic: The Course itself must be 'active' AND the student's enrollment status must be 'Active'
         $this->activeCourses = $user->enrolledCourses()
-            ->where('courses.status', 'active') // Check Course Table status
-            ->wherePivot('status', 'Active')    // Check Enrollees Table status
+            ->where('courses.status', 'active') 
+            ->wherePivot('status', 'Active')    
             ->get();
 
         $this->activeCoursesCount = $this->activeCourses->count();
 
         // 2. Completed Courses
-        // Logic: Student's enrollment status is 'Completed'
         $this->completedCoursesCount = $user->enrolledCourses()
             ->wherePivot('status', 'Completed')
             ->count();
         
-        // (Optional) If you want the actual list of completed courses
         $this->completedCourses = $user->enrolledCourses()
             ->wherePivot('status', 'Completed')
             ->get();
 
-        // 3. Pending assignments (Scoped to the user's courses)
+        // 3. Pending assignments
         if (class_exists(Assignment::class)) {
-            // This logic assumes Assignments are linked to Courses. 
-            // We verify the user is enrolled in the course that has the assignment.
-            $this->pendingActivities = Assignment::whereIn('course_id', $this->activeCourses->pluck('id'))
+            $courseIds = $this->activeCourses->pluck('id');
+
+            $this->pendingActivities = Assignment::whereIn('course_id', $courseIds)
                 ->where('status', 'Pending')
                 ->count();
                 
-            $this->pendingEvaluations = Assignment::whereIn('course_id', $this->activeCourses->pluck('id'))
+            $this->pendingEvaluations = Assignment::whereIn('course_id', $courseIds)
                 ->where('status', 'Evaluation Pending')
                 ->count();
         } else {
@@ -62,19 +64,19 @@ class Classes extends Component
             $this->pendingEvaluations = 0;
         }
 
-        // 4. Featured Course (Logic: Latest active course the user is enrolled in)
+        // 4. Featured Course
         $this->featuredCourse = $user->enrolledCourses()
             ->where('courses.status', 'active')
             ->latest('course_enrollees.enrollment_date')
             ->first();
 
-        // 5. Recent Courses (Last 5 enrolled)
+        // 5. Recent Courses
         $this->recentCourses = $user->enrolledCourses()
             ->latest('course_enrollees.enrollment_date')
             ->take(5)
             ->get();
             
-        // 6. "All" Courses usually implies the user's active list in this context
+        // 6. "All" Courses
         $this->courses = $this->activeCourses;
     }
 
