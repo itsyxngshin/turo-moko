@@ -24,7 +24,7 @@
                         <!-- Course Image -->
                         <div class="w-1/2">
                             <img src="{{ $course->image ?? '/images/course1.jpg' }}" 
-                                 alt="{{ $course->name }}" 
+                                 alt="{{ $course->course_title }}" 
                                  class="w-full h-full object-cover">
                         </div>
 
@@ -33,7 +33,7 @@
                             <div>
                                 <p class="text-xs text-gray-400">{{ $course->semester ?? 'Semester not set' }}</p>
                                 <p class="text-sm text-gray-500">{{ $course->subject ?? 'Subject' }}</p>
-                                <h3 class="text-lg font-bold">{{ $course->name }}</h3>
+                                <h3 class="text-lg font-bold">{{ $course->course_title }}</h3>
                                 <p class="text-xs text-gray-400 mt-1">{{ $course->description ?? 'No description available.' }}</p>
                             </div>
                             <div class="flex justify-end mt-2">

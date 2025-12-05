@@ -14,7 +14,7 @@ class CreateCourse extends Component
     use WithFileUploads;
 
     // Form fields
-    public $name;
+    public $course_title;
     public $subject;
     public $background;
     public $status = 'Active'; // default
@@ -62,7 +62,7 @@ class CreateCourse extends Component
     {
         try {
             $this->validate([
-                'name'        => 'required|string|max:255',
+                'course_title'        => 'required|string|max:255',
                 'background'  => 'nullable|string',
                 'category_id' => 'required|exists:categories,id',
                 'thumbnail'   => 'nullable|image|max:2048',
@@ -74,10 +74,10 @@ class CreateCourse extends Component
 
             // Create course
             $course = Course::create([
-                'implementer_id'   => Auth::id() ?? 4, // fallback for now
+                'implementer_id'   => Auth::id(), // fallback for now
                 'organization_id'  => 1, // adjust if dynamic
                 'category_id'      => $this->category_id,
-                'name'             => $this->name,
+                'course_title'     => $this->course_title,
                 'background'       => $this->background,
                 'status'           => $this->status,
                 'visibility'       => $this->visibility,
@@ -107,7 +107,7 @@ class CreateCourse extends Component
 
             // Reset form fields
             $this->reset([
-                'name', 'subject', 'background', 'category_id',
+                'course_title', 'subject', 'background', 'category_id',
                 'thumbnail', 'tags', 'start_date', 'end_date'
             ]);
 

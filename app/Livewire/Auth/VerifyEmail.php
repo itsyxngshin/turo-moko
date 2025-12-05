@@ -44,7 +44,7 @@ class VerifyEmail extends Component
         
             $redirectUrl = match($roleName) {
                 'admin' => route('admin.hub'),
-                'implementer' => route('implementor.hub'), 
+                'implementer' => route('implementor.dashboard'), 
                 'learner' => route('learner.hub'),
                 default => route('homepage'),
             };

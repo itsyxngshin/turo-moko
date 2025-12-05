@@ -11,7 +11,7 @@ class Course extends Model
 
     protected $fillable = [
         'implementer_id', 'organization_id', 'category_id', 'course_code',
-        'name', 'background', 'status', 'visibility',
+        'course_title', 'background', 'status', 'visibility',
         'start_date', 'end_date', 'student_limit'
     ];
 
@@ -166,4 +166,11 @@ class Course extends Model
     {
         return $this->hasMany(Engagement::class, 'course_id');
     }
+
+    public function modules()
+{
+    return $this->hasMany(Module::class, 'course_id', 'id')
+        ->orderBy('module_number');
+}
+
 }

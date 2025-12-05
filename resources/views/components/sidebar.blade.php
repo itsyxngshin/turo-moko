@@ -54,7 +54,7 @@
         {{-- IMPLEMENTOR LINKS                          --}}
         {{-- ========================================== --}}
         @elseif($role === 'implementor' || $role === 'implementer') {{-- Handle both spellings just in case --}}
-            <a href="{{ route('implementor.hub') }}" 
+            <a href="{{ route('implementor.dashboard') }}" 
                class="h-10 w-10 flex items-center justify-center rounded-lg transition-colors {{ request()->routeIs('implementer.hub') ? 'bg-orange-100 text-orange-600' : 'hover:bg-gray-100 text-gray-600' }}" 
                aria-label="Home">
                 <i data-lucide="home" class="w-6 h-6"></i>
@@ -68,6 +68,12 @@
 
             <a href="#" class="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-600" aria-label="Chat">
                 <i data-lucide="message-circle" class="w-6 h-6"></i>        
+            </a>
+
+            <a href="#" 
+               class="h-10 w-10 flex items-center justify-center rounded-lg transition-colors {{ request()->routeIs('implementer.settings') ? 'bg-orange-100 text-orange-600' : 'hover:bg-gray-100 text-gray-600' }}" 
+               aria-label="Settings">
+                <i data-lucide="settings" class="w-6 h-6"></i>
             </a>
 
         {{-- ========================================== --}}

@@ -100,10 +100,11 @@
         </div>
     </section>
 
-    <!-- 3. Courses Section (Main Content) -->
-    <section class="mt-10 bg-white rounded-2xl shadow-md border border-gray-100">
-        <div class="flex items-center justify-between px-8 py-6 border-b border-gray-100">
-            <h2 class="text-xl md:text-2xl font-bold text-gray-800">
+
+    <!-- Courses Section -->
+    <section class="mt-10 bg-white rounded-2xl shadow-md border border-black/20">
+        <div class="flex items-center justify-between px-6 py-4">
+            <h2 class="text-2xl md:text-[28px] font-semibold">
                 @isset($instructor) {{ $instructor->profile->first_name }}'s Courses @else No Instructor Found @endisset
             </h2>
             <a href="{{ route('implementor.courses.create') }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-800 hover:underline">
@@ -118,17 +119,13 @@
                     <div class="w-full md:w-[320px] h-[200px] flex-shrink-0 overflow-hidden">
                         <img src="{{ $course->activeCoverPhoto ? asset('storage/'.$course->activeCoverPhoto->path) : '/img/default-cover.png' }}"
                              alt="Course cover"
-                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                    </div>
-                    
-                    <!-- Content -->
-                    <div class="flex-1 p-6 flex flex-col justify-between">
-                        <div>
-                            <div class="flex justify-between items-start">
-                                <h3 class="text-lg font-bold text-gray-900 line-clamp-1">{{ $course->first_name ?? 'Untitled Course' }}</h3>
-                                <span class="text-xs font-semibold px-2 py-1 bg-gray-100 text-gray-600 rounded">
-                                    {{ $course->category->category_name ?? 'General' }}
-                                </span>
+                             class="w-full md:w-[360px] h-[200px] object-cover rounded-xl flex-shrink-0" />
+                        <div class="pr-4 flex flex-col justify-between">
+                            <div>
+                                <h3 class="text-lg md:text-xl font-medium text-black">{{ $course->course_title ?? '--' }}</h3>
+                                <p class="mt-1 text-sm text-gray-600">Category: {{ $course->category->category_name ?? '--' }}</p>
+                                <p class="mt-1 text-sm text-gray-600">Instructor: {{ $instructor->profile->first_name ?? '--' }}</p>
+                                <p class="mt-1 text-sm text-gray-600">Start: {{ $course->start_date ?? '--' }} | End: {{ $course->end_date ?? '--' }}</p>
                             </div>
                             
                             <div class="mt-3 space-y-1">

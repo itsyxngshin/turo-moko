@@ -4,7 +4,7 @@
             <!-- Banner Section -->
             <div class="relative h-64 overflow-hidden rounded-2xl shadow-lg">
                 <img src="{{ asset($course->background ?? 'images/default-course.jpg') }}" 
-                     alt="{{ $course->name }}" 
+                     alt="{{ $course->course_title }}" 
                      class="absolute inset-0 w-full h-full object-cover" />
                 <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"></div>
 
@@ -16,7 +16,7 @@
 
                 <!-- Text on top of Banner -->
                 <div class="relative z-10 text-white px-6 py-10">
-                    <h1 class="text-4xl font-bold">{{ $course->name }}</h1>
+                    <h1 class="text-4xl font-bold">{{ $course->course_title }}</h1>
                     <p class="text-base mt-2 text-gray-200">{{ $course->subject }}</p>
                 </div>
             </div>
