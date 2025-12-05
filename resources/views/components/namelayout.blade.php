@@ -56,7 +56,7 @@
         </div>
 
         {{-- Notification Bell --}}
-        <livewire:partials.navbar-notifications />
+        <livewire:partials.nav-notif />
     </div>
 
 </nav>

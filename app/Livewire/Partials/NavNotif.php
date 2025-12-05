@@ -8,7 +8,6 @@ use App\Models\User;
 
 class NavNotif extends Component
 {
-    // Poll for new notifications every 10 seconds
     protected $listeners = ['notificationMarkedAsRead' => '$refresh'];
 
     public function getNotificationsProperty()
@@ -16,20 +15,20 @@ class NavNotif extends Component
         /** @var \App\Models\User $user */
         $user = Auth::user();
         
-        if (!$user) return collect(); // Return empty collection if guest
+        if (!$user) return collect(); 
 
-        // Now Intelephense knows $user has the Notifiable trait
-        return User::unreadNotifications()->latest()->take(5)->get();
+        // FIX: Removed the () after $user
+        return $user->unreadNotifications()->latest()->take(5)->get();
     }
 
     public function getUnreadCountProperty()
     {
-
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         if (!$user) return 0;
 
-        return User::unreadNotifications()->count();
+        return $user->unreadNotifications()->count();
     }
 
     public function markAsRead($notificationId)

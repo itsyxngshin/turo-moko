@@ -63,5 +63,21 @@
         lucide.createIcons();
     </script>
     @livewireScripts
+    <script>
+        // 1. Initial Load
+        lucide.createIcons();
+
+        // 2. Re-run when Livewire updates content (e.g., polling notifications)
+        document.addEventListener('livewire:init', () => {
+            Livewire.hook('morph.updated', ({ el, component }) => {
+                lucide.createIcons();
+            });
+        });
+
+        // 3. Re-run when navigating pages (if using wire:navigate)
+        document.addEventListener('livewire:navigated', () => {
+            lucide.createIcons();
+        });
+    </script>
 </body>
 </html>

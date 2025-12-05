@@ -6,10 +6,6 @@
     @endphp
 
     <div class="flex flex-col items-center gap-8">
-        <div class="h-10 w-10 rounded-full bg-orange-300 flex items-center justify-center text-white font-bold text-sm select-none">
-            TM
-        </div>
-
         {{-- ========================================== --}}
         {{-- ADMIN LINKS                                --}}
         {{-- ========================================== --}}
