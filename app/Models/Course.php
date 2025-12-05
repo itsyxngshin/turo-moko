@@ -147,6 +147,12 @@ class Course extends Model
         return $this->hasOne(CoverPhoto::class)->where('status', 'Active');
     }
 
+    public function coverPhoto()
+    {
+        // Returns the single, active cover photo (usually the latest one)
+        return $this->hasOne(CoverPhoto::class)->where('status', 'Active')->latest();
+    }
+
     /**
      * --------------------------------------
      * ANNOUNCEMENTS

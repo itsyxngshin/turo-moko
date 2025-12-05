@@ -104,13 +104,7 @@
                         <div class="px-4 py-1 text-xs font-semibold text-gray-400 uppercase tracking-wider">
                             Management
                         </div>
-
-                        <a href="{{ route('admin.course-moderation') }}" {{-- Ensure this route exists --}}
-                           wire:navigate
-                           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-orange-600 transition-colors">
-                            Content Moderation
-                        </a>
-
+                        
                         <a href="{{ route('admin.courses') }}" {{-- Ensure this route exists --}}
                            wire:navigate
                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-orange-600 transition-colors">
