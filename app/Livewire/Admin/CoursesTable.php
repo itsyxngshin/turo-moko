@@ -11,6 +11,7 @@ class CoursesTable extends Component
     use WithPagination;
 
     public $search = '';
+    public $course;
 
     protected $updatesQueryString = ['search'];
 
@@ -19,6 +20,26 @@ class CoursesTable extends Component
     {
         $this->resetPage();
     }
+
+    public function archiveCourse($courseId)
+{
+    $course = Course::find($courseId); // use find instead of findOrFail
+
+    if (!$course) {
+        session()->flash('error', 'Course not found.');
+        return;
+    }
+
+    $course->update([
+        'status' => 'archived',
+        'visibility' => 'hidden',
+    ]);
+
+    session()->flash('message', 'Course archived successfully.');
+}
+
+
+
 
     public function render()
     {
@@ -30,7 +51,7 @@ class CoursesTable extends Component
                       $q->where('category_name', 'like', '%' . $this->search . '%'));
         }
 
-        $courses = $query->paginate(10);
+        $courses = $query->paginate(8);
 
         return view('livewire.admin.courses-table', [
             'courses' => $courses,

@@ -86,7 +86,7 @@ class ImplementorsTable extends Component
                 });
             })
             ->orderBy($this->sortField, $this->sortDirection)
-            ->paginate(10);
+            ->paginate(8);
 
         return view('livewire.admin.implementors-table', compact('implementors'));
     }

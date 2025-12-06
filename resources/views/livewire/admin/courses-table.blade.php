@@ -37,26 +37,44 @@
                         <td class="px-6 py-4">{{ $course->course_title }}</td>
                         <td class="px-6 py-4">{{ $course->category->category_name }}</td>
                         <td class="px-6 py-4">{{ $course->course_code }}</td>
-                        <td class="px-6 py-4 text-{{ $course->status == 'Active' ? 'green' : ($course->status == 'Pending' ? 'yellow' : 'red') }}-600">
+                       @php
+                            $statusColors = [
+                                'active' => 'green',
+                                'archived' => 'yellow',
+                                'deleted' => 'red',
+                                'closed' => 'black',
+                            ];
+                            $color = $statusColors[$course->status] ?? 'gray';
+                        @endphp
+
+                        <td class="px-6 py-4 text-{{ $color }}-600">
                             {{ ucfirst($course->status) }}
                         </td>
+
                         <td class="px-6 py-4">
                             {{ $course->implementer->profile->first_name ?? '—' }} {{ $course->implementer->profile->last_name ?? '' }}
                         </td>
 
 
                         <td class="px-6 py-4 text-blue-500 flex space-x-4">
- <a href="{{ route('admin.course.view', $course->course_code) }}" 
-       class="px-3 py-2 text-blue rounded transition hover:underline">
-        View
-    </a>        
-        @livewire('admin.modal.modify-course', ['courseId' => $course->id], key('modify-course-'.$course->id))
-        
-        <a href="{{ route('admin.moderation.course', $course->id) }}" 
-        class="px-3 py-2 text-blue rounded transition hover:underline">
-            Moderate
-        </a>
-        <button class="hover:underline">Archive</button>
+                            <a href="{{ route('admin.view-course', $course->course_code) }}" 
+                                class="px-3 py-2 text-orange-500 rounded transition hover:underline">
+                                    View
+                                </a>        
+                            @livewire('admin.modal.modify-course', ['courseId' => $course->id], key('modify-course-'.$course->id))
+                            
+                            <a href="{{ route('admin.course-moderation', $course->id) }}" 
+                            class="px-3 py-2 text-orange-500 rounded transition hover:underline">
+                                Moderate
+                            </a>
+                            <button wire:click="archiveCourse({{ $course->id }})"
+                                    class="text-orange-500 hover:underline">
+                                Archive
+                            </button>
+
+                            @if (session()->has('message'))
+                                <p class="text-green-500 mt-2">{{ session('message') }}</p>
+                            @endif
                         </td>
                     </tr>
                 @empty
@@ -68,5 +86,6 @@
         <div class="px-6 py-3">
             {{ $courses->links() }}
         </div>
+        
     </div>
 </div>

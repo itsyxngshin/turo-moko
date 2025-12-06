@@ -20,6 +20,7 @@ use App\Livewire\Auth\VerifyEmail;
 // --- Admin ---
 use App\Livewire\Admin\Dashboard as AdminDashboard;
 use App\Livewire\Admin\Settings as AdminSettings;
+use App\Livewire\Admin\ViewCourse;
 use App\Http\Controllers\Admin\ViewCourseController;
 use App\Http\Controllers\Admin\CourseModerationController;
 
@@ -40,7 +41,7 @@ use App\Http\Controllers\Implementors\ImplementorAddAssignmentController;
 use App\Livewire\Admin\CourseModeration;
 use App\Livewire\Implementors\CourseParticipants;
 use App\Livewire\Implementors\Profile as ImplementorProfile;
-use App\Http\Controllers\CourseController;
+use App\Http\Controllers\Learner\CourseController;
 use App\Http\Controllers\AssessmentBuilderController;
 use App\Http\Controllers\AssessmentResultsController;
 
@@ -204,6 +205,8 @@ Route::middleware(['auth', 'role:admin'])
     Route::get('/courses', fn() => view('livewire.admin.courses'))->name('courses');
     
     // Moderation
-Route::get('/course-moderation/{id}', CourseModeration::class)->name('course-moderation');
-    Route::get('/course/{courseCode}', [ViewCourseController::class, 'show'])->name('course.view');
+ Route::get('/course-moderation/{id}', CourseModeration::class)
+            ->name('course-moderation');
+Route::get('/admin/course/{courseCode}', ViewCourse::class)
+     ->name('view-course');
 });

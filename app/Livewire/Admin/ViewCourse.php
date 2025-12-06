@@ -1,40 +1,42 @@
 <?php
 
-namespace App\Livewire\Course;
+namespace App\Livewire\Admin;
 
 use Livewire\Component;
 use App\Models\Course;
 
 class ViewCourse extends Component
 {
+    public $courseCode;    // Accept course_code from URL or Blade
     public $course;
-    public $modules = [];
-    public $assignments = [];
-    public $evaluations = [];
-    public $announcements = [];
+    public $modules;
+    public $evaluations;
+    public $announcements;
 
+    /**
+     * Mount the component with course_code
+     */
     public function mount($courseCode)
     {
-        $this->course = Course::where('course_code', $courseCode)
-            ->with([
-                'activeCoverPhoto',
-                'enrollees',
-                'modules',
-                'assignments',
-                'evaluations',
-                'announcements',
-            ])
-            ->firstOrFail();
+        $this->courseCode = $courseCode;
 
-        // Assign collections
+        // Fetch course by course_code
+        $this->course = Course::with([
+            'activeCoverPhoto',
+            'enrollees',
+            'modules.lessons',          // fetch lessons for each module
+            'evaluations',
+            'announcements.attachments' // load attachments with announcements
+        ])->where('course_code', $this->courseCode)->firstOrFail();
+
+        // Modules are already loaded via eager loading
         $this->modules = $this->course->modules;
-        $this->assignments = $this->course->assignments;
         $this->evaluations = $this->course->evaluations;
         $this->announcements = $this->course->announcements;
     }
 
     public function render()
     {
-        return view('livewire.admin.view-course');
+        return view('livewire.admin.view-course')->layout('layouts.layout');;
     }
 }

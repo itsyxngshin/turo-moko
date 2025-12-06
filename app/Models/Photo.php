@@ -3,10 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Photo extends Model
 {
-    protected $table = 'photos'; // Specify the table name if it's not the plural of the model name
+    use HasFactory;
+
+    protected $fillable = [
+        'photos', // add this line
+    ]; // Specify the table name if it's not the plural of the model name
 
     
     public function profiles()

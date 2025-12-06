@@ -2,7 +2,7 @@
     <!-- Trigger button -->
     <button 
         @click="open = true"
-        class="text-blue px-4 py-2 rounded-lg hover:underline">
+        class="text-orange-500 px-4 py-2 rounded-lg hover:underline">
         Edit
     </button>
 

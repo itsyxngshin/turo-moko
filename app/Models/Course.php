@@ -91,7 +91,7 @@ class Course extends Model
      */
     public function lessons()
     {
-        return $this->hasMany(Lesson::class, 'course_id');
+        return $this->hasMany(Lesson::class, 'module_id', 'id');
     }
 
     /**
