@@ -111,9 +111,23 @@
             <h3 class="font-semibold">Module  {{$module->module_number}}: {{ $module->module_title }}</h3>
             <span class="text-sm text-gray-400">{{ $module->created_at->diffForHumans() }}</span>
         </div>
-        <div class="m-auto">
-            <span class="text-sm text-gray-400">{{ $module->created_at->format('F j, Y') }}</span>
-        </div>
+        <div class="flex flex-col items-end space-y-1">
+        <span class="text-sm text-gray-400">{{ $module->created_at->format('F j, Y') }}</span>
+       @php
+            $statusText = [
+                'pending' => ['text' => 'Pending', 'color' => 'text-gray-500'],
+                'approved' => ['text' => 'Approved', 'color' => 'text-green-500'],
+                'revision_required' => ['text' => 'Revision Required', 'color' => 'text-red-500'],
+            ];
+
+            $status = $module->status ?? 'pending';
+        @endphp
+
+        <span class="text-sm {{ $statusText[$status]['color'] ?? 'text-gray-500' }}">
+            {{ $statusText[$status]['text'] ?? 'Pending' }}
+        </span>
+
+    </div>
         
     </button>
 
@@ -127,66 +141,82 @@
         <div class="bg-white rounded-lg w-11/12 md:w-2/3 max-h-[90vh] overflow-auto p-6 relative">
 
             <!-- Modal Header -->
-            <div class="flex justify-between items-center border-b pb-2">
-                <h2 class="text-xl font-bold">Module {{$module->module_number}}: {{ $module->module_title }}</h2>
-            
-                <div x-data="{ open: false, confirmDelete: false }" class="absolute top-5 right-14">
-                    <!-- Three-dot Button -->
-                    <button @click="open = !open" class="p-2 rounded-full hover:bg-gray-200">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                            <path fill="currentColor" d="M7 12a2 2 0 1 1-4 0a2 2 0 0 1 4 0m7 0a2 2 0 1 1-4 0a2 2 0 0 1 4 0m7 0a2 2 0 1 1-4 0a2 2 0 0 1 4 0"/>
-                        </svg>
-                    </button>
+<div class="flex justify-between items-center border-b pb-2 relative">
+    <!-- Left: Module Title + Status -->
+    <div class="flex items-center space-x-3">
+        <h2 class="text-xl font-bold">
+            Module {{ $module->module_number }}: {{ $module->module_title }}
+        </h2>
 
-                    <!-- Dropdown Menu -->
-                    <div 
-                        x-show="open" 
-                        @click.outside="open = false" 
-                        x-transition
-                        class="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg z-50"
-                    >
-                        <!-- Edit Module Livewire Modal Trigger -->
-                       @livewire('modals.implementor.edit-module', ['moduleId' => $module->id], key($module->id))
+        @php
+            $statusText = [
+                'pending' => ['text' => 'Pending', 'color' => 'text-gray-500'],
+                'approved' => ['text' => 'Approved', 'color' => 'text-green-500'],
+                'revision_required' => ['text' => 'Revision Required', 'color' => 'text-red-500'],
+            ];
+            $status = $module->status ?? 'pending';
+        @endphp
+        <span class="text-sm font-medium {{ $statusText[$status]['color'] ?? 'text-gray-500' }}">
+            {{ $statusText[$status]['text'] ?? 'Pending' }}
+        </span>
+    </div>
 
+    <!-- Right: Three-dot menu + Close button -->
+    <div class="flex items-center space-x-3">
+        <!-- Three-dot menu -->
+        <div x-data="{ open: false, confirmDelete: false }" class="relative">
+            <button @click="open = !open" class="p-2 rounded-full hover:bg-gray-200">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M7 12a2 2 0 1 1-4 0a2 2 0 0 1 4 0m7 0a2 2 0 1 1-4 0a2 2 0 0 1 4 0m7 0a2 2 0 1 1-4 0a2 2 0 0 1 4 0"/>
+                </svg>
+            </button>
 
-                        <!-- Delete Module Confirmation Trigger -->
-                        <button 
-                    
-                            @click="confirmDelete = true; open = false" 
-                            class="w-full text-left px-4 py-2 hover:bg-gray-100"
-                        >
-                            Delete Module
-                        </button>
+            <!-- Dropdown Menu -->
+            <div 
+                x-show="open" 
+                @click.outside="open = false" 
+                x-transition
+                class="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg z-50"
+            >
+                @livewire('modals.implementor.edit-module', ['moduleId' => $module->id], key($module->id))
+
+                <button 
+                    @click="confirmDelete = true; open = false" 
+                    class="w-full text-left px-4 py-2 hover:bg-gray-100"
+                >
+                    Delete Module
+                </button>
+            </div>
+
+            <!-- Confirmation Modal -->
+            <div 
+                x-show="confirmDelete" 
+                class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+            >
+                <div class="bg-white p-6 rounded-xl shadow-lg w-96 text-center">
+                    <h3 class="text-lg font-semibold mb-4">Confirm Deletion</h3>
+                    <p class="mb-6">Are you sure you want to delete this module? This action cannot be undone.</p>
+
+                    <div class="flex justify-center gap-3">
+                        <button @click="confirmDelete = false" class="px-4 py-2 rounded-xl border hover:bg-gray-100">Cancel</button>
+                        
+                        <form method="POST" action="{{ route('implementor.modules.destroy', $module->id) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="px-4 py-2 bg-black text-white rounded-xl">
+                                Delete
+                            </button>
+                        </form>
                     </div>
-
-                    <!-- Confirmation Modal -->
-                    <div 
-                        x-show="confirmDelete" 
-                        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
-                    >
-                        <div class="bg-white p-6 rounded-xl shadow-lg w-96 text-center">
-                            <h3 class="text-lg font-semibold mb-4">Confirm Deletion</h3>
-                            <p class="mb-6">Are you sure you want to delete this module? This action cannot be undone.</p>
-
-                            <div class="flex justify-end gap-3 justify-center ">
-                                <button @click="confirmDelete = false" class="px-4 py-2 rounded-xl border hover:bg-gray-100">Cancel</button>
-                                
-                                <form method="POST" action="{{ route('implementor.modules.destroy', $module->id) }}">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="px-4 py-2 bg-black text-white rounded-xl">
-                                        Delete
-                                    </button>
-                                </form>
-
-                            </div>
-                        </div>
-                    </div>
-
-                   
                 </div>
-          <button @click="open = false" class="absolute top-6 right-7 text-gray-600 hover:text-gray-800 text-xl">&times;</button>
-               
+            </div>
+        </div>
+
+        <!-- Close Button -->
+        <button @click="open = false" class="text-gray-600 hover:text-gray-800 text-xl">&times;</button>
+    </div>
+
+   
                 
                
                 
