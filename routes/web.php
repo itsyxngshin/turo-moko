@@ -99,6 +99,8 @@ Route::prefix('learner')->group(function () {
     Route::get('/course', fn() => view('livewire.learner.course'))->name('learner.course');
     Route::get('/course/{course:course_code}', [\App\Http\Controllers\Learner\CourseController::class, 'show'])
         ->name('learner.course.show');
+    Route::get('/course/{course:course_code}/activity/{assignment}', \App\Livewire\Learner\ActivityDetail::class)
+        ->name('learner.activity.show');
     Route::get('/activitytest', fn() => view('livewire.learner.activitytest'))->name('learner.activitytest');
     Route::get('/submission', fn() => view('livewire.learner.submission'))->name('learner.submission');
     

@@ -11,6 +11,7 @@ use App\Models\Module;
 use App\Models\ProgramEvaluation;
 use App\Models\Quiz;
 use App\Models\QuizResult;
+use App\Models\Submission;
 
 class CourseController extends Controller
 {
@@ -93,6 +94,23 @@ class CourseController extends Controller
         $assignments = Assignment::where('course_id', $course->id)
             ->orderBy('created_at', 'desc')
             ->get();
+
+        // Tag assignments as completed when learner has a submission
+        if ($enrolleeRecord) {
+            $assignments = $assignments->map(function ($assignment) use ($enrolleeRecord) {
+                $hasSubmission = Submission::where('assignment_id', $assignment->id)
+                    ->where('enrollee_id', $enrolleeRecord->id)
+                    ->exists();
+
+                $assignment->learner_status = $hasSubmission ? 'Completed' : $assignment->status;
+                return $assignment;
+            });
+        } else {
+            $assignments = $assignments->map(function ($assignment) {
+                $assignment->learner_status = $assignment->status;
+                return $assignment;
+            });
+        }
 
         $evaluations = ProgramEvaluation::where('course_id', $course->id)->get();
 

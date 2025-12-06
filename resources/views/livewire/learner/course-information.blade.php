@@ -29,9 +29,7 @@
                 <h1 class="text-3xl font-bold mt-auto mb-1">{{ $course->name ?? '--' }}</h1>
                 <p class="max-w-2xl mb-2">{{ $course->background ?? '--' }}</p>
                  <!-- Student count -->
-                <p class="text-sm text-gray-300 mb-8">
-                    {{ $course->enrollees->count() }}/{{ $course->student_limit}} {{ Str::plural('Student', $course->enrollees->count()) }} Enrolled
-                </p>
+                {{-- Learner view: hide enrollment counts (implementor-only) --}}
                 {{-- Implementor editing controls intentionally omitted for learners --}}
             </div>
         </div>
@@ -165,10 +163,10 @@
 
                 {{-- Assignments Section --}}
                 @foreach ($assignments as $assignment)
-                <a href="#" 
-                   class="bg-white w-full flex py-10 rounded-lg justify-between shadow-sm border p-4 mb-6 hover:shadow-md transition-shadow">
-                    <div class="flex items-center px-5 gap-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24">
+                <a href="{{ route('learner.activity.show', ['course' => $course->course_code, 'assignment' => $assignment->id]) }}" 
+                   class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mb-4">
+                    <div class="m-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" class="ml-5 mr-10 mb-2" viewBox="0 0 24 24">
                             <g fill="none">
                                 <path fill="url(#assignment-gradient1-learner)" d="M4 6.25A2.25 2.25 0 0 1 6.25 4h11.5A2.25 2.25 0 0 1 20 6.25v13.5A2.25 2.25 0 0 1 17.75 22H6.25A2.25 2.25 0 0 1 4 19.75z"/>
                                 <path fill="url(#assignment-gradient2-learner)" d="M8 4.25a2.25 2.25 0 0 0 2.25 2.25h3.5a2.25 2.25 0 0 0 0-4.5h-3.5A2.25 2.25 0 0 0 8 4.25"/>
@@ -189,18 +187,29 @@
                                 </defs>
                             </g>
                         </svg>
-                        <div>
-                            <span class="font-medium">{{ $assignment->title }}</span>
-                            <span class="ml-2 px-2 py-1 text-xs rounded-full {{ $assignment->status === 'Open' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700' }}">
-                                {{ $assignment->status }}
-                            </span>
-                        </div>
                     </div>
-                    <div class="flex items-center px-5 gap-4">
+                    <div class="flex-1 text-left">
+                        @php
+                            $assignmentStatus = $assignment->learner_status ?? $assignment->status;
+                            $assignmentStatusClasses = match ($assignmentStatus) {
+                                'Completed' => 'bg-blue-100 text-blue-700',
+                                'Open' => 'bg-green-100 text-green-700',
+                                default => 'bg-gray-100 text-gray-700',
+                            };
+                        @endphp
+                        <h3 class="font-semibold">
+                            {{ $assignment->title }}
+                            <span class="ml-2 px-2 py-1 text-xs rounded-full {{ $assignmentStatusClasses }}">
+                                {{ $assignmentStatus }}
+                            </span>
+                        </h3>
                         @if($assignment->end_date)
-                        <span class="text-sm text-gray-500">
-                            Due {{ \Carbon\Carbon::parse($assignment->end_date)->format('M d') }}
-                        </span>
+                        <span class="text-sm text-gray-400">Due {{ \Carbon\Carbon::parse($assignment->end_date)->diffForHumans() }}</span>
+                        @endif
+                    </div>
+                    <div class="m-auto">
+                        @if($assignment->end_date)
+                        <span class="text-sm text-gray-400">{{ \Carbon\Carbon::parse($assignment->end_date)->format('F j, Y') }}</span>
                         @endif
                     </div>
                 </a>
@@ -209,16 +218,17 @@
                 {{-- Assessments/Quizzes Section --}}
                 @foreach ($quiz as $assessment)
                 <a href="{{ route('learner.assessment.show', $assessment) }}" 
-                   class="bg-white w-full flex py-10 rounded-lg justify-between shadow-sm border p-4 mb-6 hover:shadow-md transition-shadow">
-                    <div class="flex items-center px-5 gap-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 48 48">
+                   class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mb-4">
+                    <div class="m-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" class="ml-5 mr-10 mb-2" viewBox="0 0 48 48">
                             <g fill="#F44336">
                                 <path d="M20 18.6L17.75 24h4.5z"/>
                                 <path fill-rule="evenodd" d="M38 15L28 4H14a4 4 0 0 0-4 4v32a4 4 0 0 0 4 4h20a4 4 0 0 0 4-4zm-18 0a1 1 0 0 1 .923.615l5 12a1 1 0 0 1-1.846.77L23.083 26h-6.166l-.994 2.385a1 1 0 0 1-1.846-.77l5-12A1 1 0 0 1 20 15m-5 17a1 1 0 1 0 0 2h18a1 1 0 1 0 0-2zm-1 5a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H15a1 1 0 0 1-1-1m17-15a1 1 0 1 0-2 0v2h-2a1 1 0 1 0 0 2h2v2a1 1 0 1 0 2 0v-2h2a1 1 0 1 0 0-2h-2zM28 7l7 8h-6a1 1 0 0 1-1-1z" clip-rule="evenodd"/>
                             </g>
                         </svg>
-                        <div>
-                            <span class="font-medium">{{ $assessment->quiz_title }}</span>
+                    </div>
+                    <div class="flex-1 text-left">
+                        <h3 class="font-semibold">{{ $assessment->quiz_title }}
                             @if(($assessment->learner_status ?? 'Available') === 'Completed')
                                 <span class="ml-2 px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700">
                                     Completed
@@ -228,34 +238,43 @@
                                     Available
                                 </span>
                             @endif
-                        </div>
-                    </div>
-                    <div class="flex items-center px-5 gap-4">
-                        <span class="text-sm text-gray-500">
+                        </h3>
+                        <span class="text-sm text-gray-400">
                             {{ $assessment->results_count ?? 0 }} {{ Str::plural('submission', $assessment->results_count ?? 0) }}
+                            @if($assessment->end_date)
+                                · Due {{ \Carbon\Carbon::parse($assessment->end_date)->diffForHumans() }}
+                            @endif
                         </span>
-                        <span class="text-sm text-gray-500">
-                            Due {{ \Carbon\Carbon::parse($assessment->end_date)->format('M d') }}
-                        </span>
+                    </div>
+                    <div class="m-auto">
+                        @if($assessment->end_date)
+                        <span class="text-sm text-gray-400">{{ \Carbon\Carbon::parse($assessment->end_date)->format('F j, Y') }}</span>
+                        @endif
                     </div>
                 </a>
                 @endforeach
                
                 @foreach ($evaluations as $evaluation)
-                <button class="bg-white w-full flex py-10 rounded-lg justify-between shadow-sm border p-4 mb-6">
-                    <div class="flex items-center px-5 gap-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24">
+                <button class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mb-4">
+                    <div class="m-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" class="ml-5 mr-10 mb-2" viewBox="0 0 24 24">
                             <path fill="#4285F4" d="M22 16a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4c0-1.11.89-2 2-2h12a2 2 0 0 1 2 2zm-6 4v2H4a2 2 0 0 1-2-2V7h2v13zm-3-6l7-7l-1.41-1.41L13 11.17L9.91 8.09L8.5 9.5z"/>
                         </svg>
-                        <span>{{ $evaluation->title }}</span>
                     </div>
-                    <div class="flex items-center px-5 gap-2">
-                        <span class="text-sm text-gray-500">
-                            Due {{ \Carbon\Carbon::parse($evaluation->due_date)->format('M d') }}
-                        </span>
-                        <i class="fas fa-check-circle 
-                        {{ $evaluation->status === 'completed' ? 'text-green-500' : ($evaluation->status === 'missing' ? 'text-red-500' : 'text-gray-300') }}">
-                        </i>
+                    <div class="flex-1 text-left">
+                        <h3 class="font-semibold">{{ $evaluation->title }}
+                            <i class="fas fa-check-circle ml-2 
+                            {{ $evaluation->status === 'completed' ? 'text-green-500' : ($evaluation->status === 'missing' ? 'text-red-500' : 'text-gray-300') }}">
+                            </i>
+                        </h3>
+                        @if($evaluation->due_date)
+                        <span class="text-sm text-gray-400">Due {{ \Carbon\Carbon::parse($evaluation->due_date)->diffForHumans() }}</span>
+                        @endif
+                    </div>
+                    <div class="m-auto">
+                        @if($evaluation->due_date)
+                        <span class="text-sm text-gray-400">{{ \Carbon\Carbon::parse($evaluation->due_date)->format('F j, Y') }}</span>
+                        @endif
                     </div>
                 </button>
                 @endforeach
