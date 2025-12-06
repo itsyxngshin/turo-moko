@@ -7,6 +7,7 @@ use App\Models\Announcement;
 use App\Models\Assignment;
 use App\Models\Course;
 use App\Models\CourseEnrollee;
+use App\Models\CourseFeedback;
 use App\Models\Module;
 use App\Models\ProgramEvaluation;
 use App\Models\Quiz;
@@ -112,7 +113,24 @@ class CourseController extends Controller
             });
         }
 
-        $evaluations = ProgramEvaluation::where('course_id', $course->id)->get();
+        $evaluations = ProgramEvaluation::where('course_id', $course->id)
+            ->get()
+            ->map(function ($evaluation) use ($learner) {
+                // Default due date: 7 days after creation
+                $evaluation->due_date = $evaluation->created_at
+                    ? $evaluation->created_at->copy()->addDays(7)
+                    : null;
+
+                // Mark as completed if learner has submitted feedback for this course
+                $evaluation->learner_completed = CourseFeedback::where('course_id', $evaluation->course_id)
+                    ->where('learner_id', $learner->id)
+                    ->exists();
+
+                // Expose a status similar to quizzes for the UI badge
+                $evaluation->learner_status = $evaluation->learner_completed ? 'Completed' : 'Available';
+
+                return $evaluation;
+            });
 
         $announcements = Announcement::where('course_id', $course->id)
             ->orderBy('created_at', 'desc')

@@ -255,25 +255,43 @@
                 @endforeach
                
                 @foreach ($evaluations as $evaluation)
-                <button class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mb-4">
+                @php
+                    $evalCompleted = $evaluation->learner_completed ?? false;
+                    $badgeClasses = $evalCompleted ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700';
+                    $badgeLabel = $evaluation->learner_status ?? ($evalCompleted ? 'Completed' : 'Available');
+                @endphp
+                <button
+                    type="button"
+                    x-data
+                    class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mb-4 {{ $evalCompleted ? 'opacity-80 cursor-default' : '' }}"
+                    @click.prevent="
+                        if (!{{ $evalCompleted ? 'true' : 'false' }}) {
+                            Livewire.dispatch('openFeedbackModal', { 
+                                courseId: {{ $course->id }}, 
+                                implementerId: {{ $course->implementer_id ?? 0 }} 
+                            });
+                        }
+                    "
+                >
                     <div class="m-auto">
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" class="ml-5 mr-10 mb-2" viewBox="0 0 24 24">
                             <path fill="#4285F4" d="M22 16a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4c0-1.11.89-2 2-2h12a2 2 0 0 1 2 2zm-6 4v2H4a2 2 0 0 1-2-2V7h2v13zm-3-6l7-7l-1.41-1.41L13 11.17L9.91 8.09L8.5 9.5z"/>
                         </svg>
                     </div>
                     <div class="flex-1 text-left">
-                        <h3 class="font-semibold">{{ $evaluation->title }}
-                            <i class="fas fa-check-circle ml-2 
-                            {{ $evaluation->status === 'completed' ? 'text-green-500' : ($evaluation->status === 'missing' ? 'text-red-500' : 'text-gray-300') }}">
-                            </i>
+                        <h3 class="font-semibold flex items-center gap-2">
+                            {{ $evaluation->title ?? $evaluation->description ?? 'Evaluation' }}
+                            <span class="ml-1 px-2 py-1 text-xs rounded-full {{ $badgeClasses }}">
+                                {{ $badgeLabel }}
+                            </span>
                         </h3>
-                        @if($evaluation->due_date)
-                        <span class="text-sm text-gray-400">Due {{ \Carbon\Carbon::parse($evaluation->due_date)->diffForHumans() }}</span>
-                        @endif
+                        <span class="text-sm text-gray-400 block">
+                            {{ $evaluation->created_at?->diffForHumans() ?? '--' }}
+                        </span>
                     </div>
-                    <div class="m-auto">
-                        @if($evaluation->due_date)
-                        <span class="text-sm text-gray-400">{{ \Carbon\Carbon::parse($evaluation->due_date)->format('F j, Y') }}</span>
+                    <div class="m-auto text-right">
+                        @if(!empty($evaluation->due_date))
+                            <span class="text-sm text-gray-400 block">{{ \Carbon\Carbon::parse($evaluation->due_date)->format('F j, Y') }}</span>
                         @endif
                     </div>
                 </button>
@@ -421,6 +439,7 @@
     
   
 </div>
+@livewire('learner.feedback-modal')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.7.107/pdf.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {

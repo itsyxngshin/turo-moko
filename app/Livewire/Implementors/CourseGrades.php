@@ -163,9 +163,12 @@ class CourseGrades extends Component
                     if ($activity['type'] === 'assignment') {
                         $submissionKey = $student->enrollee_id . '-' . $activity['id'];
                         $submission = $assignmentSubmissions->get($submissionKey)?->first();
+                        $assignmentStatus = $submission
+                            ? ($submission->grade !== null ? 'Graded' : 'Not Graded')
+                            : 'Not Submitted';
                         $row['activities'][$key] = [
                             'submitted' => (bool) $submission,
-                            'status' => $submission ? ($submission->status ?? 'Submitted') : 'Not Submitted',
+                            'status' => $assignmentStatus,
                             'grade' => $this->formatAssignmentGrade($submission),
                         ];
 

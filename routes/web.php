@@ -21,6 +21,7 @@ use App\Http\Controllers\Implementors\ImplementorDashboardController;
 use App\Http\Controllers\Implementors\ImplementorCourseInformationController;
 use App\Http\Controllers\Implementors\ImplementorAddAnnouncementController;
 use App\Http\Controllers\Implementors\ImplementorAddAssignmentController;
+use App\Http\Controllers\Implementors\ImplementorEvaluationStatsController;
 use App\Http\Controllers\Learner\CourseController as LearnerCourseController;
 
 // Assessment Controllers (CRITICAL - DO NOT REMOVE)
@@ -142,6 +143,14 @@ Route::prefix('implementor')->name('implementor.')->group(function () {
         AddAssignment::class
     )->name('course.assignment.create');
 
+    Route::get('/course/{course:course_code}/assignment/{assignment}/edit',
+        \App\Livewire\Implementors\EditAssignment::class
+    )->name('course.assignment.edit');
+
+    Route::delete('/course/{course:course_code}/assignment/{assignment}',
+        [ImplementorCourseInformationController::class, 'deleteAssignment']
+    )->name('course.assignment.delete');
+
     Route::delete('/modules/{module}', 
     [ImplementorCourseInformationController::class, 'destroy'])
     ->name('modules.destroy');
@@ -178,6 +187,10 @@ Route::prefix('implementor')->name('implementor.')->group(function () {
     Route::delete('/assessment-builder/{id}', [AssessmentBuilderController::class, 'destroy'])
         ->name('assessment-builder.destroy');
 
+    // Evaluation statistics
+    Route::get('/course/{course:course_code}/evaluation-stats', [ImplementorEvaluationStatsController::class, 'show'])
+        ->name('course.evaluation-stats');
+
     // Assessment Results routes
     Route::get('/assessment-results', [AssessmentResultsController::class, 'index'])
         ->name('assessment-results');
@@ -190,6 +203,12 @@ Route::prefix('implementor')->name('implementor.')->group(function () {
     
     Route::get('/assessment-results/{quiz}/export', [AssessmentResultsController::class, 'export'])
         ->name('assessment-results.export');
+
+    // Assignment submissions page + grading
+    Route::get('/assignment-submissions', [AssessmentResultsController::class, 'assignmentsIndex'])
+        ->name('assignment-submissions');
+    Route::post('/assignment-results/grade', [AssessmentResultsController::class, 'gradeAssignment'])
+        ->name('assignment-results.grade');
     
     // Test route to verify form submission
     Route::post('/test-form', function(Request $request) {

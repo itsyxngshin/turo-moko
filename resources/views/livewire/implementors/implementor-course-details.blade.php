@@ -76,6 +76,10 @@
    class="block w-full text-left px-4 py-2 hover:bg-gray-100">
     Assessment Results
 </a>
+                            <a href="{{ route('implementor.assignment-submissions', ['course_id' => $course->id]) }}"
+   class="block w-full text-left px-4 py-2 hover:bg-gray-100">
+    Submissions
+</a>
 
                             <a href="{{ route('implementor.course-grades', ['course' => $course->course_code]) }}" class="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded-b-xl">
                                 Grades
@@ -265,8 +269,8 @@
 
                 {{-- Assignments Section --}}
                 @foreach ($assignments as $assignment)
-                <a href="#" 
-                   class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mb-4">
+                <a href="{{ route('implementor.course.assignment.edit', [$course->course_code, $assignment->id]) }}"
+                   class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mb-4 block">
                     <div class="m-auto">
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" class="ml-5 mr-10 mb-2" viewBox="0 0 24 24">
                             <g fill="none">
@@ -341,28 +345,31 @@
                 @endforeach
                
                 @foreach ($evaluations as $evaluation)
-                <button class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mb-4">
+                <a
+                    href="{{ route('implementor.course.evaluation-stats', $course->course_code) }}"
+                    class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mb-4 block"
+                >
                     <div class="m-auto">
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" class="ml-5 mr-10 mb-2" viewBox="0 0 24 24">
                             <path fill="#4285F4" d="M22 16a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4c0-1.11.89-2 2-2h12a2 2 0 0 1 2 2zm-6 4v2H4a2 2 0 0 1-2-2V7h2v13zm-3-6l7-7l-1.41-1.41L13 11.17L9.91 8.09L8.5 9.5z"/>
                         </svg>
                     </div>
                     <div class="flex-1 text-left">
-                        <h3 class="font-semibold">{{ $evaluation->title }}
+                        <h3 class="font-semibold">{{ $evaluation->title ?? $evaluation->description ?? 'Evaluation' }}
                             <i class="fas fa-check-circle ml-2 
                             {{ $evaluation->status === 'completed' ? 'text-green-500' : ($evaluation->status === 'missing' ? 'text-red-500' : 'text-gray-300') }}">
                             </i>
                         </h3>
-                        @if($evaluation->due_date)
-                        <span class="text-sm text-gray-400">Due {{ \Carbon\Carbon::parse($evaluation->due_date)->diffForHumans() }}</span>
+                        <span class="text-sm text-gray-400 block">
+                            {{ $evaluation->created_at?->diffForHumans() ?? '--' }}
+                        </span>
+                    </div>
+                    <div class="m-auto text-right">
+                        @if(!empty($evaluation->due_date))
+                        <span class="text-sm text-gray-400 block">{{ \Carbon\Carbon::parse($evaluation->due_date)->format('F j, Y') }}</span>
                         @endif
                     </div>
-                    <div class="m-auto">
-                        @if($evaluation->due_date)
-                        <span class="text-sm text-gray-400">{{ \Carbon\Carbon::parse($evaluation->due_date)->format('F j, Y') }}</span>
-                        @endif
-                    </div>
-                </button>
+                </a>
                 @endforeach
 
 

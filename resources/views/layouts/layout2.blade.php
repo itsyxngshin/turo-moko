@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Turo-Moko')</title>
 
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
@@ -14,17 +15,19 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- Tailwind Config -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
                         sans: ['Poppins', 'sans-serif'],
-                    }
-                }
-            }
-        }
+                    },
+                },
+            },
+        };
     </script>
+    @livewireStyles
 </head>
 <body class="bg-gray-50 font-sans m-0 p-0">
     <div class="flex h-screen w-full overflow-hidden">
@@ -46,9 +49,23 @@
         </div>
     </div>
 
-    <!-- Init Lucide -->
+    <!-- Lucide Init + Livewire Hook -->
     <script>
-        lucide.createIcons();
+        document.addEventListener("DOMContentLoaded", () => {
+            lucide.createIcons();
+        });
+
+        // Livewire 3 syntax
+        document.addEventListener('livewire:navigated', () => {
+            lucide.createIcons();
+        });
+        
+        // Also reinitialize after any Livewire updates
+        Livewire.hook('morph.updated', ({ el, component }) => {
+            lucide.createIcons();
+        });
     </script>
+
+    @livewireScripts
 </body>
 </html>
