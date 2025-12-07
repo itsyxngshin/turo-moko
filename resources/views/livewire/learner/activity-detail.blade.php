@@ -80,26 +80,44 @@
             <!-- File Submission Section -->
             <div class="mb-8">
                 <h3 class="text-xl font-semibold mb-4">File submission</h3>
-                <div class="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-gray-400 transition">
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-gray-400 transition"
+                     :class="{'border-blue-500 bg-blue-50': $wire.fileUpload}">
                     <label for="file-upload" class="cursor-pointer">
-                        <div class="flex flex-col items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        <!-- Uploading State -->
+                        <div wire:loading wire:target="fileUpload" class="flex flex-col items-center">
+                            <svg class="animate-spin h-16 w-16 text-blue-600 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            <span class="text-gray-500 font-medium">Upload file</span>
-                            <input 
-                                type="file" 
-                                id="file-upload"
-                                wire:model="fileUpload"
-                                class="hidden"
-                            />
+                            <span class="text-blue-600 font-medium">Uploading...</span>
                         </div>
+
+                        <!-- Success/Default State -->
+                        <div wire:loading.remove wire:target="fileUpload">
+                            @if($fileUpload)
+                                <div class="flex flex-col items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-green-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span class="text-green-600 font-medium">{{ $fileUpload->getClientOriginalName() }}</span>
+                                    <span class="text-gray-500 text-sm mt-1">File uploaded successfully</span>
+                                </div>
+                            @else
+                                <div class="flex flex-col items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                    <span class="text-gray-500 font-medium">Upload file</span>
+                                </div>
+                            @endif
+                        </div>
+                        <input 
+                            type="file" 
+                            id="file-upload"
+                            wire:model="fileUpload"
+                            class="hidden"
+                        />
                     </label>
-                    @if($fileUpload)
-                        <div class="mt-4 text-sm text-green-600">
-                            Selected: {{ $fileUpload->getClientOriginalName() }}
-                        </div>
-                    @endif
                     @if($submission && $submission->attachment && !$fileUpload)
                         <div class="mt-4 text-sm text-gray-600">
                             Current file: {{ $submission->attachment_original_name ?? 'Uploaded file' }}

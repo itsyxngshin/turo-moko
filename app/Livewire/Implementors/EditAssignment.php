@@ -98,6 +98,35 @@ class EditAssignment extends Component
         return redirect()->route('implementor.course-information', $this->course->course_code);
     }
 
+    public function confirmDelete()
+    {
+        // Get submission count
+        $submissionCount = $this->assignment->submissions()->count();
+        
+        if ($submissionCount > 0) {
+            $message = "WARNING: This assignment has {$submissionCount} submission(s).\n\n" .
+                      "Deleting it will remove all associated submissions.\n\n" .
+                      "Are you absolutely sure you want to delete this assignment?";
+        } else {
+            $message = "Are you sure you want to delete this assignment?\n\n" .
+                      "This action cannot be undone.";
+        }
+
+        $this->dispatch('confirm-delete', message: $message);
+    }
+
+    public function deleteAssignment()
+    {
+        $courseCode = $this->course->course_code;
+        
+        // Delete the assignment (cascades will handle submissions)
+        $this->assignment->delete();
+
+        session()->flash('success', 'Assignment deleted successfully.');
+        
+        return redirect()->route('implementor.course-information', $courseCode);
+    }
+
     public function render()
     {
         return view('livewire.implementors.edit-assignment')
@@ -105,4 +134,3 @@ class EditAssignment extends Component
             ->section('content');
     }
 }
-
