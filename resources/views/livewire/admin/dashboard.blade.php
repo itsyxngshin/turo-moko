@@ -1,48 +1,78 @@
-@section('title', 'Admin Dashboard')
-@section('content')
-<div class="max-w-[1720px] mx-auto px-6 pb-16">
+<div class="max-w-[1720px] mx-auto px-6 pb-16"> {{-- Single root for Livewire --}}
 
     <!-- Stats Row -->
-    <section class="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <!-- Enrollees -->
-        <div class="bg-white rounded-xl shadow-md p-6 flex items-center gap-6">
-            <div class="w-20 h-20 rounded-full bg-gray-300/30 grid place-items-center">
-                <img src="/img/vector-22.svg" alt="icon" class="w-10 h-10" />
+    <section class="mt-3 grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+        <!-- Enrollees Card -->
+        <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition p-6 relative overflow-hidden w-full h-[335px]">
+            <svg class="absolute inset-0 m-auto w-32 h-32 text-indigo-100 opacity-20" fill="currentColor" viewBox="0 0 32 32">
+                <path d="M7.5 18A3.5 3.5 0 0 0 4 21.5v.5c0 2.393 1.523 4.417 3.685 5.793C9.859 29.177 12.802 30 16 30s6.14-.823 8.315-2.206C26.477 26.418 28 24.394 28 22v-.5a3.5 3.5 0 0 0-3.5-3.5z"/>
+                <path d="M16 16a7 7 0 1 0 0-14a7 7 0 0 0 0 14"/>
+            </svg>
+            <div class="w-16 h-16 rounded-full bg-indigo-50 flex items-center justify-center absolute top-4 left-4 z-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-indigo-500" fill="currentColor" viewBox="0 0 32 32">
+                    <path d="M7.5 18A3.5 3.5 0 0 0 4 21.5v.5c0 2.393 1.523 4.417 3.685 5.793C9.859 29.177 12.802 30 16 30s6.14-.823 8.315-2.206C26.477 26.418 28 24.394 28 22v-.5a3.5 3.5 0 0 0-3.5-3.5z"/>
+                    <path d="M16 16a7 7 0 1 0 0-14a7 7 0 0 0 0 14"/>
+                </svg>
             </div>
-            <div>
-                <h3 class="text-2xl font-semibold">Enrollees</h3>
-                <p class="text-xl text-gray-600 tracking-wide">{{ $enrolleesCount ?? 0 }}</p>
+            <div class="flex flex-col items-end justify-end h-full text-right relative z-10">
+                <h3 class="text-sm font-medium text-slate-500">Enrollees</h3>
+                <div class="mt-1 flex items-center gap-2 justify-end">
+                    <p class="text-3xl font-semibold text-slate-900">{{ $enrolleesCount ?? 0 }}</p>
+                </div>
             </div>
         </div>
 
-        <!-- Implementors -->
-        <div class="bg-white rounded-xl shadow-md p-6 flex items-center gap-6">
-            <div class="w-20 h-20 rounded-full bg-gray-300/20 grid place-items-center">
-                <img src="/img/fluent-emoji-flat-briefcase.svg" alt="briefcase" class="w-10 h-10" />
-            </div>
-            <div>
-                <h3 class="text-2xl font-semibold">Implementors</h3>
-                <p class="text-xl text-gray-600 tracking-wide">{{ $implementorsCount ?? 0 }}</p>
-            </div>
+        <!-- Implementors Card -->
+<div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition p-6 relative overflow-hidden w-full h-[335px]">
+    <!-- Faint background icon -->
+   <!-- Faint background icon -->
+<svg class="absolute inset-0 m-auto w-32 h-32 text-yellow-100 opacity-20" fill="currentColor" viewBox="0 0 32 32">
+    <path d="M7.5 18A3.5 3.5 0 0 0 4 21.5v.5c0 2.393 1.523 4.417 3.685 5.793C9.859 29.177 12.802 30 16 30s6.14-.823 8.315-2.206C26.477 26.418 28 24.394 28 22v-.5a3.5 3.5 0 0 0-3.5-3.5z"/>
+    <path d="M16 16a7 7 0 1 0 0-14a7 7 0 0 0 0 14"/>
+</svg>
+
+<div class="w-16 h-16 rounded-full bg-yellow-50 flex items-center justify-center absolute top-4 left-4 z-10">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-yellow-500" fill="currentColor" viewBox="0 0 32 32">
+        <path d="M7.5 18A3.5 3.5 0 0 0 4 21.5v.5c0 2.393 1.523 4.417 3.685 5.793C9.859 29.177 12.802 30 16 30s6.14-.823 8.315-2.206C26.477 26.418 28 24.394 28 22v-.5a3.5 3.5 0 0 0-3.5-3.5z"/>
+        <path d="M16 16a7 7 0 1 0 0-14a7 7 0 0 0 0 14"/>
+    </svg>
+</div>
+
+
+    <div class="flex flex-col items-end justify-end h-full text-right relative z-10">
+        <h3 class="text-sm font-medium text-slate-500">Implementors</h3>
+        <div class="mt-1 flex items-center gap-2 justify-end">
+            <p class="text-3xl font-semibold text-slate-900">{{ $implementorsCount ?? 0 }}</p>
         </div>
+    </div>
+</div>
 
-        <!-- Courses -->
-        <div class="bg-white rounded-xl shadow-md p-6 flex items-center gap-6">
-            <div class="w-20 h-20 rounded-full bg-gray-300/20 grid place-items-center">
-                <img src="/img/noto-books.svg" alt="books" class="w-10 h-10" />
+<!-- Courses Card -->
+<div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition p-6 relative overflow-hidden w-full h-[335px]">
+    <!-- Faint background icon -->
+   <svg class="absolute inset-0 m-auto w-32 h-32 text-green-200 opacity-20" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M2 6a2 2 0 0 1 2-2h6c.768 0 2 1 2 2l1 6.5-1 6.736A3 3 0 0 1 10 20H4a2 2 0 0 1-2-2z"/>
+                <path d="M22 6a2 2 0 0 0-2-2h-6c-.768 0-2 1-2 2l-1 6.5 1 6.736c.53.475 1.232.764 2 .764h6a2 2 0 0 0 2-2z"/>
+            </svg>
+            <div class="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center absolute top-4 left-4 z-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M2 6a2 2 0 0 1 2-2h6c.768 0 2 1 2 2l1 6.5-1 6.736A3 3 0 0 1 10 20H4a2 2 0 0 1-2-2z"/>
+                    <path d="M22 6a2 2 0 0 0-2-2h-6c-.768 0-2 1-2 2l-1 6.5 1 6.736c.53.475 1.232.764 2 .764h6a2 2 0 0 0 2-2z"/>
+                </svg>
             </div>
-            <div>
-                <h3 class="text-2xl font-semibold">Courses</h3>
-                <p class="text-xl text-gray-600 tracking-wide">{{ $coursesCount ?? 0 }}</p>
-            </div>
+    <div class="flex flex-col items-end justify-end h-full text-right relative z-10">
+        <h3 class="text-sm font-medium text-slate-500">Courses</h3>
+        <div class="mt-1 flex items-center gap-2 justify-end">
+            <p class="text-3xl font-semibold text-slate-900">{{ $coursesCount ?? 0 }}</p>
         </div>
+    </div>
+</div>
 
-        <!-- Overall Donut Card -->
-        <div class="bg-white rounded-2xl shadow-md p-6">
-            <h3 class="text-2xl font-medium">Overall</h3>
-
-            <div class="mt-4 relative w-40 h-40 mx-auto">
-                <!-- Outer ring -->
+        <!-- Overall Card (Donut chart) -->
+        <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition p-6 relative overflow-hidden w-full h-[335px] flex flex-col items-center justify-center">
+            <h3 class="text-sm font-medium text-slate-500 mb-4">Overall</h3>
+            <div class="relative w-40 h-40">
                 <svg viewBox="0 0 40 40" class="w-40 h-40 rotate-[-90deg]">
                     <circle cx="20" cy="20" r="18" fill="none" stroke="#E5F6FE" stroke-width="4" />
                     <circle cx="20" cy="20" r="18" fill="none" stroke="#8BDCFC" stroke-width="4"
@@ -50,8 +80,6 @@
                         stroke-dashoffset="{{ 113 - (($activeStudents ?? 0)/100*113) }}"
                         stroke-linecap="round" />
                 </svg>
-
-                <!-- Inner ring -->
                 <div class="absolute inset-0 grid place-items-center">
                     <svg viewBox="0 0 36 36" class="w-28 h-28 rotate-[-90deg]">
                         <circle cx="18" cy="18" r="16" fill="none" stroke="#E5EEF2" stroke-width="4" />
@@ -62,46 +90,51 @@
                     </svg>
                 </div>
             </div>
-
-            <div class="mt-4 flex items-start justify-between gap-4 px-2">
-                <div>
-                    <div class="text-3xl font-medium leading-none">{{ $activeStudents ?? 0 }}%</div>
+            <div class="mt-4 flex items-start justify-between w-full px-6">
+                <div class="text-center">
+                    <div class="text-3xl font-medium">{{ $activeStudents ?? 0 }}%</div>
                     <div class="text-sm text-black/80">Active Students</div>
                 </div>
-                <div class="text-right">
-                    <div class="text-3xl font-medium leading-none">{{ $activeMentors ?? 0 }}%</div>
+                <div class="text-center">
+                    <div class="text-3xl font-medium">{{ $activeMentors ?? 0 }}%</div>
                     <div class="text-sm text-black/80">Active Mentors</div>
                 </div>
             </div>
         </div>
+
     </section>
 
-    <!-- Courses List -->
+     <!-- Courses List Section -->
     <section class="mt-10 bg-white rounded-2xl shadow-md border border-black/20">
         <div class="flex items-center justify-between px-6 py-4">
-            <h2 class="text-2xl md:text-[28px] font-semibold">All courses</h2>
-            <a href="{{ route('admin.courses') }}" class="inline-flex items-center justify-center h-10 px-6 rounded-full border border-gray-300 text-base bg-white hover:bg-gray-50">View all</a>
+            <h2 class="text-2xl md:text-[28px] font-semibold mt-4 ml-4">All Courses</h2>
+            <a href="{{ route('admin.courses') }}" class="text-sm text-gray-500 hover:underline">View All</a>
         </div>
 
         <div class="px-6 pb-8 grid grid-cols-1 xl:grid-cols-2 gap-6">
-            @foreach($latestCourses ?? [] as $course)
-            <article class="relative rounded-2xl border border-gray-300 bg-white shadow-sm overflow-hidden">
-                <button class="absolute top-3 right-3 w-8 h-8 grid place-items-center rounded-full hover:bg-gray-100" aria-label="menu">
-                    <img src="/img/vector-7.svg" alt="more" class="w-5 h-5" />
-                </button>
-                <div class="grid grid-cols-[360px,1fr] gap-6 p-4">
-                    <img src="{{ $course->cover_image ?? '/img/default-course.png' }}" alt="Course cover" class="w-[356px] h-[200px] object-cover rounded-xl" />
-                    <div class="pr-4">
-                        <h3 class="text-lg md:text-xl font-medium text-black">{{ $course->title ?? 'Course Name' }}</h3>
-                        <p class="mt-1 text-sm text-gray-600">{{ $course->semester ?? '' }}</p>
-                        <p class="mt-3 text-sm text-black/80">{{ $course->description ?? '' }}</p>
-                        <div class="mt-4">
-                            <a href="{{ route('courses.show', $course->id ?? 0) }}" class="inline-flex h-7 px-5 rounded-full bg-black text-white text-xs font-medium">Start</a>
+            @forelse($latestCourses ?? [] as $course)
+                <article class="relative rounded-2xl border border-gray-300 bg-white shadow-sm overflow-hidden">
+                    <div class="grid md:grid-cols-[300px,1fr] grid-cols-1 gap-4 p-4">
+                        <img src="{{ $course->cover_image ?? '/img/default-course.png' }}"
+                             alt="Course cover"
+                             class="w-full md:w-[300px] h-[180px] object-cover rounded-xl flex-shrink-0" />
+                        <div class="pr-4 flex flex-col justify-between">
+                            <div>
+                                <h3 class="text-lg md:text-xl font-medium text-black">{{ $course->title ?? '--' }}</h3>
+                                <p class="mt-1 text-sm text-gray-600">Semester: {{ $course->semester ?? '--' }}</p>
+                                <p class="mt-1 text-sm text-gray-600">{{ $course->description ?? '--' }}</p>
+                            </div>
+                            <div class="mt-4 flex justify-center">
+                                <a href="{{ route('courses.show', $course->id ?? 0) }}"
+                                   class="inline-flex h-7 px-5 rounded-full bg-black text-white text-xs font-medium">View Details</a>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </article>
-            @endforeach
+                </article>
+            @empty
+                <p class="text-gray-500">No courses available.</p>
+            @endforelse
         </div>
-      </section>
+    </section>
+
 </div>

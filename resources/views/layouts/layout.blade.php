@@ -19,9 +19,9 @@
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs"></script>
-
 
     <script>
         tailwind.config = {
@@ -34,16 +34,17 @@
             }
         }
     </script>
+
     <style>
         [x-cloak] { display: none !important; }
         .swal2-container { z-index: 9999 !important; }
     </style>
 
-    <!-- ✅ ADD THIS: Livewire Styles -->
     @livewireStyles
 </head>
-<body class="bg-gray-50 font-sans overflow-x-hidden">
-    <div class="flex h-screen overflow-hidden pt-4">
+
+<<body class="bg-gray-50 font-sans overflow-x-hidden">
+    <div class="flex h-screen overflow-hidden">
 
         <!-- Sidebar Component (sticky) -->
         <div class="flex-shrink-0 h-full sticky top-0">
@@ -58,8 +59,8 @@
                 <x-namelayout />
             </div>
 
-            <!-- Page Content (scrollable, hidden scrollbar) -->
-            <main class="@yield('main_class', 'flex-1 overflow-y-auto scrollbar-hide p-4')">
+            <!-- Page Content (scrollable) -->
+            <main class="@yield('main_class', 'flex-1 overflow-y-auto p-4')">
                 @yield('content')
                 {{ $slot ?? '' }}
             </main>
