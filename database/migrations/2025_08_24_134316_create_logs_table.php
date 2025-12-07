@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('logs', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->string('action');
+            $table->text('description')->nullable();
+            $table->string('ip_address')->nullable();
+            $table->text('user_agent')->nullable(); // Browser details
+            $table->json('properties')->nullable();
+            $table->nullableMorphs('loggable'); 
             $table->timestamps();
         });
     }

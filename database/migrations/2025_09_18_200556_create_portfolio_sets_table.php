@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('portfolio_sets', function (Blueprint $table) {
             $table->id();
             $table->foreignId('profile_id')->constrained('profiles');
-            $table->string('work_portfolio')->nullable();
+            $table->foreignId('work_portfolio_id')->constrained('work_portfolios')->nullable();
             $table->timestamps();
         });
     }

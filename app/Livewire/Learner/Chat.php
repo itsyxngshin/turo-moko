@@ -3,28 +3,48 @@
 namespace App\Livewire\Learner;
 
 use Livewire\Component;
+use App\Models\Message;
+use App\Models\Conversation;
+use Illuminate\Support\Facades\Auth;
+use App\Events\MessageSent;
 
 class Chat extends Component
 {
-    public $messages = [
-        ['user' => 'Advisor', 'text' => 'Hello there! How can I help you today?', 'type' => 'incoming'],
-        ['user' => 'You', 'text' => 'Hi! I just wanted to ask about my current course progress.', 'type' => 'outgoing'],
-        ['user' => 'Advisor', 'text' => 'Sure! You’re currently 75% done with your module. Keep it up!', 'type' => 'incoming'],
-    ];
+    public Conversation $conversation;
+    public $messages;
+    public $content = '';
 
-    public $newMessage = '';
+    protected $listeners = [];
+
+    public function mount(Conversation $conversation)
+    {
+        $this->conversation = $conversation;
+        $this->messages = $conversation->messages()->with('sender')->latest()->take(20)->get()->reverse();
+
+        $this->listeners = [
+            "echo-private:chat.{$conversation->id},MessageSent" => 'messageReceived',
+        ];
+    }
 
     public function sendMessage()
     {
-        if (trim($this->newMessage) === '') return;
+        if (trim($this->content) === '') return;
 
-        $this->messages[] = [
-            'user' => 'You',
-            'text' => $this->newMessage,
-            'type' => 'outgoing',
-        ];
+        $message = Message::create([
+            'conversation_id' => $this->conversation->id,
+            'sender_id' => Auth::id(),
+            'content' => $this->content,
+        ]);
 
-        $this->newMessage = '';
+        broadcast(new MessageSent($message))->toOthers();
+
+        $this->messages->push($message->load('sender'));
+        $this->content = '';
+    }
+
+    public function messageReceived($event)
+    {
+        $this->messages->push(Message::find($event['message']['id']));
     }
 
     public function render()

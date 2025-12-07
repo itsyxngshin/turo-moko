@@ -3,12 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Lesson extends Model
 {
     protected $fillable = [
-        'course_id', 'title', 'subtitle', 'description',
-        'start_date', 'end_date', 'order', 'visibility'
+        'module_id', 'content', 'status',
+        'start_date', 'end_date', 'order','attachments_original_name', 'attachments', 'visibility'
     ];
 
     public function course()
@@ -16,9 +16,9 @@ class Lesson extends Model
         return $this->belongsTo(Course::class);
     }
 
-    public function modules()
+    public function module()
     {
-        return $this->hasMany(Module::class);
+        return $this->belongsTo(Module::class);
     }
 
     public function assignments()

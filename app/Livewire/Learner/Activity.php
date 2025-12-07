@@ -2,22 +2,21 @@
 
 namespace App\Http\Livewire\Learner;
 
-use App\Models\Assignment;
 use Livewire\Component;
-
+use App\Models\Assignment;
 
 class Activity extends Component
 {
-    public $activity;
+     public $assignment;
 
-    public function mount($id)
+    public function mount()
     {
-        // Fetch activity from database using ID
-        $this->activity = Assignment::findOrFail($id);
+        $id = request()->route('id');
+        $this->assignment = Assignment::findOrFail($id);
     }
 
     public function render()
     {
-        return view('livewire.learner.activity');
+        return view('livewire.learner.assignment');
     }
 }

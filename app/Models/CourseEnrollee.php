@@ -3,16 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
 class CourseEnrollee extends Model
 {
-     protected $fillable = [
-        'user_id', 'course_id', 'enrollment_date', 'completion_date', 'status'
+    protected $fillable = [
+        'enrollee_id', 'course_id', 'enrollment_date', 'completion_date', 'status'
     ];
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'enrollee_id');
     }
 
     public function course()
@@ -22,17 +21,17 @@ class CourseEnrollee extends Model
 
     public function quizResults()
     {
-        return $this->hasMany(QuizResult::class);
+        return $this->hasMany(QuizResult::class, 'enrollee_id');
     }
 
     public function answers()
     {
-        return $this->hasMany(Answer::class);
+        return $this->hasMany(Answer::class, 'enrollee_id');
     }
 
     public function submissions()
     {
-        return $this->hasMany(Submission::class);
+        return $this->hasMany(Submission::class, 'enrollee_id');
     }
 
     public function implementerEvaluations()
