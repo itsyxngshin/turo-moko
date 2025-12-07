@@ -6,6 +6,8 @@ use App\Models\Course;
 use App\Models\Quiz;
 use App\Models\Question;
 use App\Models\Choice;
+use App\Models\QuizResult;
+use App\Models\Answer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -15,10 +17,49 @@ class AssessmentBuilderController extends Controller
     /**
      * Show the assessment builder form
      */
-    public function create()
+    public function create(Request $request)
     {
         $courses = Course::all();
-        return view('implementor.assessment-builder', compact('courses'));
+        $quiz = null;
+        $quizItems = [];
+        
+        // If quiz_id is provided, load the quiz for editing
+        if ($request->has('quiz_id')) {
+            $quiz = Quiz::with(['questions.choices'])->find($request->quiz_id);
+            
+            // Transform questions into items format for the builder
+            if ($quiz) {
+                $quizItems = $quiz->questions->map(function($q) {
+                    $item = [
+                        'id' => $q->id,
+                        'type' => $q->type,
+                        'text' => $q->question_text,
+                        'questionText' => $q->question_text, // Alpine.js uses questionText
+                        'points' => $q->points,
+                        'modelAnswer' => $q->model_answer ?? '',
+                    ];
+                    
+                    if ($q->type === 'multiple_choice') {
+                        $item['options'] = $q->choices->pluck('choice_text')->toArray();
+                        $correctIndex = $q->choices->search(function($c) { return $c->is_correct; });
+                        $item['correctAnswer'] = $correctIndex !== false ? $correctIndex : 0;
+                    } elseif ($q->type === 'true_false') {
+                        $item['trueText'] = 'True';
+                        $item['falseText'] = 'False';
+                        $correctChoice = $q->choices->firstWhere('is_correct', true);
+                        $item['correctAnswer'] = $correctChoice && $correctChoice->choice_text === 'True' ? 'true' : 'false';
+                    } elseif ($q->type === 'short_answer') {
+                        $item['shortAnswerField'] = ''; // Initialize for Alpine
+                    } elseif ($q->type === 'long_answer') {
+                        $item['longAnswerField'] = ''; // Initialize for Alpine
+                    }
+                    
+                    return $item;
+                })->toArray();
+            }
+        }
+        
+        return view('implementor.assessment-builder', compact('courses', 'quiz', 'quizItems'));
     }
 
     /**
@@ -37,6 +78,13 @@ class AssessmentBuilderController extends Controller
         // Decode questions JSON for validation
         $questionsData = json_decode($request->questions, true);
         if (!is_array($questionsData)) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid questions data format.',
+                    'errors' => ['questions' => ['Questions data is invalid']]
+                ], 422);
+            }
             return redirect()->back()
                 ->withErrors(['questions' => 'Questions data is invalid'])
                 ->withInput()
@@ -90,10 +138,24 @@ class AssessmentBuilderController extends Controller
                         $validator->errors()->add("questions.{$index}.options", 'Multiple choice questions must have at least 2 non-empty options.');
                     }
                 }
+
+                // Short answer questions must have a correct answer defined
+                if ($question['type'] === 'short_answer') {
+                    if (empty($question['modelAnswer']) || trim($question['modelAnswer']) === '') {
+                        $validator->errors()->add("questions.{$index}.modelAnswer", 'Answer is required for short answer questions.');
+                    }
+                }
             }
         });
 
         if ($validator->fails()) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please fix the validation errors and try again.',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
             return redirect()->back()
                 ->withErrors($validator)
                 ->withInput()
@@ -180,12 +242,16 @@ class AssessmentBuilderController extends Controller
 
             $action = $request->input('action') === 'publish' ? 'published' : 'saved';
             
+            // Get course code for redirect
+            $course = Course::find($request->course_id);
+            
             // Return JSON response for AJAX requests
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => "Assessment {$action} successfully! Quiz ID: {$quiz->id}",
-                    'quiz_id' => $quiz->id
+                    'quiz_id' => $quiz->id,
+                    'course_code' => $course ? $course->course_code : null
                 ]);
             }
             
@@ -215,6 +281,22 @@ class AssessmentBuilderController extends Controller
     {
         $quiz = Quiz::findOrFail($id);
 
+        // Decode questions JSON for validation (same as store)
+        $questionsData = json_decode($request->questions, true);
+        if (!is_array($questionsData)) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid questions data format.',
+                    'errors' => ['questions' => ['Questions data is invalid']]
+                ], 422);
+            }
+            return redirect()->back()
+                ->withErrors(['questions' => 'Questions data is invalid'])
+                ->withInput()
+                ->with('error', 'Invalid questions data format.');
+        }
+
         // Validate the request (same as store)
         $validator = Validator::make($request->all(), [
             'course_id' => 'required|exists:courses,id',
@@ -225,17 +307,60 @@ class AssessmentBuilderController extends Controller
             'timer_hours' => 'nullable|integer|min:0|max:23',
             'timer_minutes' => 'nullable|integer|min:0|max:59',
             'submission_limit' => 'nullable|integer|min:1',
-            'questions' => 'required|array|min:1',
-            'questions.*.text' => 'required|string|max:1000',
-            'questions.*.type' => 'required|in:multiple_choice,true_false,short_answer,long_answer',
-            'questions.*.points' => 'required|integer|min:1',
-            'questions.*.options' => 'required_if:questions.*.type,multiple_choice|array|min:2',
-            'questions.*.options.*' => 'required_if:questions.*.type,multiple_choice|string|max:500',
-            'questions.*.trueText' => 'required_if:questions.*.type,true_false|string|max:500',
-            'questions.*.falseText' => 'required_if:questions.*.type,true_false|string|max:500',
+            'questions' => 'required|string', // Changed to string since we're sending JSON
         ]);
 
+        // Add custom validation for questions array
+        $validator->after(function ($validator) use ($questionsData) {
+            if (empty($questionsData)) {
+                $validator->errors()->add('questions', 'At least one question is required.');
+                return;
+            }
+
+            foreach ($questionsData as $index => $question) {
+                if (empty($question['text'])) {
+                    $validator->errors()->add("questions.{$index}.text", 'Question text is required.');
+                }
+                
+                if (!in_array($question['type'], ['multiple_choice', 'true_false', 'short_answer', 'long_answer'])) {
+                    $validator->errors()->add("questions.{$index}.type", 'Invalid question type.');
+                }
+                
+                if (!isset($question['points']) || $question['points'] < 1) {
+                    $validator->errors()->add("questions.{$index}.points", 'Points must be at least 1.');
+                }
+                
+                if ($question['type'] === 'multiple_choice') {
+                    if (empty($question['options']) || count($question['options']) < 2) {
+                        $validator->errors()->add("questions.{$index}.options", 'Multiple choice questions must have at least 2 options.');
+                    }
+                    
+                    $validOptions = array_filter($question['options'], function($opt) {
+                        return !empty(trim($opt));
+                    });
+                    
+                    if (count($validOptions) < 2) {
+                        $validator->errors()->add("questions.{$index}.options", 'Multiple choice questions must have at least 2 non-empty options.');
+                    }
+                }
+
+                // Short answer questions must have a correct answer defined
+                if ($question['type'] === 'short_answer') {
+                    if (empty($question['modelAnswer']) || trim($question['modelAnswer']) === '') {
+                        $validator->errors()->add("questions.{$index}.modelAnswer", 'Answer is required for short answer questions.');
+                    }
+                }
+            }
+        });
+
         if ($validator->fails()) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please fix the validation errors and try again.',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
             return redirect()->back()
                 ->withErrors($validator)
                 ->withInput()
@@ -260,13 +385,20 @@ class AssessmentBuilderController extends Controller
                 'submission_limit' => $request->submission_limit,
             ]);
 
-            // Delete existing questions and choices
-            $quiz->questions()->delete();
+            // Delete existing related records in the correct order to satisfy FKs
+            $existingQuestionIds = $quiz->questions()->pluck('id');
 
-            // Process questions (same as store)
-            $questions = json_decode($request->questions, true);
-            
-            foreach ($questions as $questionData) {
+            // 1. Delete learner answers linked to these questions
+            Answer::whereIn('question_id', $existingQuestionIds)->delete();
+
+            // 2. Delete choices linked to these questions
+            Choice::whereIn('question_id', $existingQuestionIds)->delete();
+
+            // 3. Delete the questions themselves
+            Question::whereIn('id', $existingQuestionIds)->delete();
+
+            // Process questions (use already decoded $questionsData)
+            foreach ($questionsData as $questionData) {
                 // Create the question
                 $question = Question::create([
                     'quiz_id' => $quiz->id,
@@ -314,13 +446,94 @@ class AssessmentBuilderController extends Controller
             DB::commit();
 
             $action = $request->input('action') === 'publish' ? 'updated and published' : 'updated';
+            
+            // Get course code for redirect
+            $course = Course::find($request->course_id);
+            
+            // Return JSON response for AJAX requests
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => "Assessment {$action} successfully! Quiz ID: {$quiz->id}",
+                    'quiz_id' => $quiz->id,
+                    'course_code' => $course ? $course->course_code : null
+                ]);
+            }
+            
             return redirect()->back()->with('success', "Assessment {$action} successfully! Quiz ID: {$quiz->id}");
 
         } catch (\Exception $e) {
             DB::rollBack();
+            
+            // Return JSON response for AJAX requests
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to update assessment: ' . $e->getMessage()
+                ], 500);
+            }
+            
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Failed to update assessment: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete an assessment
+     */
+    public function destroy($id)
+    {
+        try {
+            DB::beginTransaction();
+            
+            $quiz = Quiz::findOrFail($id);
+            $courseCode = $quiz->course->course_code;
+            
+            // Get all question IDs for this quiz
+            $questionIds = Question::where('quiz_id', $quiz->id)->pluck('id');
+            
+            // Delete in correct order to avoid foreign key constraints:
+            // 1. Delete answers (references questions and quiz)
+            Answer::where('quiz_id', $quiz->id)->delete();
+            
+            // 2. Delete quiz results (references quiz)
+            QuizResult::where('quiz_id', $quiz->id)->delete();
+            
+            // 3. Delete choices (references questions)
+            Choice::whereIn('question_id', $questionIds)->delete();
+            
+            // 4. Delete questions (references quiz)
+            Question::where('quiz_id', $quiz->id)->delete();
+            
+            // 5. Finally delete the quiz
+            $quiz->delete();
+            
+            DB::commit();
+            
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Assessment deleted successfully',
+                    'course_code' => $courseCode
+                ]);
+            }
+            
+            return redirect()->route('implementor.course-information', $courseCode)
+                ->with('success', 'Assessment deleted successfully');
+                
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete assessment: ' . $e->getMessage()
+                ], 500);
+            }
+            
+            return redirect()->back()
+                ->with('error', 'Failed to delete assessment: ' . $e->getMessage());
         }
     }
 }

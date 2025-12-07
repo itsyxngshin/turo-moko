@@ -7,6 +7,10 @@ use App\Models\Answer;
 use App\Models\Question;
 use App\Models\QuizResult;
 use App\Models\CourseEnrollee;
+use App\Models\Course;
+use App\Models\Assignment;
+use App\Models\Submission;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -16,42 +20,96 @@ class AssessmentResultsController extends Controller
     /**
      * Display list of quizzes with response counts
      */
-    public function index()
+    public function index(Request $request)
     {
-        $quizzes = Quiz::with(['course', 'questions'])
-            ->withCount(['results as total_submissions'])
-            ->withCount(['results as pending_grading' => function ($query) {
-                $query->where('status', 'Pending');
-            }])
+        $courseId = $request->get('course_id');
+        $course = $courseId ? Course::find($courseId) : null;
+
+        $quizzes = $this->loadQuizzes($courseId);
+
+        return view('implementor.assessment-results', compact('quizzes', 'courseId', 'course'));
+    }
+
+    /**
+     * Assignment submissions page.
+     */
+    public function assignmentsIndex(Request $request)
+    {
+        $courseId = $request->get('course_id');
+        $course = $courseId ? Course::find($courseId) : null;
+        $assignmentsWithSubs = $this->loadAssignmentsWithSubmissions($courseId);
+
+        return view('implementor.assignment-submissions', compact('assignmentsWithSubs', 'courseId', 'course'));
+    }
+
+    public function gradeAssignment(Request $request)
+    {
+        $validated = $request->validate([
+            'submission_id' => 'required|exists:submissions,id',
+            'grade' => 'nullable|numeric|min:0|max:9999',
+            'feedback' => 'nullable|string',
+        ]);
+
+        $submission = Submission::findOrFail($validated['submission_id']);
+        $submission->update([
+            'grade' => $validated['grade'] ?? null,
+            'feedback' => $validated['feedback'] ?? null,
+            'graded_by' => auth()->id(),
+            'graded_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Assignment graded successfully.');
+    }
+
+    private function loadAssignmentsWithSubmissions($courseId)
+    {
+        if (!$courseId) {
+            return collect();
+        }
+
+        $assignments = Assignment::where('course_id', $courseId)
             ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($quiz) {
-                // Calculate total possible points
-                $totalPoints = $quiz->questions->sum('points');
-                
-                // Calculate average score from graded results
-                $gradedResults = QuizResult::where('quiz_id', $quiz->id)
-                    ->where('status', 'Checked')
-                    ->get();
-                
-                $averageScore = $gradedResults->count() > 0 
-                    ? round($gradedResults->avg('score'), 1) 
-                    : null;
+            ->get();
+
+        return $assignments->map(function ($assignment) {
+            $subs = Submission::where('assignment_id', $assignment->id)
+                ->with(['enrollee.user.profile'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $submissions = $subs->map(function ($submission) {
+                $user = $submission->enrollee->user ?? null;
+                $profile = $user->profile ?? null;
+                $textSubmission = $submission->instruction ?? null;
+                $attachmentUrl = null;
+                if ($submission->attachment && Storage::exists($submission->attachment)) {
+                    $attachmentUrl = Storage::url($submission->attachment);
+                }
+
+                $submissionStatus = $submission->grade !== null ? 'Graded' : 'Not Graded';
 
                 return [
-                    'id' => $quiz->id,
-                    'title' => $quiz->quiz_title,
-                    'course_name' => $quiz->course->course_title ?? 'No Course',
-                    'total_submissions' => $quiz->total_submissions,
-                    'pending_grading' => $quiz->pending_grading,
-                    'total_points' => $totalPoints,
-                    'average_score' => $averageScore,
-                    'status' => $quiz->status,
-                    'created_at' => $quiz->created_at->format('M d, Y'),
+                    'id' => $submission->id,
+                    'student_name' => $profile
+                        ? trim($profile->first_name . ' ' . $profile->last_name)
+                        : ($user->username ?? 'Unknown Student'),
+                    'email' => $user->email ?? '',
+                    'submitted_at' => $submission->created_at?->format('M d, Y h:i A'),
+                    'status' => $submissionStatus,
+                    'grade' => $submission->grade,
+                    'feedback' => $submission->feedback,
+                    'text_submission' => $textSubmission,
+                    'attachment_url' => $attachmentUrl,
+                    'attachment_name' => $submission->attachment_original_name,
                 ];
             });
 
-        return view('implementor.assessment-results', compact('quizzes'));
+            return [
+                'id' => $assignment->id,
+                'title' => $assignment->title,
+                'submissions' => $submissions,
+            ];
+        });
     }
 
     /**
@@ -137,9 +195,9 @@ class AssessmentResultsController extends Controller
                 ->with(['question', 'choice'])
                 ->get();
 
-            // Check if there are any ungraded essay/short answers (points = -1 means ungraded)
+            // Check if there are any ungraded long-answer questions (points = -1 means ungraded)
             $hasUngradedEssays = $answers->filter(function ($answer) {
-                return in_array($answer->question->type, ['short_answer', 'long_answer']) 
+                return in_array($answer->question->type, ['long_answer']) 
                     && $answer->points < 0;
             })->count() > 0;
 
@@ -172,7 +230,7 @@ class AssessmentResultsController extends Controller
                         'correct_answer' => $correctChoice->choice_text ?? $question->model_answer,
                         'is_correct' => $answer->is_correct,
                         'points_earned' => $answer->points >= 0 ? $answer->points : 0,
-                        'needs_grading' => in_array($question->type, ['short_answer', 'long_answer']) 
+                        'needs_grading' => in_array($question->type, ['long_answer']) 
                             && $answer->points < 0,
                     ];
                 }),
@@ -393,6 +451,48 @@ class AssessmentResultsController extends Controller
         };
 
         return new StreamedResponse($callback, 200, $headers);
+    }
+
+    /**
+     * Helper: load quizzes with submission counts and averages.
+     */
+    private function loadQuizzes($courseId)
+    {
+        $query = Quiz::with(['course', 'questions'])
+            ->withCount(['results as total_submissions'])
+            ->withCount(['results as pending_grading' => function ($query) {
+                $query->where('status', 'Pending');
+            }]);
+        
+        if ($courseId) {
+            $query->where('course_id', $courseId);
+        }
+        
+        return $query->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($quiz) {
+                $totalPoints = $quiz->questions->sum('points');
+                
+                $gradedResults = QuizResult::where('quiz_id', $quiz->id)
+                    ->where('status', 'Checked')
+                    ->get();
+                
+                $averageScore = $gradedResults->count() > 0 
+                    ? round($gradedResults->avg('score'), 1) 
+                    : null;
+
+                return [
+                    'id' => $quiz->id,
+                    'title' => $quiz->quiz_title,
+                    'course_name' => $quiz->course->course_title ?? 'No Course',
+                    'total_submissions' => $quiz->total_submissions,
+                    'pending_grading' => $quiz->pending_grading,
+                    'total_points' => $totalPoints,
+                    'average_score' => $averageScore,
+                    'status' => $quiz->status,
+                    'created_at' => $quiz->created_at->format('M d, Y'),
+                ];
+            });
     }
 }
 

@@ -10,6 +10,7 @@ class Assignment extends Model
     use HasFactory; // ← Add this
 
     protected $fillable = [
+        'course_id',
         'lesson_id',
         'title',
         'instruction',
@@ -22,7 +23,10 @@ class Assignment extends Model
         'post_date',
     ];
 
-
+    public function course()
+    {
+        return $this->belongsTo(Course::class);
+    }
 
     public function lesson()
     {

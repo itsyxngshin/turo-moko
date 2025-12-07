@@ -10,22 +10,25 @@ use App\Models\User;
 
 class ImplementorAddAssignmentController extends Controller
 {
-    public function create($courseId)
+    public function create(Course $course)
     {
+        // Use authenticated user
+        $implementor = auth()->user();
         
-        $implementor = User::where('id', 4)->where('role_id', 2)->first(); // Hardcoded pa to, palitan nalang
+        // Check if user is logged in and is an implementor
+        if (!$implementor || $implementor->role_id !== 2) {
+            abort(403, 'Unauthorized. You must be an implementor.');
+        }
 
-        $course = Course::where('id', $courseId)
-        ->where('implementer_id', $implementor->id)
-        ->firstOrFail();
-
-
+        // Verify the course belongs to the implementor
+        if ($course->implementer_id !== $implementor->id) {
+            abort(403, 'This course does not belong to you.');
+        }
 
         return view('livewire.implementors.add-assignment', [
-    'course' => $course,
-    'implementor' => $implementor
-]);
-
+            'course' => $course,
+            'implementor' => $implementor
+        ]);
     }
 
     public function store(Request $request, $courseId)

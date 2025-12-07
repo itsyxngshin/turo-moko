@@ -13,7 +13,8 @@ use App\Models\Assignment;
 class ImplementorDashboardController extends Controller
 {public function index()
 {
-$instructor = auth()->user();
+    // Use authenticated user instead of hardcoded ID
+    $instructor = auth()->user();
 
     $courses = $instructor
         ? Course::where('implementer_id', $instructor->id)->get()

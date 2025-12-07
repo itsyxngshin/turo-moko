@@ -58,9 +58,11 @@
 
             <!-- Page Content -->
             <main class="@yield('main_class', 'm-0 pl-3 pr-8 h-full w-full')">
-                @yield('content')
-
-                {{ $slot ?? '' }}
+                @if(isset($slot))
+                    {{ $slot }}
+                @else
+                    @yield('content')
+                @endif
             </main>
         </div>
     </div>
@@ -69,6 +71,7 @@
     <script>
         lucide.createIcons();
     </script>
+
     @livewireScripts
 </body>
 </html>

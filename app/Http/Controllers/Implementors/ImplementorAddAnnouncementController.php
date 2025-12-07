@@ -7,13 +7,25 @@ use Illuminate\Http\Request;
 
 class ImplementorAddAnnouncementController extends Controller
 {
-      public function show($courseId)
+      public function show($courseId = null)
     {
-        // Example: hardcoded instructor ID = 2
-        $this->instructor = User::where('id', 4)->where('role_id', 2)->first();
+        // Get authenticated implementor
+        $implementor = auth()->user();
+        
+        if (!$implementor || $implementor->role_id !== 2) {
+            abort(403, 'Unauthorized. You must be an implementor.');
+        }
 
-        $course = Course::where('id', $courseId)
-        ->where('implementer_id', $implementor->id)
-        ->firstOrFail();
+        $course = null;
+        if ($courseId) {
+            $course = Course::where('id', $courseId)
+                ->where('implementer_id', $implementor->id)
+                ->firstOrFail();
+        }
+
+        return view('livewire.implementors.add-announcement', [
+            'course' => $course,
+            'implementor' => $implementor
+        ]);
     }
 }

@@ -4,14 +4,23 @@
     <main class="flex-1 pl-5 py-3">
         <!-- Header -->
         <div class="flex justify-between items-center mb-2">
-            <h1 class="text-2xl font-semibold text-gray-800">{{ $course->course_title }}</h1>
+            <h1 class="text-2xl font-semibold text-gray-800">{{ $course->name }}</h1>
         </div>
 
         <!-- Assignment Form -->
-        <div class="bg-white shadow-md rounded-2xl p-8">
-            <h2 class="text-xl font-semibold mb-6">Add an assignment</h2>
+        <div class="bg-white shadow-md rounded-2xl p-8 relative">
+            <div class="absolute top-4 right-4">
+                <form method="POST" action="{{ route('implementor.course.assignment.delete', [$course->course_code, $assignment->id]) }}" onsubmit="return confirm('Delete this assignment?');">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="px-3 py-1 rounded-full border border-red-200 text-red-600 hover:bg-red-50 text-sm">
+                        Delete
+                    </button>
+                </form>
+            </div>
+            <h2 class="text-xl font-semibold mb-6">Edit assignment</h2>
 
-            <form wire:submit.prevent="saveAssignment" class="space-y-6">
+            <form wire:submit.prevent="updateAssignment" class="space-y-6">
                 <!-- General -->
                 <div class="border rounded-xl p-5 bg-gray-50">
                     <details open>
@@ -35,7 +44,6 @@
                                 <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:bg-gray-50">
                                     <input type="file" wire:model="attachment" class="hidden" id="uploadFile">
                                     <label for="uploadFile" class="flex flex-col items-center space-y-2">
-                                        <!-- ✅ Replaced Lucide icon with SVG -->
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                                             <polyline points="14 2 14 8 20 8"/>
@@ -117,31 +125,17 @@
 
                 <!-- Buttons -->
                 <div class="flex justify-end gap-3 pt-6">
+                    <a href="{{ route('implementor.course-information', $course->course_code) }}"
+                        class="px-4 py-2 border rounded-lg hover:bg-gray-50">Cancel</a>
                     <button 
-                        type="button" 
-                        @click="
-                            Swal.fire({
-                                title: 'Discard changes?',
-                                text: 'Your unsaved progress will be lost.',
-                                icon: 'warning',
-                                showCancelButton: true,
-                                confirmButtonColor: '#d33',
-                                cancelButtonColor: '#3085d6',
-                                confirmButtonText: 'Yes, discard'
-                            }).then((result) => {
-                                if (result.isConfirmed) location.reload();
-                            });
-                        "
-                        class="px-5 py-2 border border-gray-400 rounded-full hover:bg-gray-100"
+                        type="submit"
+                        class="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
                     >
-                        Discard
-                    </button>
-
-                    <button type="submit" class="px-5 py-2 bg-black text-white rounded-full hover:bg-gray-800">
-                        Save and display
+                        Save changes
                     </button>
                 </div>
             </form>
         </div>
     </main>
 </div>
+

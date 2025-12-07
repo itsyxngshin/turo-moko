@@ -1,6 +1,6 @@
-import './bootstrap';
+import "./bootstrap";
 
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 window.Swal = Swal;
 
 // This is where your custom script logic belongs
@@ -27,4 +27,4 @@ document.addEventListener('livewire:initialized', () => {
     
 });
 
-import '../css/app.css';
+import "../css/app.css";

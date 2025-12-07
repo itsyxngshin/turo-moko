@@ -11,15 +11,36 @@
     <!-- Assessment Builder -->
     <div x-show="!isPreviewMode">
     <form
-            action="{{ route('implementor.assessment-builder.store') }}"
+            action="{{ $quiz ? route('implementor.assessment-builder.update', $quiz->id) : route('implementor.assessment-builder.store') }}"
             method="POST"
         class="bg-white rounded-3xl border border-gray-200 shadow-sm py-10 px-10 ml-4 mt-2 flex flex-col gap-8"
-            @submit.prevent="submitForm()"
+            @submit.prevent="submitForm($event)"
     >
             @csrf
+            {{-- Debug: quiz exists = {{ $quiz ? 'yes' : 'no' }} --}}
+            @if($quiz)
+                <input type="hidden" name="_method" value="PUT" id="method-field">
+                <input type="hidden" name="quiz_id" value="{{ $quiz->id }}" id="quiz-id-field">
+                <input type="hidden" name="is_editing" value="1" id="is-editing-field">
+            @endif
 
         <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-bold">Assessment Details</h2>
+            <h2 class="text-xl font-bold">{{ $quiz ? 'Edit Assessment' : 'Assessment Details' }}</h2>
+            
+            @if($quiz)
+            <button 
+                type="button"
+                @click="confirmDelete()"
+                class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center gap-2 transition-colors"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    <line x1="10" y1="11" x2="10" y2="17"/>
+                    <line x1="14" y1="11" x2="14" y2="17"/>
+                </svg>
+                Delete Assessment
+            </button>
+            @endif
         </div>
 
         <div class="space-y-6">
@@ -145,21 +166,28 @@
                             <div>
                                 <input type="text" placeholder="Enter question..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText"  />
                                 <div class="mt-4">
-                                    <input type="text" placeholder="Short answer field" class="px-4 py-2 rounded-xl border bg-white shadow-sm min-w-[200px] max-w-full" x-model="item.shortAnswerField"  />
-                                </div>
-                                <div class="mt-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Model Answer (Optional)</label>
-                                    <input type="text" placeholder="Enter the correct answer..." class="px-4 py-2 rounded-xl border bg-white shadow-sm w-full" x-model="item.modelAnswer"  />
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Answer</label>
+                                    <input 
+                                        type="text" 
+                                        placeholder="Enter the correct answer..." 
+                                        class="px-4 py-2 rounded-xl border bg-white shadow-sm w-full" 
+                                        x-model="item.modelAnswer"
+                                        required
+                                    />
                                 </div>
                             </div>
                         </template>
                         <template x-if="item.type === 'long_answer'">
                             <div>
                                 <input type="text" placeholder="Enter question..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText"  />
-                                <textarea placeholder="Long answer field" class="w-full border rounded-lg p-3 min-h-[80px]" rows="3" x-model="item.longAnswerField" ></textarea>
                                 <div class="mt-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Model Answer (Optional)</label>
-                                    <textarea placeholder="Enter the correct answer..." class="w-full border rounded-lg p-3 min-h-[80px]" rows="3" x-model="item.modelAnswer" ></textarea>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Model Answer</label>
+                                    <textarea 
+                                        placeholder="Enter the model answer (optional)" 
+                                        class="w-full border rounded-lg p-3 min-h-[80px]" 
+                                        rows="3" 
+                                        x-model="item.modelAnswer"
+                                    ></textarea>
                                 </div>
                             </div>
                         </template>
@@ -278,17 +306,17 @@
             addItemModalOpen: false,
             insertAfterIndex: null,
             isPreviewMode: false,
-            formTitle: 'Assessment Form Title',
+            formTitle: '{{ $quiz->quiz_title ?? "Assessment Form Title" }}',
             
             // Assessment details state
             assessment: {
-                course_id: '',
-                type: '',
-                description: '',
-                timer_hours: '',
-                timer_minutes: '',
-                submission_limit: '',
-                closing_schedule: ''
+                course_id: '{{ $quiz->course_id ?? request()->get("course_id") ?? "" }}',
+                type: '{{ $quiz ? "quiz" : "" }}',
+                description: '{{ $quiz->description ?? "" }}',
+                timer_hours: '{{ $quiz->timer_hours ?? "" }}',
+                timer_minutes: '{{ $quiz->timer_minutes ?? "" }}',
+                submission_limit: '{{ $quiz->submission_limit ?? "" }}',
+                closing_schedule: '{{ $quiz && $quiz->end_date ? \Carbon\Carbon::parse($quiz->end_date)->format("Y-m-d\TH:i") : "" }}'
             },
             
             // Courses array - will be populated from database
@@ -298,8 +326,8 @@
                 // TODO: Replace with dynamic data from database
             ],
             
-            // Start with empty items array - users add from scratch
-            items: [],
+            // Start with empty items array - users add from scratch (or load existing)
+            items: @json($quizItems ?? []),
 
             // Initialize component
             init() {
@@ -419,9 +447,14 @@
 
             // ===== FORM SUBMISSION =====
             
-            submitForm() {
+            submitForm(event) {
                 console.log('=== FORM SUBMISSION STARTED ===');
                 this.serializeItems();
+                
+                // Get which button was clicked
+                const submitter = event.submitter;
+                const action = submitter ? submitter.value : 'publish';
+                console.log('Button clicked:', action);
                 
                 // Add a delay so we can see the console logs
                 setTimeout(() => {
@@ -433,16 +466,40 @@
                         // Use AJAX instead of form.submit() to prevent page reload
                         const formData = new FormData(form);
                         
+                        // Make sure the action is included
+                        formData.set('action', action);
+                        
+                        // Get CSRF token
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || 
+                                         document.querySelector('input[name="_token"]')?.value;
+                        
+                        // Use the form's action URL (handles both create and update)
+                        const url = form.getAttribute('action');
+                        
+                        // CRITICAL FIX: Check if this is an edit (URL contains ID) and force add _method
+                        const isEditMode = url.match(/assessment-builder\/\d+$/);
+                        const methodInput = form.querySelector('input[name="_method"]');
+                        
+                        if (isEditMode || (methodInput && methodInput.value === 'PUT')) {
+                            formData.set('_method', 'PUT');
+                            console.log('✓ Forced _method=PUT into FormData (edit mode)');
+                        }
+                        
                         console.log('Form data being sent:');
                         for (let [key, value] of formData.entries()) {
                             console.log(key + ':', value);
                         }
                         
-                        fetch('{{ route("implementor.assessment-builder.store") }}', {
-                            method: 'POST',
+                        console.log('Final URL:', url);
+                        console.log('Has _method?', formData.has('_method'));
+                        console.log('_method value:', formData.get('_method'));
+                        
+                        fetch(url, {
+                            method: 'POST', // Always POST, Laravel handles _method for PUT
                             body: formData,
                             headers: {
                                 'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': csrfToken
                             }
                         })
                         .then(response => {
@@ -468,7 +525,12 @@
                             if (typeof data === 'object') {
                                 if (data.success) {
                                     console.log('✅ SUCCESS:', data.message);
-                                    alert('✅ ' + data.message);
+                                    // Redirect to course page if course_code is provided
+                                    if (data.course_code) {
+                                        window.location.href = `/implementor/course-information/${data.course_code}`;
+                                    } else {
+                                        alert('✅ ' + data.message);
+                                    }
                                 } else if (data.errors) {
                                     console.log('❌ Validation errors:', data.errors);
                                     alert('❌ Validation failed: ' + JSON.stringify(data.errors, null, 2));
@@ -506,8 +568,8 @@
                         return;
                     }
                     
-                    // Clear any existing hidden inputs
-                    const existingHidden = form.querySelectorAll('input[type="hidden"]:not([name="_token"])');
+                    // Clear any existing hidden inputs (except _token, _method, quiz_id, is_editing)
+                    const existingHidden = form.querySelectorAll('input[type="hidden"]:not([name="_token"]):not([name="_method"]):not([name="quiz_id"]):not([name="is_editing"])');
                     existingHidden.forEach(input => input.remove());
                     
                     // Create hidden input for questions
@@ -579,6 +641,50 @@
                 }
             },
 
+            // ===== DELETE FUNCTIONALITY =====
+            
+            confirmDelete() {
+                const status = '{{ $quiz->status ?? "" }}';
+                const quizId = {{ $quiz->id ?? 'null' }};
+                const courseCode = '{{ $quiz->course->course_code ?? "" }}';
+                
+                let message = 'Are you sure you want to delete this assessment?';
+                
+                if (status === 'Published') {
+                    message = 'WARNING: This assessment is PUBLISHED and learners may have already taken it.\n\n' +
+                              'Deleting it will remove all associated submissions and results.\n\n' +
+                              'Are you absolutely sure you want to delete this assessment?';
+                } else if (status === 'Draft') {
+                    message = 'Are you sure you want to delete this draft assessment?\n\n' +
+                              'This action cannot be undone.';
+                }
+                
+                if (confirm(message)) {
+                    // Send delete request
+                    fetch(`/implementor/assessment-builder/${quizId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Assessment deleted successfully');
+                            window.location.href = `/implementor/course-information/${courseCode}`;
+                        } else {
+                            alert('Error: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Delete error:', error);
+                        alert('Failed to delete assessment');
+                    });
+                }
+            },
+
             // ===== PREVIEW FUNCTIONALITY =====
             
             switchToPreview() {
@@ -640,7 +746,7 @@
                                     <label class="block text-lg font-medium">${questionText || 'Enter question...'}</label>
                                     <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">${points} point${points !== 1 ? 's' : ''}</span>
                                 </div>
-                                <input type="text" placeholder="Your answer here..." value="${shortAnswerField || ''}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                <input type="text" placeholder="Your answer here..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                             </div>
                         `;
                     
@@ -651,7 +757,7 @@
                                     <label class="block text-lg font-medium">${questionText || 'Enter question...'}</label>
                                     <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">${points} point${points !== 1 ? 's' : ''}</span>
                                 </div>
-                                <textarea placeholder="Your answer here..." rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical">${longAnswerField || ''}</textarea>
+                                <textarea placeholder="Your answer here..." rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"></textarea>
                             </div>
                         `;
                     

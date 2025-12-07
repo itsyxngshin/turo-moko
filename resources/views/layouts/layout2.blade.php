@@ -7,6 +7,7 @@
     <title>@yield('title', 'Turo-Moko')</title>
     <link rel="icon" href="{{ asset('images/turo_moko_logo.png') }}" type="image/png">
 
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
@@ -28,10 +29,10 @@
                 extend: {
                     fontFamily: {
                         sans: ['Poppins', 'sans-serif'],
-                    }
-                }
-            }
-        }
+                    },
+                },
+            },
+        };
     </script>
     <style>
         body {
@@ -68,9 +69,23 @@
 
     </div>
 
-    <!-- Init Lucide -->
+    <!-- Lucide Init + Livewire Hook -->
     <script>
-        lucide.createIcons();
+        document.addEventListener("DOMContentLoaded", () => {
+            lucide.createIcons();
+        });
+
+        // Livewire 3 syntax
+        document.addEventListener('livewire:navigated', () => {
+            lucide.createIcons();
+        });
+        
+        // Also reinitialize after any Livewire updates
+        Livewire.hook('morph.updated', ({ el, component }) => {
+            lucide.createIcons();
+        });
     </script>
+
+    @livewireScripts
 </body>
 </html>
