@@ -120,7 +120,7 @@ class CourseGrades extends Component
 
         $assignmentSubmissions = $assignmentIds->isNotEmpty()
             ? Submission::whereIn('assignment_id', $assignmentIds)
-                ->whereIn('enrollee_id', $studentUserIds)
+                ->whereIn('enrollee_id', $courseEnrolleeIds)
                 ->get()
                 ->groupBy(fn(Submission $submission) => $submission->enrollee_id . '-' . $submission->assignment_id)
             : collect();
@@ -161,7 +161,7 @@ class CourseGrades extends Component
                     $key = $activity['key'];
 
                     if ($activity['type'] === 'assignment') {
-                        $submissionKey = $student->enrollee_id . '-' . $activity['id'];
+                        $submissionKey = $student->id . '-' . $activity['id'];
                         $submission = $assignmentSubmissions->get($submissionKey)?->first();
                         $assignmentStatus = $submission
                             ? ($submission->grade !== null ? 'Graded' : 'Not Graded')
@@ -206,30 +206,22 @@ class CourseGrades extends Component
 
     protected function formatAssignmentGrade(?Submission $submission): ?string
     {
-        if (!$submission) {
+        if (!$submission || $submission->grade === null) {
             return null;
         }
 
-        $score = $submission->score ?? null;
-        $maxScore = $submission->max_score ?? null;
-
-        if ($score !== null && $maxScore) {
-            return $this->formatScore($score) . '/' . $this->formatScore($maxScore, false);
-        }
-
-        return $score !== null ? $this->formatScore($score) : null;
+        // Grade is stored as 0-100
+        return $this->formatScore($submission->grade) . '%';
     }
 
     protected function assignmentPercentage(?Submission $submission): ?float
     {
-        $score = $submission->score ?? null;
-        $maxScore = $submission->max_score ?? null;
-
-        if ($score !== null && $maxScore && $maxScore > 0) {
-            return round(($score / $maxScore) * 100, 1);
+        if (!$submission || $submission->grade === null) {
+            return null;
         }
 
-        return null;
+        // Grade is already a percentage (0-100)
+        return (float) $submission->grade;
     }
 
     protected function formatQuizGrade(?QuizResult $result, ?float $totalPoints): ?string

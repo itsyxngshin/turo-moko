@@ -231,7 +231,7 @@ Route::middleware(['auth', 'role:implementor', 'verified'])
     // Course Management
     // --------------------------
     Route::get('/all-courses', fn() => view('livewire.implementors.all-courses'))->name('all-courses');
-    Route::get('/course-information/{course:course_code}', [ImplementorCourseInformationController::class, 'show'])->name('course-information');
+    Route::get('/course-information/{courseCode}', \App\Livewire\Implementors\ImplementorCourseDetails::class)->name('course-information');
     Route::get('/course/{course:course_code}/grades', ImplementorCourseGrades::class)->name('course-grades');
     Route::get('/course/{course:course_code}/participants', CourseParticipants::class)->name('course-participants');
 
@@ -278,8 +278,7 @@ Route::middleware(['auth', 'role:implementor', 'verified'])
     // --------------------------
     // Assignment Submissions
     // --------------------------
-    Route::get('/assignment-submissions', [AssessmentResultsController::class, 'assignmentsIndex'])->name('assignment-submissions');
-    Route::post('/assignment-results/grade', [AssessmentResultsController::class, 'gradeAssignment'])->name('assignment-results.grade');
+    Route::get('/assignment-submissions', \App\Livewire\Implementor\AssignmentSubmissions::class)->name('assignment-submissions');
 
     // --------------------------
     // Evaluation Statistics

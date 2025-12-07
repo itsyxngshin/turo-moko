@@ -39,9 +39,13 @@ class AddEvaluation extends Component
             'status'         => 'active',
         ]);
 
-        // Close modal on frontend
-        $this->dispatch('evaluation-added');
-        session()->flash('success', 'Evaluation item added to this course.');
+        // Close modal and show success message
+        $this->dispatch('evaluation-modal-close');
+        
+        $this->dispatch('swal:evaluation-added', [
+            'title' => 'Success!',
+            'text'  => 'Evaluation item added successfully!',
+        ]);
     }
 
     public function render()
