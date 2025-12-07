@@ -41,110 +41,110 @@ class CourseController extends Controller
             'featuredCourse'
         ));
     }
+public function show(Course $course)
+{
+    $learner = auth()->user();
 
-    public function show(Course $course)
-    {
-        $learner = auth()->user();
-
-        if (!$learner || (int) $learner->role_id !== 1) {
-            abort(403, 'Unauthorized. You must be a learner.');
-        }
-
-        $isEnrolled = $course->enrollees()
-            ->where('users.id', $learner->id)
-            ->exists();
-
-        if (!$isEnrolled) {
-            abort(403, 'You are not enrolled in this course.');
-        }
-
-        $modules = Module::where('course_id', $course->id)
-            ->orderBy('module_number', 'asc')
-            ->with('lessons')
-            ->get();
-
-        $quizzes = Quiz::where('course_id', $course->id)
-            ->withCount('results')
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        $enrolleeRecord = CourseEnrollee::where('course_id', $course->id)
-            ->where('enrollee_id', $learner->id)
-            ->first();
-
-        if ($enrolleeRecord && $quizzes->isNotEmpty()) {
-            $completedQuizIds = QuizResult::where('course_enrollee_id', $enrolleeRecord->id)
-                ->whereIn('quiz_id', $quizzes->pluck('id'))
-                ->pluck('quiz_id')
-                ->all();
-
-            $quizzes = $quizzes->map(function ($quiz) use ($completedQuizIds) {
-                $quiz->learner_status = in_array($quiz->id, $completedQuizIds, true)
-                    ? 'Completed'
-                    : 'Available';
-                return $quiz;
-            });
-        } else {
-            $quizzes = $quizzes->map(function ($quiz) {
-                $quiz->learner_status = 'Available';
-                return $quiz;
-            });
-        }
-
-        // Fetch assignments for this course
-        $assignments = Assignment::where('course_id', $course->id)
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        // Tag assignments as completed when learner has a submission
-        if ($enrolleeRecord) {
-            $assignments = $assignments->map(function ($assignment) use ($enrolleeRecord) {
-                $hasSubmission = Submission::where('assignment_id', $assignment->id)
-                    ->where('enrollee_id', $enrolleeRecord->id)
-                    ->exists();
-
-                $assignment->learner_status = $hasSubmission ? 'Completed' : $assignment->status;
-                return $assignment;
-            });
-        } else {
-            $assignments = $assignments->map(function ($assignment) {
-                $assignment->learner_status = $assignment->status;
-                return $assignment;
-            });
-        }
-
-        $evaluations = ProgramEvaluation::where('course_id', $course->id)
-            ->get()
-            ->map(function ($evaluation) use ($learner) {
-                // Default due date: 7 days after creation
-                $evaluation->due_date = $evaluation->created_at
-                    ? $evaluation->created_at->copy()->addDays(7)
-                    : null;
-
-                // Mark as completed if learner has submitted feedback for this course
-                $evaluation->learner_completed = CourseFeedback::where('course_id', $evaluation->course_id)
-                    ->where('learner_id', $learner->id)
-                    ->exists();
-
-                // Expose a status similar to quizzes for the UI badge
-                $evaluation->learner_status = $evaluation->learner_completed ? 'Completed' : 'Available';
-
-                return $evaluation;
-            });
-
-        $announcements = Announcement::where('course_id', $course->id)
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return view('livewire.learner.course-information', [
-            'course' => $course,
-            'modules' => $modules,
-            'quiz' => $quizzes,
-            'assignments' => $assignments,
-            'evaluations' => $evaluations,
-            'announcements' => $announcements,
-        ]);
+    if (!$learner || (int) $learner->role_id !== 1) {
+        abort(403, 'Unauthorized. You must be a learner.');
     }
+
+    $isEnrolled = $course->enrollees()
+        ->where('users.id', $learner->id)
+        ->exists();
+
+    if (!$isEnrolled) {
+        abort(403, 'You are not enrolled in this course.');
+    }
+
+    // Modules ordered by module_number (oldest to newest)
+    $modules = Module::where('course_id', $course->id)
+        ->orderBy('module_number', 'asc')
+        ->with('lessons')
+        ->get();
+
+    // Quizzes ordered by creation date ascending (oldest first)
+    $quizzes = Quiz::where('course_id', $course->id)
+        ->withCount('results')
+        ->orderBy('created_at', 'asc')
+        ->get();
+
+    $enrolleeRecord = CourseEnrollee::where('course_id', $course->id)
+        ->where('enrollee_id', $learner->id)
+        ->first();
+
+    if ($enrolleeRecord && $quizzes->isNotEmpty()) {
+        $completedQuizIds = QuizResult::where('course_enrollee_id', $enrolleeRecord->id)
+            ->whereIn('quiz_id', $quizzes->pluck('id'))
+            ->pluck('quiz_id')
+            ->all();
+
+        $quizzes = $quizzes->map(function ($quiz) use ($completedQuizIds) {
+            $quiz->learner_status = in_array($quiz->id, $completedQuizIds, true)
+                ? 'Completed'
+                : 'Available';
+            return $quiz;
+        });
+    } else {
+        $quizzes = $quizzes->map(function ($quiz) {
+            $quiz->learner_status = 'Available';
+            return $quiz;
+        });
+    }
+
+    // Assignments ordered by creation date ascending (oldest first)
+    $assignments = Assignment::where('course_id', $course->id)
+        ->orderBy('created_at', 'asc')
+        ->get();
+
+    if ($enrolleeRecord) {
+        $assignments = $assignments->map(function ($assignment) use ($enrolleeRecord) {
+            $hasSubmission = Submission::where('assignment_id', $assignment->id)
+                ->where('enrollee_id', $enrolleeRecord->id)
+                ->exists();
+
+            $assignment->learner_status = $hasSubmission ? 'Completed' : $assignment->status;
+            return $assignment;
+        });
+    } else {
+        $assignments = $assignments->map(function ($assignment) {
+            $assignment->learner_status = $assignment->status;
+            return $assignment;
+        });
+    }
+
+    // Evaluations ordered by creation date ascending (oldest first)
+    $evaluations = ProgramEvaluation::where('course_id', $course->id)
+        ->orderBy('created_at', 'asc')
+        ->get()
+        ->map(function ($evaluation) use ($learner) {
+            $evaluation->due_date = $evaluation->created_at
+                ? $evaluation->created_at->copy()->addDays(7)
+                : null;
+
+            $evaluation->learner_completed = CourseFeedback::where('course_id', $evaluation->course_id)
+                ->where('learner_id', $learner->id)
+                ->exists();
+
+            $evaluation->learner_status = $evaluation->learner_completed ? 'Completed' : 'Available';
+            return $evaluation;
+        });
+
+    // Announcements ordered by creation date ascending (oldest first)
+    $announcements = Announcement::where('course_id', $course->id)
+        ->orderBy('created_at', 'asc')
+        ->get();
+
+    return view('livewire.learner.course-information', [
+        'course' => $course,
+        'modules' => $modules,
+        'quiz' => $quizzes,
+        'assignments' => $assignments,
+        'evaluations' => $evaluations,
+        'announcements' => $announcements,
+    ]);
+}
+
 
 
 }

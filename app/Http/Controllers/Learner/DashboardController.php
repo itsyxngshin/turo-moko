@@ -21,15 +21,16 @@ class DashboardController extends Controller
         ->exists();
 
     if ($alreadyEnrolled) {
-        return back()->with('swal', [
-            'icon' => 'error',
-            'title' => 'Oops!',
-            'text' => 'You are already enrolled in this course.'
-        ]);
+        return redirect()->route('learner.course.show', $course)
+            ->with('swal', [
+                'icon' => 'info',
+                'title' => 'Notice',
+                'text' => 'You are already enrolled in this course.'
+            ]);
     }
 
     // Check if course is full
-    $currentEnrollees = CourseEnrollee::where('course_id', $course->id)->count();
+    $currentEnrollees = CourseEnrollee::where('course_id', $course)->count();
     if ($currentEnrollees >= $course->student_limit) {
         return back()->with('swal', [
             'icon' => 'error',
@@ -46,11 +47,13 @@ class DashboardController extends Controller
         'status' => 'Active',
     ]);
 
-    return back()->with('swal', [
-        'icon' => 'success',
-        'title' => 'Enrolled!',
-        'text' => 'You have successfully enrolled in the course.'
-    ]);
+    // Redirect to the course show page after enrollment
+    return redirect()->route('learner.course.show', $course)
+        ->with('swal', [
+            'icon' => 'success',
+            'title' => 'Enrolled!',
+            'text' => 'You have successfully enrolled in the course.'
+        ]);
 }
 
 

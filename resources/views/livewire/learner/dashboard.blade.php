@@ -5,24 +5,28 @@
 <div class="h-screen overflow-y-auto space-y-8 pl-6">
 
     <!-- Recently Accessed (Featured Style) -->
-    @if($recentCourses->isNotEmpty())
+@if($recentCourses->isNotEmpty())
     @php $course = $recentCourses->first(); @endphp
-    <div class="relative rounded-2xl overflow-hidden shadow-lg h-60">
-        <img src="{{ $course->activeCoverPhoto ? asset('storage/' . $course->activeCoverPhoto->path) : asset('images/banner.jpg') }}"
-            alt="{{ $course->course_title }}"
-             class="absolute inset-0 w-full h-full object-cover">
-        <div class="absolute inset-0 bg-black/40"></div>
-        <div class="relative z-10 h-full flex flex-col justify-center px-8 text-white">
-            <p class="text-sm text-white">{{ $course->subject }}</p>
-            <h2 class="text-2xl text-white font-bold">{{ $course->course_title }}</h2>
-            <a href="{{ route('learner.course.show', $course->course_code) }}" class="mt-4 bg-white text-black px-4 py-2 rounded-full w-fit hover:bg-gray-200 flex items-center gap-2">
-                <i data-lucide="play" class="w-4 h-4"></i> Continue course
-</a>
+
+    <!-- Ensure the learner is actually enrolled in this course -->
+    @if($course->enrollees->contains(auth()->id()))
+        <div class="relative rounded-2xl overflow-hidden shadow-lg h-60">
+            <img src="{{ $course->activeCoverPhoto ? asset('storage/' . $course->activeCoverPhoto->path) : asset('images/banner.jpg') }}"
+                 alt="{{ $course->course_title }}"
+                 class="absolute inset-0 w-full h-full object-cover">
+            <div class="absolute inset-0 bg-black/40"></div>
+            <div class="relative z-10 h-full flex flex-col justify-center px-8 text-white">
+                <p class="text-sm text-white">{{ $course->subject }}</p>
+                <h2 class="text-2xl text-white font-bold">{{ $course->course_title }}</h2>
+                <a href="{{ route('learner.course.show', $course) }}"
+                   class="mt-4 bg-white text-black px-4 py-2 rounded-full w-fit hover:bg-gray-200 flex items-center gap-2">
+                    <i data-lucide="play" class="w-4 h-4"></i> Continue course
+                </a>
+            </div>
         </div>
-    </div>
-    @else
-    <p class="text-gray-500">No recently accessed courses.</p>
     @endif
+@endif
+
 
     <!-- Suggested Courses Section -->
     <div class="bg-white rounded-2xl shadow-md p-6 container mx-auto mt-8">
