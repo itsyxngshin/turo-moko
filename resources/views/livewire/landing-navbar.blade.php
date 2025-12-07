@@ -62,27 +62,75 @@
         </button>
 
         @auth
-        <!-- Desktop/User Dropdown -->
-        <div x-data="{ open: false }" class="relative hidden md:block">
-            <button @click="open = !open" class="flex items-center gap-2 focus:outline-none text-orange-500 border border-orange-600 shadow-md px-3 py-2 rounded-lg">
-                <img src="{{ Auth::user()->profile && Auth::user()->profile->photo
-                                ? 'data:image/jpeg;base64,' . base64_encode(Auth::user()->profile->photo->photos)
-                                : asset('images/turo_moko_logo.png') }}"
-                     alt="Profile Photo"
-                     class="w-8 h-8 rounded-full object-cover">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-            </button>
-            <div x-show="open" @click.away="open = false" x-transition class="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50" style="display: none;">
-                <a href="{{ route('learner.profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-orange-600">Profile</a>
-                <a href="{{ route('learner.hub') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-orange-600">Dashboard</a>
-                <form method="POST" action="{{ route('auth.logout') }}">
-                    @csrf
-                    <button class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-red-600" type="submit">Logout</button>
-                </form>
+<!-- Desktop/User Dropdown -->
+<div x-data="{ open: false }" class="relative hidden md:block">
+    @php
+        $profile = Auth::user()->profile ?? null;
+        $initials = $profile ? strtoupper(substr($profile->first_name, 0, 1) . substr($profile->last_name, 0, 1)) : 'U';
+        $role = Auth::user()->role->role_name ?? 'User';
+    @endphp
+
+    <!-- Button -->
+    <button @click="open = !open"
+            class="flex items-center gap-3 focus:outline-none bg-white border border-orange-500 hover:border-orange-600 shadow-md hover:shadow-lg px-4 py-2 rounded-xl transition-all duration-300 transform hover:-translate-y-1">
+        
+        <!-- Profile Image / Initials -->
+        @if ($profile && $profile->photo)
+            <img src="{{ asset('storage/' . $profile->photo->photos) }}"
+                 alt="{{ $profile->first_name }} {{ $profile->last_name }}"
+                 class="w-10 h-10 rounded-full object-cover border-2 border-orange-500">
+        @else
+            <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-sm border-2 border-orange-500">
+                {{ $initials }}
             </div>
+        @endif
+
+        <!-- Name & Role -->
+        <div class="hidden md:flex flex-col items-start text-left w-32 truncate">
+            <span class="text-sm font-semibold text-gray-800 hover:text-orange-500 truncate" title="{{ $profile->first_name ?? 'User' }} {{ $profile->last_name ?? '' }}">
+                {{ $profile->first_name ?? 'User' }} {{ $profile->last_name ?? '' }}
+            </span>
+            <span class="text-xs text-gray-400 truncate">{{ $role }}</span>
         </div>
+
+        <!-- Dropdown Arrow -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+    </button>
+
+    <!-- Dropdown Menu -->
+    <div x-show="open" @click.away="open = false" x-transition
+         class="absolute right-0 mt-3 w-60 bg-white border border-gray-200 rounded-2xl shadow-xl py-3 z-50 ring-1 ring-orange-100 overflow-hidden"
+         style="display: none;">
+        
+        <div class="px-4 py-2 border-b border-orange-50">
+            <p class="text-gray-800 font-semibold truncate">{{ $profile->first_name ?? 'User' }} {{ $profile->last_name ?? '' }}</p>
+            <p class="text-xs text-gray-400 truncate">{{ $role }}</p>
+        </div>
+
+        {{-- Standard Links --}}
+        <a href="{{ $this->profileUrl }}" wire:navigate 
+           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-orange-600 transition-colors">
+           Profile
+        </a>
+        
+        <a href="{{ $this->dashboardUrl }}" wire:navigate
+           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-orange-600 transition-colors">
+           Dashboard
+        </a>
+
+        <!-- Logout -->
+        <form method="POST" action="{{ route('auth.logout') }}">
+            @csrf
+            <button type="submit"
+                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors">
+                Logout
+            </button>
+        </form>
+    </div>
+</div>
+
         @else
             <a href="{{ route('auth.login') }}" class="hidden md:inline text-sm font-medium text-gray-800 hover:text-orange-500">Log In</a>
             <a href="{{ route('auth.register') }}" class="hidden md:inline bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold py-2 px-4 rounded-full">Sign Up</a>
