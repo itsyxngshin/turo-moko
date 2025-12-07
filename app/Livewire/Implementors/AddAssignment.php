@@ -90,22 +90,38 @@ class AddAssignment extends Component
             )->setTimeFromTimeString($this->dueTime);
         }
 
-        // Handle file upload (if attachment column exists in future)
-        // For now, attachment handling is skipped as the table doesn't have an attachment column
-        // TODO: Add attachment column to assignments table or create assignment_attachments table
+        // Handle file upload
+        $attachmentPath = null;
+        $originalName = null;
+        if ($this->attachment) {
+            $originalName = $this->attachment->getClientOriginalName();
+            $attachmentPath = $this->attachment->store('assignments', 'public');
+        }
 
-        // Map submission types to filetype_allowed boolean
+        // Map submission types to filetype_allowed and text_allowed booleans
         $filetypeAllowed = in_array('file', $this->submissionTypes);
+        $textAllowed = in_array('text', $this->submissionTypes);
+
+        logger('Submission Types: ', $this->submissionTypes);
+        logger('File Allowed: ' . ($filetypeAllowed ? 'true' : 'false'));
+        logger('Text Allowed: ' . ($textAllowed ? 'true' : 'false'));
+
+        // Convert max size to KB
+        $maxSizeKB = $this->convertToKB($this->maxSize);
 
         Assignment::create([
             'course_id' => $this->course->id,
             'lesson_id' => null, // Course-level assignment, not linked to lesson
             'title' => $this->assignmentName,
             'instruction' => $this->description ?? '',
+            'attachment' => $attachmentPath,
+            'attachment_original_name' => $originalName,
             'status' => 'Open',
             'start_date' => Carbon::now(),
             'end_date' => $endDate,
             'filetype_allowed' => $filetypeAllowed,
+            'text_allowed' => $textAllowed,
+            'max_file_size' => $maxSizeKB,
             'order' => null,
             'visibility' => 'Active',
             'post_date' => Carbon::now(),
@@ -114,6 +130,14 @@ class AddAssignment extends Component
         session()->flash('success', 'Assignment added successfully.');
 
         return redirect()->route('implementor.course-information', $this->course->course_code);
+    }
+
+    private function convertToKB($sizeString)
+    {
+        // Extract number from string like "1 mb", "5 mb", "10 mb"
+        $size = (int) filter_var($sizeString, FILTER_SANITIZE_NUMBER_INT);
+        // Convert MB to KB
+        return $size * 1024;
     }
 
     public function render()

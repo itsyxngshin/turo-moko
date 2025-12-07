@@ -47,6 +47,23 @@
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-600 mb-1">Additional Files</label>
+                                
+                                @if($assignment->attachment && !$attachment)
+                                    <div class="mb-3 p-3 bg-gray-50 border border-gray-300 rounded-lg flex items-center justify-between">
+                                        <div class="flex items-center space-x-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                            </svg>
+                                            <span class="text-sm text-gray-700">{{ $assignment->attachment_original_name }}</span>
+                                        </div>
+                                        <a href="{{ asset('storage/' . $assignment->attachment) }}" 
+                                           download="{{ $assignment->attachment_original_name }}"
+                                           class="text-sm text-blue-600 hover:text-blue-800">
+                                            Download
+                                        </a>
+                                    </div>
+                                @endif
+                                
                                 <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:bg-gray-50" 
                                      :class="{'border-blue-500 bg-blue-50': $wire.attachment}">
                                     <input type="file" wire:model="attachment" class="hidden" id="uploadFile">
@@ -68,7 +85,7 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                     </svg>
                                                     <span class="text-green-600 text-sm font-medium">{{ $attachment->getClientOriginalName() }}</span>
-                                                    <span class="text-gray-500 text-xs">File uploaded successfully</span>
+                                                    <span class="text-gray-500 text-xs">New file - will replace existing</span>
                                                 </div>
                                             @else
                                                 <div class="flex flex-col items-center space-y-2">
@@ -76,7 +93,7 @@
                                                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                                                         <polyline points="14 2 14 8 20 8"/>
                                                     </svg>
-                                                    <span class="text-gray-600 text-sm">Upload file</span>
+                                                    <span class="text-gray-600 text-sm">{{ $assignment->attachment ? 'Upload new file' : 'Upload file' }}</span>
                                                 </div>
                                             @endif
                                         </div>

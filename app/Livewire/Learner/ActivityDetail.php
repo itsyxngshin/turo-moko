@@ -16,6 +16,12 @@ class ActivityDetail extends Component
 {
     use WithFileUploads;
 
+    // Computed properties for Livewire
+    protected function queryStringComputedPropertyCache()
+    {
+        return [];
+    }
+
     public $course;
     public $assignment;
     public $submission;
@@ -67,15 +73,66 @@ class ActivityDetail extends Component
 
     public function startSubmission()
     {
+        if ($this->isPastDue) {
+            session()->flash('error', 'This assignment is past the due date.');
+            return;
+        }
         $this->currentState = 'SUBMITTING';
+    }
+
+    public function updatedFileUpload()
+    {
+        // Validate file size immediately when file is selected
+        if ($this->fileUpload) {
+            $this->validateOnly('fileUpload', [
+                'fileUpload' => 'file|max:' . $this->assignment->max_file_size,
+            ], [
+                'fileUpload.max' => 'File size must not exceed ' . $this->formatFileSize($this->assignment->max_file_size) . '.',
+            ]);
+        }
     }
 
     public function submitAssignment()
     {
-        $this->validate([
-            'onlineText' => 'nullable|string',
-            'fileUpload' => 'nullable|file|max:10240', // 10MB max
-        ]);
+        // Check if past due date
+        if ($this->isPastDue) {
+            $this->addError('submission', 'This assignment is past the due date. Submissions are no longer accepted.');
+            return;
+        }
+
+        // Dynamic validation based on assignment type
+        if ($this->assignment->filetype_allowed && $this->assignment->text_allowed) {
+            // Both allowed - at least one required
+            $this->validate([
+                'fileUpload' => 'nullable|file|max:' . $this->assignment->max_file_size,
+                'onlineText' => 'nullable|string|min:10',
+            ], [
+                'fileUpload.max' => 'File size must not exceed ' . $this->formatFileSize($this->assignment->max_file_size) . '.',
+                'onlineText.min' => 'Text submission must be at least 10 characters.',
+            ]);
+
+            // Ensure at least one is provided
+            if (!$this->fileUpload && !$this->onlineText) {
+                $this->addError('submission', 'Please provide either a file upload or online text submission.');
+                return;
+            }
+        } elseif ($this->assignment->filetype_allowed) {
+            // File submission required
+            $this->validate([
+                'fileUpload' => 'required|file|max:' . $this->assignment->max_file_size,
+            ], [
+                'fileUpload.required' => 'Please upload a file for this assignment.',
+                'fileUpload.max' => 'File size must not exceed ' . $this->formatFileSize($this->assignment->max_file_size) . '.',
+            ]);
+        } elseif ($this->assignment->text_allowed) {
+            // Text submission required
+            $this->validate([
+                'onlineText' => 'required|string|min:10',
+            ], [
+                'onlineText.required' => 'Please enter your text submission.',
+                'onlineText.min' => 'Text submission must be at least 10 characters.',
+            ]);
+        }
 
         $filePath = null;
         $originalName = null;
@@ -132,6 +189,23 @@ class ActivityDetail extends Component
             
             session()->flash('success', 'Submission removed successfully!');
         }
+    }
+
+    private function formatFileSize($sizeKB)
+    {
+        if ($sizeKB >= 1024) {
+            return round($sizeKB / 1024, 1) . ' MB';
+        }
+        return $sizeKB . ' KB';
+    }
+
+    public function getIsPastDueProperty()
+    {
+        if (!$this->assignment->end_date) {
+            return false; // No due date, never past due
+        }
+
+        return Carbon::now()->isAfter(Carbon::parse($this->assignment->end_date));
     }
 
     public function getTimeRemainingProperty()
