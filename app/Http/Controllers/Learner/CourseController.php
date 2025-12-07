@@ -145,4 +145,6 @@ class CourseController extends Controller
             'announcements' => $announcements,
         ]);
     }
+
+
 }

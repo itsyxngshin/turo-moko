@@ -17,8 +17,9 @@ class ImplementorDashboard extends Component
     public function mount()
     {
         // Example: hardcoded instructor ID = 2
-        $this->instructor = User::where('id', 4)->where('role_id', 2)->first();
-
+         // Get the currently logged-in user
+        $this->instructor = Auth::user(); 
+        
         // Fetch all courses for this instructor
         $this->courses = $this->instructor
             ? Course::where('implementer_id', $this->instructor->id)->get()

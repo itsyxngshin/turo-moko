@@ -4,36 +4,48 @@
 @section('page-title', 'Course Information')
 
 @section('content')
-        <div class="p-0">
-        <!-- Header -->
-                <div class="relative h-56 bg-cover bg-center rounded-lg overflow-hidden" 
-            style="background-image: url('https://images.unsplash.com/photo-1608506573186-631f3ff1f6e3');">
+<div class="px-4 py-2">
+<div class="p-0">
 
-            <!-- Course Cover -->
-            @if($course->activeCoverPhoto)
-                 <img 
-                    src="{{ $course->activeCoverPhoto 
-                            ? asset('storage/' . $course->activeCoverPhoto->path) 
-                            : asset('implementor/thumbnail.jpg') }}" 
-                    alt="Course Cover"
-                    class="w-full h-full object-cover">
+       
+       <!-- Header -->
+<div class="relative h-56 bg-cover bg-center rounded-lg overflow-hidden" 
+     style="background-image: url('https://images.unsplash.com/photo-1608506573186-631f3ff1f6e3');">
 
-                @else
-                    <img src="{{ asset('storage/implementor/course/thumbnail.jpg') }}"
-                        alt="Default Cover"
-                        class="w-full h-full object-cover">
-                @endif
+    <!-- Back Button (Always in front) -->
+    <button 
+        onclick="history.back()" 
+        class="absolute top-4 left-4 flex items-center gap-2 text-white px-3 py-2 hover:bg-opacity-50 font-semibold z-50 group overflow-hidden"
+    >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        <span class="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+            Back
+        </span>
+    </button>
 
-            <!-- Overlay -->
-            <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col px-8 text-white rounded-lg">
-                <h1 class="text-3xl font-bold mt-auto mb-1">{{ $course->name ?? '--' }}</h1>
-                <p class="max-w-2xl mb-2">{{ $course->background ?? '--' }}</p>
-                 <!-- Student count -->
-                {{-- Learner view: hide enrollment counts (implementor-only) --}}
-                {{-- Implementor editing controls intentionally omitted for learners --}}
-            </div>
-        </div>
-            
+
+    <!-- Course Cover -->
+    @if($course->activeCoverPhoto)
+        <img 
+            src="{{ asset('storage/' . $course->activeCoverPhoto->path) }}" 
+            alt="Course Cover"
+            class="w-full h-full object-cover"
+        >
+    @else
+        <img src="{{ asset('storage/implementor/course/thumbnail.jpg') }}"
+            alt="Default Cover"
+            class="w-full h-full object-cover">
+    @endif
+
+    <!-- Overlay -->
+    <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col px-8 text-white rounded-lg">
+        <h1 class="text-3xl font-bold mt-auto mb-1">{{ $course->course_title ?? '--' }}</h1>
+        <p class="max-w-2xl mb-5">{{ $course->background ?? '--' }}</p>
+    </div>
+</div>
+
         </div>
 
         <!-- Course Intro -->
@@ -440,6 +452,8 @@
   
 </div>
 @livewire('learner.feedback-modal')
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.7.107/pdf.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {

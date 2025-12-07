@@ -12,7 +12,6 @@ use App\Models\WorkPortfolio;
 use App\Models\Engagement;
 
 
-#[Layout('layouts.implementer')] 
 class Profile extends Component
 {
     use WithPagination; // 2. Use the trait
@@ -176,7 +175,7 @@ class Profile extends Component
     public function updatedSearch() { $this->resetPage(); }
     public function updatedSort() { $this->resetPage(); }
 
-    #[Layout('layouts.implementer')] 
+
     public function render()
     {
         $this->user->load(['profile', 'engagements', 'portfolioSet.workPortfolio']);

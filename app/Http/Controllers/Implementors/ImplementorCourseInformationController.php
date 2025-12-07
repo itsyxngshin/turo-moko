@@ -123,7 +123,7 @@ class ImplementorCourseInformationController extends Controller
         return view('livewire.implementors.implementor-course-details', [
             'course'        => $course,
             'courseId'      => $course->id,
-            'modules'       => $module,
+            'modules' => $modules,
             'assignments'   => $assignments,
             'evaluations'   => $evaluations,
             'quiz'          => $quiz,

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use App\Models\Course;
 
 // Auth & Livewire
 use App\Livewire\Auth\VerifyEmail;
@@ -28,7 +29,6 @@ use App\Livewire\Auth\Login;
 use App\Livewire\Auth\Register;
 use App\Livewire\Auth\ForgetPassword;
 use App\Livewire\Auth\ResetPassword;
-use App\Livewire\Auth\VerifyEmail;
 
 // --- Admin ---
 use App\Livewire\Admin\Dashboard as AdminDashboard;
@@ -44,6 +44,7 @@ use App\Http\Controllers\Learner\CoursesController;
 use App\Http\Controllers\Learner\ActivitiesController;
 use App\Livewire\Learner\ArchivedCourses;
 use App\Livewire\Learner\EditProfile;
+use App\Livewire\Learner\ShowAllCourses;
 use App\Models\Activity;
 
 // --- Implementor ---
@@ -59,11 +60,7 @@ use App\Http\Controllers\AssessmentBuilderController;
 use App\Http\Controllers\AssessmentResultsController;
 use App\Http\Controllers\Learner\LearnerAssessmentController;
 use App\Livewire\Admin\CourseModeration;
-use App\Livewire\Implementors\CourseParticipants;
 use App\Livewire\Implementors\Profile as ImplementorProfile;
-use App\Http\Controllers\Learner\CourseController;
-use App\Http\Controllers\AssessmentBuilderController;
-use App\Http\Controllers\AssessmentResultsController;
 
 // --- Shared/Chat ---
 use App\Livewire\ChatFeature;
@@ -138,17 +135,21 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
-/*
-|--------------------------------------------------------------------------
-| LEARNER ROUTES
-|--------------------------------------------------------------------------
-*/
 Route::middleware(['auth', 'role:learner', 'verified'])
     ->prefix('learner')
     ->name('learner.')
     ->group(function () {
 
     Route::get('/hub', [DashboardController::class, 'index'])->name('hub');
+   // web.php
+// web.php
+Route::post('/course/{course}/enroll', [DashboardController::class, 'enroll'])
+    ->name('course.enroll');
+
+
+
+
+
     Route::get('/classes', [ClassesController::class, 'index'])->name('classes');
     Route::get('/courses', [CoursesController::class, 'index'])->name('courses.index');
     Route::get('/courses/{course}', [CoursesController::class, 'show'])->name('courses.show');
@@ -156,85 +157,57 @@ Route::middleware(['auth', 'role:learner', 'verified'])
     Route::get('/activities', [ActivitiesController::class, 'index'])->name('activities');
     Route::get('/archived-courses', ArchivedCourses::class)->name('archived-courses');
     Route::get('/profile/edit', EditProfile::class)->name('profile.edit');
-
-    // Simple Views
-    Route::get('/profile', fn() => view('learner.profile'))->name('profile');
-    Route::get('/enrolled', fn() => view('learner.enrolled'))->name('enrolled');
-    Route::get('/activity', fn() => view('learner.activity'))->name('activity');
-    Route::get('/course', fn() => view('learner.course'))->name('course');
-    Route::get('/activitytest', fn() => view('learner.activitytest'))->name('activitytest');
-    Route::get('/submission', fn() => view('learner.submission'))->name('submission');
-    Route::get('/assessment', fn() => view('learner.assessment'))->name('assessment');
-    Route::get('/evaluation', fn() => view('learner.evaluation'))->name('evaluation');
-    Route::get('/settings', fn() => view('learner.settings'))->name('settings');
-    Route::get('/evaluation-status', fn() => view('learner.evaluation-status'))->name('evaluation-status');
+ Route::get('/notifications', fn() => view('learner.notifications-page'))->name('notifications');
+    // Livewire Views
+    Route::get('/profile', fn() => view('livewire.learner.profile'))->name('profile');
+    Route::get('/enrolled', fn() => view('livewire.learner.enrolled'))->name('enrolled');
+    Route::get('/activity', fn() => view('livewire.learner.activities'))->name('activity');
+    Route::get('/course', fn() => view('livewire.learner.course'))->name('course');
+    Route::get('/activitytest', fn() => view('livewire.learner.activitytest'))->name('activitytest');
+    Route::get('/submission', fn() => view('livewire.learner.submission'))->name('submission');
+    Route::get('/assessment', fn() => view('livewire.learner.assessment'))->name('assessment');
+    Route::get('/evaluation', fn() => view('livewire.learner.evaluation'))->name('evaluation');
+    Route::get('/settings', fn() => view('livewire.learner.settings'))->name('settings');
+    Route::get('/evaluation-status', fn() => view('livewire.learner.evaluation-status'))->name('evaluation-status');
 
     // Dynamic Pages
     Route::get('/activity/{id}', function($id) {
         return app(Activity::class)->mount($id)->html();
     })->name('activity.show');
-Route::get('/check', function () {
-        return view('livewire.auth.verify');
-        })->name('auth.verify');
 
-Route::get('/verify-email', VerifyEmail::class)->name('auth.verify'); 
+    Route::get('/verify-email', VerifyEmail::class)->name('auth.verify'); 
 
-// -----------------------------
-// Learner Pages
-// -----------------------------
-
-Route::prefix('learner')->group(function () {
-    Route::get('/hub', function () {
-        return view('livewire.learner.dashboard');
-        })->name('learner.hub');
-
-    Route::get('/profile', function () {
-        return view('livewire.learner.profile');
-        })->name('learner.profile');
-    
-    Route::get('/classes', function () {
-        return view('livewire.learner.classes');
-        })->name('learner.classes');
-    
-    Route::get('/enrolled', fn() => view('livewire.learner.enrolled'))->name('learner.enrolled');
-    Route::get('/activity', fn() => view('livewire.learner.activities'))->name('learner.activity');
-    Route::get('/course', fn() => view('livewire.learner.course'))->name('learner.course');
     Route::get('/course/{course:course_code}', [\App\Http\Controllers\Learner\CourseController::class, 'show'])
-        ->name('learner.course.show');
+        ->name('course.show');
     Route::get('/course/{course:course_code}/activity/{assignment}', \App\Livewire\Learner\ActivityDetail::class)
-        ->name('learner.activity.show');
-    Route::get('/activitytest', fn() => view('livewire.learner.activitytest'))->name('learner.activitytest');
-    Route::get('/submission', fn() => view('livewire.learner.submission'))->name('learner.submission');
-    
-    // Assessment routes
-    // REMOVED: Standalone assessments page - assessments are now accessed through course pages
-    // Route::get('/assessments', [LearnerAssessmentController::class, 'index'])
-    //     ->name('learner.assessments');
+        ->name('activity.show');
     Route::get('/assessment/{quiz}', [LearnerAssessmentController::class, 'show'])
-        ->name('learner.assessment.show');
+        ->name('assessment.show');
     Route::post('/assessment/{quiz}/submit', [LearnerAssessmentController::class, 'submit'])
-        ->name('learner.assessment.submit');
+        ->name('assessment.submit');
     Route::get('/assessment/{quiz}/result', [LearnerAssessmentController::class, 'result'])
-        ->name('learner.assessment.result');
-    
-    Route::get('/evaluation', fn() => view('livewire.learner.evaluation'))->name('learner.evaluation');
-    Route::get('/settings', fn() => view('livewire.learner.settings'))->name('learner.settings');
+        ->name('assessment.result');
+
+Route::get('/suggested-courses', function() {
+    $suggestedCourses = Course::latest()->get(); // Or add your filtering logic
+    return view('livewire.learner.show-all-courses', compact('suggestedCourses'));
+})->name('show-all-courses');
+
+
+
 });
 
 
-// -----------------------------
-// Admin Pages
-// -----------------------------
 
 Route::prefix('implementor')->name('implementor.')->group(function () {
-    Route::get('/dashboard', [ImplementorDashboardController::class, 'index'])
-        ->name('dashboard');
-
-    Route::get('/notifications', fn() => view('learner.notifications-page'))->name('notifications');
-    Route::get('/assignment/{id}', fn($id) => view('learner.assignment', compact('id')))->name('assignment'); 
 });
 
 
+/*
+|--------------------------------------------------------------------------
+| IMPLEMENTOR ROUTES (TEACHERS)
+|--------------------------------------------------------------------------
+*/
 /*
 |--------------------------------------------------------------------------
 | IMPLEMENTOR ROUTES (TEACHERS)
@@ -245,92 +218,77 @@ Route::middleware(['auth', 'role:implementor', 'verified'])
     ->name('implementor.')
     ->group(function () {
 
+    // --------------------------
     // Dashboard & Profile
-    Route::get('/dashboard', [ImplementorDashboardController::class, 'index'])->name('dashboard'); // NOTE: Changed from 'hub' to 'dashboard' to match controller, or alias it.
-    Route::get('/profile', ImplementorProfile::class)->name('profile'); 
+    // --------------------------
+    Route::get('/dashboard', [ImplementorDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/profile', ImplementorProfile::class)->name('profile');
     Route::get('/myprofile', fn() => view('livewire.implementors.teacher-profile'))->name('myprofile');
+   
+    Route::get('/assignment/{id}', fn($id) => view('learner.assignment', compact('id')))->name('assignment');
 
+    // --------------------------
     // Course Management
+    // --------------------------
     Route::get('/all-courses', fn() => view('livewire.implementors.all-courses'))->name('all-courses');
-    Route::get('/course-information/{course:course_code}', [ImplementorCourseInformationController::class, 'show'])
-         ->name('course-information');
+    Route::get('/course-information/{course:course_code}', [ImplementorCourseInformationController::class, 'show'])->name('course-information');
+    Route::get('/course/{course:course_code}/grades', ImplementorCourseGrades::class)->name('course-grades');
+    Route::get('/course/{course:course_code}/participants', CourseParticipants::class)->name('course-participants');
 
-    Route::get('/course/{course:course_code}/grades', ImplementorCourseGrades::class)
-        ->name('course-grades');
-
-    Route::delete('/announcement/{course:course_code}', [ImplementorCourseInformationController::class, 'deleteAnnouncement'])
-        ->name('implementor.announcement.delete');
-
-    
-    Route::get('/course/{course:course_code}/assignment/create', 
-        AddAssignment::class
-    )->name('course.assignment.create');
-
-    Route::get('/course/{course:course_code}/assignment/{assignment}/edit',
-        \App\Livewire\Implementors\EditAssignment::class
-    )->name('course.assignment.edit');
-
-    Route::delete('/course/{course:course_code}/assignment/{assignment}',
-        [ImplementorCourseInformationController::class, 'deleteAssignment']
-    )->name('course.assignment.delete');
-
-    Route::delete('/modules/{module}', 
-    [ImplementorCourseInformationController::class, 'destroy'])
-    ->name('modules.destroy');
-
-    
-    Route::get('/myprofile', function () {
-        return view('livewire.implementors.teacher-profile');
-    })->name('myprofile');
-    
-    Route::get('/allcourses', function () {
-        return view('livewire.implementors.all-courses');
-    })->name('allcourses)');
-    
-    // Create/Store Courses
+    // --------------------------
+    // Create / Store Courses
+    // --------------------------
     Route::get('/courses/create', [CourseController::class, 'create'])->name('courses.create');
     Route::post('/courses', [CourseController::class, 'store'])->name('courses.store');
-    
-    Route::get('/course/{course:course_code}/participants', CourseParticipants::class)
-        ->name('course-participants');
-    
-    // Assessment Builder & Results (CRITICAL - DO NOT REMOVE)
-    Route::get('/assessment-builder', [AssessmentBuilderController::class, 'create'])
-        ->name('assessment-builder');
-    
-    Route::post('/assessment-builder', [AssessmentBuilderController::class, 'store'])
-        ->name('assessment-builder.store');
-    
-    Route::put('/assessment-builder/{id}', [AssessmentBuilderController::class, 'update'])
-        ->name('assessment-builder.update');
-    
-    Route::delete('/assessment-builder/{id}', [AssessmentBuilderController::class, 'destroy'])
-        ->name('assessment-builder.destroy');
 
-    // Evaluation statistics
-    Route::get('/course/{course:course_code}/evaluation-stats', [ImplementorEvaluationStatsController::class, 'show'])
-        ->name('course.evaluation-stats');
+    // --------------------------
+    // Assignments
+    // --------------------------
+    Route::get('/course/{course:course_code}/assignment/create', AddAssignment::class)->name('course.assignment.create');
+    Route::get('/course/{course:course_code}/assignment/{assignment}/edit', \App\Livewire\Implementors\EditAssignment::class)->name('course.assignment.edit');
+    Route::delete('/course/{course:course_code}/assignment/{assignment}', [ImplementorCourseInformationController::class, 'deleteAssignment'])->name('course.assignment.delete');
 
-    // Assessment Results routes
-    Route::get('/assessment-results', [AssessmentResultsController::class, 'index'])
-        ->name('assessment-results');
-    
-    Route::get('/assessment-results/{quiz}', [AssessmentResultsController::class, 'show'])
-        ->name('assessment-results.show');
-    
-    Route::post('/assessment-results/grade', [AssessmentResultsController::class, 'grade'])
-        ->name('assessment-results.grade');
-    
-    Route::get('/assessment-results/{quiz}/export', [AssessmentResultsController::class, 'export'])
-        ->name('assessment-results.export');
+    // --------------------------
+    // Modules
+    // --------------------------
+    Route::delete('/modules/{module}', [ImplementorCourseInformationController::class, 'destroy'])->name('modules.destroy');
 
-    // Assignment submissions page + grading
-    Route::get('/assignment-submissions', [AssessmentResultsController::class, 'assignmentsIndex'])
-        ->name('assignment-submissions');
-    Route::post('/assignment-results/grade', [AssessmentResultsController::class, 'gradeAssignment'])
-        ->name('assignment-results.grade');
-    
-    // Test route to verify form submission
+    // --------------------------
+    // Announcements
+    // --------------------------
+    Route::get('/create-announcement', [ImplementorAddAnnouncementController::class, 'show'])->name('add-announcement');
+    Route::delete('/announcement/{course:course_code}', [ImplementorCourseInformationController::class, 'deleteAnnouncement'])->name('announcement.delete');
+
+    // --------------------------
+    // Assessment Builder
+    // --------------------------
+    Route::get('/assessment-builder', [AssessmentBuilderController::class, 'create'])->name('assessment-builder');
+    Route::post('/assessment-builder', [AssessmentBuilderController::class, 'store'])->name('assessment-builder.store');
+    Route::put('/assessment-builder/{id}', [AssessmentBuilderController::class, 'update'])->name('assessment-builder.update');
+    Route::delete('/assessment-builder/{id}', [AssessmentBuilderController::class, 'destroy'])->name('assessment-builder.destroy');
+
+    // --------------------------
+    // Assessment Results
+    // --------------------------
+    Route::get('/assessment-results', [AssessmentResultsController::class, 'index'])->name('assessment-results');
+    Route::get('/assessment-results/{quiz}', [AssessmentResultsController::class, 'show'])->name('assessment-results.show');
+    Route::post('/assessment-results/grade', [AssessmentResultsController::class, 'grade'])->name('assessment-results.grade');
+    Route::get('/assessment-results/{quiz}/export', [AssessmentResultsController::class, 'export'])->name('assessment-results.export');
+
+    // --------------------------
+    // Assignment Submissions
+    // --------------------------
+    Route::get('/assignment-submissions', [AssessmentResultsController::class, 'assignmentsIndex'])->name('assignment-submissions');
+    Route::post('/assignment-results/grade', [AssessmentResultsController::class, 'gradeAssignment'])->name('assignment-results.grade');
+
+    // --------------------------
+    // Evaluation Statistics
+    // --------------------------
+    Route::get('/course/{course:course_code}/evaluation-stats', [ImplementorEvaluationStatsController::class, 'show'])->name('course.evaluation-stats');
+
+    // --------------------------
+    // Test route
+    // --------------------------
     Route::post('/test-form', function(Request $request) {
         return response()->json([
             'message' => 'Form received successfully!',
@@ -338,44 +296,7 @@ Route::middleware(['auth', 'role:implementor', 'verified'])
         ]);
     })->name('test-form');
 });
-Route::prefix('admin')->group(function () {
-    Route::get('/hub', function () {
-        return view('livewire.admin.dashboard');
-        })->name('admin.hub');
 
-    Route::get('/implementors', function () {
-        return view('livewire.admin.implementors');
-        })->name('admin.implementors');
-    
-    Route::get('/enrollees', function () {
-        return view('livewire.admin.enrollees'); 
-        })->name('admin.enrollees');
-
-    Route::get('/courses', function () {
-        return view('livewire.admin.courses');
-        })->name('admin.courses');
-    
-    Route::get('/course-moderation', function () {
-        return view('livewire.admin.course-moderation');
-        })->name('admin.course-moderation');  
-    
-    Route::get('/moderation/course/{course}', [CourseModerationController::class, 'index'])
-    ->name('moderation.course');
-
-
-    Route::get('/course/{courseCode}', [ViewCourseController::class, 'show'])
-    ->name('course.view');
-        /*
-    //Route::get('/add-course', [AddCourse::class, 'create'])->name('addcourse');
-    //Route::post('/add-course', [AddCourse::class, 'store'])->name('course.store'); 
-    Route::get('/update-course', [ModifyCourse::class, 'edit'])->name('updatecourse');
-    Route::put('/update-course', [ModifyCourse::class, 'update'])->name('course.update');
-    Route::get('/update-user', [ModifyUser::class, 'edit'])->name('updateuser');
-    Route::put('/update-user', [ModifyUser::class, 'update'])->name('user.update');
-    Route::get('/view-user', [ViewUser::class, 'render'])->name('review');
-
-    */
-});
 
     Route::middleware(['auth', 'role:learner'])->group(function () {
         //LINK THE BLADES EXCLUSIVE FOR THE LEARNER SIDE
@@ -399,30 +320,6 @@ Route::prefix('admin')->group(function () {
         }); 
         */
 
-
-    // Specific Course Actions
-    Route::get('/course-information/{course:course_code}', [ImplementorCourseInformationController::class, 'show'])->name('course-information');
-    Route::get('/course/{course:course_code}/participants', CourseParticipants::class)->name('course-participants');
-    
-    // Modules & Assignments
-    Route::delete('/modules/{module}', [ImplementorCourseInformationController::class, 'destroy'])->name('modules.destroy');
-    Route::get('/course/{courseId}/assignment/create', [ImplementorAddAssignmentController::class, 'create'])->name('add-assignment');
-
-    // Announcements
-    Route::get('/create-announcement', [ImplementorAddAnnouncementController::class, 'show'])->name('add-announcement');
-    Route::delete('/announcement/{course:course_code}', [ImplementorCourseInformationController::class, 'deleteAnnouncement'])->name('announcement.delete');
-
-    // Assessment Builder
-    Route::get('/assessment-builder', [AssessmentBuilderController::class, 'create'])->name('assessment-builder');
-    Route::post('/assessment-builder', [AssessmentBuilderController::class, 'store'])->name('assessment-builder.store');
-    Route::put('/assessment-builder/{id}', [AssessmentBuilderController::class, 'update'])->name('assessment-builder.update');
-
-    // Assessment Results
-    Route::get('/assessment-results', [AssessmentResultsController::class, 'index'])->name('assessment-results');
-    Route::get('/assessment-results/{quiz}', [AssessmentResultsController::class, 'show'])->name('assessment-results.show');
-    Route::post('/assessment-results/grade', [AssessmentResultsController::class, 'grade'])->name('assessment-results.grade');
-    Route::get('/assessment-results/{quiz}/export', [AssessmentResultsController::class, 'export'])->name('assessment-results.export');
-});
 
 
 /*
