@@ -33,7 +33,7 @@
         <button wire:click="$set('showProfileModal', false)"
             class="absolute top-6 right-6 text-gray-500 hover:text-gray-700 text-xl">✕</button>
 
-        <h2 class="text-3xl font-bold mb-10 text-gray-800">Edit Implementor</h2>
+        <h2 class="text-3xl font-bold mb-10 text-gray-800">Edit Profile</h2>
 
         <!-- FORM -->
         <form wire:submit.prevent="save" class="grid grid-cols-1 md:grid-cols-3 gap-10">
@@ -143,55 +143,56 @@
 
 </div>
 
-    <!-- Stats -->
-    <div class="flex space-x-4 mb-6">
-        <div class="flex-1 bg-white p-6 rounded-2xl shadow-md text-center cursor-pointer hover:bg-gray-50"
-            onclick="window.location='{{ route('learner.courses.index') }}'">
-            <div class="text-2xl mb-2 text-indigo-600">📘</div>
-            <h3 class="font-semibold">Active courses</h3>
-            <p class="text-gray-500 text-sm">{{ $activeCourses }}</p>
-        </div>
-
-        <div class="flex-1 bg-white p-6 rounded-2xl shadow-md text-center cursor-pointer hover:bg-gray-50"
-            onclick="window.location='{{ route('learner.archived-courses') }}'">
-            <div class="text-2xl mb-2 text-yellow-600">📁</div>
-            <h3 class="font-semibold">Archived courses</h3>
-            <p class="text-gray-500 text-sm">{{ $archivedCourses }}</p>
-        </div>
+<!-- Stats -->
+<div class="flex space-x-4 mb-6">
+    <div class="flex-1 bg-white p-5 rounded-xl shadow-sm text-center cursor-pointer hover:bg-gray-50"
+        onclick="window.location='{{ route('learner.courses.index') }}'">
+        <div class="text-2xl mb-1 text-indigo-600">📘</div>
+        <h3 class="font-medium text-sm">Active courses</h3>
+        <p class="text-gray-500 text-sm">{{ $activeCourses }}</p>
     </div>
 
-    <!-- Courses Grid -->
-    <section class="bg-white rounded-2xl shadow-md p-6">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold">Your courses</h3>
-            <button wire:click="$refresh" class="text-sm text-indigo-600 hover:underline">Refresh</button>
-        </div>
+    <div class="flex-1 bg-white p-5 rounded-xl shadow-sm text-center cursor-pointer hover:bg-gray-50"
+        onclick="window.location='{{ route('learner.archived-courses') }}'">
+        <div class="text-2xl mb-1 text-yellow-600">📁</div>
+        <h3 class="font-medium text-sm">Archived courses</h3>
+        <p class="text-gray-500 text-sm">{{ $archivedCourses }}</p>
+    </div>
+</div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            @foreach($courses as $course)
-                <div class="flex bg-white rounded-2xl shadow-sm overflow-hidden border h-40">
-                    <img src="{{ $course['image'] }}" alt="{{ $course['name'] }}" class="w-40 h-full object-cover">
-                    <div class="flex-1 p-5 flex flex-col justify-between">
-                        <div>
-                            <p class="text-xs text-gray-400">{{ $course['semester'] }}</p>
-                            <h4 class="font-semibold text-sm">{{ $course['name'] }}</h4>
-                            <p class="text-sm text-gray-500 leading-snug line-clamp-2">{{ $course['description'] }}</p>
-                        </div>
+<!-- Courses Grid -->
+<section class="bg-white rounded-xl shadow-sm p-5">
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-medium">Your courses</h3>
+        <button wire:click="$refresh" class="text-sm text-indigo-600 hover:underline">Refresh</button>
+    </div>
 
-                        <div class="mt-4 flex items-center gap-4">
-                            <div class="flex items-center gap-2 w-full">
-                                <span class="text-xs text-gray-500">{{ $course['progress'] }}%</span>
-                                <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                    <div class="h-full bg-black" style="width: {{ $course['progress'] }}%;"></div>
-                                </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        @foreach($courses as $course)
+            <div class="flex bg-white rounded-xl shadow-sm border h-40">
+                <img src="{{ $course['image'] }}" alt="{{ $course['name'] }}" class="w-36 h-full object-cover">
+                <div class="flex-1 p-4 flex flex-col justify-between">
+                    <div>
+                        <p class="text-xs text-gray-400">{{ $course['semester'] }}</p>
+                        <h4 class="font-medium text-sm">{{ $course['name'] }}</h4>
+                        <p class="text-sm text-gray-500 leading-snug line-clamp-2">{{ $course['description'] }}</p>
+                    </div>
+
+                    <div class="mt-3 flex items-center gap-3">
+                        <div class="flex items-center gap-2 w-full">
+                            <span class="text-xs text-gray-500">{{ $course['progress'] }}%</span>
+                            <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div class="h-full bg-black" style="width: {{ $course['progress'] }}%;"></div>
                             </div>
-                            <button class="bg-black text-white px-4 py-1.5 rounded-full text-sm hover:bg-gray-800">
-                                Continue
-                            </button>
                         </div>
+                        <button class="bg-black text-white px-4 py-1.5 rounded-full text-sm hover:bg-gray-800">
+                            Continue
+                        </button>
                     </div>
                 </div>
-            @endforeach
-        </div>
-    </section>
+            </div>
+        @endforeach
+    </div>
+</section>
+
 </main>

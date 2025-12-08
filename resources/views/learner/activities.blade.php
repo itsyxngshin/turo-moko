@@ -3,10 +3,16 @@
 @section('title', 'Activities')
 
 @section('content')
-<div class="space-y-8 px-4 md:px-6">
+<div class="space-y-4 px-4 md:px-6 mt-10">
 
-    <!-- Page Header -->
-    <div>
+    <!-- Page Header with Back Button -->
+    <div class="flex items-center gap-3 mb-6">
+        <!-- Back Button (Icon Only) -->
+        <button onclick="history.back()"
+                class="flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium p-2 md:p-2.5 rounded-full shadow-sm hover:shadow-md transition-all duration-200">
+            <i data-lucide="arrow-left" class="w-4 h-4 md:w-5 md:h-5"></i>
+        </button>
+
         <h1 class="text-2xl font-bold">Pending Activities</h1>
     </div>
 

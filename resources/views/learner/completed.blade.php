@@ -5,16 +5,24 @@
 @section('content')
 <div class="space-y-8 pl-6">
 
-    <!-- Page Header -->
-    <div>
+    <!-- Page Header with Back Button -->
+    <div class="flex items-center gap-3 mb-4 mt-8 ml-4">
+        <!-- Back Button -->
+        <button onclick="history.back()"
+                class="flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-800 p-2 rounded-full shadow-sm hover:shadow-md transition-all duration-200">
+            <i data-lucide="arrow-left" class="w-4 h-4 md:w-5 md:h-5"></i>
+        </button>
+
+        <!-- Page Title -->
         <h1 class="text-2xl font-bold">Completed Courses</h1>
-        <p class="text-gray-500 text-sm mt-1">
-            You have completed <span class="font-semibold">{{ $completedCoursesCount }}</span> course(s).
-        </p>
     </div>
 
+    <p class="text-gray-500 text-sm mt-1">
+        You have completed <span class="font-semibold">{{ $completedCoursesCount }}</span> course(s).
+    </p>
+
     <!-- Completed Courses Grid -->
-    <section class="bg-white rounded-2xl shadow-md p-6">
+    <section class="bg-white rounded-2xl shadow-md p-6 mt-4">
         @if($completedCourses->isEmpty())
             <p class="text-gray-500 text-center py-10">No completed courses yet.</p>
         @else

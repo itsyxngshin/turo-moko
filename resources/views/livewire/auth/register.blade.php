@@ -1,49 +1,54 @@
 <div class="flex h-screen w-screen overflow-hidden">
 
-    {{-- This Alpine component is left as-is. Paths are fixed with asset() --}}
-    <div class="w-1/2 relative hidden md:block"
-         x-data="{ images: [
+    {{-- LEFT COLUMN (HIDDEN ON MOBILE) --}}
+    <div 
+        class="hidden md:block w-1/2 relative"
+        x-data="{ images: [
             '{{ asset('/images/cover.jpg') }}', 
             '{{ asset('/images/cover7.jpg') }}', 
             '{{ asset('/images/cover3.jpg') }}'
-         ], index: 0 }"
-         x-init="setInterval(() => { index = (index + 1) % images.length }, 5000)">
-      
-      <template x-for="(image, i) in images" :key="i">
-        <img 
-          :src="image" 
-          alt="Students using computer"
-          class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out brightness-50"
-          x-show="index === i"
-          x-transition:enter="opacity-0"
-          x-transition:enter-start="opacity-0"
-          x-transition:enter-end="opacity-100"
-          x-transition:leave="opacity-100"
-          x-transition:leave-end="opacity-0"
-        />
-      </template>
-  
-      <div class="absolute bottom-6 left-6 flex items-center gap-3">
-        <img src="{{ asset('/images/turo_moko_logo_white.png') }}" alt="Turo-Moko Logo" class="w-10 h-10 object-contain" />
-        <span class="text-white text-3xl font-bold">TURO-MOKO</span>
-      </div>
+        ], index: 0 }"
+        x-init="setInterval(() => { index = (index + 1) % images.length }, 5000)"
+    >
+        <template x-for="(image, i) in images" :key="i">
+            <img 
+                :src="image" 
+                class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out brightness-50"
+                x-show="index === i"
+                x-transition:enter="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="opacity-100"
+                x-transition:leave-end="opacity-0"
+            />
+        </template>
+
+        <div class="absolute bottom-6 left-6 flex items-center gap-3">
+            <img src="{{ asset('/images/turo_moko_logo_white.png') }}" class="w-10 h-10 object-contain" />
+            <span class="text-white text-3xl font-bold">TURO-MOKO</span>
+        </div>
     </div>
-  
-    {{-- Right Column (Form) --}}
-    <div class="w-full md:w-1/2 flex justify-center bg-white overflow-y-auto py-12">
-        {{-- Loading Overlay --}}
+
+    {{-- RIGHT COLUMN --}}
+    <div class="w-full md:w-1/2 bg-white flex justify-center overflow-y-auto py-10 px-4 md:px-8">
+
+        {{-- LOADING OVERLAY --}}
         <div wire:loading.flex wire:target="register" 
-            class="absolute inset-0 z-50 flex items-center justify-center bg-white bg-opacity-75 backdrop-blur-sm rounded-xl">
+            class="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-75 backdrop-blur-sm">
             <div class="flex flex-col items-center">
-                <svg class="animate-spin h-10 w-10 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg class="animate-spin h-10 w-10 text-orange-500" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 
+                        5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 
+                        3 7.938l3-2.647z">
+                    </path>
                 </svg>
                 <p class="mt-3 text-lg font-medium text-orange-600">Processing Registration...</p>
             </div>
         </div>
 
-        <div class="w-full max-w-sm px-4">
+        {{-- FORM WRAPPER --}}
+        <div class="w-full max-w-sm">
 
             <h2 class="text-2xl font-bold mb-1 text-center">Welcome!</h2>
             <p class="text-sm text-gray-600 text-center mb-6">Register to continue.</p>
@@ -217,7 +222,7 @@
                 <a href="#" class="underline font-medium text-orange-500 hover:text-orange-600">Privacy Policy</a>.
             </p>
 
-            <p class="text-sm text-center text-gray-600">
+            <p class="text-sm text-center text-gray-600 pb-20">
                 Already have an account?
                 <a href="{{ route('auth.login') }}"
                     class="text-sm font-medium text-orange-500 hover:text-orange-600 underline">
