@@ -83,7 +83,7 @@
                         @endphp
 
                         @if($isEnrolled)
-                            <a href="{{ route('learner.course.show', $course->course_code) }}"
+                            <a href="{{ route('learner.course.show', $course) }}"
                                class="bg-black text-white px-4 sm:px-5 py-2 sm:py-3 rounded-full 
                                       hover:bg-gray-800 text-sm sm:text-base">
                                Start Course

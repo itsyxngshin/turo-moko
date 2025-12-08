@@ -3,8 +3,8 @@
     <!-- Trigger Button -->
     <button 
         @click="open = true"
-        class="bg-transparent text-black px-4 py-2 rounded-lg border hover:bg-black hover:text-white transform transition duration-300">
-        +
+    class="bg-black text-white px-5 py-2 rounded-full text-sm font-medium shadow-sm hover:bg-gray-900 transition">
+        Create Course
     </button>
 
     <!-- Modal Background -->

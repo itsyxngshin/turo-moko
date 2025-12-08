@@ -17,7 +17,7 @@ class CreateCourse extends Component
     public $course_title;
     public $subject;
     public $background;
-    public $status = 'Active'; // default
+    public $status = 'active'; // default
     public $visibility = 'visible'; // default
     public $start_date;
     public $end_date;
@@ -93,7 +93,7 @@ class CreateCourse extends Component
 
                 $course->coverPhotos()->create([
                     'path'   => $path,
-                    'status' => 'Active',
+                    'status' => 'active',
                 ]);
             }
 

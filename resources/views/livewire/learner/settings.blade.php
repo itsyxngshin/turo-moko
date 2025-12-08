@@ -14,7 +14,7 @@
                 type="text" 
                 id="username" 
                 name="username" 
-                value="demouser"  <!-- static demo user -->
+                value="demouser"  
                 class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:border-black focus:ring-black p-3" 
                 disabled
             >

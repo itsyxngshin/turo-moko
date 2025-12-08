@@ -56,7 +56,7 @@
                             @php $isEnrolled = $course->enrollees()->where('users.id', auth()->id())->exists(); @endphp
 
                             @if($isEnrolled)
-                                <a href="{{ route('learner.course.show', $course->course_code) }}"
+                                <a href="{{ route('learner.course.show', $course) }}"
                                    class="bg-black text-white px-4 py-1 rounded-full hover:bg-gray-800">
                                    Start Course
                                 </a>

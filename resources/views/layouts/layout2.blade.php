@@ -71,7 +71,7 @@
     <script>
         lucide.createIcons();
     </script>
-    @livewireScripts
+   
 
     <style>
         /* Hide scrollbar for all browsers */

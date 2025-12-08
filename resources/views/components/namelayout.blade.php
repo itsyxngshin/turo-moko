@@ -1,6 +1,7 @@
 @php
     $user = Auth::user();
     $profile = $user->profile;
+    $role = $user->role->role_name ?? null;
     $initials = strtoupper(substr($profile->first_name ?? 'U', 0, 1) . substr($profile->last_name ?? '', 0, 1));
 @endphp
 

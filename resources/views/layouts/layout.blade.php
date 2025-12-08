@@ -43,7 +43,7 @@
     @livewireStyles
 </head>
 
-<<body class="bg-gray-50 font-sans overflow-x-hidden">
+<body class="bg-gray-50 font-sans overflow-x-hidden">
     <div class="flex h-screen overflow-hidden">
 
         <!-- Sidebar Component (sticky) -->
@@ -72,7 +72,7 @@
     <script>
         lucide.createIcons();
     </script>
-    @livewireScripts
+    
 
     <style>
         /* Hide scrollbar for all browsers */

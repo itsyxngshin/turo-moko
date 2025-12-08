@@ -23,13 +23,7 @@
             <option value="list">List View</option>
         </select>
 
-        <!-- Create Course Button -->
-<button 
-    wire:click="$dispatch('openModal', { component: 'modals.implementor.create-course' })"
-    class="bg-black text-white px-5 py-2 rounded-full text-sm font-medium shadow-sm hover:bg-gray-900 transition"
->
-    Create Course
-</button>
+
 
 
         <!-- Modal Component -->

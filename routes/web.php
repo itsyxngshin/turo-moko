@@ -110,11 +110,14 @@ Route::middleware(['auth', 'role:learner', 'verified'])
     Route::get('/hub', [DashboardController::class, 'index'])->name('hub');
     Route::get('/classes', [ClassesController::class, 'index'])->name('classes');
     Route::get('/courses', [CoursesController::class, 'index'])->name('courses.index');
-    Route::get('/courses/{course}', [CoursesController::class, 'show'])->name('courses.show');
+    Route::get('/courses/{course}', [CoursesController::class, 'show'])->name('course.show');
     Route::get('/completed-courses', [CoursesController::class, 'completed'])->name('courses.completed');
     Route::get('/activities', [ActivitiesController::class, 'index'])->name('activities');
     Route::get('/archived-courses', ArchivedCourses::class)->name('archived-courses');
     Route::get('/profile/edit', EditProfile::class)->name('profile.edit');
+Route::post('/course/{course}/enroll', [DashboardController::class, 'enroll'])
+    ->name('course.enroll');
+
 
     // Simple Views
     Route::get('/profile', fn() => view('learner.profile'))->name('profile');
@@ -132,7 +135,10 @@ Route::middleware(['auth', 'role:learner', 'verified'])
     Route::get('/activity/{id}', function($id) {
         return app(Activity::class)->mount($id)->html();
     })->name('activity.show');
-
+Route::get('/suggested-courses', function() {
+    $suggestedCourses = Course::latest()->get(); // Or add your filtering logic
+    return view('livewire.learner.show-all-courses', compact('suggestedCourses'));
+})->name('show-all-courses');
     Route::get('/notifications', fn() => view('learner.notifications-page'))->name('notifications');
     Route::get('/assignment/{id}', fn($id) => view('learner.assignment', compact('id')))->name('assignment'); 
 });
