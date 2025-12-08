@@ -4,7 +4,7 @@
 @section('page-title', 'All Courses')
 
 @section('content')
-<div class="container mx-auto px-6 py-8">
+<div class="container mx-auto px-3 py-0">
     <div class="px-4 py-4 flex items-center gap-4">
         <button 
             onclick="window.location='{{ route('learner.hub') }}'" 
@@ -25,7 +25,7 @@
             @foreach($suggestedCourses as $course)
             <div class="bg-gray-50 rounded-2xl shadow flex overflow-hidden h-56">
                 <div class="w-1/2 h-full">
-                    <img src="{{ $course->activeCoverPhoto ? asset('storage/' . $course->activeCoverPhoto->path) : asset('images/banner.jpg') }}"
+                    <img src="{{ $course->activeCoverPhoto ? asset('storage/' . $course->activeCoverPhoto->path) :  asset('storage/implementor/course/thumbnail.jpg')  }}"
                          alt="{{ $course->course_title }}" class="w-full h-full object-cover">
                 </div>
                 <div class="p-4 flex flex-col justify-between w-1/2 h-full">

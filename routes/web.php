@@ -145,11 +145,6 @@ Route::middleware(['auth', 'role:learner', 'verified'])
 // web.php
 Route::post('/course/{course}/enroll', [DashboardController::class, 'enroll'])
     ->name('course.enroll');
-
-
-
-
-
     Route::get('/classes', [ClassesController::class, 'index'])->name('classes');
     Route::get('/courses', [CoursesController::class, 'index'])->name('courses.index');
     Route::get('/courses/{course}', [CoursesController::class, 'show'])->name('course.show');
@@ -195,11 +190,6 @@ Route::get('/suggested-courses', function() {
 
 
 
-});
-
-
-
-Route::prefix('implementor')->name('implementor.')->group(function () {
 });
 
 
@@ -309,16 +299,6 @@ Route::middleware(['auth', 'role:implementor', 'verified'])
     Route::middleware(['auth', 'role:implementer'])->group(function () {
         //LINK THE BLADES EXCLUSIVE FOR THE TEACHER/IMPLEMENTER SIDE
         }); 
-
-    /*Route::middleware(['guest'])->group(function () {
-        //OPEN FOR ALL / WEBSITE & LOGIN FACE
-        Route::get('/register', [AuthController::class, 'registerView'])->name('register');
-        Route::post('/passRegister', [AuthController::class, 'register'])->name('passRegister');
-        Route::post('/shopRegister', [AuthController::class, 'shopRegister'])->name('shopRegister');
-        Route::get('/login', [AuthController::class, 'loginView'])->name('login');
-    Route::post('/passLogin', [AuthController::class, 'login'])->name('passLogin');
-        }); 
-        */
 
 
 

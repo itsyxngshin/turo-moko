@@ -182,7 +182,7 @@ class Profile extends Component
         // 4. Build the query scoped to THIS USER (implementer_id)
         $query = Course::query()
             ->where('implementer_id', $this->user->id) // <--- CRITICAL: Only this teacher's courses
-            ->with(['coverPhoto', 'category', 'organization', 'tags'])
+            ->with(['coverPhotos', 'category', 'organization', 'tags'])
             ->where('status', 'Active');
 
         // 5. Apply Search Logic (Same as your CourseMenu)
@@ -206,6 +206,6 @@ class Profile extends Component
 
         return view('livewire.implementors.profile', [
             'courses' => $query->paginate(5) // Pagination!
-        ]);
+        ])->layout('layouts.layout');
     }
 }

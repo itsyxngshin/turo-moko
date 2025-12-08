@@ -13,7 +13,7 @@
         <div class="relative rounded-2xl overflow-hidden shadow-lg h-60 sm:h-72 md:h-80">
             <img src="{{ $course->activeCoverPhoto 
                         ? asset('storage/' . $course->activeCoverPhoto->path) 
-                        : asset('images/banner.jpg') }}"
+                        : asset('storage/implementor/course/thumbnail.jpg') }}"
                  alt="{{ $course->course_title }}"
                  class="absolute inset-0 w-full h-full object-cover">
 
@@ -56,7 +56,7 @@
                 <div class="w-full sm:w-1/2 h-48 sm:h-full">
                     <img src="{{ $course->activeCoverPhoto 
                                 ? asset('storage/' . $course->activeCoverPhoto->path) 
-                                : asset('images/banner.jpg') }}"
+                                : asset('storage/implementor/course/thumbnail.jpg') }}"
                          alt="{{ $course->course_title }}"
                          class="w-full h-full object-cover">
                 </div>

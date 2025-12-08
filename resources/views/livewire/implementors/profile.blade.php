@@ -1,28 +1,11 @@
 <div class="flex h-screen bg-gray-50 font-sans">
 
-    <aside class="w-24 bg-white flex flex-col items-center py-8 border-r border-gray-100 sticky top-0 h-screen z-10">
-        <div class="mb-10">
-            <div class="w-10 h-10 bg-gray-900 rounded-xl flex items-center justify-center text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834-1.658-1.591 1.591M2.25 12h2.25m1.658 5.834 1.591-1.591" />
-                </svg>
-            </div>
-        </div>
-    </aside>
 
-    <main class="flex-1 p-10 overflow-y-auto">
+    <main class="flex-1 px-5 py-3 overflow-y-hidden">
 
         <header class="flex justify-between items-center mb-8">
             <h1 class="text-3xl font-bold text-gray-800">Profile</h1>
-            <div class="flex items-center gap-4">
-                <div class="relative">
-                    <input type="text" placeholder="Search courses" class="pl-4 pr-10 py-2.5 w-64 rounded-full border border-gray-200 text-sm focus:outline-none focus:border-gray-400 shadow-sm bg-white">
-                    <svg class="w-5 h-5 absolute right-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                </div>
-                <button class="w-10 h-10 rounded-full border border-gray-200 overflow-hidden shadow-sm bg-gray-200 flex items-center justify-center">
-                    <span class="text-xs font-bold text-gray-500">{{ substr($user->profile->first_name ?? 'U', 0, 1) }}</span>
-                </button>
-            </div>
+            
         </header>
 
         <section class="bg-white rounded-3xl p-8 mb-8 shadow-sm border border-gray-100 relative">

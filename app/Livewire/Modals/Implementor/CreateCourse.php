@@ -91,7 +91,7 @@ class CreateCourse extends Component
             if ($this->thumbnail) {
                 $path = $this->thumbnail->store('cover_photos', 'public');
 
-                $course->coverPhotos()->create([
+                $course->coverPhoto()->create([
                     'path'   => $path,
                     'status' => 'active',
                 ]);

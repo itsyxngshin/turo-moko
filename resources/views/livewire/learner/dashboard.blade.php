@@ -10,7 +10,7 @@
         @php $course = $recentCourses->first(); @endphp
         @if($course->enrollees->contains(auth()->id()))
             <div class="relative rounded-2xl overflow-hidden shadow-lg h-60">
-                <img src="{{ $course->activeCoverPhoto ? asset('storage/' . $course->activeCoverPhoto->path) : asset('images/banner.jpg') }}"
+                <img src="{{ $course->activeCoverPhoto ? asset('storage/' . $course->activeCoverPhoto->path) :  asset('storage/implementor/course/thumbnail.jpg')  }}"
                      alt="{{ $course->course_title }}"
                      class="absolute inset-0 w-full h-full object-cover">
                 <div class="absolute inset-0 bg-black/40"></div>
@@ -38,7 +38,9 @@
                 <div class="bg-gray-50 rounded-2xl shadow flex overflow-hidden h-56">
                     <!-- Course Image -->
                     <div class="w-1/2 h-full">
-                        <img src="{{ $course->activeCoverPhoto ? asset('storage/' . $course->activeCoverPhoto->path) : asset('images/banner.jpg') }}"
+<img src="{{ $course->activeCoverPhoto 
+    ? asset('storage/' . $course->activeCoverPhoto->path) 
+    : asset('storage/implementor/course/thumbnail.jpg') }}"
                              alt="{{ $course->course_title }}"
                              class="w-full h-full object-cover">
                     </div>

@@ -137,7 +137,7 @@ class Course extends Model
      * COVER PHOTOS
      * --------------------------------------
      */
-    public function coverPhotos()
+       public function coverPhotos()
     {
         return $this->hasMany(CoverPhoto::class, 'course_id');
     }
@@ -146,6 +146,7 @@ class Course extends Model
     {
         return $this->hasOne(CoverPhoto::class)->where('status', 'Active');
     }
+
 
     /**
      * --------------------------------------

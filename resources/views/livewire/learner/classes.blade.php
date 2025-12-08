@@ -50,7 +50,7 @@
     @if($recentCourses->isNotEmpty())
     @php $course = $recentCourses->first(); @endphp
     <div class="relative rounded-2xl overflow-hidden shadow-lg h-60 sm:h-72 md:h-80">
-        <img src="{{ asset($course->background ?? 'images/banner.jpg') }}" 
+<img src="{{ asset($course->background ?? 'storage/implementor/course/thumbnail.jpg') }}"
              alt="{{ $course->course_title }}" 
              class="absolute inset-0 w-full h-full object-cover">
         <div class="absolute inset-0 bg-black/40"></div>
