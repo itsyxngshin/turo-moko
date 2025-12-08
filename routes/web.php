@@ -54,6 +54,7 @@ use App\Http\Controllers\Implementors\ImplementorAddAnnouncementController;
 use App\Http\Controllers\Implementors\ImplementorAddAssignmentController;
 use App\Http\Controllers\Implementors\ImplementorEvaluationStatsController;
 use App\Http\Controllers\Learner\CourseController as LearnerCourseController;
+use App\Livewire\Implementors\AllCourses;
 
 // Assessment Controllers (CRITICAL - DO NOT REMOVE)
 use App\Http\Controllers\AssessmentBuilderController;
@@ -220,7 +221,7 @@ Route::middleware(['auth', 'role:implementor', 'verified'])
     // --------------------------
     // Course Management
     // --------------------------
-    Route::get('/all-courses', fn() => view('livewire.implementors.all-courses'))->name('all-courses');
+    Route::get('/all-courses', AllCourses::class)->name('all-courses');
     Route::get('/course-information/{course:course_code}', [ImplementorCourseInformationController::class, 'show'])->name('course-information');
     Route::get('/course/{course:course_code}/grades', ImplementorCourseGrades::class)->name('course-grades');
     Route::get('/course/{course:course_code}/participants', CourseParticipants::class)->name('course-participants');

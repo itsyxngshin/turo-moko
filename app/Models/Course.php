@@ -14,6 +14,11 @@ class Course extends Model
         'course_title', 'background', 'status', 'visibility',
         'start_date', 'end_date', 'student_limit'
     ];
+    protected $casts = [
+    'start_date' => 'datetime',
+    'end_date' => 'datetime',
+];
+
 
     protected static function boot()
     {
