@@ -51,8 +51,7 @@
             <div class="relative bg-white rounded-[20px] p-3 shadow-sm border flex gap-4 hover:shadow-md transition duration-200 group overflow-hidden
                 {{ $course->organization_id ? 'border-l-[6px] border-y-gray-100 border-r-gray-100' : 'border-gray-100' }}"
                 
-                {{-- Use inline style for border color to ensure it works even if Tailwind hasn't compiled that specific class yet --}}
-                style="{{ $course->organization_id ? "border-left-color: var(--color-$orgColor-500, $orgColor)" : '' }}"
+               
                 >
 
                 <div class="@if($course->organization_id) border-l-{{$orgColor}}-500 @endif hidden"></div>

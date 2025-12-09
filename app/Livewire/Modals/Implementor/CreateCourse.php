@@ -7,6 +7,7 @@ use Livewire\WithFileUploads;
 use App\Models\Course;
 use App\Models\Category;
 use App\Models\CourseTag;
+use App\Models\CoverPhoto;
 use Illuminate\Support\Facades\Auth;
 
 class CreateCourse extends Component
@@ -91,7 +92,7 @@ class CreateCourse extends Component
             if ($this->thumbnail) {
                 $path = $this->thumbnail->store('cover_photos', 'public');
 
-                $course->coverPhoto()->create([
+                $course->coverPhotos()->create([
                     'path'   => $path,
                     'status' => 'active',
                 ]);

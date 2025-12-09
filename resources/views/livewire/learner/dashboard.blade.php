@@ -40,7 +40,7 @@
     <div class="bg-white rounded-2xl shadow p-4 sm:p-8">
         <div class="flex justify-between items-center mb-6">
             <h3 class="text-lg sm:text-xl font-semibold">Course Suggestions</h3>
-            <a href="#" class="text-sm text-gray-500 hover:underline">View All</a>
+            <a href="{{ route('learner.show-all-courses') }}" class="text-sm text-gray-500 hover:underline">View All</a>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">

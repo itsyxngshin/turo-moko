@@ -98,7 +98,7 @@
         <h2 class="text-2xl md:text-[28px] font-semibold mt-4 ml-4">
             @isset($instructor) <span class="font-bold">{{ $instructor->profile->first_name }}</span>'s Courses @else No Instructor Found @endisset
         </h2>
-        <a href="#" class="text-sm text-gray-500 hover:underline">View All</a>
+        <a href="{{ route('implementor.all-courses', $courses) }}" class="text-sm text-gray-500 hover:underline">View All</a>
     </div>
 
     <div class="px-6 pb-8 grid grid-cols-1 xl:grid-cols-2 gap-6">
@@ -113,11 +113,14 @@
                             <h3 class="text-lg md:text-xl font-medium text-black">{{ $course->course_title ?? '--' }}</h3>
                             <p class="mt-1 text-sm text-gray-600">Category: {{ $course->category->category_name ?? '--' }}</p>
                             <p class="mt-1 text-sm text-gray-600">Instructor: <span class="font-bold">{{ $instructor->profile->first_name ?? '--' }}</span></p>
-                            <p class="mt-1 text-sm text-gray-600">Start: {{ $course->start_date ?? '--' }} | End: {{ $course->end_date ?? '--' }}</p>
+                            <p class="text-xs mt-1 text-gray-400 mb-1">
+                                {{ \Carbon\Carbon::parse($course->start_date)->format('M Y') ?? '' }} - 
+                                {{ \Carbon\Carbon::parse($course->end_date)->format('M Y') ?? '' }}
+                            </p>
                         </div>
                         <div class="mt-4 flex justify-center"> <!-- center the button -->
                             <a href="{{ route('implementor.course-information', $course->course_code) }}"
-                               class="inline-flex h-7 px-5 rounded-full bg-black text-white text-xs font-medium">View Details</a>
+                               class="inline-flex text-center h-7 px-5 rounded-full bg-black text-white text-xs font-medium">View Details</a>
                         </div>
                     </div>
                 </div>

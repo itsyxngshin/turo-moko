@@ -10,7 +10,9 @@
        
        <!-- Header -->
 <div class="relative h-56 bg-cover bg-center rounded-lg overflow-hidden" 
-     style="background-image: url('https://images.unsplash.com/photo-1608506573186-631f3ff1f6e3');">
+     style="background-image: url('{{ $course->activeCoverPhoto
+        ? asset('storage/' . $course->activeCoverPhoto->path)
+        : asset('storage/implementor/course/thumbnail.jpg') }}');">
 
     <!-- Back Button (Always in front) -->
     <button 
@@ -41,8 +43,7 @@
 
     <!-- Overlay -->
     <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col px-8 text-white rounded-lg">
-        <h1 class="text-3xl font-bold mt-auto mb-1">{{ $course->course_title ?? '--' }}</h1>
-        <p class="max-w-2xl mb-5">{{ $course->background ?? '--' }}</p>
+        <h1 class="text-3xl font-bold mt-auto mb-5">{{ $course->course_title ?? '--' }}</h1>
     </div>
 </div>
 
@@ -54,8 +55,7 @@
                 <!-- Centered Title + Description -->
                 <div class="text-center">
                     <h2 class="text-[30px] font-bold mb-2">Course Introduction</h2>
-                    
-                </div>
+                    <p class=" mb-5">{{ $course->background ?? '--' }}</p>               </div>
             </div>
             
 

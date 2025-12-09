@@ -55,7 +55,7 @@
 
                             <!-- Button -->
                             <div class="flex justify-end mt-3 md:mt-4">
-                                <a href="{{ route('learner.courses.show', $course->id) }}"
+                                <a href="{{ route('learner.course.show', $course->id) }}"
                                    class="bg-black text-white px-3 py-1.5 md:px-5 md:py-2 rounded-full text-sm md:text-base hover:bg-gray-800 transition">
                                     View Course
                                 </a>

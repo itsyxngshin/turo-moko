@@ -7,7 +7,10 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach($archivedCourses as $course)
             <div class="bg-white rounded-2xl shadow-sm border p-5 flex gap-4 hover:bg-gray-50 transition">
-                <img src="{{ $course['image'] }}" alt="{{ $course['name'] }}" class="w-20 h-20 object-contain">
+                <img rc="{{ $course->activeCoverPhoto
+                            ? asset('storage/' . $course->activeCoverPhoto->path)
+                            : asset('storage/implementor/course/thumbnail.jpg') }}"
+                             alt="{{ $course['name'] }}" class="w-20 h-20 object-contain">
                 <div>
                     <p class="text-xs text-gray-400">{{ $course['semester'] }}</p>
                     <h4 class="font-semibold text-base">{{ $course['name'] }}</h4>

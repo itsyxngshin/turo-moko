@@ -50,7 +50,9 @@
     @if($recentCourses->isNotEmpty())
     @php $course = $recentCourses->first(); @endphp
     <div class="relative rounded-2xl overflow-hidden shadow-lg h-60 sm:h-72 md:h-80">
-<img src="{{ asset($course->background ?? 'storage/implementor/course/thumbnail.jpg') }}"
+<img src="{{ $course->activeCoverPhoto
+                            ? asset('storage/' . $course->activeCoverPhoto->path)
+                            : asset('storage/implementor/course/thumbnail.jpg') }}"
              alt="{{ $course->course_title }}" 
              class="absolute inset-0 w-full h-full object-cover">
         <div class="absolute inset-0 bg-black/40"></div>
@@ -80,7 +82,10 @@
                 <div class="bg-white rounded-2xl shadow-md flex flex-col sm:flex-row overflow-hidden border h-auto sm:h-52">
                     <!-- Course Image -->
                     <div class="w-full sm:w-1/2 h-48 sm:h-full">
-                        <img src="{{ $course->cover_photo_id ? $course->cover_photo->path : '/images/course1.jpg' }}" class="w-full h-full object-cover rounded-t-2xl sm:rounded-l-2xl sm:rounded-tr-none">
+                        <img src="{{ $course->activeCoverPhoto
+                            ? asset('storage/' . $course->activeCoverPhoto->path)
+                            : asset('storage/implementor/course/thumbnail.jpg') }}"
+                             class="w-full h-full object-cover rounded-t-2xl sm:rounded-l-2xl sm:rounded-tr-none">
                         <p class="text-xs text-gray-400 mt-1 line-clamp-2 sm:line-clamp-3 px-2 sm:px-0">
                             {{ $course->background ?? 'No description available.' }}
                         </p>
@@ -97,7 +102,7 @@
                             </p>
                         </div>
                         <div class="flex justify-end mt-2">
-                            <a href="{{ route('learner.courses.show', $course->id) }}"
+                            <a href="{{ route('learner.course.show', $course->id) }}"
                                class="bg-black text-white px-4 sm:px-5 py-1.5 sm:py-2 rounded-full hover:bg-gray-800 text-sm sm:text-base">
                                 View Course
                             </a>

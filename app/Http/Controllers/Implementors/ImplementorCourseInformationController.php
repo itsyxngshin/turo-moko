@@ -14,7 +14,7 @@ use App\Models\Announcement;
 use App\Models\CourseEnrollee;
 use App\Models\CourseFeedback;
 use App\Models\ImplementorFeedback;
-
+use Illuminate\Support\Collection;
 
 class ImplementorCourseInformationController extends Controller
 {
@@ -120,19 +120,57 @@ class ImplementorCourseInformationController extends Controller
             ->with('lessons')
             ->get();
 
+            
+$timeline = collect()
+
+    ->merge($modules->map(fn ($m) => [
+        'type' => 'module',
+        'model' => $m,
+        'date' => $m->created_at,
+    ]))
+
+    ->merge($assignments->map(fn ($a) => [
+        'type' => 'assignment',
+        'model' => $a,
+        'date' => $a->created_at,
+    ]))
+
+    ->merge($quiz->map(fn ($q) => [
+        'type' => 'quiz',
+        'model' => $q,
+        'date' => $q->created_at,
+    ]))
+
+    ->merge($evaluations->map(fn ($e) => [
+        'type' => 'evaluation',
+        'model' => $e,
+        'date' => $e->created_at,
+    ]))
+
+    ->merge($announcements->map(fn ($n) => [
+        'type' => 'announcement',
+        'model' => $n,
+        'date' => $n->created_at,
+    ]))
+
+    ->sortBy('date')   // ✅ oldest → newest
+    ->values();
+
         return view('livewire.implementors.implementor-course-details', [
-            'course'        => $course,
-            'courseId'      => $course->id,
-            'modules' => $modules,
-            'assignments'   => $assignments,
-            'evaluations'   => $evaluations,
-            'quiz'          => $quiz,
-            'announcements' => $announcements,
-            'courseFeedbackStats' => $courseFeedbackStats,
-            'implementorFeedbackStats' => $implementorFeedbackStats,
-            'feedbackComments' => $feedbackComments,
-            'enrolledCount' => $enrolledCount,
-        ]);
+    'course'        => $course,
+    'courseId'      => $course->id,
+    'modules'       => $modules,
+    'assignments'   => $assignments,
+    'evaluations'   => $evaluations,
+    'quiz'          => $quiz,
+    'announcements' => $announcements,
+    'timeline'      => $timeline, // ✅ ADD THIS
+    'courseFeedbackStats' => $courseFeedbackStats,
+    'implementorFeedbackStats' => $implementorFeedbackStats,
+    'feedbackComments' => $feedbackComments,
+    'enrolledCount' => $enrolledCount,
+]);
+
     }
 
     public function destroy(Module $module)

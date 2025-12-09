@@ -28,7 +28,6 @@
             <!-- Overlay -->
             <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col px-8 text-white rounded-lg">
                 <h1 class="text-3xl font-bold mt-auto mb-1">{{ $course->course_title ?? '--' }}</h1>
-                <p class="max-w-2xl mb-2">{{ $course->background ?? '--' }}</p>
                  <!-- Student count -->
                 <p class="text-sm text-gray-300 mb-8">
                     {{ $course->enrollees->count() }}/{{ $course->student_limit}} {{ Str::plural('Student', $course->enrollees->count()) }} Enrolled
@@ -66,9 +65,6 @@
                             x-transition
                             class="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border border-gray-200 z-50"
                         >
-                            <button class="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded-t-xl">
-                                Settings
-                            </button>
                            <a href="{{ route('implementor.course-participants', $course->course_code) }}"
    class="block w-full text-left px-4 py-2 hover:bg-gray-100">
     Participants
@@ -92,16 +88,21 @@
 
 
                 <!-- Centered Title + Description -->
-                <div class="text-center">
-                    <h2 class="text-[30px] font-bold mb-2">Course Introduction</h2>
-                    
+                <div class="text-center mb-4">
+                    <h2 class="text-[30px] font-bold mb-1">Course Introduction</h2>
+                        <p class="mb-2">{{ $course->background ?? '--' }}</p>
+
                 </div>
             </div>
             
+@foreach ($timeline as $item)
 
+    @switch($item['type'])
+        @case('module')
+                            @php $module = $item['model']; @endphp
             <!-- Module -->
             <div class="space-y-4">
-                @foreach ($modules as $module)
+             
 <div x-data="{ open: false }" x-cloak x-transition class="mb-4">
 
     <!-- Clickable Module Card -->
@@ -296,10 +297,11 @@
                     </div>
 
                 </div>
-                @endforeach
+                @break
 
                 {{-- Assignments Section --}}
-                @foreach ($assignments as $assignment)
+                 @case('assignment')
+                    @php $assignment = $item['model']; @endphp
                 <a href="{{ route('implementor.course.assignment.edit', [$course->course_code, $assignment->id]) }}"
                    class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mb-4 block">
                     <div class="m-auto">
@@ -344,10 +346,11 @@
                         @endif
                     </div>
                 </a>
-                @endforeach
+                @break
 
                 {{-- Assessments/Quizzes Section --}}
-                @foreach ($quiz as $assessment)
+                @case('quiz')
+                    @php $assessment = $item['model']; @endphp
                 <a href="{{ route('implementor.assessment-builder') }}?quiz_id={{ $assessment->id }}" 
                    class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mb-4">
                     <div class="m-auto">
@@ -373,9 +376,10 @@
                         <span class="text-sm text-gray-400">{{ \Carbon\Carbon::parse($assessment->end_date)->format('F j, Y') }}</span>
                     </div>
                 </a>
-                @endforeach
+                @break
                
-                @foreach ($evaluations as $evaluation)
+                 @case('evaluation')
+                    @php $evaluation = $item['model']; @endphp
                 <a
                     href="{{ route('implementor.course.evaluation-stats', $course->course_code) }}"
                     class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mb-4 block"
@@ -401,10 +405,12 @@
                         @endif
                     </div>
                 </a>
-                @endforeach
+                @break
 
 
-                @foreach($announcements as $announcement)
+                
+                 @case('announcement')
+                    @php $announcement = $item['model']; @endphp
                 <div x-data="{ open:false,
                         confirmDelete(id) {
                             window.dispatchEvent(new CustomEvent('confirm-delete', { detail: { id } }))
@@ -564,10 +570,10 @@
         
         
     </div>
-</div>
+
+@break
+@endswitch
 @endforeach
-
-
                     
 
 

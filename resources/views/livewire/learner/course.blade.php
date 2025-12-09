@@ -3,7 +3,10 @@
         <div>
             <!-- Banner Section -->
             <div class="relative h-64 overflow-hidden rounded-2xl shadow-lg">
-                <img src="{{ asset($course->background ?? 'images/default-course.jpg') }}" 
+                <img src="{{ optional($course->activeCoverPhoto)->path
+                    ? asset('storage/' . $course->activeCoverPhoto->path)
+                    : asset('storage/implementor/course/thumbnail.jpg') }}"
+
                      alt="{{ $course->course_title }}" 
                      class="absolute inset-0 w-full h-full object-cover" />
                 <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"></div>
@@ -45,7 +48,7 @@
                     @endforelse
                 </div>
             </div>
-            @endforeach
+            
         </div>
     @else
         <p class="text-center text-gray-500 mt-10">No courses available.</p>
