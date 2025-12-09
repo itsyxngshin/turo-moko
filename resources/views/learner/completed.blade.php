@@ -31,7 +31,9 @@
                     <div class="bg-white rounded-2xl shadow-md flex overflow-hidden border hover:shadow-lg transition">
                         <!-- Course Image -->
                         <div class="w-1/2">
-                            <img src="{{ $course->image ?? '/images/course1.jpg' }}" 
+                            <img src="{{ $course->activeCoverPhoto
+                            ? asset('storage/' . $course->activeCoverPhoto->path)
+                            : asset('storage/implementor/course/thumbnail.jpg') }}"
                                  alt="{{ $course->course_title }}" 
                                  class="w-full h-full object-cover">
                         </div>
@@ -39,10 +41,13 @@
                         <!-- Course Info -->
                         <div class="p-4 flex flex-col justify-between w-1/2 h-full">
                             <div>
-                                <p class="text-xs text-gray-400">{{ $course->semester ?? 'Semester not set' }}</p>
-                                <p class="text-sm text-gray-500">{{ $course->subject ?? 'Subject' }}</p>
-                                <h3 class="text-lg font-bold">{{ $course->course_title }}</h3>
-                                <p class="text-xs text-gray-400 mt-1">{{ $course->description ?? 'No description available.' }}</p>
+                               <h3 class="text-lg md:text-xl font-medium text-black">{{ $course->course_title ?? '--' }}</h3>
+                            <p class="mt-1 text-sm text-gray-600">Category: {{ $course->category->category_name ?? '--' }}</p>
+                            <p class="mt-1 text-sm text-gray-600">Instructor: <span class="font-bold">{{ $course->implementer->profile->first_name ?? '--' }}</span></p>
+                            <p class="text-xs mt-1 text-gray-400 mb-1">
+                                {{ \Carbon\Carbon::parse($course->start_date)->format('M Y') ?? '' }} - 
+                                {{ \Carbon\Carbon::parse($course->end_date)->format('M Y') ?? '' }}
+                            </p>
                             </div>
                             <div class="flex justify-end mt-2">
                                 <span class="flex items-center gap-1 text-green-600 font-medium text-sm">

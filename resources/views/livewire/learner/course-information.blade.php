@@ -52,10 +52,34 @@
         <!-- Course Intro -->
         <div class="px-9 py-6 rounded-lg my-6 border shadow-sm bg-white">
             <div class="relative">
+                <div x-data="{ open: false }" x-cloak class="absolute top-2 right-2">
+                    <!-- Three-dot button -->
+                    <button @click="open = !open" class="p-2 rounded-full hover:bg-gray-100 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" 
+                            width="24" height="24" viewBox="0 0 24 24" 
+                            class="cursor-pointer hover:scale-110 transition">
+                            <path fill="currentColor" d="M7 12a2 2 0 1 1-4 0a2 2 0 0 1 4 0m7 0a2 2 0 1 1-4 0a2 2 0 0 1 4 0m7 0a2 2 0 1 1-4 0a2 2 0 0 1 4 0"/>
+                        </svg>
+                    </button>
+
+                    <!-- Dropdown menu -->
+                     <div x-show="open" @click.away="open = false" x-transition class="absolute right-0 mt-2 w-44 bg-white rounded-md shadow-lg z-50">
+                        <form action="{{ route('learner.course.leave', $course->id) }}" method="POST">
+    @csrf
+    <button class="w-full text-left px-4 py-2 hover:bg-red-100 text-red-600">
+        Leave Course
+    </button>
+</form>
+
+                    </div>
+                </div>
+
                 <!-- Centered Title + Description -->
                 <div class="text-center">
-                    <h2 class="text-[30px] font-bold mb-2">Course Introduction</h2>
-                    <p class=" mb-5">{{ $course->background ?? '--' }}</p>               </div>
+                    <h2 class="text-[30px] font-bold mt-2 mb-2">Course Introduction</h2>
+                    <p class=" mb-5">{{ $course->background ?? '--' }}</p>              
+                
+                </div>
             </div>
             
 
@@ -153,9 +177,9 @@
                                     </div>
                                 @endif
 
-<p class="text-xs text-center truncate w-full">
-    {{ $module->lessons->attachments_original_name ?? '-' }}
-</p>
+                                <p class="text-xs text-center truncate w-full">
+                                    {{ $module->lessons->attachments_original_name ?? '-' }}
+                                </p>
                             </a>
                     
                         @endif
@@ -230,7 +254,7 @@
                 {{-- Assessments/Quizzes Section --}}
                 @foreach ($quiz as $assessment)
                 <a href="{{ route('learner.assessment.show', $assessment) }}" 
-                   class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mb-4">
+                   class="bg-white mt-5 w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer  mb-4">
                     <div class="m-auto">
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" class="ml-5 mr-10 mb-2" viewBox="0 0 48 48">
                             <g fill="#F44336">
@@ -317,7 +341,7 @@
                     class="mb-4">
                     <!-- Clickable announcement -->
                     <button 
-                        class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer"
+                        class="bg-white w-full flex items-start p-4 mt-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer"
                         @click="open = true"
                     >
                         <div class=" m-auto">
@@ -434,14 +458,14 @@
             
                     </div>
                         
-                        
+                       
         
         
     </div>
 </div>
 @endforeach
 
-
+                        
                     
 
 

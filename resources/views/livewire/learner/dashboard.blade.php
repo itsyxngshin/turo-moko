@@ -60,12 +60,13 @@
                 {{-- DETAILS BOTTOM --}}
                 <div class="p-5 flex flex-col flex-1 justify-between">
                     <div class="space-y-1">
-                        <p class="text-xs text-gray-400">1st Sem SY 2024-2025</p>
-                        <p class="text-sm text-gray-500">{{ $course->subject }}</p>
-                        <h3 class="text-lg font-bold">{{ $course->course_title }}</h3>
-                        <p class="text-sm text-gray-400 line-clamp-3">
-                            {{ $course->background }}
-                        </p>
+                        <h3 class="text-lg md:text-xl font-medium text-black">{{ $course->course_title ?? '--' }}</h3>
+                            <p class="mt-1 text-sm text-gray-600">Category: {{ $course->category->category_name ?? '--' }}</p>
+                            <p class="mt-1 text-sm text-gray-600">Instructor: <span class="font-bold">{{ $course->implementer->profile->first_name ?? '--' }}</span></p>
+                            <p class="text-xs mt-1 text-gray-400 mb-1">
+                                {{ \Carbon\Carbon::parse($course->start_date)->format('M Y') ?? '' }} - 
+                                {{ \Carbon\Carbon::parse($course->end_date)->format('M Y') ?? '' }}
+                            </p>
                     </div>
 
                     {{-- BUTTON --}}

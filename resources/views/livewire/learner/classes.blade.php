@@ -59,9 +59,11 @@
         <div class="relative z-10 h-full flex flex-col justify-center px-4 sm:px-8 text-white">
             <p class="text-sm sm:text-base">{{ $course->subject }}</p>
             <h2 class="text-xl sm:text-2xl md:text-3xl font-bold">{{ $course->course_title }}</h2>
-            <button class="mt-4 bg-white text-black px-4 py-2 sm:px-5 sm:py-3 rounded-full w-fit hover:bg-gray-200 flex items-center gap-2 text-sm sm:text-base">
+            <a href="{{ route('learner.course.show', $course) }}" 
+            class="mt-4 bg-white text-black px-4 py-2 sm:px-5 sm:py-3 rounded-full w-fit hover:bg-gray-200 flex items-center gap-2 text-sm sm:text-base">
                 <i data-lucide="play" class="w-4 h-4 sm:w-5 sm:h-5"></i> Continue course
-            </button>
+            </a>
+
         </div>
     </div>
     @else
@@ -94,15 +96,16 @@
                     <!-- Course Info -->
                     <div class="p-4 sm:p-6 flex flex-col justify-between w-full sm:w-1/2 h-full">
                         <div>
-                            <p class="text-xs sm:text-sm text-gray-400">{{ $course->semester ?? 'Ongoing' }}</p>
-                            <p class="text-sm sm:text-base text-gray-500">Instructor: {{ $course->instructor ?? 'TBA' }}</p>
-                            <h3 class="text-lg sm:text-xl font-bold">{{ $course->course_title }}</h3>
-                            <p class="text-xs sm:text-sm text-gray-400 mt-1 line-clamp-2 sm:line-clamp-3">
-                                {{ $course->description ?? 'No description available.' }}
+                            <h3 class="text-lg md:text-xl font-medium text-black">{{ $course->course_title ?? '--' }}</h3>
+                            <p class="mt-1 text-sm text-gray-600">Category: {{ $course->category->category_name ?? '--' }}</p>
+                            <p class="mt-1 text-sm text-gray-600">Instructor: <span class="font-bold">{{ $course->implementer->profile->first_name ?? '--' }}</span></p>
+                            <p class="text-xs mt-1 text-gray-400 mb-1">
+                                {{ \Carbon\Carbon::parse($course->start_date)->format('M Y') ?? '' }} - 
+                                {{ \Carbon\Carbon::parse($course->end_date)->format('M Y') ?? '' }}
                             </p>
                         </div>
                         <div class="flex justify-end mt-2">
-                            <a href="{{ route('learner.course.show', $course->id) }}"
+                            <a href="{{ route('learner.course.show', $course) }}"
                                class="bg-black text-white px-4 sm:px-5 py-1.5 sm:py-2 rounded-full hover:bg-gray-800 text-sm sm:text-base">
                                 View Course
                             </a>

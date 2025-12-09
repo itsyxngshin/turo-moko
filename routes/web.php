@@ -15,7 +15,7 @@ use App\Livewire\Implementors\CourseGrades as ImplementorCourseGrades;
 
 // Controllers
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CourseController;
+use App\Http\Controllers\Learner\CourseController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 /*
@@ -154,7 +154,11 @@ Route::post('/course/{course}/enroll', [DashboardController::class, 'enroll'])
     Route::get('/archived-courses', ArchivedCourses::class)->name('archived-courses');
     Route::get('/profile/edit', EditProfile::class)->name('profile.edit');
  Route::get('/notifications', fn() => view('learner.notifications-page'))->name('notifications');
-    // Livewire Views
+ Route::post('/course/{course}/leave', [CourseController::class, 'leaveCourse'])
+    ->name('course.leave');
+
+ 
+ // Livewire Views
     Route::get('/profile', fn() => view('livewire.learner.profile'))->name('profile');
     Route::get('/enrolled', fn() => view('livewire.learner.enrolled'))->name('enrolled');
     Route::get('/activity', fn() => view('livewire.learner.activities'))->name('activity');
