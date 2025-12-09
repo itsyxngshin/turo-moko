@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Course;
 use App\Models\Assignment;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
 class EditAssignment extends Component
@@ -53,7 +54,17 @@ class EditAssignment extends Component
             $this->dueTime = '09:00';
         }
 
-        $this->submissionTypes = $assignment->filetype_allowed ? ['file'] : ['text'];
+        $this->submissionTypes = [];
+        if ($assignment->filetype_allowed) {
+            $this->submissionTypes[] = 'file';
+        }
+        if ($assignment->text_allowed) {
+            $this->submissionTypes[] = 'text';
+        }
+
+        // Load max file size and convert KB to MB string
+        $maxSizeMB = round($assignment->max_file_size / 1024);
+        $this->maxSize = $maxSizeMB . ' mb';
     }
 
     public function updateAssignment()
@@ -85,17 +96,72 @@ class EditAssignment extends Component
         }
 
         $filetypeAllowed = in_array('file', $this->submissionTypes);
+        $textAllowed = in_array('text', $this->submissionTypes);
 
-        $this->assignment->update([
+        // Convert max size to KB
+        $maxSizeKB = $this->convertToKB($this->maxSize);
+
+        // Handle file upload
+        $updateData = [
             'title' => $this->assignmentName,
             'instruction' => $this->description ?? '',
             'end_date' => $endDate,
             'filetype_allowed' => $filetypeAllowed,
-        ]);
+            'text_allowed' => $textAllowed,
+            'max_file_size' => $maxSizeKB,
+        ];
+
+        if ($this->attachment) {
+            // Delete old attachment if exists
+            if ($this->assignment->attachment) {
+                Storage::disk('public')->delete($this->assignment->attachment);
+            }
+            $updateData['attachment'] = $this->attachment->store('assignments', 'public');
+            $updateData['attachment_original_name'] = $this->attachment->getClientOriginalName();
+        }
+
+        $this->assignment->update($updateData);
 
         session()->flash('success', 'Assignment updated successfully.');
 
         return redirect()->route('implementor.course-information', $this->course->course_code);
+    }
+
+    public function confirmDelete()
+    {
+        // Get submission count
+        $submissionCount = $this->assignment->submissions()->count();
+        
+        if ($submissionCount > 0) {
+            $message = "WARNING: This assignment has {$submissionCount} submission(s).\n\n" .
+                      "Deleting it will remove all associated submissions.\n\n" .
+                      "Are you absolutely sure you want to delete this assignment?";
+        } else {
+            $message = "Are you sure you want to delete this assignment?\n\n" .
+                      "This action cannot be undone.";
+        }
+
+        $this->dispatch('confirm-delete', message: $message);
+    }
+
+    public function deleteAssignment()
+    {
+        $courseCode = $this->course->course_code;
+        
+        // Delete the assignment (cascades will handle submissions)
+        $this->assignment->delete();
+
+        session()->flash('success', 'Assignment deleted successfully.');
+        
+        return redirect()->route('implementor.course-information', $courseCode);
+    }
+
+    private function convertToKB($sizeString)
+    {
+        // Extract number from string like "1 mb", "5 mb", "10 mb"
+        $size = (int) filter_var($sizeString, FILTER_SANITIZE_NUMBER_INT);
+        // Convert MB to KB
+        return $size * 1024;
     }
 
     public function render()
@@ -105,4 +171,3 @@ class EditAssignment extends Component
             ->section('content');
     }
 }
-

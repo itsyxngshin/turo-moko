@@ -1,4 +1,4 @@
-<div x-data="{ open: false }">
+<div x-data="{ open: false }" wire:key="add-resource-modal-{{ $courseId }}">
     <!-- Button to open modal -->
     <button 
         @click="open = true"

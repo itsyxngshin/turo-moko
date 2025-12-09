@@ -9,7 +9,16 @@ class Submission extends Model
     protected $fillable = [
         'enrollee_id', 'assignment_id', 'instruction',
         'status', 'attachment', 'attachment_original_name', 'start_date',
-        'deadline', 'order', 'visibility', 'post_date', 'edit_date'
+        'deadline', 'order', 'visibility', 'post_date', 'edit_date',
+        'grade', 'feedback', 'graded_by', 'graded_at'
+    ];
+
+    protected $casts = [
+        'graded_at' => 'datetime',
+        'start_date' => 'datetime',
+        'deadline' => 'datetime',
+        'post_date' => 'datetime',
+        'edit_date' => 'datetime',
     ];
 
     public function assignment()

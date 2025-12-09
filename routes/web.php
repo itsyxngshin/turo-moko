@@ -269,8 +269,7 @@ Route::middleware(['auth', 'role:implementor', 'verified'])
     // --------------------------
     // Assignment Submissions
     // --------------------------
-    Route::get('/assignment-submissions', [AssessmentResultsController::class, 'assignmentsIndex'])->name('assignment-submissions');
-    Route::post('/assignment-results/grade', [AssessmentResultsController::class, 'gradeAssignment'])->name('assignment-results.grade');
+    Route::get('/assignment-submissions', \App\Livewire\Implementor\AssignmentSubmissions::class)->name('assignment-submissions');
 
     // --------------------------
     // Evaluation Statistics

@@ -4,6 +4,7 @@
 @section('page-title', 'Course Information')
 
 @section('content')
+<div>
         <div class="p-0">
         <!-- Header -->
                 <div class="relative h-56 bg-cover bg-center rounded-lg overflow-hidden" 
@@ -595,5 +596,5 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 </script>
-
+</div>
 @endsection
