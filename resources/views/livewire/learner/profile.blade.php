@@ -1,6 +1,4 @@
 <div class="flex h-screen bg-gray-50 font-sans">
-
-
     <main class="flex-1 px-5 py-3 overflow-y-hidden">
 
         <header class="flex justify-between items-center mb-8">

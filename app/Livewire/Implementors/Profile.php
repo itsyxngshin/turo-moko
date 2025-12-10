@@ -260,7 +260,8 @@ class Profile extends Component
 
     public function render()
     {
-        $this->user->load(['profile', 'engagements', 'portfolioSet.workPortfolio']);
+        // Ensure relationships are loaded (I added 'role' here as you use it in the blade)
+        $this->user->load(['profile', 'engagements', 'portfolioSet.workPortfolio', 'role']);
         
         $query = Course::query()
             ->where('implementer_id', $this->user->id)
@@ -284,8 +285,9 @@ class Profile extends Component
             default:       $query->latest('start_date'); break;
         }
 
-        return view('livewire.implementors.profile', [
-            'courses' => $query->paginate(5)
+        return view('livewire.learner.profile', [
+            'courses' => $query->paginate(5),
+            'user' => $this->user, // <--- ADD THIS LINE to fix "Undefined variable"
         ])->layout('layouts.layout');
     }
 }

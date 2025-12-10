@@ -45,6 +45,7 @@ use App\Http\Controllers\Learner\CoursesController;
 use App\Http\Controllers\Learner\ActivitiesController;
 use App\Livewire\Learner\ArchivedCourses;
 use App\Livewire\Learner\EditProfile;
+use App\Livewire\Learner\Profile as LearnerProfile;
 use App\Livewire\Learner\ShowAllCourses;
 use App\Models\Activity;
 
@@ -164,8 +165,8 @@ Route::post('/course/{course}/enroll', [DashboardController::class, 'enroll'])
     ->name('course.leave');
 
  
- // Livewire Views
-    Route::get('/profile', fn() => view('livewire.learner.profile'))->name('profile');
+ // Livewire Viewsaction: 
+     Route::get('/profile', LearnerProfile::class)->name('profile');
     Route::get('/enrolled', fn() => view('livewire.learner.enrolled'))->name('enrolled');
     Route::get('/activity', fn() => view('livewire.learner.activities'))->name('activity');
     Route::get('/course', fn() => view('livewire.learner.course'))->name('course');
