@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Course;
+use Illuminate\Support\Facades\Auth;
 
 // Auth & Livewire
 use App\Livewire\Auth\VerifyEmail;
@@ -66,6 +67,7 @@ use App\Livewire\Implementors\Profile as ImplementorProfile;
 // --- Shared/Chat ---
 use App\Livewire\ChatFeature;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Livewire\Implementors\ProfileSpace;
 
 
 /*
@@ -133,6 +135,10 @@ Route::middleware(['auth'])->group(function () {
             return back()->with('message', 'Verification link sent!');
         })->middleware(['throttle:6,1'])->name('verification.send');
     });
+    
+
+    // The '@' sign is just a stylistic choice common in social apps, you can remove it if you want.
+    Route::get('/{username}', ProfileSpace::class)->name('profile.public');
 });
 
 
@@ -197,12 +203,6 @@ Route::get('/suggested-courses', function() {
 
 });
 
-
-/*
-|--------------------------------------------------------------------------
-| IMPLEMENTOR ROUTES (TEACHERS)
-|--------------------------------------------------------------------------
-*/
 /*
 |--------------------------------------------------------------------------
 | IMPLEMENTOR ROUTES (TEACHERS)
