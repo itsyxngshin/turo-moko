@@ -140,6 +140,26 @@ class AddAssignment extends Component
         return $size * 1024;
     }
 
+    public function removeFile()
+    {
+        $this->attachment = null;
+    }
+
+    public function cancelAssignment()
+    {
+        // Reset all form fields
+        $this->assignmentName = '';
+        $this->description = '';
+        $this->attachment = null;
+        $this->enableDueDate = false;
+        $this->dueDay = 1;
+        $this->dueMonth = 'Jan';
+        $this->dueYear = now()->year;
+        $this->dueTime = '09:00';
+        $this->submissionTypes = [];
+        $this->maxSize = '1 mb';
+    }
+
     public function render()
     {
         return view('livewire.implementors.add-assignment')

@@ -80,6 +80,21 @@ class ActivityDetail extends Component
         $this->currentState = 'SUBMITTING';
     }
 
+    public function cancelSubmission()
+    {
+        // Reset form fields
+        $this->fileUpload = null;
+        $this->onlineText = $this->submission->instruction ?? '';
+        
+        // Go back to appropriate state
+        $this->currentState = $this->submission ? 'SUBMITTED' : 'NOT_SUBMITTED';
+    }
+
+    public function removeFile()
+    {
+        $this->fileUpload = null;
+    }
+
     public function updatedFileUpload()
     {
         // Validate file size immediately when file is selected
