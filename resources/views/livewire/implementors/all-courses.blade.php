@@ -94,8 +94,8 @@
                             {{ $course->course_title }}
                         </h3>
 
-                        <div class="relative mb-2 group-hover:absolute group-hover:bg-white group-hover:shadow-lg group-hover:z-20 group-hover:p-2 group-hover:-m-2 group-hover:rounded-lg transition-all duration-300">
-                            <p class="text-[11px] text-gray-500 line-clamp-2 group-hover:line-clamp-none transition-all duration-300">
+                        <div class="mb-3 h-[34px]"> {{-- Fixed height keeps alignment perfect --}}
+                            <p class="text-[11px] text-gray-500 line-clamp-2 leading-relaxed" title="{{ $course->background }}">
                                 {{ $course->background }}
                             </p>
                         </div>
