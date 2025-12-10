@@ -19,7 +19,11 @@ class AssessmentBuilderController extends Controller
      */
     public function create(Request $request)
     {
-        $courses = Course::all();
+        $implementor = auth()->user();
+        
+        // Only fetch courses belonging to the logged-in implementor
+        $courses = Course::where('implementer_id', $implementor->id)->get();
+        
         $quiz = null;
         $quizItems = [];
         
