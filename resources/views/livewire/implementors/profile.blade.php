@@ -37,19 +37,18 @@
 
             <div class="flex items-center gap-8">
                 <div class="w-32 h-32 rounded-full overflow-hidden bg-blue-100 border-4 border-white shadow-md flex-shrink-0">
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode($user->profile->first_name . ' ' . $user->profile->last_name) }}&background=bfdbfe&color=1e3a8a&size=128" alt="Teacher" class="w-full h-full object-cover">
+                    @if($user->profile->photo_id == null)
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode($user->profile->first_name . ' ' . $user->profile->last_name) }}&background=bfdbfe&color=1e3a8a&size=128" alt="Teacher" class="w-full h-full object-cover">
+                    
+                    @else
+                        <img src="{{ asset('storage/' . $user->profile->photo->photos) }}" class="w-full h-full object-cover">
+                    @endif
                 </div>
                 
                 <div class="flex flex-col gap-1">
                     <h2 class="text-3xl font-bold text-gray-800">
                         {{ $user->profile->first_name }} {{ $user->profile->last_name }}
                     </h2>
-                    <p class="text-gray-500 font-medium">
-                        {{ $active_engagement->title ?? 'Implementer' }}
-                        @if(isset($active_engagement->description))
-                            <span class="text-sm font-normal opacity-80">- {{ Str::limit($active_engagement->description, 50) }}</span>
-                        @endif
-                    </p>
                     <p class="text-gray-400 text-sm mt-1">{{ $user->username }}</p>
                     <p class="text-gray-400 text-sm mt-1">{{ $user->email }}</p>
                 </div>
@@ -313,17 +312,57 @@
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                         Basic Information
                     </h3>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col items-center gap-4 mb-6">
+                        <div class="relative group cursor-pointer" onclick="document.getElementById('photoInput').click()">
+                            
+                            <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-md bg-gray-100">
+                                @if ($new_photo)
+                                    <img src="{{ $new_photo->temporaryUrl() }}" class="w-full h-full object-cover">
+                                @elseif ($user->profile->photo_id)
+                                    <img src="{{ asset('storage/' . $user->profile->photo->photos) }}" class="w-full h-full object-cover">
+                                @else
+                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($first_name . ' ' . $last_name) }}&background=bfdbfe&color=1e3a8a&size=128" class="w-full h-full object-cover">
+                                @endif
+                            </div>
+
+                            <div class="absolute inset-0 bg-black/30 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-200">
+                                <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                            </div>
+                        </div>
+                        
+                        <p class="text-xs text-gray-400">Click to change photo</p>
+
+                        <input type="file" id="photoInput" wire:model="new_photo" class="hidden" accept="image/png, image/jpeg, image/jpg">
+                        
+                        <div wire:loading wire:target="new_photo" class="text-xs text-blue-500 font-bold">
+                            Uploading...
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1">First Name</label>
-                            <input wire:model="first_name" type="text" class="w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm bg-gray-50/50">
+                            <input wire:model="first_name" type="text" class="w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm bg-gray-50/50 px-4">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">Middle Name</label>
+                            <input wire:model="middle_name" type="text" class="w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm bg-gray-50/50 px-4">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1">Last Name</label>
-                            <input wire:model="last_name" type="text" class="w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm bg-gray-50/50">
+                            <input wire:model="last_name" type="text" class="w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm bg-gray-50/50 px-4">
                         </div>
-                    </div>
-                </div>
+
+                        <div class="md:col-span-1">
+            <label class="block text-xs font-bold text-gray-600 mb-1">Username</label>
+            <input wire:model="username" type="text" class="w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm bg-gray-50/50 px-4">
+        </div>
+        
+        <div class="md:col-span-2">
+            <label class="block text-xs font-bold text-gray-400 mb-1">Email Address <span class="text-[10px] font-normal">(Contact admin to change)</span></label>
+            <input wire:model="email" type="email" disabled class="w-full rounded-xl border-gray-200 bg-gray-100 text-gray-500 cursor-not-allowed text-sm px-4">
+        </div>
+    </div>
+</div>
 
                 <hr class="border-gray-100 border-dashed">
 
@@ -350,23 +389,23 @@
                             <div class="grid grid-cols-2 gap-3">
                                 <div class="col-span-2">
                                     <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Designation / Role</label>
-                                    <input wire:model="work_experiences.{{ $index }}.designation" type="text" placeholder="e.g. Senior Instructor" class="w-full rounded-lg border-gray-200 text-sm py-1.5 focus:border-blue-500 focus:ring-blue-500">
+                                    <input wire:model="work_experiences.{{ $index }}.designation" type="text" placeholder="e.g. Senior Instructor" class="w-full rounded-lg px-4 border-gray-200 text-sm py-1.5 focus:border-blue-500 focus:ring-blue-500">
                                 </div>
 
                                 <div class="col-span-2">
                                     <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Workplace</label>
-                                    <input wire:model="work_experiences.{{ $index }}.workplace" type="text" placeholder="e.g. UNICEF" class="w-full rounded-lg border-gray-200 text-sm py-1.5 focus:border-blue-500 focus:ring-blue-500">
+                                    <input wire:model="work_experiences.{{ $index }}.workplace" type="text" placeholder="e.g. UNICEF" class="w-full rounded-lg px-4 border-gray-200 text-sm py-1.5 focus:border-blue-500 focus:ring-blue-500">
                                 </div>
                                 
                                 <div>
                                     <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Duration</label>
-                                    <input wire:model="work_experiences.{{ $index }}.duration" type="text" placeholder="e.g. 2020 - Present" class="w-full rounded-lg border-gray-200 text-sm py-1.5 focus:border-blue-500 focus:ring-blue-500">
+                                    <input wire:model="work_experiences.{{ $index }}.duration" type="text" placeholder="e.g. 2020 - Present" class="w-full rounded-lg px-4 border-gray-200 text-sm py-1.5 focus:border-blue-500 focus:ring-blue-500">
                                 </div>
 
                                 <div>
                                     <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Status</label>
                                     <div class="relative">
-                                        <select wire:model="work_experiences.{{ $index }}.status" class="w-full rounded-lg border-gray-200 text-sm py-1.5 bg-white focus:border-blue-500 focus:ring-blue-500 appearance-none pl-3 pr-8">
+                                        <select wire:model="work_experiences.{{ $index }}.status" class="w-full rounded-lg px-4 border-gray-200 text-sm py-1.5 bg-white  focus:border-blue-500 focus:ring-blue-500 appearance-none pl-3 pr-8">
                                             <option value="Active">Active</option>
                                             <option value="Former">Former</option>
                                         </select>
@@ -378,7 +417,7 @@
 
                                 <div class="col-span-2">
                                     <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Description</label>
-                                    <textarea wire:model="work_experiences.{{ $index }}.description" rows="2" placeholder="Briefly describe responsibilities..." class="w-full rounded-lg border-gray-200 text-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                                    <textarea wire:model="work_experiences.{{ $index }}.description" rows="2" placeholder="Briefly describe responsibilities..." class="w-full rounded-lg px-4 border-gray-200 text-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -419,12 +458,12 @@
                             <div class="grid grid-cols-1 gap-3">
                                 <div>
                                     <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Title</label>
-                                    <input wire:model="engagements_list.{{ $index }}.title" type="text" placeholder="e.g. Speaker at Tech Summit" class="w-full rounded-lg border-gray-200 text-sm py-1.5 focus:border-purple-500 focus:ring-purple-500">
+                                    <input wire:model="engagements_list.{{ $index }}.title" type="text" placeholder="e.g. Speaker at Tech Summit" class="w-full rounded-lg px-4 border-gray-200 text-sm py-1.5 focus:border-purple-500 focus:ring-purple-500">
                                 </div>
 
                                 <div>
                                     <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Description</label>
-                                    <textarea wire:model="engagements_list.{{ $index }}.description" rows="2" placeholder="Brief description of the activity..." class="w-full rounded-lg border-gray-200 text-sm focus:border-purple-500 focus:ring-purple-500"></textarea>
+                                    <textarea wire:model="engagements_list.{{ $index }}.description" rows="2" placeholder="Brief description of the activity..." class="w-full rounded-lg px-4 border-gray-200 text-sm focus:border-purple-500 focus:ring-purple-500"></textarea>
                                 </div>
                             </div>
                         </div>
