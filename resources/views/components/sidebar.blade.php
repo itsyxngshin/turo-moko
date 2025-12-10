@@ -174,12 +174,13 @@
     </div>
 
     <!-- Logout -->
-    <div class="mt-auto mb-2 w-full flex justify-start px-2 ml-2">
+    {{-- Logout (Pushed to bottom) --}}
+    <div class="px-3 mt-auto pt-4 shrink-0">
         <form method="POST" action="{{ route('auth.logout') }}">
             @csrf
-            <button type="submit" class="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-red-50 hover:text-red-600 text-gray-600 transition-colors" aria-label="Logout">
-                <i data-lucide="log-out" class="w-6 h-6"></i>
-                <span x-show="expanded" x-transition.opacity.duration.200ms x-cloak>Logout</span>
+            <button type="submit" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all duration-200 group" title="Logout">
+                <i data-lucide="log-out" class="w-5 h-5 shrink-0 group-hover:stroke-red-600"></i>
+                <span x-show="expanded" x-transition.opacity.duration.200ms x-cloak class="text-sm font-medium whitespace-nowrap">Logout</span>
             </button>
         </form>
     </div>

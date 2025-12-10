@@ -4,8 +4,6 @@ namespace App\Livewire\Learner;
 
 use Livewire\WithFileUploads;
 use Livewire\Component;
-use Livewire\WithPagination;
-use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Course;
@@ -16,56 +14,68 @@ use App\Models\Log;
 
 class Profile extends Component
 {
-    use WithPagination;
-    use WithFileUploads;
+    use WithFileUploads; 
 
     public $user;
     public $active_engagement;
     
-    // Search & Sort properties
-    public $search = '';
-    public $sort = 'latest'; 
+    // UI Properties
     public $showEditModal = false;
     
     // Form Properties
-    public $first_name;
-    public $last_name;
-    public $middle_name; // Already here
-    public $username;    // [NEW]
-    public $email;       // [NEW]
-    public $portfolio_link;
-    public $new_photo;
-    
-    // DATA LISTS
+    public $first_name, $last_name, $middle_name, $username, $email, $new_photo;
     public $work_experiences = [];
     public $engagements_list = []; 
+
+    // Course Data
+    public $activeCourses; 
+    public $activeCoursesCount = 0;
 
     public function mount()
     {
         if (!Auth::check()) return redirect()->route('login');
 
+        // 1. Load User & Profile Data
         $this->user = User::with([
             'profile.portfolioSets.workPortfolio', 
             'engagements'
         ])->find(Auth::id());
         
         $this->active_engagement = $this->user->engagements->last();
-    }
 
-    public function openEditModal()
-    {
-        // 1. Load Profile Data
+        // 2. Initialize Edit Form
         $this->first_name = $this->user->profile->first_name;
         $this->last_name = $this->user->profile->last_name;
         $this->middle_name = $this->user->profile->middle_name;
-        
-        // 2. Load User Account Data [NEW]
         $this->username = $this->user->username;
         $this->email = $this->user->email;
 
-        // --- Flatten Work Experience for Form ---
-        $this->work_experiences = [];
+        // 3. Load Form Lists
+        $this->loadWorkExperiences();
+        $this->engagements_list = $this->user->engagements->toArray();
 
+        // ------------------------------------------------------------------
+        // [FETCH ACTIVE COURSES VIA PIVOT]
+        // ------------------------------------------------------------------
+        // We use the 'enrolledCourses' relationship which is a belongsToMany.
+        // This returns 'Course' models but filtered by the pivot table.
+        // ------------------------------------------------------------------
+        $this->activeCourses = $this->user->enrolledCourses()
+            ->wherePivot('status', 'Active') // Strictly look at course_enrollees.status
+            ->with([
+                'activeCoverPhoto',       // Assuming you have this relationship on Course model
+                'category', 
+                'implementer.profile'     // To show Instructor Name
+            ])
+            ->orderByPivot('enrollment_date', 'desc') // Show newest enrollments first
+            ->get();
+
+        $this->activeCoursesCount = $this->activeCourses->count();
+    }
+
+    public function loadWorkExperiences()
+    {
+        $this->work_experiences = [];
         if ($this->user->profile->portfolioSets) {
             foreach ($this->user->profile->portfolioSets as $set) {
                 if ($set->workPortfolio) {
@@ -81,10 +91,18 @@ class Profile extends Component
                 }
             }
         }
+    }
 
-        // --- Load Engagements ---
+    public function openEditModal()
+    {
+        // Re-sync data on open
+        $this->first_name = $this->user->profile->first_name;
+        $this->last_name = $this->user->profile->last_name;
+        $this->middle_name = $this->user->profile->middle_name;
+        $this->username = $this->user->username;
+        $this->email = $this->user->email;
+        $this->loadWorkExperiences();
         $this->engagements_list = $this->user->engagements->toArray();
-
         $this->showEditModal = true;
     }
 
@@ -104,135 +122,78 @@ class Profile extends Component
     public function removeWorkExperience($index)
     {
         $item = $this->work_experiences[$index];
-
         if (!empty($item['portfolio_set_id'])) {
             $set = \App\Models\PortfolioSet::find($item['portfolio_set_id']);
             if ($set) {
                 if ($set->work_portfolio_id) {
-                    $portfolio = \App\Models\WorkPortfolio::find($set->work_portfolio_id);
-                    
-                    if ($portfolio) {
-                        $this->logActivity('Deleted', "Removed work experience: {$portfolio->designation}", $portfolio);
-                        $portfolio->delete();
-                    }
+                    \App\Models\WorkPortfolio::find($set->work_portfolio_id)?->delete();
                 }
                 $set->delete();
             }
         }
-        
         unset($this->work_experiences[$index]);
         $this->work_experiences = array_values($this->work_experiences);
     }
 
     public function addEngagement()
     {
-        $this->engagements_list[] = [
-            'id' => null,
-            'title' => '',
-            'description' => '',
-        ];
+        $this->engagements_list[] = ['id' => null, 'title' => '', 'description' => ''];
     }
 
     public function removeEngagement($index)
     {
         $item = $this->engagements_list[$index];
-
         if (!empty($item['id'])) {
-            $engagement = \App\Models\Engagement::find($item['id']);
-            
-            if ($engagement) {
-                $this->logActivity('Deleted', "Removed engagement: {$engagement->title}", $engagement);
-                $engagement->delete();
-            }
+            \App\Models\Engagement::find($item['id'])?->delete();
         }
-
         unset($this->engagements_list[$index]);
         $this->engagements_list = array_values($this->engagements_list);
     }
 
     public function saveProfile()
     {
-        // 1. Update Profile (Names)
+        // 1. Update Profile
         $this->user->profile->update([
             'first_name' => $this->first_name,
-            'middle_name' => $this->middle_name, // Updated
+            'middle_name' => $this->middle_name,
             'last_name' => $this->last_name,
         ]);
 
-        // 2. Update User Account (Username Only) [NEW]
-        // We check if it changed to prevent unnecessary queries/logs
+        // 2. Update Username
         if ($this->user->username !== $this->username) {
-            $oldUsername = $this->user->username;
-            $this->user->update([
-                'username' => $this->username
-            ]);
-            $this->logActivity('Updated', "Changed username from {$oldUsername} to {$this->username}", $this->user);
+            $oldUser = $this->user->username;
+            $this->user->update(['username' => $this->username]);
+            $this->logActivity('Updated', "Changed username from {$oldUser} to {$this->username}");
         }
-
-        // Note: We DO NOT update email here, as requested it is read-only.
 
         // 3. Update Photo
         if ($this->new_photo) {
             $path = $this->new_photo->store('photos', 'public');
             $photoRecord = Photo::create(['photos' => $path]);
-
             $this->user->profile->update(['photo_id' => $photoRecord->id]);
-            $this->logActivity('Updated', "Updated profile picture", $photoRecord);
+            $this->logActivity('Updated', "Updated profile picture");
         }
 
         // 4. Update Work Experiences
         foreach ($this->work_experiences as $work) {
             if (!empty($work['work_portfolio_id'])) {
-                $portfolio = \App\Models\WorkPortfolio::find($work['work_portfolio_id']);
-                $portfolio->update([
-                    'designation' => $work['designation'],
-                    'workplace' => $work['workplace'],
-                    'duration' => $work['duration'],
-                    'status' => $work['status'],
-                    'description' => $work['description'],
-                ]);
-                
-                if ($portfolio->wasChanged()) {
-                    $this->logActivity('Updated', "Updated work experience details for {$work['designation']}", $portfolio);
-                }
+                \App\Models\WorkPortfolio::find($work['work_portfolio_id'])->update($work);
             } else {
-                $newPortfolio = \App\Models\WorkPortfolio::create([
-                    'designation' => $work['designation'],
-                    'workplace' => $work['workplace'],
-                    'duration' => $work['duration'],
-                    'status' => $work['status'],
-                    'description' => $work['description'],
-                ]);
-
+                $new = \App\Models\WorkPortfolio::create($work);
                 \App\Models\PortfolioSet::create([
                     'profile_id' => $this->user->profile->id,
-                    'work_portfolio_id' => $newPortfolio->id,
+                    'work_portfolio_id' => $new->id,
                 ]);
-
-                $this->logActivity('Created', "Added new work experience: {$work['designation']}", $newPortfolio);
             }
         }
 
         // 5. Update Engagements
         foreach ($this->engagements_list as $eng) {
             if(empty($eng['title'])) continue; 
-
             if (isset($eng['id']) && $eng['id']) {
-                $engagement = \App\Models\Engagement::find($eng['id']);
-                $engagement->update([
-                    'title' => $eng['title'],
-                    'description' => $eng['description'],
-                ]);
-
-                if ($engagement->wasChanged()) {
-                    $this->logActivity('Updated', "Updated engagement details for {$eng['title']}", $engagement);
-                }
+                \App\Models\Engagement::find($eng['id'])->update(['title' => $eng['title'], 'description' => $eng['description']]);
             } else {
-                $newEngagement = $this->user->engagements()->create([
-                    'title' => $eng['title'],
-                    'description' => $eng['description'],
-                ]);
-                $this->logActivity('Created', "Added new engagement: {$eng['title']}", $newEngagement);
+                $this->user->engagements()->create(['title' => $eng['title'], 'description' => $eng['description']]);
             }
         }
 
@@ -255,37 +216,8 @@ class Profile extends Component
         ]);
     }
 
-    public function updatedSearch() { $this->resetPage(); }
-    public function updatedSort() { $this->resetPage(); }
-
     public function render()
     {
-        $this->user->load(['profile', 'engagements', 'portfolioSet.workPortfolio']);
-        
-        $query = Course::query()
-            ->where('implementer_id', $this->user->id)
-            ->with(['coverPhotos', 'category', 'organization', 'tags'])
-            ->where('status', 'Active');
-
-        if ($this->search) {
-            $query->where(function($q) {
-                $q->where('course_title', 'like', '%'.$this->search.'%')
-                  ->orWhere('background', 'like', '%'.$this->search.'%')
-                  ->orWhereHas('category', fn($sq) => $sq->where('category_name', 'like', '%'.$this->search.'%'))
-                  ->orWhereHas('organization', fn($sq) => $sq->where('name', 'like', '%'.$this->search.'%'))
-                  ->orWhereHas('tags', fn($sq) => $sq->where('tag', 'like', '%'.$this->search.'%'));
-            });
-        }
-
-        switch ($this->sort) {
-            case 'oldest': $query->oldest('start_date'); break;
-            case 'a-z':    $query->orderBy('course_title', 'asc'); break;
-            case 'z-a':    $query->orderBy('course_title', 'desc'); break;
-            default:       $query->latest('start_date'); break;
-        }
-
-        return view('livewire.learner.profile', [
-            'courses' => $query->paginate(5)
-        ])->layout('layouts.layout');
+        return view('livewire.learner.profile')->layout('layouts.learner-layout');
     }
 }
