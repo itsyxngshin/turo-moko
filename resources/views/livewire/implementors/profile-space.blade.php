@@ -10,7 +10,7 @@
             <div class="absolute top-6 left-6 z-10">
                 <a href="{{ url()->previous() }}" class="flex items-center gap-2 text-white/80 hover:text-white transition text-sm font-bold bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm hover:bg-white/20">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-                    Back to Courses
+                    Back
                 </a>
             </div>
         </div>
@@ -36,12 +36,18 @@
                                 {{ $user->profile->first_name }} {{ $user->profile->last_name }}
                             </h2>
                             <span class="px-3 py-1 rounded-full bg-orange-50 text-orange-600 text-xs font-bold uppercase tracking-wide border border-orange-100 self-center">
-                                {{ $user->role->role_name ?? 'Instructor' }}
+                                {{ optional($user->role)->role_name ?? 'User' }}
                             </span>
                         </div>
 
                         <p class="text-gray-500 font-medium text-lg mb-3">
-                            {{ $active_engagement->title ?? 'Digital Educator' }}
+                            @if(optional($user->role)->role_name === 'learner')
+                                Digital Learner
+                            @elseif(optional($user->role)->role_name === 'admin')
+                                TURO-MOKO's Resident Helper
+                            @else
+                                {{ $active_engagement->title ?? 'Digital Educator' }}
+                            @endif
                         </p>
                         
                         <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm text-gray-400">
@@ -64,7 +70,6 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full">
                 
                 <div class="lg:col-span-1 space-y-8">
-                    
                     <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
                         <h3 class="font-bold text-gray-900 text-lg mb-6 flex items-center gap-3">
                             <div class="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600">
@@ -118,64 +123,73 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="lg:col-span-2">
-                    <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 min-h-full">
-                        <div class="flex items-center justify-between mb-8">
-                            <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-                                <span class="w-2 h-8 bg-orange-600 rounded-full"></span>
-                                Featured Courses
-                            </h3>
-                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">{{ $courses->total() }} Available</span>
-                        </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5"> 
-                        @forelse($courses as $course)
-                            <div class="group relative bg-white rounded-2xl p-3 shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full">
-                                
-                                <div class="w-full h-40 bg-gray-200 rounded-xl overflow-hidden relative mb-3">
-                                    @if($course->coverPhoto)
-                                       <img src="{{ asset('storage/' . $course->coverPhoto->url) }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                
+                @if(optional($user->role)->role_name !== 'admin')
+                    <div class="lg:col-span-2">
+                        <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 min-h-full">
+                            <div class="flex items-center justify-between mb-8">
+                                <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                                    <span class="w-2 h-8 bg-orange-600 rounded-full"></span>
+                                    @if(optional($user->role)->role_name === 'learner')
+                                        Enrolled Courses
                                     @else
-                                       <div class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-300">
-                                           <svg class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                       </div>
+                                        Featured Courses
                                     @endif
-                                    
-                                    @if($course->category)
-                                        <div class="absolute top-3 left-3 px-2 py-1 bg-white/90 backdrop-blur-md rounded-lg text-[10px] font-bold uppercase tracking-wide text-gray-800 shadow-sm">
-                                            {{ $course->category->category_name }}
+                                </h3>
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">{{ $courses->total() }} Available</span>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5"> 
+                            @forelse($courses as $course)
+                                <div class="group relative bg-white rounded-2xl p-3 shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full">
+                                    <div class="w-full h-40 bg-gray-200 rounded-xl overflow-hidden relative mb-3">
+                                        @if($course->coverPhoto)
+                                        <img src="{{ asset('storage/' . $course->coverPhoto->url) }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                        @else
+                                        <div class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-300">
+                                            <svg class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                                         </div>
-                                    @endif
-                                </div>
-                                
-                                <div class="flex-1 flex flex-col px-1">
-                                    <h3 class="font-bold text-gray-900 text-lg leading-tight mb-2 group-hover:text-orange-600 transition">{{ $course->course_title }}</h3>
-                                    <p class="text-xs text-gray-500 line-clamp-2 mb-4 flex-1">{{ $course->background }}</p>
+                                        @endif
+                                        
+                                        @if($course->category)
+                                            <div class="absolute top-3 left-3 px-2 py-1 bg-white/90 backdrop-blur-md rounded-lg text-[10px] font-bold uppercase tracking-wide text-gray-800 shadow-sm">
+                                                {{ $course->category->category_name }}
+                                            </div>
+                                        @endif
+                                    </div>
                                     
-                                    <div class="mt-auto pt-3 border-t border-gray-50 flex items-center justify-between">
-                                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                                            {{ $course->start_date ? \Carbon\Carbon::parse($course->start_date)->format('M Y') : 'Self-Paced' }}
-                                        </span>
-                                        <a href="#" class="bg-black text-white text-xs font-bold py-2 px-4 rounded-full group-hover:bg-orange-600 transition shadow-lg shadow-gray-200 group-hover:shadow-orange-200">
-                                            View Details
-                                        </a>
+                                    <div class="flex-1 flex flex-col px-1">
+                                        <h3 class="font-bold text-gray-900 text-lg leading-tight mb-2 group-hover:text-orange-600 transition">{{ $course->course_title }}</h3>
+                                        <p class="text-xs text-gray-500 line-clamp-2 mb-4 flex-1">{{ $course->background }}</p>
+                                        
+                                        <div class="mt-auto pt-3 border-t border-gray-50 flex items-center justify-between">
+                                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                                                {{ $course->start_date ? \Carbon\Carbon::parse($course->start_date)->format('M Y') : 'Self-Paced' }}
+                                            </span>
+                                            
+                                            {{-- BUTTON LOGIC: Hide "View Details" if the PROFILE OWNER is a Learner --}}
+                                            @if(optional($user->role)->role_name !== 'learner')
+                                                <a href="#" class="bg-black text-white text-xs font-bold py-2 px-4 rounded-full group-hover:bg-orange-600 transition shadow-lg shadow-gray-200 group-hover:shadow-orange-200">
+                                                    View Details
+                                                </a>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
+                            @empty
+                                <div class="col-span-2 text-center py-12 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                                    <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                                    <p class="text-gray-500 font-medium">No active courses found.</p>
+                                </div>
+                            @endforelse
                             </div>
-                        @empty
-                            <div class="col-span-2 text-center py-12 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-                                <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-                                <p class="text-gray-500 font-medium">No active courses found.</p>
+                            
+                            <div class="mt-8">
+                                {{ $courses->links() }}
                             </div>
-                        @endforelse
-                        </div>
-                        
-                        <div class="mt-8">
-                            {{ $courses->links() }}
                         </div>
                     </div>
-                </div>
+                @endif
 
             </div>
         </div>
