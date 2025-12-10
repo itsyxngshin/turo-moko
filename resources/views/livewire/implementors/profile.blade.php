@@ -1,13 +1,8 @@
 <div class="flex h-screen bg-gray-50 font-sans">
-
-
-    <main class="flex-1 px-5 py-3 overflow-y-hidden">
-
+    <main class="flex-1 px-5 py-3 overflow-y-auto">
         <header class="flex justify-between items-center mb-8">
             <h1 class="text-3xl font-bold text-gray-800">Profile</h1>
-            
         </header>
-
         <section class="bg-white rounded-3xl p-8 mb-8 shadow-sm border border-gray-100 relative">
     
             <div class="absolute top-6 right-6" x-data="{ open: false }">
@@ -49,6 +44,9 @@
                     <h2 class="text-3xl font-bold text-gray-800">
                         {{ $user->profile->first_name }} {{ $user->profile->last_name }}
                     </h2>
+                    <p class="text-gray-500 font-medium">
+                        {{ $user->role->role_name ?? 'Implementor' }}
+                    </p>
                     <p class="text-gray-400 text-sm mt-1">{{ $user->username }}</p>
                     <p class="text-gray-400 text-sm mt-1">{{ $user->email }}</p>
                 </div>
@@ -353,16 +351,16 @@
                         </div>
 
                         <div class="md:col-span-1">
-            <label class="block text-xs font-bold text-gray-600 mb-1">Username</label>
-            <input wire:model="username" type="text" class="w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm bg-gray-50/50 px-4">
-        </div>
-        
-        <div class="md:col-span-2">
-            <label class="block text-xs font-bold text-gray-400 mb-1">Email Address <span class="text-[10px] font-normal">(Contact admin to change)</span></label>
-            <input wire:model="email" type="email" disabled class="w-full rounded-xl border-gray-200 bg-gray-100 text-gray-500 cursor-not-allowed text-sm px-4">
-        </div>
-    </div>
-</div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">Username</label>
+                            <input wire:model="username" type="text" class="w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500 text-sm bg-gray-50/50 px-4">
+                        </div>
+                        
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-gray-400 mb-1">Email Address <span class="text-[10px] font-normal">(Contact admin to change)</span></label>
+                            <input wire:model="email" type="email" disabled class="w-full rounded-xl border-gray-200 bg-gray-100 text-gray-500 cursor-not-allowed text-sm px-4">
+                        </div>
+                    </div>
+                </div>
 
                 <hr class="border-gray-100 border-dashed">
 

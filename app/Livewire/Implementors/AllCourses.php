@@ -12,16 +12,16 @@ class AllCourses extends Component
 
     public function mount()
     {
-        $user = Auth::user();
-
-        if ($user) {
-            $this->courses = Course::with(['coverPhotos', 'category', 'tags', 'organization'])
-                ->where('implementer_id', $user->id)
-                ->latest()
-                ->get();
-        } else {
-            $this->courses = collect();
-        }
+        $this->courses = Course::with([
+                'category', 
+                'organization', 
+                'tags', 
+                'activeCoverPhoto', 
+                'implementer' // ✅ ADD THIS
+            ])
+            ->where('implementer_id', Auth::id()) 
+            ->latest()
+            ->get();
     }
 
     public function render()
