@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('rating_responses', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('enrollee_id')->constrained('course_enrollees')->onDelete('cascade');
             $table->foreignId('prog_rating_id')->constrained('program_ratings');
             $table->foreignId('prog_evaluation_id')->constrained('program_evaluations');
             $table->integer('rating_value');

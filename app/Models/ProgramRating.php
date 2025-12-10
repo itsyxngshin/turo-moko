@@ -6,11 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProgramRating extends Model
 {
-    protected $fillable = ['program_eval_id', 'statement'];
+    protected $fillable = ['statement', 'status', 'order'];
 
-    public function rating()
+    public function responses()
     {
-        return $this->hasMany(RatingResponse::class, 'program_rating_id');
+        return $this->hasMany(RatingResponse::class, 'prog_rating_id');
     }
-
 }

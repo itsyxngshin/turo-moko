@@ -5,6 +5,8 @@ namespace App\Livewire\Learner;
 use Livewire\Component;
 use App\Models\Course;
 use App\Models\Assignment;
+use App\Models\ProgramEvaluation;
+use App\Models\CourseEnrollee;
 use Illuminate\Support\Facades\Auth;
 
 class Classes extends Component
@@ -35,21 +37,29 @@ class Classes extends Component
         $this->activeCoursesCount = $this->activeCourses->count();
 
        // Completed Courses
-$this->completedCourses = $user->enrolledCourses()
-    ->wherePivot('status', 'completed') // lowercase matches the table
-    ->get();
+        $this->completedCourses = $user->enrolledCourses()
+            ->wherePivot('status', 'completed')
+            ->get();
 
-$this->completedCoursesCount = $this->completedCourses->count();
-
+        $this->completedCoursesCount = $this->completedCourses->count();
 
         // Pending assignments
         $courseIds = $this->activeCourses->pluck('id');
         $this->pendingActivities = Assignment::whereIn('course_id', $courseIds)
             ->where('status', 'Pending')
             ->count();
-        $this->pendingEvaluations = Assignment::whereIn('course_id', $courseIds)
-            ->where('status', 'Evaluation Pending')
+        
+        // Pending evaluations - count courses where learner hasn't submitted evaluation yet
+        $enrolleeIds = CourseEnrollee::where('enrollee_id', $user->id)
+            ->whereIn('course_id', $courseIds)
+            ->pluck('id');
+            
+        $completedEvalCount = ProgramEvaluation::whereIn('enrollee_id', $enrolleeIds)
+            ->whereNotNull('submitted_at')
             ->count();
+            
+        // Pending = total active courses - completed evaluations
+        $this->pendingEvaluations = max(0, $this->activeCoursesCount - $completedEvalCount);
 
         // Featured Course (latest active)
         $this->featuredCourse = $this->activeCourses->sortByDesc('pivot.enrollment_date')->first();

@@ -142,22 +142,27 @@ public function show(Course $course)
         });
     }
 
-    // Evaluations ordered by creation date ascending (oldest first)
-    $evaluations = ProgramEvaluation::where('course_id', $course->id)
-        ->orderBy('created_at', 'asc')
-        ->get()
-        ->map(function ($evaluation) use ($learner) {
-            $evaluation->due_date = $evaluation->created_at
-                ? $evaluation->created_at->copy()->addDays(7)
-                : null;
-
-            $evaluation->learner_completed = CourseFeedback::where('course_id', $evaluation->course_id)
-                ->where('learner_id', $learner->id)
-                ->exists();
-
-            $evaluation->learner_status = $evaluation->learner_completed ? 'Completed' : 'Available';
-            return $evaluation;
-        });
+    // Evaluations - get or create evaluation record for this enrollee
+    $evaluations = collect();
+    
+    if ($enrolleeRecord) {
+        // Get or create program evaluation for this enrollee
+        $programEval = ProgramEvaluation::firstOrCreate([
+            'course_id' => $course->id,
+            'enrollee_id' => $enrolleeRecord->id,
+        ], [
+            'description' => 'Course Evaluation',
+            'status' => 'active',
+        ]);
+        
+        $programEval->due_date = $programEval->created_at
+            ? $programEval->created_at->copy()->addDays(7)
+            : null;
+        $programEval->learner_completed = !is_null($programEval->submitted_at);
+        $programEval->learner_status = $programEval->learner_completed ? 'Completed' : 'Available';
+        
+        $evaluations->push($programEval);
+    }
 
     // Announcements ordered by creation date ascending (oldest first)
     $announcements = Announcement::where('course_id', $course->id)

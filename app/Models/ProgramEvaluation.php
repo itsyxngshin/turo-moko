@@ -6,27 +6,30 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProgramEvaluation extends Model
 {
-    protected $fillable = ['course_id', 'description', 'status'];
+    protected $fillable = ['course_id', 'enrollee_id', 'description', 'status', 'submitted_at', 'due_date'];
+
+    protected $casts = [
+        'submitted_at' => 'datetime',
+        'due_date' => 'date',
+    ];
 
     public function course()
     {
         return $this->belongsTo(Course::class);
     }
 
-    public function ratings()
-    {
-        return $this->hasMany(RatingResponse::class, 'program_eval_id');
-    }
-
-    public function comments()
-    {
-        return $this->hasMany(CommentResponse::class, 'program_eval_id');
-    }
-
-    public function enrollees()
+    public function enrollee()
     {
         return $this->belongsTo(CourseEnrollee::class, 'enrollee_id');
     }
 
-    
+    public function ratingResponses()
+    {
+        return $this->hasMany(RatingResponse::class, 'prog_evaluation_id');
+    }
+
+    public function commentResponses()
+    {
+        return $this->hasMany(CommentResponse::class, 'prog_evaluation_id');
+    }
 }

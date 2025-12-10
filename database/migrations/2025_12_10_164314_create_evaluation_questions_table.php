@@ -11,12 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('program_comments', function (Blueprint $table) {
+        Schema::create('evaluation_questions', function (Blueprint $table) {
             $table->id();
-            $table->string('description')->nullable();
-            $table->enum('status', ['active', 'inactive']);
+            $table->enum('type', ['program_rating', 'program_comment', 'implementer_rating', 'implementer_comment']);
+            $table->text('text');
             $table->integer('order')->default(0);
+            $table->string('status')->default('active');
             $table->timestamps();
+
+            $table->index(['type', 'order']);
         });
     }
 
@@ -25,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('program_comments');
+        Schema::dropIfExists('evaluation_questions');
     }
 };

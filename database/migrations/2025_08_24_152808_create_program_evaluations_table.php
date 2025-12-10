@@ -17,6 +17,8 @@ return new class extends Migration
             $table->foreignId('enrollee_id')->constrained('course_enrollees');
             $table->string('description')->nullable();
             $table->enum('status', ['active', 'inactive']);
+            $table->timestamp('submitted_at')->nullable();
+            $table->date('due_date')->nullable();
             $table->timestamps();
         });
     }

@@ -6,11 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProgramComment extends Model
 {
-    protected $fillable = ['description', 'status'];
+    protected $fillable = ['description', 'status', 'order'];
 
     public function responses()
     {
-        return $this->hasMany(CommentResponse::class, 'program_comment_id');
+        return $this->hasMany(CommentResponse::class, 'prog_comment_id');
     }
-    
 }

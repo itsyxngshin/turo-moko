@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('implementer_ratings', function (Blueprint $table) {
             $table->id();
-             $table->foreignId('imp_eval_id')->constrained('implementer_evaluations');
             $table->string('statement');
+            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->integer('order')->default(0);
             $table->timestamps();
         });
     }
