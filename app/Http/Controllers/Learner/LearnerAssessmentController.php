@@ -197,7 +197,7 @@ class LearnerAssessmentController extends Controller
                         $selectedChoice = $question->choices->firstWhere('id', $answerValue);
                         
                         if ($selectedChoice) {
-                            $answerData['choice_id'] = $selectedChoice->id;
+                            $answerData['option_id'] = $selectedChoice->id;
                             $answerData['answer_text'] = $selectedChoice->choice_text;
                             $answerData['is_correct'] = $selectedChoice->is_correct;
                             $answerData['points'] = $selectedChoice->is_correct ? $question->points : 0;

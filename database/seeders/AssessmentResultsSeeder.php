@@ -265,7 +265,7 @@ class AssessmentResultsSeeder extends Seeder
                             $answerData['points'] = 0;
                         }
 
-                        $answerData['choice_id'] = $selectedChoice->id ?? null;
+                        $answerData['option_id'] = $selectedChoice->id ?? null;
                         $answerData['answer_text'] = $selectedChoice->choice_text ?? '';
                         break;
 
@@ -290,7 +290,7 @@ class AssessmentResultsSeeder extends Seeder
                             $answerData['points'] = 0;
                         }
 
-                        $answerData['choice_id'] = $selectedChoice->id ?? null;
+                        $answerData['option_id'] = $selectedChoice->id ?? null;
                         $answerData['answer_text'] = $selectedChoice->choice_text ?? '';
                         break;
 

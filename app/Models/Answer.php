@@ -11,7 +11,7 @@ class Answer extends Model
         'quiz_id',
         'course_enrollee_id',
         'answer_text',
-        'choice_id',
+        'option_id',
         'points',
         'is_correct'
     ];
@@ -31,8 +31,8 @@ class Answer extends Model
         return $this->belongsTo(CourseEnrollee::class, 'course_enrollee_id');
     }
 
-    public function choice()
+    public function option()
     {
-        return $this->belongsTo(Choice::class);
+        return $this->belongsTo(Choice::class, 'option_id');
     }
 }
