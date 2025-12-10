@@ -1,40 +1,40 @@
-@extends('layouts.layout')
+@extends('layouts.learner-layout')
 
 @section('title', 'Dashboard')
 
 @section('content')
 <div class="min-h-screen px-4 sm:px-6 md:px-8 py-6 space-y-10">
 
-    {{-- ================= RECENTLY ACCESSED ================= --}}
-    @if($recentCourses->isNotEmpty())
-        @php $course = $recentCourses->first(); @endphp
+   {{-- ================= RECENTLY ACCESSED ================= --}}
+@if($recentCourses->isNotEmpty())
+    @php 
+        $course = $recentCourses->first(); 
+    @endphp
 
-        @if($course->enrollees->contains(auth()->id()))
+    @if($course->enrollees->contains(auth()->id()))
         <div class="relative rounded-2xl shadow-lg overflow-hidden h-60 sm:h-72 md:h-80">
-            <img
-                src="{{ $course->activeCoverPhoto
-                    ? asset('storage/' . $course->activeCoverPhoto->path)
-                    : asset('storage/implementor/course/thumbnail.jpg') }}"
+            <img 
+                src="{{ $course->activeCoverPhoto ? asset('storage/' . $course->activeCoverPhoto->path) : asset('storage/implementor/course/thumbnail.jpg') }}" 
                 class="absolute inset-0 w-full h-full object-cover"
             >
-
             <div class="absolute inset-0 bg-black/40"></div>
-
             <div class="relative z-10 h-full flex flex-col justify-center text-white px-4 sm:px-8">
                 <p class="text-sm">{{ $course->subject }}</p>
                 <h2 class="text-xl sm:text-2xl md:text-3xl font-bold">
                     {{ $course->course_title }}
                 </h2>
-
-                <a href="{{ route('learner.course.show', $course) }}"
-                   class="mt-4 inline-flex items-center gap-2 bg-white text-black px-5 py-3 rounded-full w-fit hover:bg-gray-200">
+                <a 
+                    href="{{ route('learner.course.show', $course) }}" 
+                    class="mt-4 inline-flex items-center gap-2 bg-white text-black px-5 py-3 rounded-full w-fit hover:bg-gray-200"
+                >
                     <i data-lucide="play" class="w-5 h-5"></i>
                     Continue course
                 </a>
             </div>
         </div>
-        @endif
     @endif
+@endif
+
 
     {{-- ================= COURSE SUGGESTIONS ================= --}}
     <div class="bg-white rounded-2xl shadow p-4 sm:p-8">
@@ -91,7 +91,7 @@
 
                             {{-- MODAL --}}
                             <div x-show="open" x-cloak
-                                 class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                                 class="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50">
                                 <div @click.away="open = false"
                                      class="bg-white rounded-xl p-6 w-11/12 max-w-md">
                                     <h3 class="text-lg font-semibold mb-4">

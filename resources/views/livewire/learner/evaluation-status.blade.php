@@ -1,4 +1,9 @@
-<div class="space-y-6"> <!-- Single root element for Livewire -->
+@extends('layouts.learner-layout')
+
+@section('title', 'Evaluation')
+
+@section('content')
+    <div class="space-y-6"> <!-- Single root element for Livewire -->
 
     <!-- Header with Back Button and Title -->
     <div class="flex items-center gap-3 mb-6 mt-8 ml-6">
@@ -85,3 +90,6 @@
     </div>
 
 </div>
+
+@endsection
+

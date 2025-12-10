@@ -104,27 +104,32 @@
     <div class="px-6 pb-8 grid grid-cols-1 xl:grid-cols-2 gap-6">
         @forelse($courses->take(2) as $course) {{-- Only 2 cards --}}
             <article class="relative rounded-2xl border border-gray-300 bg-white shadow-sm overflow-hidden">
-                <div class="grid md:grid-cols-[300px,1fr] grid-cols-1 gap-4 p-4"> <!-- reduced gap and column size -->
-                    <img src="{{ $course->activeCoverPhoto ? asset('storage/'.$course->activeCoverPhoto->path) : '/img/default-cover.png' }}"
-                         alt="Course cover"
-                         class="w-full md:w-[300px] h-[180px] object-cover rounded-xl flex-shrink-0" /> <!-- reduced height -->
-                    <div class="pr-4 flex flex-col justify-between">
-                        <div>
-                            <h3 class="text-lg md:text-xl font-medium text-black">{{ $course->course_title ?? '--' }}</h3>
-                            <p class="mt-1 text-sm text-gray-600">Category: {{ $course->category->category_name ?? '--' }}</p>
-                            <p class="mt-1 text-sm text-gray-600">Instructor: <span class="font-bold">{{ $instructor->profile->first_name ?? '--' }}</span></p>
-                            <p class="text-xs mt-1 text-gray-400 mb-1">
-                                {{ \Carbon\Carbon::parse($course->start_date)->format('M Y') ?? '' }} - 
-                                {{ \Carbon\Carbon::parse($course->end_date)->format('M Y') ?? '' }}
-                            </p>
-                        </div>
-                        <div class="mt-4 flex justify-center"> <!-- center the button -->
-                            <a href="{{ route('implementor.course-information', $course->course_code) }}"
-                               class="inline-flex text-center h-7 px-5 rounded-full bg-black text-white text-xs font-medium">View Details</a>
-                        </div>
-                    </div>
-                </div>
-            </article>
+    <div class="grid md:grid-cols-[300px,1fr] grid-cols-1 gap-4 p-4 relative"> <!-- make this relative -->
+        <img src="{{ $course->activeCoverPhoto ? asset('storage/'.$course->activeCoverPhoto->path) : '/img/default-cover.png' }}"
+             alt="Course cover"
+             class="w-full md:w-[300px] h-[180px] object-cover rounded-xl flex-shrink-0" />
+
+        <div class="pr-4 flex flex-col justify-between h-full">
+            <div>
+                <h3 class="text-lg md:text-xl font-medium text-black">{{ $course->course_title ?? '--' }}</h3>
+                <p class="mt-1 text-sm text-gray-600">Category: {{ $course->category->category_name ?? '--' }}</p>
+                <p class="mt-1 text-sm text-gray-600">Instructor: <span class="font-bold">{{ $instructor->profile->first_name ?? '--' }}</span></p>
+                <p class="text-xs mt-1 text-gray-400 mb-1">
+                    {{ \Carbon\Carbon::parse($course->start_date)->format('M Y') ?? '' }} - 
+                    {{ \Carbon\Carbon::parse($course->end_date)->format('M Y') ?? '' }}
+                </p>
+            </div>
+
+            <!-- Bottom-right button -->
+            <div class="absolute bottom-4 right-4">
+                <a href="{{ route('implementor.course-information', $course->course_code) }}"
+                   class="inline-flex items-center justify-center h-10 px-6 rounded-full bg-black text-white text-sm font-medium text-center shadow-lg hover:scale-105 transform transition">
+                    View Details
+                </a>
+            </div>
+        </div>
+    </div>
+</article>
         @empty
             <p class="text-gray-500">You have no courses created yet.</p>
         @endforelse
