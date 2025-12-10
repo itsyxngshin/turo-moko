@@ -1,4 +1,4 @@
-@extends('layouts.layout')
+@extends('layouts.learner-layout')
 
 @section('title', 'Completed Courses')
 

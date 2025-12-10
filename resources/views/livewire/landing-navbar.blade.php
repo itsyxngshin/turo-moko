@@ -1,5 +1,6 @@
 <div 
     id="navbar"
+    x-cloak
     x-data="{
         scrolled: false, 
         active: 'home', 

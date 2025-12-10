@@ -1,5 +1,5 @@
 {{-- resources/views/learner/classes.blade.php --}}
-@extends('layouts.layout')
+@extends('layouts.learner-layout')
 
 @section('title', 'Classes')
 

@@ -3,62 +3,84 @@
 @section('title', 'Admin | Enrollees')
 
 @section('content')
-<div class="max-w-[1720px] mx-auto px-6">
+<div class="min-w-full text-left border-collapse">
 
-    <!-- Search Bar -->
-    <div class="mt-6 flex justify-end">
-        <input type="text" placeholder="Search enrollees..."
-               class="rounded-full border-gray-300 pl-4 pr-10 py-2 focus:ring-2 focus:ring-yellow-400">
-    </div>
+    <table class="min-w-full text-left border-collapse">
+        <thead class="bg-gray-50 text-gray-600 uppercase text-sm">
+            <tr>
+                <th class="px-6 py-3">Photo</th>
+                <th class="px-6 py-3">First Name</th>
+                <th class="px-6 py-3">Middle Name</th>
+                <th class="px-6 py-3">Last Name</th>
+                <th class="px-6 py-3">Actions</th>
+            </tr>
+        </thead>
 
-    <!-- Enrollees Table -->
-    <div class="mt-4 bg-white rounded-xl shadow overflow-hidden">
-        <table class="w-full text-left">
-            <thead class="bg-gray-50 text-gray-600 uppercase text-sm">
-                <tr>
-                    <th class="px-6 py-3">Photo</th>
-                    <th class="px-6 py-3">First Name</th>
-                    <th class="px-6 py-3">Middle Name</th>
-                    <th class="px-6 py-3">Last Name</th>
-                    <th class="px-6 py-3">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y">
-                <!-- Example Row -->
-                <tr class="hover:bg-gray-50">
+        <tbody class="divide-y">
+
+            @forelse ($enrollees as $enrollee)
+                <tr class="hover:bg-gray-50 transition-colors">
+
+                    <!-- Photo -->
                     <td class="px-6 py-4">
-                        <div class="w-10 h-10 bg-gray-200 rounded-full"></div>
+                        @if($enrollee->profile && $enrollee->profile->photo_id)
+                            <img 
+                                src="{{ asset('storage/photos/' . $enrollee->profile->photo_id) }}"
+                                class="w-10 h-10 rounded-full object-cover">
+                        @else
+                            <div class="w-10 h-10 bg-gray-200 rounded-full"></div>
+                        @endif
                     </td>
-                    <td class="px-6 py-4">Jane</td>
-                    <td class="px-6 py-4">A.</td>
-                    <td class="px-6 py-4">Doe</td>
-                    <td class="px-6 py-4 flex space-x-4 text-blue-500">
-                        <button class="hover:underline">View</button>
-                        <button class="hover:underline">Edit</button>
-                        <button class="hover:underline">Remove</button>
-                    </td>
-                </tr>
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4">
-                        <div class="w-10 h-10 bg-gray-200 rounded-full"></div>
-                    </td>
-                    <td class="px-6 py-4">John</td>
-                    <td class="px-6 py-4">B.</td>
-                    <td class="px-6 py-4">Smith</td>
-                    <td class="px-6 py-4 flex space-x-4 text-blue-500">
-                        <button class="hover:underline">View</button>
-                        <button class="hover:underline">Edit</button>
-                        <button class="hover:underline">Remove</button>
-                    </td>
-                </tr>
-                <!-- No data placeholder -->
-                <tr>
-                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">No enrollees found.</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
 
+                    <!-- First Name -->
+                    <td class="px-6 py-4">
+                        {{ $enrollee->profile->first_name ?? '—' }}
+                    </td>
+
+                    <!-- Middle Name -->
+                    <td class="px-6 py-4">
+                        {{ $enrollee->profile->middle_name ?? '—' }}
+                    </td>
+
+                    <!-- Last Name -->
+                    <td class="px-6 py-4">
+                        {{ $enrollee->profile->last_name ?? '—' }}
+                    </td>
+
+                    <!-- Actions -->
+                    <td class="px-6 py-4 flex flex-wrap gap-3 text-blue-500 mr-16">
+                        <button wire:click="view({{ $enrollee->id }})"
+                                class="hover:underline text-sm">
+                            View
+                        </button>
+
+                        <button wire:click="edit({{ $enrollee->id }})"
+                                class="hover:underline text-sm">
+                            Edit
+                        </button>
+
+                        <button wire:click="remove({{ $enrollee->id }})"
+                                class="hover:underline text-sm">
+                            Remove
+                        </button>
+                    </td>
+                </tr>
+
+            @empty
+                <tr>
+                    <td colspan="5" class="px-6 py-6 text-center text-gray-500">
+                        No enrollees found.
+                    </td>
+                </tr>
+            @endforelse
+
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="px-6 py-4">
+        {{ $enrollees->links() }}
+    </div>
 </div>
 
 @endsection
