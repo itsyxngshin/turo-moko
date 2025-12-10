@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Learner;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Announcement;
 use App\Models\Assignment;
 use App\Models\Course;
@@ -16,31 +17,59 @@ use App\Models\Submission;
 
 class CourseController extends Controller
 {
-    public function index()
-    {
-        // All courses
-        $courses = Course::orderBy('title')->get();
+    
+public function index()
+{
+    $userId = Auth::id();
 
-        // Counts for top stats
-        $activeCourses = Course::where('progress', '<', 100)->count();
-        $completedCourses = Course::where('progress', 100)->count();
+    // ✅ Active courses: enrolled + not completed
+    $activeCourses = Course::whereHas('enrollees', function ($q) use ($userId) {
+            $q->where('course_enrollees.enrollee_id', $userId);
+        })
+        ->where('progress', '<', 100)
+        ->count();
 
-        // Temporary placeholders until real logic exists
-        $pendingActivities = 5;
-        $pendingEvaluations = 2;
+    // ✅ Completed courses: enrolled + completed
+   $completedCourses = CourseEnrollee::where('enrollee_id', $userId)
+    ->where('status', 'completed')
+    ->count();
 
-        // Pick a featured course (first one for now)
-        $featuredCourse = Course::first();
+    // ✅ Fetch only courses the learner is enrolled in
+    $courses = Course::whereHas('enrollees', function ($q) use ($userId) {
+            $q->where('course_enrollees.enrollee_id', $userId);
+        })
+        ->orderBy('title')
+        ->get();
 
-        return view('learner.classes', compact(
-            'courses',
-            'activeCourses',
-            'completedCourses',
-            'pendingActivities',
-            'pendingEvaluations',
-            'featuredCourse'
-        ));
-    }
+    // Optional placeholders
+    $pendingActivities = 5;
+    $pendingEvaluations = 2;
+
+    $featuredCourse = $courses->first();
+
+    return view('learner.classes', compact(
+        'courses',
+        'activeCourses',
+        'completedCourses',
+        'pendingActivities',
+        'pendingEvaluations',
+        'featuredCourse'
+    ));
+}
+
+
+    public function leaveCourse($courseId)
+{
+    CourseEnrollee::where('course_id', $courseId)
+        ->where('enrollee_id', auth()->id())
+        ->delete();
+
+    session()->flash('success', 'You have successfully left the course.');
+
+    return redirect()->route('learner.classes');
+}
+
+
 public function show(Course $course)
 {
     $learner = auth()->user();

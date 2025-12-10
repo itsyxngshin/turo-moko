@@ -352,7 +352,7 @@
                 @case('quiz')
                     @php $assessment = $item['model']; @endphp
                 <a href="{{ route('implementor.assessment-builder') }}?quiz_id={{ $assessment->id }}" 
-                   class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mb-4">
+                   class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mt-4 mb-4">
                     <div class="m-auto">
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" class="ml-5 mr-10 mb-2" viewBox="0 0 48 48">
                             <g fill="#F44336">

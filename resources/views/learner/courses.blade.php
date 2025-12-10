@@ -33,7 +33,9 @@
 
                         <!-- Course Image -->
                         <div class="w-full md:w-1/2 h-36 md:h-auto">
-                            <img src="{{ $course->background ?? '/images/course1.jpg' }}" 
+                            <img src="{{ optional($course->activeCoverPhoto)->path
+                    ? asset('storage/' . $course->activeCoverPhoto->path)
+                    : asset('storage/implementor/course/thumbnail.jpg') }}"
                                  alt="{{ $course->course_title }}" 
                                  class="w-full h-full object-cover">
                         </div>
@@ -42,15 +44,16 @@
                         <div class="p-3 md:p-5 flex flex-col justify-between w-full md:w-1/2">
                             <div>
                                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-1 md:mb-2 gap-1 md:gap-0">
-                                    <p class="text-xs md:text-sm text-gray-400">Instructor: {{ $course->instructor ?? 'TBA' }}</p>
-                                    <span class="text-xs md:text-sm bg-green-100 text-green-600 px-2 py-0.5 rounded-full">
-                                        {{ $course->semester ?? 'Ongoing' }}
-                                    </span>
+                                    <h3 class="text-lg md:text-xl font-medium text-black">{{ $course->course_title ?? '--' }}</h3>
+                           
                                 </div>
-                                <h3 class="text-base md:text-lg font-bold">{{ $course->course_title }}</h3>
-                                <p class="text-xs md:text-sm text-gray-400 mt-1 line-clamp-2 md:line-clamp-3">
-                                    {{ $course->description ?? 'No description available.' }}
-                                </p>
+                                
+                             <p class="mt-1 text-sm text-gray-600">Category: {{ $course->category->category_name ?? '--' }}</p>
+                            <p class="mt-1 text-sm text-gray-600">Instructor: <span class="font-bold">{{ $course->implementer->profile->first_name ?? '--' }}</span></p>
+                            <p class="text-xs mt-1 text-gray-400 mb-1">
+                                {{ \Carbon\Carbon::parse($course->start_date)->format('M Y') ?? '' }} - 
+                                {{ \Carbon\Carbon::parse($course->end_date)->format('M Y') ?? '' }}
+                            </p>
                             </div>
 
                             <!-- Button -->

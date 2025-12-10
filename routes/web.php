@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Course;
+use Illuminate\Support\Facades\Auth;
 
 // Auth & Livewire
 use App\Livewire\Auth\VerifyEmail;
@@ -15,7 +16,7 @@ use App\Livewire\Implementors\CourseGrades as ImplementorCourseGrades;
 
 // Controllers
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CourseController;
+use App\Http\Controllers\Learner\CourseController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 /*
@@ -66,6 +67,7 @@ use App\Livewire\Implementors\Profile as ImplementorProfile;
 // --- Shared/Chat ---
 use App\Livewire\ChatFeature;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Livewire\Implementors\ProfileSpace;
 
 
 /*
@@ -133,6 +135,10 @@ Route::middleware(['auth'])->group(function () {
             return back()->with('message', 'Verification link sent!');
         })->middleware(['throttle:6,1'])->name('verification.send');
     });
+    
+
+    // The '@' sign is just a stylistic choice common in social apps, you can remove it if you want.
+    Route::get('/{username}', ProfileSpace::class)->name('profile.public');
 });
 
 
@@ -154,7 +160,11 @@ Route::post('/course/{course}/enroll', [DashboardController::class, 'enroll'])
     Route::get('/archived-courses', ArchivedCourses::class)->name('archived-courses');
     Route::get('/profile/edit', EditProfile::class)->name('profile.edit');
  Route::get('/notifications', fn() => view('learner.notifications-page'))->name('notifications');
-    // Livewire Views
+ Route::post('/course/{course}/leave', [CourseController::class, 'leaveCourse'])
+    ->name('course.leave');
+
+ 
+ // Livewire Views
     Route::get('/profile', fn() => view('livewire.learner.profile'))->name('profile');
     Route::get('/enrolled', fn() => view('livewire.learner.enrolled'))->name('enrolled');
     Route::get('/activity', fn() => view('livewire.learner.activities'))->name('activity');
@@ -193,12 +203,6 @@ Route::get('/suggested-courses', function() {
 
 });
 
-
-/*
-|--------------------------------------------------------------------------
-| IMPLEMENTOR ROUTES (TEACHERS)
-|--------------------------------------------------------------------------
-*/
 /*
 |--------------------------------------------------------------------------
 | IMPLEMENTOR ROUTES (TEACHERS)

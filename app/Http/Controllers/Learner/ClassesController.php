@@ -3,33 +3,42 @@
 namespace App\Http\Controllers\Learner;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Course;
+use App\Models\CourseEnrollee;
 
 class ClassesController extends Controller
 {
     public function index()
     {
-        // Example counts
-        $activeCourses = Course::where('status', 'Active')->count();
-        $completedCourses = Course::where('status', 'Closed')->count();
-        $pendingActivities = 5; // Replace with your logic
-        $pendingEvaluations = 1; // Replace with your logic
+        $userId = Auth::id();
 
-        // Featured course (first active course)
-        $featuredCourse = Course::where('status', 'Active')->first();
+        // ✅ Active courses: learner is enrolled + course not completed
+        $activeCourses = Course::whereHas('enrollees', function ($q) use ($userId) {
+            $q->where('enrollee_id', $userId)
+              ->where('status', 'active'); // only active enrolments
+        })->get();
 
-        // Fetch all courses for the dashboard
-        $courses = Course::where('status', 'Active')->get();
+        // ✅ Completed courses: learner is enrolled + course completed
+        $completedCourses = Course::whereHas('enrollees', function ($q) use ($userId) {
+            $q->where('enrollee_id', $userId)
+              ->where('status', 'completed'); // only completed enrolments
+        })->get();
 
-        return view('learner.classes', compact(
-            'activeCourses',
-            'completedCourses',
-            'pendingActivities',
-            'pendingEvaluations',
-            'featuredCourse',
-            'courses'
-        ));
+        // Optional placeholders
+        $pendingActivities = 5;    // replace with real logic if needed
+        $pendingEvaluations = 1;   // replace with real logic if needed
+
+        $featuredCourse = $activeCourses->first();
+
+        return view('learner.classes', [
+            'activeCourses' => $activeCourses,
+            'completedCourses' => $completedCourses,
+            'activeCoursesCount' => $activeCourses->count(),
+            'completedCoursesCount' => $completedCourses->count(),
+            'pendingActivities' => $pendingActivities,
+            'pendingEvaluations' => $pendingEvaluations,
+            'featuredCourse' => $featuredCourse,
+        ]);
     }
 }
- 

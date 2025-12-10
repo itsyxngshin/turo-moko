@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class WorkPortfolio extends Model
 {
-    protected $fillable = ['designation', 'description', 'duration', 'status'];
+    protected $fillable = ['designation', 'description', 'duration', 'status', 'workplace'];
 
     public function portfolioSet()
     {
