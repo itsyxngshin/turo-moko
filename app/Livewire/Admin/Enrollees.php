@@ -22,6 +22,6 @@ class Enrollees extends Component
 
         return view('livewire.admin.enrollees', [
             'enrollees' => $query->latest('enrollment_date')->paginate(10)
-        ])->layout('layouts.admin-layout');
+        ])->layout('layouts.layout');
     }
 }

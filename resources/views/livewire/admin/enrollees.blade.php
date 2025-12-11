@@ -52,7 +52,7 @@
                         </td>
 
                         <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
-                            {{ $record->enrollment_date ? $record->enrollment_date->format('M d, Y') : '—' }}
+                            {{ $record->enrollment_date ? \Carbon\Carbon::parse($record->enrollment_date)->format('M d, Y') : '—' }}
                         </td>
 
                         <td class="px-6 py-4">
