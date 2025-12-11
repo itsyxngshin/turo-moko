@@ -1,86 +1,97 @@
-@extends('layouts.admin-layout') 
+<div class="p-6 bg-white rounded-lg shadow-sm border border-gray-100">
+    
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold text-gray-800">Enrollees Management</h2>
+        
+        <div class="relative w-64">
+            <input wire:model.live.debounce.300ms="search" 
+                   type="text" 
+                   placeholder="Search student or course..." 
+                   class="pl-10 pr-4 py-2 w-full border border-gray-200 rounded-full text-sm focus:outline-none focus:border-blue-500 transition">
+            <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </div>
+    </div>
 
-@section('title', 'Admin | Enrollees')
-
-@section('content')
-<div class="min-w-full text-left border-collapse">
-
-    <table class="min-w-full text-left border-collapse">
-        <thead class="bg-gray-50 text-gray-600 uppercase text-sm">
-            <tr>
-                <th class="px-6 py-3">Photo</th>
-                <th class="px-6 py-3">First Name</th>
-                <th class="px-6 py-3">Middle Name</th>
-                <th class="px-6 py-3">Last Name</th>
-                <th class="px-6 py-3">Actions</th>
-            </tr>
-        </thead>
-
-        <tbody class="divide-y">
-
-            @forelse ($enrollees as $enrollee)
-                <tr class="hover:bg-gray-50 transition-colors">
-
-                    <!-- Photo -->
-                    <td class="px-6 py-4">
-                        @if($enrollee->profile && $enrollee->profile->photo_id)
-                            <img 
-                                src="{{ asset('storage/photos/' . $enrollee->profile->photo_id) }}"
-                                class="w-10 h-10 rounded-full object-cover">
-                        @else
-                            <div class="w-10 h-10 bg-gray-200 rounded-full"></div>
-                        @endif
-                    </td>
-
-                    <!-- First Name -->
-                    <td class="px-6 py-4">
-                        {{ $enrollee->profile->first_name ?? '—' }}
-                    </td>
-
-                    <!-- Middle Name -->
-                    <td class="px-6 py-4">
-                        {{ $enrollee->profile->middle_name ?? '—' }}
-                    </td>
-
-                    <!-- Last Name -->
-                    <td class="px-6 py-4">
-                        {{ $enrollee->profile->last_name ?? '—' }}
-                    </td>
-
-                    <!-- Actions -->
-                    <td class="px-6 py-4 flex flex-wrap gap-3 text-blue-500 mr-16">
-                        <button wire:click="view({{ $enrollee->id }})"
-                                class="hover:underline text-sm">
-                            View
-                        </button>
-
-                        <button wire:click="edit({{ $enrollee->id }})"
-                                class="hover:underline text-sm">
-                            Edit
-                        </button>
-
-                        <button wire:click="remove({{ $enrollee->id }})"
-                                class="hover:underline text-sm">
-                            Remove
-                        </button>
-                    </td>
-                </tr>
-
-            @empty
+    <div class="overflow-x-auto">
+        <table class="min-w-full text-left border-collapse">
+            <thead class="bg-gray-50 text-gray-600 uppercase text-xs font-semibold tracking-wide">
                 <tr>
-                    <td colspan="5" class="px-6 py-6 text-center text-gray-500">
-                        No enrollees found.
-                    </td>
+                    <th class="px-6 py-3 rounded-tl-lg">Student</th>
+                    <th class="px-6 py-3">Course Enrolled</th>
+                    <th class="px-6 py-3">Date</th>
+                    <th class="px-6 py-3">Status</th>
+                    <th class="px-6 py-3 rounded-tr-lg text-right">Actions</th>
                 </tr>
-            @endforelse
+            </thead>
 
-        </tbody>
-    </table>
+            <tbody class="divide-y divide-gray-100">
+                @forelse ($enrollees as $record)
+                    <tr class="hover:bg-gray-50 transition-colors group">
 
-    <!-- Pagination -->
-    <div class="px-6 py-4">
+                        <td class="px-6 py-4 align-middle">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full overflow-hidden border border-gray-200 flex-shrink-0">
+                                    @if($record->enrollee->profile && $record->enrollee->profile->photo)
+                                        <img src="{{ asset('storage/' . $record->enrollee->profile->photo->photos) }}" class="w-full h-full object-cover">
+                                    @else
+                                        <img src="https://ui-avatars.com/api/?name={{ urlencode($record->enrollee->profile->first_name ?? 'U') }}&background=random&color=fff" class="w-full h-full object-cover">
+                                    @endif
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-gray-800">
+                                        {{ $record->enrollee->profile->first_name ?? '—' }} 
+                                        {{ $record->enrollee->profile->last_name ?? '' }}
+                                    </p>
+                                    <p class="text-xs text-gray-400">{{ $record->enrollee->email }}</p>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="px-6 py-4 text-sm font-medium text-gray-700">
+                            {{ $record->course->course_title ?? 'Unknown Course' }}
+                        </td>
+
+                        <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+                            {{ $record->enrollment_date ? $record->enrollment_date->format('M d, Y') : '—' }}
+                        </td>
+
+                        <td class="px-6 py-4">
+                            @php
+                                $statusColors = [
+                                    'Active' => 'bg-green-100 text-green-700',
+                                    'Completed' => 'bg-blue-100 text-blue-700',
+                                    'Dropped' => 'bg-red-100 text-red-700',
+                                ];
+                                $color = $statusColors[$record->status] ?? 'bg-gray-100 text-gray-700';
+                            @endphp
+                            <span class="px-3 py-1 rounded-full text-xs font-bold {{ $color }}">
+                                {{ $record->status }}
+                            </span>
+                        </td>
+
+                        <td class="px-6 py-4 text-right">
+                            <button wire:click="remove({{ $record->id }})" 
+                                    onclick="confirm('Are you sure you want to drop this student from the course?') || event.stopImmediatePropagation()"
+                                    class="text-red-500 hover:text-red-700 font-medium text-xs uppercase tracking-wide opacity-0 group-hover:opacity-100 transition-opacity">
+                                Drop
+                            </button>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center text-gray-400">
+                            <div class="flex flex-col items-center gap-2">
+                                <svg class="w-10 h-10 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                                <span>No enrollment records found.</span>
+                            </div>
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4 px-2">
         {{ $enrollees->links() }}
     </div>
 </div>
-
-@endsection

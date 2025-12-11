@@ -29,6 +29,11 @@ class CourseEnrollee extends Model
         return $this->hasMany(Answer::class, 'enrollee_id');
     }
 
+    public function enrollee()
+    {
+        return $this->belongsTo(User::class, 'enrollee_id');
+    }
+
     public function submissions()
     {
         return $this->hasMany(Submission::class, 'enrollee_id');

@@ -37,6 +37,7 @@ use App\Livewire\Admin\Settings as AdminSettings;
 use App\Livewire\Admin\ViewCourse;
 use App\Http\Controllers\Admin\ViewCourseController;
 use App\Http\Controllers\Admin\CourseModerationController;
+use App\Livewire\Admin\Enrollees;
 
 // --- Learner ---
 use App\Http\Controllers\Learner\ClassesController;
@@ -322,7 +323,7 @@ Route::middleware(['auth', 'role:admin'])
 
     // Management Views
     Route::get('/implementors', fn() => view('livewire.admin.implementors'))->name('implementors');
-    Route::get('/enrollees', fn() => view('livewire.admin.enrollees'))->name('enrollees');
+    Route::get('/enrollees', Enrollees::class)->name('enrollees');
     Route::get('/courses', fn() => view('livewire.admin.courses'))->name('courses');
     
     // Moderation

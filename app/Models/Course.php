@@ -74,6 +74,11 @@ class Course extends Model
         return $this->hasMany(CourseEnrollee::class, 'course_id');
     }
 
+    public function enrollee()
+    {
+        return $this->belongsTo(User::class, 'enrollee_id');
+    }
+
     /**
      * --------------------------------------
      * COURSE CREATOR / ORGANIZATION
