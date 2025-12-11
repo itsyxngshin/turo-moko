@@ -293,21 +293,6 @@ Route::middleware(['auth', 'role:implementor', 'verified'])
     })->name('test-form');
 });
 
-
-    Route::middleware(['auth', 'role:learner'])->group(function () {
-        //LINK THE BLADES EXCLUSIVE FOR THE LEARNER SIDE
-        }); 
-    
-    Route::middleware(['auth', 'role:admin'])->group(function () {
-        //LINK THE BLADES EXCLUSIVE FOR THE ADMIN SIDE
-        }); 
-    
-    Route::middleware(['auth', 'role:implementer'])->group(function () {
-        //LINK THE BLADES EXCLUSIVE FOR THE TEACHER/IMPLEMENTER SIDE
-        }); 
-
-
-
 /*
 |--------------------------------------------------------------------------
 | ADMIN ROUTES
