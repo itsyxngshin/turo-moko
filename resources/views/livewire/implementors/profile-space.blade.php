@@ -141,14 +141,16 @@
                             
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-5"> 
                             @forelse($courses as $course)
-                                <div class="group relative bg-white rounded-2xl p-3 shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full">
+                                <div class="group relative bg-white rounded-2xl p-3 shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full"
+                                    x-data="{ open: false }">
+
                                     <div class="w-full h-40 bg-gray-200 rounded-xl overflow-hidden relative mb-3">
                                         @if($course->coverPhoto)
-                                        <img src="{{ asset('storage/' . $course->coverPhoto->url) }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                            <img src="{{ asset('storage/' . $course->coverPhoto->url) }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                                         @else
-                                        <div class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-300">
-                                            <svg class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                        </div>
+                                            <div class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-300">
+                                                <svg class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                            </div>
                                         @endif
                                         
                                         @if($course->category)
@@ -167,12 +169,73 @@
                                                 {{ $course->start_date ? \Carbon\Carbon::parse($course->start_date)->format('M Y') : 'Self-Paced' }}
                                             </span>
                                             
-                                            {{-- BUTTON LOGIC: Hide "View Details" if the PROFILE OWNER is a Learner --}}
-                                            @if(optional($user->role)->role_name !== 'learner')
-                                                <a href="#" class="bg-black text-white text-xs font-bold py-2 px-4 rounded-full group-hover:bg-orange-600 transition shadow-lg shadow-gray-200 group-hover:shadow-orange-200">
-                                                    View Details
-                                                </a>
+                                            {{-- BUTTON LOGIC --}}
+                                            @if(Auth::check() && optional(Auth::user()->role)->role_name === 'learner')
+                                                @php
+                                                    $isEnrolled = \App\Models\CourseEnrollee::where('course_id', $course->id)
+                                                        ->where('enrollee_id', Auth::id())
+                                                        ->exists();
+                                                @endphp
+
+                                                @if($isEnrolled)
+                                                    {{-- UPDATED: Link now uses course.show and passes the course object --}}
+                                                    <a href="{{ route('learner.course.show', $course) }}" class="bg-green-100 text-green-700 text-xs font-bold py-2 px-4 rounded-full hover:bg-green-200 transition flex items-center gap-1">
+                                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                                        Go to Class
+                                                    </a>
+                                                @else
+                                                    <button @click="open = true" class="bg-black text-white text-xs font-bold py-2 px-4 rounded-full hover:bg-orange-600 transition shadow-lg shadow-gray-200 hover:shadow-orange-200">
+                                                        Join Class
+                                                    </button>
+                                                @endif
+                                            @else
+                                                <span class="text-xs text-gray-400 font-medium italic">View Only</span>
                                             @endif
+                                        </div>
+                                    </div>
+
+                                    <div x-show="open" x-cloak 
+                                        class="fixed inset-0 z-[99] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                                        x-transition:enter="transition ease-out duration-300"
+                                        x-transition:enter-start="opacity-0"
+                                        x-transition:enter-end="opacity-100"
+                                        x-transition:leave="transition ease-in duration-200"
+                                        x-transition:leave-start="opacity-100"
+                                        x-transition:leave-end="opacity-0">
+                                        
+                                        <div @click.away="open = false" class="bg-white rounded-3xl w-full max-w-sm p-0 shadow-2xl transform transition-all overflow-hidden">
+                                            
+                                            <div class="bg-gradient-to-br from-orange-600 to-amber-600 p-6 text-center relative overflow-hidden">
+                                                <div class="absolute top-0 left-0 w-full h-full bg-white opacity-10 blur-xl"></div>
+                                                <div class="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center mx-auto mb-3 text-white ring-4 ring-white/10">
+                                                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                                                </div>
+                                                <h3 class="text-xl font-bold text-white relative z-10">Join this Class?</h3>
+                                            </div>
+
+                                            <div class="p-6 text-center">
+                                                <p class="text-gray-600 text-sm mb-6 leading-relaxed">
+                                                    You are about to enroll in <br>
+                                                    <span class="font-bold text-gray-900 text-base">"{{ $course->course_title }}"</span>.<br>
+                                                    <span class="text-xs text-gray-400">You will be redirected to the course page immediately.</span>
+                                                </p>
+                                                
+                                                <div class="flex flex-col gap-3">
+                                                    <button wire:click="enroll({{ $course->id }})" 
+                                                            wire:loading.attr="disabled"
+                                                            class="w-full py-3 text-sm font-bold text-white bg-gray-900 hover:bg-orange-600 rounded-xl shadow-xl shadow-gray-200 hover:shadow-orange-200 transition flex items-center justify-center gap-2">
+                                                        <span wire:loading.remove wire:target="enroll({{ $course->id }})">Yes, Enroll Me</span>
+                                                        <span wire:loading wire:target="enroll({{ $course->id }})">
+                                                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                                            Redirecting...
+                                                        </span>
+                                                    </button>
+                                                    
+                                                    <button @click="open = false" class="w-full py-3 text-sm font-bold text-gray-400 hover:text-gray-600 bg-transparent hover:bg-gray-50 rounded-xl transition">
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
