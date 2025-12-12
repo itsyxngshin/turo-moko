@@ -32,7 +32,7 @@ class Register extends Component
     #[Rule('required|string|max:255')]
     public string $lastName = '';
 
-    #[Rule('required|string|email|max:255|unique:users')]
+    #[Rule('required|string|email|max:255|unique:users|ends_with:@gmail.com,@turo-moko.com,@yahoo.com')]
     public string $email = '';
 
     #[Rule('required|string|max:255|unique:users')]
@@ -102,6 +102,13 @@ class Register extends Component
             default:
                 return ['strength' => 'Weak', 'color' => 'bg-red-500', 'width' => '33%'];
         }
+    }
+
+    public function messages() 
+    {
+        return [
+            'email.ends_with' => 'Please use an authorized or valid @gmail.com, @yahoo.com or @turo-moko.com email address.',
+        ];
     }
     
     public function register()
