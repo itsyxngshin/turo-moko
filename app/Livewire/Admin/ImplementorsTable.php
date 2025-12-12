@@ -16,6 +16,31 @@ class ImplementorsTable extends Component
     public $sortDirection = 'asc';
     protected $paginationTheme = 'tailwind';
 
+    public $flashState = [
+        'show' => false,
+        'type' => '', 
+        'message' => ''
+    ];
+
+    #[On('implementor-saved')] 
+    #[On('implementor-updated')] 
+    #[On('implementor-deleted')] 
+    public function handleFlashMessage($message = 'Operation successful')
+    {
+        $this->flashState = [
+            'show' => true,
+            'type' => 'success',
+            'message' => $message
+        ];
+
+        // Optional: Auto-hide after 3 seconds (requires Alpine in view)
+    }
+
+    public function closeFlash()
+    {
+        $this->flashState['show'] = false;
+    }
+    
     // Reset page when search input changes
     public function updatingSearch()
     {

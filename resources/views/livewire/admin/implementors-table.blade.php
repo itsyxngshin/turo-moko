@@ -3,6 +3,22 @@
     x-on:print-table.window="window.print()"
     class="p-6"
 >
+    @if($flashState['show'])
+        <div class="mb-6 p-4 rounded-lg bg-green-50 border border-green-200 flex items-start gap-3 shadow-sm transition-all">
+            <svg class="w-5 h-5 text-green-500 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div class="flex-1">
+                <h3 class="text-sm font-bold text-green-800">Success</h3>
+                <p class="text-sm text-green-600">{{ $flashState['message'] }}</p>
+            </div>
+            <button wire:click="closeFlash" class="text-gray-400 hover:text-green-600">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    @endif
     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         
         <div class="relative flex flex-wrap items-center gap-2 w-full md:w-auto">
@@ -73,6 +89,7 @@
                     @forelse ($implementors as $user)
                         <tr class="hover:bg-gray-50 transition-colors group">
                             
+                            {{-- Profile Column --}}
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 rounded-full overflow-hidden border border-gray-200 flex-shrink-0">
@@ -91,10 +108,12 @@
                                 </div>
                             </td>
 
+                            {{-- Username Column --}}
                             <td class="px-6 py-4 text-sm text-gray-700 font-medium">
                                 {{ $user->username }}
                             </td>
 
+                            {{-- Contact Info Column --}}
                             <td class="px-6 py-4">
                                 <div class="flex flex-col">
                                     <span class="text-sm text-gray-600">{{ $user->email }}</span>
@@ -102,10 +121,12 @@
                                 </div>
                             </td>
 
+                            {{-- Date Added Column --}}
                             <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
                                 {{ $user->created_at->format('M d, Y') }}
                             </td>
 
+                            {{-- Status Column --}}
                             <td class="px-6 py-4">
                                 @php
                                     $status = $user->profile?->status ?? 'Active';
@@ -121,8 +142,10 @@
                                 </span>
                             </td>
 
+                            {{-- Actions Column (UPDATED: Always Visible) --}}
                             <td class="px-6 py-4 text-right">
-                                <div class="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                {{-- REMOVED: opacity-0 group-hover:opacity-100 transition-opacity --}}
+                                <div class="flex items-center justify-end gap-3">
                                     <button 
                                         type="button"
                                         @click="$dispatch('view-implementor', { id: {{ $user->id }} })" 
