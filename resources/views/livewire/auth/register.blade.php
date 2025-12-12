@@ -54,7 +54,7 @@
             <p class="text-sm text-gray-600 text-center mb-6">Register to continue.</p>
 
             <form wire:submit.prevent="register">
-                
+                {{-- 
                 <div class="mb-6">
                     <div class="flex bg-gray-100 rounded-xl p-1 text-sm font-semibold shadow-inner">
                         <button
@@ -83,6 +83,8 @@
                         <span class="font-bold text-orange-600 capitalize">{{ $roleName }}</span>.
                     </p>
                 </div>
+
+                --}}
 
                 <div class="mb-3">
                     <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>

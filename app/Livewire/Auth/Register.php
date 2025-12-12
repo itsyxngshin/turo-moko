@@ -51,12 +51,16 @@ class Register extends Component
     /**
      * A computed property to fetch the Role model based on the selected role name.
      */
-    public function setRole(string $role)
-    {
-        if (in_array($role, ['implementor', 'learner'])) {
-            $this->roleName = $role;
-        }
-    }
+
+    /*
+    *public function setRole(string $role)
+    *{
+    *    if (in_array($role, ['implementor', 'learner'])) {
+    *        $this->roleName = $role;
+    *    }
+    *}
+
+    */
 
     #[Computed]
     public function role(): ?Role{
