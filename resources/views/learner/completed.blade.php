@@ -6,7 +6,7 @@
 <div class="space-y-8 pl-6">
 
     <!-- Page Header with Back Button -->
-    <div class="flex items-center gap-3 mb-4 mt-8 ml-4">
+    <div class="flex items-center gap-3 mb-4 ml-4">
         <!-- Back Button -->
         <button onclick="history.back()"
                 class="flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-800 p-2 rounded-full shadow-sm hover:shadow-md transition-all duration-200">

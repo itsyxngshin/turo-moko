@@ -80,56 +80,70 @@
                         ></textarea>
                     </div>
 
-                      <div x-data="fileUpload(@entangle('existingAttachment'))" class="w-full text-left">
-                    <label class="text-black">Attachment</label>
+<div x-data="fileUpload(@js($existingAttachment), $wire)" class="w-full text-left">
+    <label class="text-black font-medium">Attachment</label>
 
-                    <!-- Upload Box -->
-                    <div 
-                        x-bind:class="dragging ? 'bg-gray-100' : 'bg-gray-50'" 
-                        class="relative mt-2 flex items-center justify-center w-full border rounded-md border-gray-300 p-4 cursor-pointer"
-                        @click="$refs.fileInput.click()"
-                        @dragover.prevent="dragging = true"
-                        @dragleave.prevent="dragging = false"
-                        @drop.prevent="handleDrop($event)"
-                    >
-                        <!-- Preview (existing or new file) -->
-                        <template x-if="filePreview">
-                            <div class="flex flex-col items-center text-gray-600">
-                                <span class="text-4xl" x-text="fileIcon">📄</span>
-                                <p class="text-sm mt-2 break-all" x-text="fileName"></p>
-                                <button 
-                                    @click.stop="removeFile" 
-                                    class="mt-2 text-red-500 underline text-sm"
-                                >Remove</button>
-                            </div>
-                        </template>
+    <div 
+        :class="dragging ? 'bg-gray-100' : 'bg-gray-50'" 
+        class="relative mt-2 flex flex-col items-center justify-center w-full min-h-[140px] border rounded-md border-gray-300 p-4 cursor-pointer"
+        @click="$refs.fileInput.click()"
+        @dragover.prevent="dragging = true"
+        @dragleave.prevent="dragging = false"
+        @drop.prevent="handleDrop($event)"
+    >
+        <!-- Uploading State (orange spinner) -->
+        <div x-show="uploading" class="absolute inset-0 bg-gray-100 bg-opacity-70 flex flex-col items-center justify-center z-10">
+            <svg class="animate-spin h-8 w-8 text-orange-500 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="text-orange-500 text-sm font-medium">Uploading...</span>
+        </div>
 
-                        <!-- Placeholder (shown only if no file) -->
-                        <template x-if="!filePreview">
-                            <div class="flex flex-col items-center text-gray-600 text-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24">
-                                    <path fill="#4b5563" d="M23 18h-3v-3h-2v3h-3v2h3v3h2v-3h3M6 2a2 2 0 0 0-2 2v16c0 1.11.89 2 2 2h7.81c-.36-.62-.61-1.3-.73-2H6V4h7v5h5v4.08c.33-.05.67-.08 1-.08c.34 0 .67.03 1 .08V8l-6-6M8 12v2h8v-2m-8 4v2h5v-2Z"/>
-                                </svg>
-                                <p class="mt-2 text-sm">Drag & drop a file or <span class="text-blue-500">click here to upload</span></p>
-                            </div>
-                        </template>
-                    </div>
+        <!-- Preview -->
+        <template x-if="filePreview || currentFile">
+            <div class="flex flex-col items-center text-gray-600 z-0">
+                <span class="text-4xl" x-text="fileIcon"></span>
 
-                    <!-- Hidden Input -->
-                    <input 
-                        type="file"
-                        wire:model="attachments"
-                        wire:key="{{ $uploadKey }}"
-                        x-ref="fileInput"
-                        hidden
-                        @change="showPreview($event)"
-                        accept="image/*,video/*,.pdf,.doc,.docx"
-                    >
+                <a 
+                    :href="currentFile ? '/storage/' + currentFile : '#'" 
+                    class="text-blue-600 underline mt-2 break-all"
+                    target="_blank"
+                    x-text="displayName()"
+                ></a>
 
-                    @error('attachments') 
-                        <span class="text-red-500 text-sm">{{ $message }}</span> 
-                    @enderror
-                </div>
+                <button 
+                    @click.stop="removeFile()" 
+                    class="mt-2 text-red-500 underline text-sm"
+                >
+                    Remove
+                </button>
+            </div>
+        </template>
+
+        <!-- Placeholder -->
+        <div x-show="!filePreview && !currentFile" class="flex flex-col items-center text-gray-600 text-center z-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24">
+                <path fill="#4b5563" d="M23 18h-3v-3h-2v3h-3v2h3v3h2v-3h3M6 2a2 2 0 0 0-2 2v16c0 1.11.89 2 2 2h7.81c-.36-.62-.61-1.3-.73-2H6V4h7v5h5v4.08c.33-.05.67-.08 1-.08c.34 0 .67.03 1 .08V8l-6-6M8 12v2h8v-2m-8 4v2h5v-2Z"/>
+            </svg>
+            <p class="mt-2 text-sm text-gray-600 text-center">
+                Drag & drop a file or <span class="text-blue-500">click here to upload</span>
+            </p>
+        </div>
+    </div>
+
+    <input 
+        type="file" 
+        wire:model="attachments"
+        x-ref="fileInput"
+        hidden
+        @change="showPreview($event)"
+        accept="image/*,video/*,.pdf,.doc,.docx"
+    >
+    @error('attachments') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+</div>
+
+
                 </div>
                                 
                                 <!-- Footer Buttons -->
@@ -173,44 +187,54 @@
         </div>
     </div>
 </div>
+
 <script>
-function fileUpload(lwExistingAttachment) {
-    return {
+document.addEventListener('alpine:init', () => {
+    Alpine.data('fileUpload', (existingFile, $wire) => ({
         dragging: false,
         filePreview: false,
         fileName: '',
         fileIcon: '',
-        existingAttachment: lwExistingAttachment,
+        uploading: false,
+        newFile: null,
+        currentFile: existingFile ? existingFile.path : null,
+        currentOriginalName: existingFile ? existingFile.name : '',
+        removeAttachment: false,
 
         init() {
-            // Show existing file on load
-            if (this.existingAttachment && this.existingAttachment.name) {
+            if (this.currentFile) {
                 this.filePreview = true;
-                this.fileName = this.existingAttachment.name;
-                this.fileIcon = this.getFileIcon(this.fileName);
+                this.fileName = '';
+                this.fileIcon = this.getIcon(this.currentOriginalName);
             }
+        },
 
-            // Watch for Livewire updates
-            this.$watch('existingAttachment', () => {
-                if (this.existingAttachment && this.existingAttachment.name) {
-                    this.filePreview = true;
-                    this.fileName = this.existingAttachment.name;
-                    this.fileIcon = this.getFileIcon(this.fileName);
-                } else {
-                    this.filePreview = false;
-                    this.fileName = '';
-                    this.fileIcon = '';
-                }
-            });
+        getIcon(name) {
+            const ext = name.split('.').pop().toLowerCase();
+            if (['jpg','jpeg','png','gif','webp'].includes(ext)) return '🖼️';
+            if (['mp4','mov','avi','mkv','webm'].includes(ext)) return '🎞️';
+            if (ext === 'pdf') return '📕';
+            if (['doc','docx'].includes(ext)) return '📘';
+            return '📄';
         },
 
         showPreview(event) {
             const file = event.target.files[0];
             if (!file) return;
 
-            this.filePreview = true;
+            this.newFile = file;
             this.fileName = file.name;
-            this.fileIcon = this.getFileIcon(file.name);
+            this.fileIcon = this.getIcon(file.name);
+            this.filePreview = true;
+            this.removeAttachment = false;
+
+            this.uploading = true;
+
+            $wire.upload('attachments', file, {
+                start: () => this.uploading = true,
+                finish: () => this.uploading = false,
+                error: () => this.uploading = false,
+            });
         },
 
         handleDrop(event) {
@@ -223,27 +247,29 @@ function fileUpload(lwExistingAttachment) {
         },
 
         removeFile() {
+            if (this.uploading) return;
+
             this.filePreview = false;
             this.fileName = '';
             this.fileIcon = '';
+
             this.$refs.fileInput.value = '';
-            this.$dispatch('input', []);
-            this.existingAttachment = null;
-            @this.set('existingAttachment', null);
+            if (this.currentFile) {
+                this.removeAttachment = true;
+                $wire.set('removeAttachment', true);
+            }
+            this.currentFile = null;
+            this.currentOriginalName = '';
+            this.newFile = null;
+            $wire.set('attachments', null);
         },
 
-        getFileIcon(fileName) {
-            const ext = fileName.split('.').pop().toLowerCase();
-            if (['jpg','jpeg','png','gif','webp'].includes(ext)) return '🖼️';
-            if (['mp4','mov','avi','mkv'].includes(ext)) return '🎞️';
-            if (ext === 'pdf') return '📕';
-            if (['doc','docx'].includes(ext)) return '📘';
-            return '📄';
+        displayName() {
+            return this.fileName || this.currentOriginalName;
         }
-    }
-}
+    }));
+});
 </script>
-
 <script>
 window.addEventListener('announcement-updated', () => {
     Swal.fire({

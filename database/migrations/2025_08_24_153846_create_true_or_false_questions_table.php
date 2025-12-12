@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('implementer_rating_responses', function (Blueprint $table) {
+        Schema::create('true_or_false_questions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('imp_eval_id')->constrained('implementer_evaluations');
-            $table->foreignId('imp_rating_id')->constrained('implementer_ratings');
-            $table->integer('rating_value');
             $table->timestamps();
         });
     }
@@ -25,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('implementer_rating_responses');
+        Schema::dropIfExists('true_or_false_questions');
     }
 };

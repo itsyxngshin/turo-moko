@@ -59,7 +59,6 @@
     </tbody>
 </table>
 
-    </div>
 <!-- FULL SCREEN LOADING OVERLAY -->
 <div
         wire:loading.flex

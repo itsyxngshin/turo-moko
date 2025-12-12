@@ -13,10 +13,9 @@ return new class extends Migration
     {
         Schema::create('comment_responses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('enrollee_id')->constrained('course_enrollees')->onDelete('cascade');
             $table->foreignId('prog_comment_id')->constrained('program_comments');
             $table->foreignId('prog_evaluation_id')->constrained('program_evaluations');
-            $table->text('comment');
+            $table->integer('rating_value');
             $table->timestamps();
         });
     }

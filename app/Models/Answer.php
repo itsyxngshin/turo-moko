@@ -31,7 +31,7 @@ class Answer extends Model
         return $this->belongsTo(CourseEnrollee::class, 'course_enrollee_id');
     }
 
-    public function option()
+    public function choice()
     {
         return $this->belongsTo(Choice::class, 'option_id');
     }

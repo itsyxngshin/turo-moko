@@ -418,7 +418,7 @@
                     }"
                     x-transition
                     x-cloak
-                    class="mb-4">
+                    class="mb-4 mt-4">
                     <!-- Clickable announcement -->
                     <button 
                         class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer"
@@ -451,15 +451,17 @@
                         
                             <div class="flex border-b pb-2">
                               <img 
-                                    src="{{ $announcement->user?->photo?->photos
-                                            ? asset('storage/' . $announcement->user->photo->photos)
-                                            : asset('implementor/course/thumbnail.png') }}"
-                                    class="w-10 h-10 rounded-full mt-1"
+                                    src="{{ $announcement->user && $announcement->user->profile && $announcement->user->profile->photo
+                                        ? asset('storage/' . $announcement->user->profile->photo->photos)
+                                        : asset('implementor/course/thumbnail.png') }}"
+                                    class="w-10 h-10 rounded-full"
                                 />
+                                
+                                <h3 class="my-auto ml-2 ">
+                                    {{ $announcement->user->profile->first_name ?? '--' }}
+                                    {{ $announcement->user->profile->last_name ?? '' }}
+                                </h3>
 
-
-                                 <!--User Name-->
-                                <h3 class="my-auto ml-2 ">{{ $announcement->user->profile->first_name ?? '--' }}</h3>
                                 
                                
                             <!-- Three-dot button at top-right -->

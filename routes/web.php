@@ -37,6 +37,7 @@ use App\Livewire\Admin\Settings as AdminSettings;
 use App\Livewire\Admin\ViewCourse;
 use App\Http\Controllers\Admin\ViewCourseController;
 use App\Http\Controllers\Admin\CourseModerationController;
+use App\Livewire\Admin\Enrollees;
 
 // --- Learner ---
 use App\Http\Controllers\Learner\ClassesController;
@@ -81,8 +82,8 @@ Route::get('/', function () {
     return view('welcome');
 })->name('homepage');
 
-// TESTING: Quick login routes for development
-Route::get('/test-implementor', function() {
+// TEMPORARY: Fake login route for testing
+Route::get('/fake-login', function() {
     $user = \App\Models\User::where('role_id', 2)->first();
     if (!$user) {
         return 'No implementor user found. Run: php artisan db:seed --class=UsersTableSeeder';
@@ -91,22 +92,14 @@ Route::get('/test-implementor', function() {
     return redirect()->route('implementor.dashboard')->with('success', 'Logged in as ' . $user->email);
 });
 
-Route::get('/test-learner', function() {
+// TEMPORARY: Fake login as learner for testing
+Route::get('/fake-login-learner', function() {
     $user = \App\Models\User::where('role_id', 1)->first();
     if (!$user) {
         return 'No learner user found. Run: php artisan db:seed --class=UsersTableSeeder';
     }
     \Auth::login($user);
     return redirect()->route('learner.hub')->with('success', 'Logged in as learner: ' . $user->email);
-});
-
-Route::get('/test-admin', function() {
-    $user = \App\Models\User::where('role_id', 3)->first();
-    if (!$user) {
-        return 'No admin user found. Run: php artisan db:seed --class=UsersTableSeeder';
-    }
-    \Auth::login($user);
-    return redirect()->route('admin.hub')->with('success', 'Logged in as admin: ' . $user->email);
 });
 
 Route::middleware('guest')->group(function () {
@@ -183,7 +176,7 @@ Route::post('/course/{course}/enroll', [DashboardController::class, 'enroll'])
     Route::get('/assessment', fn() => view('livewire.learner.assessment'))->name('assessment');
     Route::get('/evaluation', fn() => view('livewire.learner.evaluation'))->name('evaluation');
     Route::get('/settings', fn() => view('livewire.learner.settings'))->name('settings');
-    Route::get('/evaluation-status', [\App\Http\Controllers\Learner\EvaluationStatusController::class, 'index'])->name('evaluation-status');
+    Route::get('/evaluation-status', fn() => view('livewire.learner.evaluation-status'))->name('evaluation-status');
 
     // Dynamic Pages
     Route::get('/activity/{id}', function($id) {
@@ -300,21 +293,6 @@ Route::middleware(['auth', 'role:implementor', 'verified'])
     })->name('test-form');
 });
 
-
-    Route::middleware(['auth', 'role:learner'])->group(function () {
-        //LINK THE BLADES EXCLUSIVE FOR THE LEARNER SIDE
-        }); 
-    
-    Route::middleware(['auth', 'role:admin'])->group(function () {
-        //LINK THE BLADES EXCLUSIVE FOR THE ADMIN SIDE
-        }); 
-    
-    Route::middleware(['auth', 'role:implementer'])->group(function () {
-        //LINK THE BLADES EXCLUSIVE FOR THE TEACHER/IMPLEMENTER SIDE
-        }); 
-
-
-
 /*
 |--------------------------------------------------------------------------
 | ADMIN ROUTES
@@ -330,18 +308,8 @@ Route::middleware(['auth', 'role:admin'])
 
     // Management Views
     Route::get('/implementors', fn() => view('livewire.admin.implementors'))->name('implementors');
-    Route::get('/enrollees', fn() => view('livewire.admin.enrollees'))->name('enrollees');
+    Route::get('/enrollees', Enrollees::class)->name('enrollees');
     Route::get('/courses', fn() => view('livewire.admin.courses'))->name('courses');
-    
-    // Evaluation Questions Management
-    Route::get('/evaluation-questions', [App\Http\Controllers\Admin\EvaluationQuestionsController::class, 'index'])->name('evaluation-questions');
-    Route::post('/evaluation-questions', [App\Http\Controllers\Admin\EvaluationQuestionsController::class, 'store']);
-    Route::put('/evaluation-questions/{id}', [App\Http\Controllers\Admin\EvaluationQuestionsController::class, 'update']);
-    Route::delete('/evaluation-questions/{id}', [App\Http\Controllers\Admin\EvaluationQuestionsController::class, 'destroy']);
-    Route::post('/evaluation-questions/publish', [App\Http\Controllers\Admin\EvaluationQuestionsController::class, 'publish']);
-    
-    // Bulk Update Order
-    Route::post('/evaluation-questions/update-order', [App\Http\Controllers\Admin\EvaluationQuestionsController::class, 'updateOrder']);
     
     // Moderation
  Route::get('/course-moderation/{id}', CourseModeration::class)

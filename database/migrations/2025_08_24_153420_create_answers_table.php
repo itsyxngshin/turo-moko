@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('quiz_id')->constrained('quizzes'); 
             $table->foreignId('course_enrollee_id')->constrained('course_enrollees');
             $table->text('answer_text')->nullable();
-            $table->foreignId('option_id')->nullable()->constrained('choices');
+            $table->foreignId('choice_id')->nullable()->constrained('choices');
             $table->decimal('points');
             $table->boolean('is_correct')->default(false);
             $table->timestamps();

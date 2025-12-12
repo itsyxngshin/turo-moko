@@ -4,7 +4,9 @@ namespace App\Livewire\Admin;
 
 use Livewire\Component;
 use Livewire\WithPagination;
-use Illuminate\Support\Facades\DB;
+use App\Models\CourseEnrollee;
+use App\Models\User;
+use App\Models\Profile;
 
 class Enrollees extends Component
 {
@@ -12,41 +14,31 @@ class Enrollees extends Component
 
     public $search = '';
 
-    protected $queryString = ['search'];
-
     public function updatingSearch()
     {
         $this->resetPage();
     }
 
-    public function render()
-    {
-        $enrollees = DB::table('course_enrollees')
-            ->join('users', 'course_enrollees.enrollee_id', '=', 'users.id')
-            ->join('profiles', 'users.profile_id', '=', 'profiles.id')
-            ->leftJoin('media', 'profiles.photo_id', '=', 'media.id')
-            ->join('courses', 'course_enrollees.course_id', '=', 'courses.id')
-            ->select(
-                'course_enrollees.id',
-                'profiles.first_name',
-                'profiles.middle_name',
-                'profiles.last_name',
-                'media.file_path as photo',
-                'courses.course_name',
-                'course_enrollees.enrollment_date',
-                'course_enrollees.completion_date',
-                'course_enrollees.status'
-            )
-            ->where(function ($q) {
-                $q->where('profiles.first_name', 'like', '%' . $this->search . '%')
-                  ->orWhere('profiles.last_name', 'like', '%' . $this->search . '%')
-                  ->orWhere('courses.course_name', 'like', '%' . $this->search . '%');
-            })
-            ->orderBy('course_enrollees.id', 'desc')
-            ->paginate(10);
+   public function render()
+{
+    $query = CourseEnrollee::query()
+        ->with(['user.profile.photo', 'course']); // Load relationships
 
-        return view('livewire.admin.enrollees', [
-            'enrollees' => $enrollees
-        ]);
+    if ($this->search) {
+        $query->whereHas('user.profile', function($q) {
+            $q->where('first_name', 'like', "%{$this->search}%")
+              ->orWhere('last_name', 'like', "%{$this->search}%");
+        })
+        ->orWhereHas('course', function($q) {
+            $q->where('course_title', 'like', "%{$this->search}%");
+        });
     }
+
+    $enrollees = $query->latest('enrollment_date')->paginate(10);
+
+    return view('livewire.admin.enrollees', [
+        'enrollees' => $enrollees
+    ])->layout('layouts.layout');
+}
+
 }

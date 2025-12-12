@@ -88,9 +88,7 @@
                             ? asset('storage/' . $course->activeCoverPhoto->path)
                             : asset('storage/implementor/course/thumbnail.jpg') }}"
                              class="w-full h-full object-cover rounded-t-2xl sm:rounded-l-2xl sm:rounded-tr-none">
-                        <p class="text-xs text-gray-400 mt-1 line-clamp-2 sm:line-clamp-3 px-2 sm:px-0">
-                            {{ $course->background ?? 'No description available.' }}
-                        </p>
+                        
                     </div>
 
                     <!-- Course Info -->

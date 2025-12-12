@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
             CourseEnrolleesSeeder::class,
             ConversationSeeder::class, 
             MessageSeeder::class,
-            EvaluationQuestionsSeeder::class,
+
         ]);
     }
 }

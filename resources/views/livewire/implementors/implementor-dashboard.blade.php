@@ -52,27 +52,7 @@
             </div>
         </div>
 
-        <!-- Evaluations Card -->
-        <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition p-6 relative overflow-hidden w-full h-[335px]">
-            <svg class="absolute inset-0 m-auto w-32 h-32 text-sky-200 opacity-20" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M2 6a2 2 0 0 1 2-2h6c.768 0 2 1 2 2l1 6.5-1 6.736A3 3 0 0 1 10 20H4a2 2 0 0 1-2-2z"/>
-                <path d="M22 6a2 2 0 0 0-2-2h-6c-.768 0-2 1-2 2l-1 6.5 1 6.736c.53.475 1.232.764 2 .764h6a2 2 0 0 0 2-2z"/>
-            </svg>
-            <div class="w-16 h-16 rounded-full bg-sky-50 flex items-center justify-center absolute top-4 left-4 z-10">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-sky-500" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M2 6a2 2 0 0 1 2-2h6c.768 0 2 1 2 2l1 6.5-1 6.736A3 3 0 0 1 10 20H4a2 2 0 0 1-2-2z"/>
-                    <path d="M22 6a2 2 0 0 0-2-2h-6c-.768 0-2 1-2 2l-1 6.5 1 6.736c.53.475 1.232.764 2 .764h6a2 2 0 0 0 2-2z"/>
-                </svg>
-            </div>
-            <div class="flex flex-col items-end justify-end h-full text-right relative z-10">
-                <h3 class="text-sm font-medium text-slate-500">Evaluations</h3>
-                <div class="mt-1 flex items-center gap-2 justify-end">
-                    <p class="text-3xl font-semibold text-slate-900">{{ $evaluationsCount ?? '--' }}</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Courses Card -->
+<!-- Courses Card -->
         <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition p-6 relative overflow-hidden w-full h-[335px]">
             <svg class="absolute inset-0 m-auto w-32 h-32 text-green-200 opacity-20" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M2 6a2 2 0 0 1 2-2h6c.768 0 2 1 2 2l1 6.5-1 6.736A3 3 0 0 1 10 20H4a2 2 0 0 1-2-2z"/>
@@ -89,6 +69,28 @@
                 <p class="mt-1 text-3xl font-semibold text-slate-900">{{ $coursesCount ?? '--' }}</p>
             </div>
         </div>
+        
+        <!-- Evaluations Card -->
+        <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition p-6 relative overflow-hidden w-full h-[335px]">
+            <svg class="absolute inset-0 m-auto w-32 h-32 text-sky-200 opacity-20" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M2 6a2 2 0 0 1 2-2h6c.768 0 2 1 2 2l1 6.5-1 6.736A3 3 0 0 1 10 20H4a2 2 0 0 1-2-2z"/>
+                <path d="M22 6a2 2 0 0 0-2-2h-6c-.768 0-2 1-2 2l-1 6.5 1 6.736c.53.475 1.232.764 2 .764h6a2 2 0 0 0 2-2z"/>
+            </svg>
+            <div class="w-16 h-16 rounded-full bg-sky-50 flex items-center justify-center absolute top-4 left-4 z-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-sky-500" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M2 6a2 2 0 0 1 2-2h6c.768 0 2 1 2 2l1 6.5-1 6.736A3 3 0 0 1 10 20H4a2 2 0 0 1-2-2z"/>
+                    <path d="M22 6a2 2 0 0 0-2-2h-6c-.768 0-2 1-2 2l-1 6.5 1 6.736c.53.475 1.232.764 2 .764h6a2 2 0 0 0 2-2z"/>
+                </svg>
+            </div>
+            <div class="flex flex-col items-end justify-end h-full text-right relative z-10">
+                <h3 class="text-sm font-medium text-slate-500">Evaluation Score</h3>
+                <div class="mt-1 flex items-center gap-2 justify-end">
+                    <p class="text-3xl font-semibold text-slate-900">{{ $overallRating ? number_format($overallRating, 1) : '--' }}</p>
+                </div>
+            </div>
+        </div>
+
+        
 
     </section>
 
@@ -105,7 +107,9 @@
         @forelse($courses->take(2) as $course) {{-- Only 2 cards --}}
             <article class="relative rounded-2xl border border-gray-300 bg-white shadow-sm overflow-hidden">
     <div class="grid md:grid-cols-[300px,1fr] grid-cols-1 gap-4 p-4 relative"> <!-- make this relative -->
-        <img src="{{ $course->activeCoverPhoto ? asset('storage/'.$course->activeCoverPhoto->path) : '/img/default-cover.png' }}"
+        <img src="{{ $course->activeCoverPhoto
+                            ? asset('storage/' . $course->activeCoverPhoto->path)
+                            : asset('storage/implementor/course/thumbnail.jpg') }}"
              alt="Course cover"
              class="w-full md:w-[300px] h-[180px] object-cover rounded-xl flex-shrink-0" />
 

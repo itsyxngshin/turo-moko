@@ -29,11 +29,11 @@ class ImplementorEvaluationStatsController extends Controller
 
         // Get completed evaluations
         $completedProgramEvals = ProgramEvaluation::where('course_id', $course->id)
-            ->whereNotNull('submitted_at')
+            ->where('status', 'inactive')
             ->get();
             
         $completedImpEvals = ImplementerEvaluation::where('course_id', $course->id)
-            ->whereNotNull('submitted_at')
+            ->where('status', 'inactive')
             ->get();
 
         // Get questions
@@ -81,8 +81,8 @@ class ImplementorEvaluationStatsController extends Controller
 
         // Build trends
         $trends = [
-            'course' => $completedProgramEvals->groupBy(fn($e) => $e->submitted_at?->format('Y-m-d') ?? 'unknown')->map->count(),
-            'implementor' => $completedImpEvals->groupBy(fn($e) => $e->submitted_at?->format('Y-m-d') ?? 'unknown')->map->count(),
+            'course' => $completedProgramEvals->groupBy(fn($e) => $e->created_at?->format('Y-m-d') ?? 'unknown')->map->count(),
+            'implementor' => $completedImpEvals->groupBy(fn($e) => $e->created_at?->format('Y-m-d') ?? 'unknown')->map->count(),
         ];
 
         // Build comments

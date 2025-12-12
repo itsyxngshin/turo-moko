@@ -24,32 +24,20 @@ class AddEvaluation extends Component
             return;
         }
 
-        // Check if evaluation already exists for this course
-        $existingProgramEval = ProgramEvaluation::where('course_id', $this->courseId)
-            ->whereNull('enrollee_id')
-            ->first();
-
-        if ($existingProgramEval) {
-            $this->dispatch('evaluation-modal-close');
-            $this->dispatch('swal:evaluation-exists', [
-                'title' => 'Already Exists',
-                'text'  => 'An evaluation item already exists for this course.',
-                'icon'  => 'info',
-            ]);
-            return;
-        }
-
-        ProgramEvaluation::create([
+        // Use firstOrCreate to prevent duplicates
+        ProgramEvaluation::firstOrCreate([
             'course_id'   => $this->courseId,
             'enrollee_id' => null,
+        ], [
             'description' => 'Course Evaluation',
             'status'      => 'active',
         ]);
 
-        ImplementerEvaluation::create([
+        ImplementerEvaluation::firstOrCreate([
             'course_id'      => $this->courseId,
             'implementer_id' => $implementerId,
             'enrollee_id'    => null,
+        ], [
             'description'    => 'Implementor Evaluation',
             'status'         => 'active',
         ]);
@@ -68,4 +56,3 @@ class AddEvaluation extends Component
         return view('livewire.modals.implementor.add-evaluation');
     }
 }
-

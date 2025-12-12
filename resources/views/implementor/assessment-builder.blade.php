@@ -46,12 +46,29 @@
         <div class="space-y-6">
         <div class="flex flex-col">
                 <label class="font-semibold text-sm mb-2">Course Name</label>
-                <select x-model="assessment.course_id" name="course_id" class="block border rounded-lg p-3 cursor-pointer hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                <option value="">Select course</option>
-                    @foreach($courses as $course)
-                        <option value="{{ $course->id }}">{{ $course->course_title }}</option>
-                    @endforeach
-            </select>
+                @php
+                    $currentCourse = null;
+                    if ($quiz) {
+                        $currentCourse = $quiz->course;
+                    } else {
+                        $courseId = request()->get('course_id');
+                        $currentCourse = $courseId ? \App\Models\Course::find($courseId) : null;
+                    }
+                @endphp
+                
+                @if($currentCourse)
+                    <!-- Display course name as read-only text -->
+                    <div class="block border rounded-lg p-3 bg-gray-50 text-gray-700">
+                        {{ $currentCourse->course_title }}
+                    </div>
+                    
+                    <!-- Hidden input to preserve course_id -->
+                    <input type="hidden" name="course_id" value="{{ $currentCourse->id }}" x-model="assessment.course_id">
+                @else
+                    <div class="block border rounded-lg p-3 bg-gray-50 text-gray-500">
+                        No course selected
+                    </div>
+                @endif
         </div>
 
             <div class="grid grid-cols-2 gap-6">

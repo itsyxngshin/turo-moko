@@ -31,7 +31,9 @@
                     <div class="w-[140px] shrink-0 h-32 bg-gray-100 rounded-xl overflow-hidden relative border border-gray-100">
                         @if($course->activeCoverPhoto)
                             <img 
-                                src="{{ asset('storage/' . $course->activeCoverPhoto->path) }}" 
+                                src="{{ $course->activeCoverPhoto
+                            ? asset('storage/' . $course->activeCoverPhoto->path)
+                            : asset('storage/implementor/course/thumbnail.jpg') }}" 
                                 alt="{{ $course->course_title }}" 
                                 class="w-full h-full object-cover"
                             >

@@ -9,6 +9,7 @@ use App\Models\Course;
 use App\Models\Submission;
 use App\Models\Evaluation;
 use App\Models\Assignment;
+use App\Models\ImplementorFeedback;
 
 class ImplementorDashboardController extends Controller
 {public function index()
@@ -34,7 +35,25 @@ class ImplementorDashboardController extends Controller
         $submissionsCount = Submission::whereIn('assignment_id', $assignmentIds)->count();
     }
 
+    // Calculate overall implementor average rating from implementor_feedbacks
+    $overallRating = null;
+    if ($instructor) {
+        $feedbacks = ImplementorFeedback::where('implementer_id', $instructor->id)->get();
+        
+        if ($feedbacks->isNotEmpty()) {
+            $totalAvg = $feedbacks->map(function($feedback) {
+                return ($feedback->teaching_effectiveness_rating + 
+                        $feedback->responsiveness_rating + 
+                        $feedback->explanation_clarity_rating + 
+                        $feedback->recommendation_rating) / 4;
+            })->avg();
+            
+            $overallRating = $totalAvg ? round($totalAvg, 1) : null;
+        }
+    }
+
     $courseName = $courses->first()?->course_title ?? '--';
+    $coursesCount = $courses->count();
 
     // 🔹 Get most recently updated course for that instructor
     $recentCourse = $instructor
@@ -49,6 +68,8 @@ class ImplementorDashboardController extends Controller
         'courses',
         'enrolleesCount',
         'submissionsCount',
+        'coursesCount',
+        'overallRating',
         'courseName',
         'recentCourse' // ✅ pass it to Blade
     ));

@@ -30,6 +30,6 @@ class ArchivedCourses extends Component
     public function render()
     {
         return view('livewire.learner.archived-courses')
-            ->layout('layouts.layout2'); // 👈 use your existing layout
+            ->layout('layouts.learner-layout'); // 👈 use your existing layout
     }
 }

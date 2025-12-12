@@ -10,27 +10,23 @@
 
 <!-- MOBILE SIDEBAR WITH TOGGLE -->
 <div x-data="{ open: false }" class="md:hidden">
-
-<!-- Peek Handle -->
-<div 
-    @click="open = !open; window.dispatchEvent(new CustomEvent('toggle-mobile-sidebar', { detail: open }))"
-    class="fixed top-1/2 left-0 transform -translate-y-1/2 bg-white border border-gray-200 rounded-r-full shadow cursor-pointer z-50 flex items-center justify-center w-10 h-16"
->
-    <i data-lucide="menu" class="w-6 h-6 text-gray-700"></i>
-</div>
+    <!-- Toggle button -->
+    <div @click="open = !open"
+         class="fixed top-1/2 left-0 transform -translate-y-1/2 bg-white border border-gray-200 rounded-r-full shadow cursor-pointer z-[10001] flex items-center justify-center w-10 h-16">
+        <i data-lucide="menu" class="w-6 h-6 text-gray-700"></i>
+    </div>
 
 
   <!-- Sidebar -->
-  <aside 
-    x-show="open"
-    x-transition:enter="transition-transform duration-300"
-    x-transition:enter-start="-translate-x-full"
-    x-transition:enter-end="translate-x-0"
-    x-transition:leave="transition-transform duration-300"
-    x-transition:leave-start="translate-x-0"
-    x-transition:leave-end="-translate-x-full"
-    class="fixed top-0 left-0 h-full w-64 bg-white rounded-r-3xl border border-gray-200 shadow-xl p-6 z-40"
-  >
+    <aside x-show="open"
+           x-transition:enter="transition-transform duration-300"
+           x-transition:enter-start="-translate-x-full"
+           x-transition:enter-end="translate-x-0"
+           x-transition:leave="transition-transform duration-300"
+           x-transition:leave-start="translate-x-0"
+           x-transition:leave-end="-translate-x-full"
+           class="fixed top-0 left-0 h-full w-64 bg-white rounded-r-3xl border border-gray-200 shadow-xl p-6 z-[10000]">
+        
     <div class="flex items-center justify-between mb-8">
       <div class="flex items-center gap-3">
         <img src="{{ asset('images/turo_moko_logo.png') }}" class="h-10 w-10 rounded-full">
@@ -66,12 +62,10 @@
 
   
   <!-- Backdrop -->
-  <div 
-    x-show="open"
-    x-transition.opacity
-    @click="open = false"
-    class="fixed inset-0 bg-black/40 z-30"
-  ></div>
+    <div x-show="open"
+         @click="open = false"
+         x-transition.opacity
+         class="fixed inset-0 bg-black/40 z-[9999]"></div>
 </div>
 
 <aside 
@@ -115,11 +109,6 @@
                     <span x-show="expanded" x-transition.opacity.duration.200ms x-cloak class="text-gray-700 text-sm font-medium">Courses</span>
                 </a>
 
-               <a href="#" class="flex items-center gap-3 px-2 py-2 rounded-lg transition-colors {{ request()->routeIs('admin.course-moderation') ? 'bg-orange-100 text-orange-600' : 'hover:bg-gray-100 text-gray-600' }}">
-    <i data-lucide="shield-check" class="w-6 h-6"></i>
-    <span x-show="expanded" x-transition.opacity.duration.200ms x-cloak class="text-gray-700 text-sm font-medium">Moderation</span>
-</a>
-
 
                 <a href="{{ route('auth.chat') }}" class="flex items-center gap-3 px-2 py-2 rounded-lg transition-colors {{ request()->routeIs('auth.chat') ? 'bg-orange-100 text-orange-600' : 'hover:bg-gray-100 text-gray-600' }}">
                     <i data-lucide="message-circle" class="w-6 h-6"></i>
@@ -148,11 +137,6 @@
                     <span x-show="expanded" x-transition.opacity.duration.200ms x-cloak>Chat</span>
                 </a>
 
-                <a href="#" class="flex items-center gap-3 px-2 py-2 rounded-lg transition-colors {{ request()->routeIs('implementor.settings') ? 'bg-orange-100 text-orange-600' : 'hover:bg-gray-100 text-gray-600' }}">
-                    <i data-lucide="settings" class="w-6 h-6"></i>
-                    <span x-show="expanded" x-transition.opacity.duration.200ms x-cloak>Settings</span>
-                </a>
-
             {{-- LEARNER LINKS --}}
             @else
                 <a href="{{ route('learner.hub') }}" class="flex items-center gap-3 px-2 py-2 rounded-lg transition-colors {{ request()->routeIs('learner.hub') ? 'bg-orange-100 text-orange-600' : 'hover:bg-gray-100 text-gray-600' }}">
@@ -174,12 +158,13 @@
     </div>
 
     <!-- Logout -->
-    <div class="mt-auto mb-2 w-full flex justify-start px-2 ml-2">
+    {{-- Logout (Pushed to bottom) --}}
+    <div class="px-3 mt-auto pt-4 shrink-0">
         <form method="POST" action="{{ route('auth.logout') }}">
             @csrf
-            <button type="submit" class="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-red-50 hover:text-red-600 text-gray-600 transition-colors" aria-label="Logout">
-                <i data-lucide="log-out" class="w-6 h-6"></i>
-                <span x-show="expanded" x-transition.opacity.duration.200ms x-cloak>Logout</span>
+            <button type="submit" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all duration-200 group" title="Logout">
+                <i data-lucide="log-out" class="w-5 h-5 shrink-0 group-hover:stroke-red-600"></i>
+                <span x-show="expanded" x-transition.opacity.duration.200ms x-cloak class="text-sm font-medium whitespace-nowrap">Logout</span>
             </button>
         </form>
     </div>

@@ -11,13 +11,17 @@ class CourseModeration extends Component
     public $course;
     public $modules;
 
-    public function mount($id)
-    {
-        // Load course with its modules and implementer
-        $this->course = Course::with(['modules', 'implementer'])->findOrFail($id);
+public function mount($id)
+{
+    $this->course = Course::with([
+            'modules',
+            'implementer'
+        ])
+        ->withCount('enrolleeRecords')
+        ->findOrFail($id);
 
-        $this->refreshModules();
-    }
+    $this->refreshModules();
+}
 
     public function approveModule($moduleId)
     {

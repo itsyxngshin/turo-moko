@@ -17,7 +17,7 @@
 
     @if($partner)
         {{-- Avatar: add left margin on mobile to avoid hamburger --}}
-        <div class="w-10 h-10 md:w-10 md:h-10 rounded-full bg-gradient-to-tr from-orange-400 to-red-500 flex items-center justify-center text-white font-bold mr-2 md:mr-3 shadow-sm flex-shrink-0 ml-10 md:ml-0">
+        <div class="w-10 h-10 md:w-10 md:h-10 rounded-full bg-gradient-to-tr from-orange-400 to-red-500 flex items-center justify-center text-white font-bold mr-2 md:mr-3 shadow-sm flex-shrink-0 ml-5 md:ml-0">
             <span class="text-lg md:text-lg">
                 {{ strtoupper(substr($partner->profile->first_name ?? $partner->email, 0, 1)) }}
             </span>
@@ -39,7 +39,7 @@
 
 
         {{-- Messages --}}
-        <div x-ref="messageContainer" class="flex-1 overflow-y-auto p-2 md:p-6 space-y-4">
+        <div x-ref="messageContainer" class="flex-1 overflow-y-auto p-2 md:p-6 space-y-4 pb-20 md:pb-0">
             @forelse ($messages as $message)
                 @php $isMe = $message->sender_id === auth()->id(); @endphp
                 <div class="flex w-full {{ $isMe ? 'justify-end' : 'justify-start' }}">
@@ -77,26 +77,20 @@
         </div>
 
         {{-- Input bar --}}
-        <div class="p-2 md:p-4 bg-white border-t border-gray-100 sticky bottom-0">
-            <div class="flex items-center gap-2 bg-gray-50 px-2 md:px-4 py-2 md:py-2.5 rounded-full border border-gray-200 focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-200 transition-all">
-                
-                <button class="text-gray-400 hover:text-gray-600 transition">
-                    <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
-                    </svg>
-                </button>
+        <div class="fixed bottom-0 left-0 right-0 p-2 md:p-4 bg-white border-t border-gray-100 md:relative md:sticky md:bottom-0 md:p-4">
+            <div class="flex items-center gap-2 md:gap-3 bg-gray-50 px-2 md:px-4 py-2 md:py-2.5 rounded-full border border-gray-200 focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-200 transition-all">
 
                 <input type="text" 
                        wire:model.live="body" 
                        wire:keydown.enter="sendMessage"
                        placeholder="Type your message..." 
-                       class="flex-1 bg-transparent border-none focus:ring-0 text-gray-700 placeholder-gray-400 text-sm md:text-base"
+                       class="flex-1 bg-transparent border-none focus:ring-0 text-gray-700 placeholder-gray-400 text-sm md:text-base min-w-0"
                 >
                 
                 <button 
                     wire:click="sendMessage" 
                     @if(trim($body) === '') disabled @endif
-                    class="p-2 md:p-3 rounded-full text-white shadow-lg flex items-center justify-center transition transform duration-150
+                    class="p-2 md:p-3 rounded-full text-white shadow-lg flex items-center justify-center transition transform duration-150 flex-shrink-0
                         {{ trim($body) === '' ? 'bg-gray-300 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600 hover:scale-105' }}"
                 >
                     <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

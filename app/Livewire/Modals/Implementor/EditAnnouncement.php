@@ -8,7 +8,6 @@ use Livewire\WithFileUploads;
 use App\Models\Announcement;
 use App\Models\AnnouncementAttachment;
 use App\Models\Course;
-
 class EditAnnouncement extends Component
 {
     use WithFileUploads;
@@ -18,16 +17,16 @@ class EditAnnouncement extends Component
     public $course;
     public $title;
     public $details;
-    public $attachments = [];
-    public $existingAttachment = null; // full file info (path + name)
-    public $userId;
+    public $attachments = null; // single file but still called attachments
+    public $existingAttachment = null;
+    public $removeAttachment = false; // NEW flag
     public $uploadKey;
+    public $userId;
 
     protected $rules = [
         'title' => 'required|string|max:255',
         'details' => 'required|string',
-        'attachments' => 'nullable|array|max:2',
-        'attachments.*' => 'nullable|file|max:102400',
+        'attachments' => 'nullable|file|max:102400', // only 1
     ];
 
     protected $listeners = ['refresh-announcement-modal' => '$refresh'];
@@ -37,12 +36,9 @@ class EditAnnouncement extends Component
         $this->uploadKey = uniqid();
         $this->userId = auth()->check() ? auth()->id() : 2;
 
-        if ($announcementId) {
-            $this->loadAnnouncement($announcementId);
-        }
+        if ($announcementId) $this->loadAnnouncement($announcementId);
     }
 
-    #[\Livewire\Attributes\On('loadAnnouncement')]
     public function loadAnnouncement($announcementId)
     {
         $this->announcementId = $announcementId;
@@ -56,12 +52,13 @@ class EditAnnouncement extends Component
             $this->course = Course::find($this->courseId);
 
             $attachment = $announcement->attachments->first();
-
-            
             $this->existingAttachment = $attachment ? [
                 'path' => $attachment->file_path,
                 'name' => $attachment->original_name,
             ] : null;
+
+
+            $this->removeAttachment = false;
         }
     }
 
@@ -70,73 +67,64 @@ class EditAnnouncement extends Component
         if (!$this->announcementId) return;
 
         $this->loadAnnouncement($this->announcementId);
-
-        // Clear any new uploads
-        $this->attachments = [];
+        $this->attachments = null;
         $this->uploadKey = uniqid();
-
-        // Clear validation errors
         $this->resetErrorBag();
         $this->resetValidation();
-
         $this->dispatch('announcement-reset', id: $this->announcementId);
     }
 
     public function updateAnnouncement()
-    {
-        $this->validate();
+{
+    $this->validate();
 
-        $announcement = Announcement::find($this->announcementId);
+    $announcement = Announcement::find($this->announcementId);
+    if (!$announcement) return;
 
-        if (!$announcement) {
-            return;
+    $announcement->update([
+        'title' => $this->title,
+        'content' => $this->details,
+    ]);
+
+    // Remove old attachment if flagged
+    if ($this->removeAttachment && $this->existingAttachment) {
+        if (Storage::disk('public')->exists($this->existingAttachment['path'])) {
+            Storage::disk('public')->delete($this->existingAttachment['path']);
         }
-
-        $announcement->update([
-            'title' => $this->title,
-            'content' => $this->details,
-        ]);
-
-        if (!empty($this->attachments)) {
-            if (!Storage::disk('public')->exists('course_attachments')) {
-                Storage::disk('public')->makeDirectory('course_attachments');
-            }
-
-            // Delete old file if exists
-            if ($this->existingAttachment && Storage::disk('public')->exists($this->existingAttachment['path'])) {
-                Storage::disk('public')->delete($this->existingAttachment['path']);
-            }
-
-            // Save new files
-            foreach ($this->attachments as $file) {
-                $path = $file->store('course_attachments', 'public');
-
-                AnnouncementAttachment::updateOrCreate(
-                    ['announcement_id' => $announcement->id],
-                    [
-                        'file_path' => $path,
-                        'original_name' => $file->getClientOriginalName(),
-                    ]
-                );
-
-                $this->existingAttachment = [
-                    'path' => $path,
-                    'name' => $file->getClientOriginalName(),
-                ];
-            }
-        }
-
-        $this->uploadKey = uniqid();
-
-        $this->dispatch('swal:success', [
-            'title' => 'Success!',
-            'text' => 'Announcement updated successfully.',
-            'icon' => 'success',
-            'button' => 'OK'
-        ]);
-
-        $this->dispatch('announcement-updated');
+        AnnouncementAttachment::where('announcement_id', $announcement->id)->delete();
+        $this->existingAttachment = null;
     }
+
+    // Save new attachment if uploaded
+    if ($this->attachments) {
+        // Delete existing file if any
+        if ($this->existingAttachment && Storage::disk('public')->exists($this->existingAttachment['path'])) {
+            Storage::disk('public')->delete($this->existingAttachment['path']);
+            AnnouncementAttachment::where('announcement_id', $announcement->id)->delete();
+        }
+
+        $path = $this->attachments->store('announcement_attachments', 'public');
+
+        AnnouncementAttachment::create([
+            'announcement_id' => $announcement->id,
+            'file_path' => $path,
+            'original_name' => $this->attachments->getClientOriginalName(),
+        ]);
+
+        $this->existingAttachment = [
+            'path' => $path,
+            'name' => $this->attachments->getClientOriginalName(),
+        ];
+    }
+
+    // Reset flags
+    $this->attachments = null;
+    $this->removeAttachment = false;
+    $this->uploadKey = uniqid();
+
+    $this->dispatch('announcement-updated');
+}
+
 
     public function render()
     {

@@ -257,7 +257,15 @@
                     </tr>
                     <tr class="border-b border-gray-300">
                         <td class="px-6 py-4 bg-gray-50 font-semibold">Grading status</td>
-                        <td class="px-6 py-4">Not graded</td>
+                        <td class="px-6 py-4">
+                            @if($submission->grade !== null)
+                                <span class="text-green-600 font-semibold">
+                                    Graded - {{ number_format($submission->grade, 2) }}/100
+                                </span>
+                            @else
+                                <span class="text-gray-600">Not graded</span>
+                            @endif
+                        </td>
                     </tr>
                     <tr class="border-b border-gray-300">
                         <td class="px-6 py-4 bg-gray-50 font-semibold">Time remaining</td>
@@ -279,6 +287,7 @@
                 </tbody>
             </table>
 
+            @if($submission->grade === null)
             <div class="flex justify-center gap-4 mt-8">
                 <button 
                     wire:click="editSubmission"
@@ -294,6 +303,22 @@
                     Remove submission
                 </button>
             </div>
+            @else
+            <div class="mt-8 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <div class="flex items-center gap-2 text-green-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="font-semibold">This submission has been graded and can no longer be edited.</span>
+                </div>
+                @if($submission->feedback)
+                <div class="mt-3 p-3 bg-white rounded border border-green-200">
+                    <p class="text-sm font-semibold text-gray-700 mb-1">Feedback:</p>
+                    <p class="text-gray-600">{{ $submission->feedback }}</p>
+                </div>
+                @endif
+            </div>
+            @endif
         </div>
         @endif
 

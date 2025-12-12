@@ -86,7 +86,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return match($this->role_id) {
             3 => 'homepage',   // If Role 3 (Admin)
-            2 => 'implementor.profile', // If Role 2 (Teacher/Implementer)
+            2 => 'implementer.profile', // If Role 2 (Teacher/Implementer)
             1 => 'learner.profile', // If Role 1 (Student/Learner)
             default => 'homepage', // Fallback
         };

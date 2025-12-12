@@ -3,7 +3,7 @@
 @section('title', 'Activities')
 
 @section('content')
-<div class="space-y-4 px-4 md:px-6 mt-10">
+<div class="space-y-4 px-4 md:px-6">
 
     <!-- Page Header with Back Button -->
     <div class="flex items-center gap-3 mb-6">
