@@ -103,6 +103,8 @@ public function show(Course $course)
 
     // Quizzes ordered by creation date ascending (oldest first)
     $quizzes = Quiz::where('course_id', $course->id)
+        ->where('status', 'Published')
+        ->where('visibility', true)
         ->withCount('results')
         ->orderBy('created_at', 'asc')
         ->get();
