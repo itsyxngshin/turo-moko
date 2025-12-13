@@ -19,14 +19,28 @@
                             wire:click="selectUser({{ $user->id }})"
                             class="w-full text-left px-4 py-3 hover:bg-orange-50 flex items-center transition group"
                         >
-                            <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-xs mr-3 group-hover:bg-orange-200 transition">
-                                {{ strtoupper(substr($user->profile?->first_name ?? $user->email, 0, 1)) }}
+                            {{-- PROFILE PHOTO LOGIC --}}
+                            <div class="shrink-0 mr-3">
+                                @if($user->profile && $user->profile->photo)
+                                    {{-- Image --}}
+                                    <img 
+                                        src="{{ asset('storage/' . $user->profile->photo->photos) }}" 
+                                        alt="Profile"
+                                        class="w-8 h-8 rounded-full object-cover border border-gray-200 shadow-sm"
+                                    >
+                                @else
+                                    {{-- Fallback Initials --}}
+                                    <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-xs group-hover:bg-orange-200 transition">
+                                        {{ strtoupper(substr($user->profile?->first_name ?? $user->email, 0, 1)) }}
+                                    </div>
+                                @endif
                             </div>
-                            <div>
-                                <p class="text-sm font-semibold text-gray-800">
+
+                            <div class="min-w-0">
+                                <p class="text-sm font-semibold text-gray-800 truncate">
                                     {{ $user->profile ? $user->profile->first_name . ' ' . $user->profile->last_name : explode('@', $user->email)[0] }}
                                 </p>
-                                <p class="text-xs text-gray-400">{{ $user->email }}</p>
+                                <p class="text-xs text-gray-400 truncate">{{ $user->email }}</p>
                             </div>
                         </button>
                     </li>

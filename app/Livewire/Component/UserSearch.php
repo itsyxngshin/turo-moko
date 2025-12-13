@@ -20,7 +20,8 @@ class UserSearch extends Component
         }
 
         $this->searchResults = User::where('id', '!=', Auth::id())
-            ->with('profile')
+            // FIXED: Eager load profile AND photo to avoid N+1 queries
+            ->with('profile.photo') 
             ->where(function(Builder $query) {
                 $query->whereHas('profile', function(Builder $q) {
                     $q->where('first_name', 'like', '%' . $this->searchQuery . '%')
@@ -34,10 +35,7 @@ class UserSearch extends Component
 
     public function selectUser($userId)
     {
-        // 1. Tell the parent/sibling component to start the chat
         $this->dispatch('startConversation', userId: $userId);
-
-        // 2. Clear the search UI
         $this->searchQuery = '';
         $this->searchResults = [];
     }

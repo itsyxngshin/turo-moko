@@ -6,19 +6,20 @@
     <div class="flex-1 overflow-y-auto custom-scrollbar">
         @forelse ($conversations as $conversation)
             @php
+                // 1. Identify Partner
                 $partner = $conversation->user_one_id === auth()->id() 
                     ? $conversation->userTwo 
                     : $conversation->userOne;
                     
-                // Safely get the name from the profile relation
+                // 2. Get Name
                 $partnerName = $partner->profile 
                     ? ($partner->profile->first_name . ' ' . $partner->profile->last_name)
-                    : $partner->email; // Fallback to email if no profile
+                    : $partner->email;
                 
-                // 3. Get the last message
+                // 3. Get Last Message (Requires 'messages' relationship loaded)
                 $lastMessage = $conversation->messages->first();
 
-                // 4. THIS WAS MISSING: Check if this is the active conversation
+                // 4. Check Active State
                 $isActive = $selectedConversationId === $conversation->id;
             @endphp
 
@@ -26,23 +27,47 @@
                 wire:click="selectConversation({{ $conversation->id }})"
                 class="w-full text-left flex items-center px-4 py-4 hover:bg-orange-50 transition duration-150 ease-in-out border-l-4 {{ $isActive ? 'border-orange-500 bg-orange-50/50' : 'border-transparent' }}"
             >
+                {{-- PROFILE PHOTO SECTION --}}
                 <div class="relative flex-shrink-0">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-orange-400 to-red-500 flex items-center justify-center text-white font-bold text-lg shadow-sm">
-                       {{ strtoupper(substr($partnerName, 0, 1)) }}
-                    </div>
+                    @if($partner->profile && $partner->profile->photo)
+                        {{-- Has Photo --}}
+                        <img 
+                            src="{{ asset('storage/' . $partner->profile->photo->photos) }}" 
+                            alt="{{ $partnerName }}"
+                            class="w-12 h-12 rounded-full object-cover border border-gray-200 shadow-sm"
+                        >
+                    @else
+                        {{-- Fallback Initials --}}
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-orange-400 to-red-500 flex items-center justify-center text-white font-bold text-lg shadow-sm">
+                            {{ strtoupper(substr($partnerName, 0, 1)) }}
+                        </div>
+                    @endif
                 </div>
 
+                {{-- TEXT CONTENT SECTION --}}
                 <div class="ml-4 flex-1 min-w-0">
                     <div class="flex items-center justify-between mb-1">
+                        {{-- Name --}}
                         <h3 class="text-sm font-semibold text-gray-900 truncate">
                             {{ $partnerName }}
                         </h3>
-                        <span class="text-xs text-gray-400">
+                        
+                        {{-- Time (e.g., "5m", "2h") --}}
+                        <span class="text-xs text-gray-400 flex-shrink-0 ml-2">
                             {{ $lastMessage?->created_at->shortAbsoluteDiffForHumans() ?? '' }}
                         </span>
                     </div>
+
+                    {{-- LAST MESSAGE PREVIEW --}}
                     <p class="text-sm {{ $isActive ? 'text-gray-800 font-medium' : 'text-gray-500' }} truncate">
-                        {{ $lastMessage?->content ?? 'Start a conversation' }}
+                        @if($lastMessage)
+                            @if($lastMessage->sender_id === auth()->id())
+                                <span class="text-xs text-gray-400 mr-1">You:</span>
+                            @endif
+                            {{ $lastMessage->content }}
+                        @else
+                            <span class="italic text-gray-400">Start a conversation</span>
+                        @endif
                     </p>
                 </div>
             </button>
