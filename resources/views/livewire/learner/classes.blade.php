@@ -13,12 +13,12 @@
             </div>
         </div>
 
-        <!-- Pending Activities -->
+        <!-- Pending Assignments -->
         <div class="bg-white shadow rounded-2xl p-4 sm:p-5 flex items-center gap-4 cursor-pointer hover:bg-gray-50"
             onclick="window.location='{{ route('learner.activities') }}'">
             <img src="https://img.icons8.com/fluency/48/000000/todo-list.png" class="w-10 h-10" alt="Pending">
             <div>
-                <p class="font-semibold text-base sm:text-lg">Pending activities</p>
+                <p class="font-semibold text-base sm:text-lg">Pending assignments</p>
                 <p class="text-gray-500 text-sm">{{ $pendingActivities }}</p>
             </div>
         </div>

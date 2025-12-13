@@ -51,7 +51,7 @@ public function mount()
 
     $this->completedCoursesCount = $this->completedCourses->count();
 
-    /* ================= PENDING ACTIVITIES ================= */
+    /* ================= PENDING ASSIGNMENTS ================= */
     $courseIds = $this->activeCourses->pluck('id');
 
     $enrolleeIds = CourseEnrollee::where('enrollee_id', $user->id)
@@ -65,13 +65,7 @@ public function mount()
         })
         ->count();
 
-    $pendingQuizzes = Quiz::whereIn('course_id', $courseIds)
-        ->whereDoesntHave('results', function ($q) use ($enrolleeIds) {
-            $q->whereIn('course_enrollee_id', $enrolleeIds);
-        })
-        ->count();
-
-    $this->pendingActivities = $pendingAssignments + $pendingQuizzes;
+    $this->pendingActivities = $pendingAssignments;
 
     /* ================= PENDING EVALUATIONS ================= */
     $this->pendingEvaluations = $this->activeCourses->filter(function ($course) use ($user) {

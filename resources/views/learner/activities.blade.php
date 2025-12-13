@@ -13,13 +13,13 @@
             <i data-lucide="arrow-left" class="w-4 h-4 md:w-5 md:h-5"></i>
         </button>
 
-        <h1 class="text-2xl font-bold">Pending Activities</h1>
+        <h1 class="text-2xl font-bold">Pending Assignments</h1>
     </div>
 
     <!-- Activities Grid -->
     <section class="bg-white rounded-2xl shadow-md p-6">
         @if(empty($activities) || count($activities) === 0)
-            <p class="text-gray-500 text-center py-10">No pending activities 🎉</p>
+            <p class="text-gray-500 text-center py-10">No pending assignments 🎉</p>
         @else
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 @foreach ($activities as $activity)
@@ -27,16 +27,8 @@
                     <div class="bg-white rounded-2xl shadow-md flex flex-col md:flex-row overflow-hidden border hover:shadow-lg transition">
                         
                         <!-- Icon / Thumbnail -->
-                        <div class="flex-shrink-0 flex items-center justify-center h-20 md:w-20 md:h-auto
-                          @if($activity->type === 'assignment') bg-orange-100 
-                          @elseif($activity->type === 'quiz') bg-blue-100 
-                          @else bg-gray-100 @endif">
-                            <i data-lucide="{{ $activity->type === 'assignment' ? 'clipboard-list' : 'file-text' }}" 
-                               class="w-8 h-8 
-                               @if($activity->type === 'assignment') text-orange-500 
-                               @elseif($activity->type === 'quiz') text-blue-500 
-                               @else text-gray-500 @endif">
-                            </i>
+                        <div class="flex-shrink-0 flex items-center justify-center h-20 md:w-20 md:h-auto bg-orange-100">
+                            <i data-lucide="clipboard-list" class="w-8 h-8 text-orange-500"></i>
                         </div>
 
                         <!-- Content -->
@@ -57,17 +49,10 @@
 
                             <!-- Button -->
                             <div class="flex justify-end mt-4">
-                                @if($activity->type === 'assignment')
-                                    <a href="{{ route('learner.activity.show', ['course' => $activity->course_code, 'assignment' => $activity->id]) }}"
-                                       class="bg-black text-white px-4 py-1.5 rounded-full text-sm hover:bg-gray-800 w-full md:w-auto text-center">
-                                        Submit Assignment
-                                    </a>
-                                @else
-                                    <a href="{{ route('learner.assessment.show', ['quiz' => $activity->id]) }}"
-                                       class="bg-black text-white px-4 py-1.5 rounded-full text-sm hover:bg-gray-800 w-full md:w-auto text-center">
-                                        Start Quiz
-                                    </a>
-                                @endif
+                                <a href="{{ route('learner.activity.show', ['course' => $activity->course_code, 'assignment' => $activity->id]) }}"
+                                   class="bg-black text-white px-4 py-1.5 rounded-full text-sm hover:bg-gray-800 w-full md:w-auto text-center">
+                                    Submit Assignment
+                                </a>
                             </div>
                         </div>
                     </div>

@@ -44,27 +44,8 @@ class ActivitiesController extends Controller
                 ];
             });
         
-        // Get pending quizzes (not taken)
-        $quizzes = Quiz::whereIn('course_id', $courseIds)
-            ->whereDoesntHave('results', function($q) use ($enrolleeIds) {
-                $q->whereIn('course_enrollee_id', $enrolleeIds);
-            })
-            ->with('course')
-            ->get()
-            ->map(function($quiz) {
-                return [
-                    'id' => $quiz->id,
-                    'title' => $quiz->quiz_title,
-                    'description' => $quiz->quiz_description ?? 'No description',
-                    'type' => 'quiz',
-                    'course_name' => $quiz->course->course_title ?? 'N/A',
-                    'course_code' => $quiz->course->course_code ?? null,
-                    'due_date' => null, // Quizzes may not have due dates
-                ];
-            });
-        
-        // Merge and sort by due date
-        $activities = $assignments->concat($quizzes)->sortBy('due_date')->values();
+        // Sort by due date
+        $activities = $assignments->sortBy('due_date')->values();
 
         return view('learner.activities', compact('activities'));
     }
