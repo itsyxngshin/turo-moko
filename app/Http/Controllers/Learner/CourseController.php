@@ -58,16 +58,23 @@ public function index()
 }
 
 
-    public function leaveCourse($courseId)
+public function leaveCourse($courseId)
 {
-    CourseEnrollee::where('course_id', $courseId)
-        ->where('enrollee_id', auth()->id())
-        ->delete();
+    $learnerId = auth()->id();
+
+    $enrollee = CourseEnrollee::where('course_id', $courseId)
+        ->where('enrollee_id', $learnerId)
+        ->first();
+
+    if ($enrollee) {
+        $enrollee->status = 'Dropped';
+        $enrollee->save();
+    }
 
     session()->flash('success', 'You have successfully left the course.');
-
     return redirect()->route('learner.classes');
 }
+
 
 
 public function show(Course $course)

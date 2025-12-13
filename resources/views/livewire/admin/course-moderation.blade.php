@@ -31,13 +31,10 @@
         </div>
 
         <!-- No. of Enrollees -->
-<div class="bg-white p-4 rounded-xl shadow">
-    <h2 class="font-semibold">No. of Enrollees</h2>
-    <p class="text-2xl font-bold mt-2">
-        {{ $course->enrollees->count() }}/{{ $course->student_limit }}
-    </p>
-</div>
-
+        <div class="bg-white p-4 rounded-xl shadow">
+            <h2 class="font-semibold">No. of Enrollees</h2>
+            <p class="text-2xl font-bold mt-2">{{ $course->enrollments_count ?? 0 }}</p>
+        </div>
 
         <!-- Course Performance -->
         <div class="bg-white p-4 rounded-xl shadow col-span-2">

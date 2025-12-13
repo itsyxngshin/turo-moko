@@ -58,7 +58,11 @@ class AssessmentResultsController extends Controller
             'graded_at' => now(),
         ]);
 
-        return redirect()->back()->with('success', 'Assignment graded successfully.');
+        return redirect()->back()->with('swal', [
+            'icon' => 'success',
+            'title' => 'Success!',
+            'text' => 'Assignment graded successfully.',
+        ]);
     }
 
     private function loadAssignmentsWithSubmissions($courseId)

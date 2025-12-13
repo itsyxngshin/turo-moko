@@ -58,9 +58,9 @@
             @endif
         </div>
 
-        @if(session()->has('success'))
-            <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
-                {{ session('success') }}
+        @if(session()->has('error'))
+            <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                {{ session('error') }}
             </div>
         @endif
 
@@ -149,7 +149,15 @@
                             <span class="text-red-500">*</span>
                         @endif
                     </h3>
-                    <p class="text-sm text-gray-600 mb-3">Maximum file size: {{ $assignment->max_file_size >= 1024 ? round($assignment->max_file_size / 1024, 1) . ' MB' : $assignment->max_file_size . ' KB' }}</p>
+                    <div class="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p class="text-sm text-blue-800 font-medium">
+                            <i data-lucide="info" class="w-4 h-4 inline mr-1"></i>
+                            Maximum file size: {{ $assignment->max_file_size >= 1024 ? round($assignment->max_file_size / 1024, 1) . ' MB' : $assignment->max_file_size . ' KB' }}
+                        </p>
+                        <p class="text-xs text-blue-700 mt-1">
+                            Allowed types: PDF, Word, Excel, PowerPoint, Text, Images (JPG, PNG), ZIP
+                        </p>
+                    </div>
                     <div class="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-gray-400 transition"
                          :class="{'border-orange-500 bg-orange-50': $wire.fileUpload}">
                         <!-- Uploading State -->
@@ -197,6 +205,7 @@
                                         type="file" 
                                         id="file-upload"
                                         wire:model="fileUpload"
+                                        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.zip"
                                         class="hidden"
                                     />
                                 </label>
@@ -289,19 +298,25 @@
 
             @if($submission->grade === null)
             <div class="flex justify-center gap-4 mt-8">
-                <button 
-                    wire:click="editSubmission"
-                    class="px-8 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition"
-                >
-                    Edit submission
-                </button>
-                <button 
-                    wire:click="removeSubmission"
-                    class="px-8 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition"
-                    onclick="return confirm('Are you sure you want to remove this submission?')"
-                >
-                    Remove submission
-                </button>
+                @if($this->isPastDue)
+                    <div class="text-center p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <p class="text-red-600 font-medium">This assignment is past the due date. Editing is no longer allowed.</p>
+                    </div>
+                @else
+                    <button 
+                        wire:click="editSubmission"
+                        class="px-8 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition"
+                    >
+                        Edit submission
+                    </button>
+                    <button 
+                        wire:click="removeSubmission"
+                        x-on:click="if(!confirm('Are you sure you want to remove this submission?')) { $event.stopImmediatePropagation(); return false; }"
+                        class="px-8 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition"
+                    >
+                        Remove submission
+                    </button>
+                @endif
             </div>
             @else
             <div class="mt-8 p-4 bg-green-50 border border-green-200 rounded-lg">
@@ -326,3 +341,17 @@
 </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('livewire:initialized', () => {
+        Livewire.on('swal', (event) => {
+            const data = event[0] || event;
+            Swal.fire({
+                icon: data.icon,
+                title: data.title,
+                text: data.text,
+                confirmButtonColor: '#111827'
+            });
+        });
+    });
+</script>

@@ -23,6 +23,7 @@
         @else
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 @foreach ($activities as $activity)
+                    @php $activity = (object) $activity; @endphp
                     <div class="bg-white rounded-2xl shadow-md flex flex-col md:flex-row overflow-hidden border hover:shadow-lg transition">
                         
                         <!-- Icon / Thumbnail -->
@@ -42,12 +43,12 @@
                         <div class="flex-1 p-5 flex flex-col justify-between">
                             <div>
                                 <div class="flex justify-between items-start mb-2 flex-wrap gap-2">
-                                    <p class="text-xs text-gray-400">Course: {{ $activity->title ?? 'N/A' }}</p>
+                                    <p class="text-xs text-gray-400">Course: {{ $activity->course_name ?? 'N/A' }}</p>
                                     <span class="text-xs 
-                                        @if(isset($activity->due_date) && \Carbon\Carbon::parse($activity->due_date)->isPast()) bg-red-100 text-red-600 
+                                        @if($activity->due_date && \Carbon\Carbon::parse($activity->due_date)->isPast()) bg-red-100 text-red-600 
                                         @else bg-yellow-100 text-yellow-600 @endif 
                                         px-2 py-0.5 rounded-full">
-                                        Due: {{ isset($activity->due_date) ? \Carbon\Carbon::parse($activity->due_date)->format('M d') : 'N/A' }}
+                                        Due: {{ $activity->due_date ? \Carbon\Carbon::parse($activity->due_date)->format('M d, Y') : 'No due date' }}
                                     </span>
                                 </div>
                                 <h3 class="text-lg font-bold">{{ $activity->title ?? 'Untitled Activity' }}</h3>
@@ -56,9 +57,17 @@
 
                             <!-- Button -->
                             <div class="flex justify-end mt-4">
-                                <button class="bg-black text-white px-4 py-1.5 rounded-full text-sm hover:bg-gray-800 w-full md:w-auto">
-                                    {{ $activity->type === 'quiz' ? 'Start Quiz' : 'Submit' }}
-                                </button>
+                                @if($activity->type === 'assignment')
+                                    <a href="{{ route('learner.activity.show', ['course' => $activity->course_code, 'assignment' => $activity->id]) }}"
+                                       class="bg-black text-white px-4 py-1.5 rounded-full text-sm hover:bg-gray-800 w-full md:w-auto text-center">
+                                        Submit Assignment
+                                    </a>
+                                @else
+                                    <a href="{{ route('learner.assessment.show', ['quiz' => $activity->id]) }}"
+                                       class="bg-black text-white px-4 py-1.5 rounded-full text-sm hover:bg-gray-800 w-full md:w-auto text-center">
+                                        Start Quiz
+                                    </a>
+                                @endif
                             </div>
                         </div>
                     </div>

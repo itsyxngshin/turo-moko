@@ -6,6 +6,17 @@
         $courseName = $course->name ?? $course->course_title ?? '--';
     @endphp
 
+    <!-- Back to Course Button -->
+    <div class="mb-4">
+        <a href="{{ route('implementor.course-information', $course->course_code) }}" 
+           class="inline-flex items-center text-gray-600 hover:text-gray-900 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Course
+        </a>
+    </div>
+
     <h2 class="text-2xl font-bold mb-6">{{ $courseName }} — Grades</h2>
 
     <div class="overflow-x-auto scrollbar-hide bg-white rounded-2xl shadow-sm border">
@@ -120,3 +131,15 @@
     }
     </style>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    @if(session('swal'))
+        Swal.fire({
+            icon: '{{ session('swal.icon') }}',
+            title: '{{ session('swal.title') }}',
+            text: '{{ session('swal.text') }}',
+            confirmButtonColor: '#000000'
+        });
+    @endif
+</script>

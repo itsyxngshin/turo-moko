@@ -3,6 +3,7 @@
 @section('title', $quiz->quiz_title)
 
 @section('content')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
     [x-cloak] { display: none !important; }
 
@@ -386,15 +387,31 @@ document.addEventListener('alpine:init', () => {
                 const data = await response.json();
 
                 if (data.success) {
-                    alert(data.message);
-                    window.location.href = data.redirect_url;
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: data.message,
+                        confirmButtonColor: '#111827'
+                    }).then(() => {
+                        window.location.href = data.redirect_url;
+                    });
                 } else {
-                    alert('Error: ' + data.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message,
+                        confirmButtonColor: '#111827'
+                    });
                     this.submitting = false;
                 }
             } catch (error) {
                 console.error('Submission error:', error);
-                alert('An error occurred while submitting your assessment. Please try again.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while submitting your assessment. Please try again.',
+                    confirmButtonColor: '#111827'
+                });
                 this.submitting = false;
             }
         }

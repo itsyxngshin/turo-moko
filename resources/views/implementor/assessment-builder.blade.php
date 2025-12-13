@@ -3,11 +3,33 @@
 @section('title', 'Assessment Builder')
 
 @section('content')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
     [x-cloak] { display: none !important; }
 </style>
 
 <main x-data="assessmentBuilder">
+    <!-- Back to Course Button -->
+    @php
+        $course = null;
+        if ($courseId = request('course_id')) {
+            $course = \App\Models\Course::find($courseId);
+        } elseif ($quiz && $quiz->course_id) {
+            $course = \App\Models\Course::find($quiz->course_id);
+        }
+    @endphp
+    @if($course)
+        <div class="ml-4 mt-2 mb-2">
+            <a href="{{ route('implementor.course-information', $course->course_code) }}" 
+               class="inline-flex items-center text-gray-600 hover:text-gray-900 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to Course
+            </a>
+        </div>
+    @endif
+
     <!-- Assessment Builder -->
     <div x-show="!isPreviewMode">
     <form
@@ -62,8 +84,8 @@
                         {{ $currentCourse->course_title }}
                     </div>
                     
-                    <!-- Hidden input to preserve course_id -->
-                    <input type="hidden" name="course_id" value="{{ $currentCourse->id }}" x-model="assessment.course_id">
+                    <!-- Hidden input to preserve course_id (always present) -->
+                    <input type="hidden" name="course_id" value="{{ $currentCourse->id }}" id="course-id-input">
                 @else
                     <div class="block border rounded-lg p-3 bg-gray-50 text-gray-500">
                         No course selected
@@ -542,18 +564,42 @@
                             if (typeof data === 'object') {
                                 if (data.success) {
                                     console.log('✅ SUCCESS:', data.message);
-                                    // Redirect to course page if course_code is provided
-                                    if (data.course_code) {
-                                        window.location.href = `/implementor/course-information/${data.course_code}`;
-                                    } else {
-                                        alert('✅ ' + data.message);
-                                    }
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Success!',
+                                        text: data.message,
+                                        confirmButtonColor: '#000000',
+                                        background: '#ffffff',
+                                        iconColor: '#22c55e'
+                                    }).then(() => {
+                                        // Redirect to course page if course_code is provided
+                                        if (data.course_code) {
+                                            window.location.href = `/implementor/course-information/${data.course_code}`;
+                                        } else {
+                                            window.location.reload();
+                                        }
+                                    });
                                 } else if (data.errors) {
                                     console.log('❌ Validation errors:', data.errors);
-                                    alert('❌ Validation failed: ' + JSON.stringify(data.errors, null, 2));
+                                    const errorMessages = Object.values(data.errors).flat().join('\n');
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Validation Failed',
+                                        text: errorMessages,
+                                        confirmButtonColor: '#000000',
+                                        background: '#ffffff',
+                                        iconColor: '#ef4444'
+                                    });
                                 } else if (data.message) {
                                     console.log('❌ ERROR:', data.message);
-                                    alert('❌ ' + data.message);
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: data.message,
+                                        confirmButtonColor: '#000000',
+                                        background: '#ffffff',
+                                        iconColor: '#ef4444'
+                                    });
                                 }
                             } else {
                                 console.log('Response is not JSON:', data);
@@ -561,7 +607,14 @@
                         })
                         .catch(error => {
                             console.error('Error submitting form:', error);
-                            alert('Error submitting form: ' + error.message);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Submission Error',
+                                text: 'Failed to submit form: ' + error.message,
+                                confirmButtonColor: '#000000',
+                                background: '#ffffff',
+                                iconColor: '#ef4444'
+                            });
                         });
                     } else {
                         console.error('Form not found!');
@@ -585,8 +638,8 @@
                         return;
                     }
                     
-                    // Clear any existing hidden inputs (except _token, _method, quiz_id, is_editing)
-                    const existingHidden = form.querySelectorAll('input[type="hidden"]:not([name="_token"]):not([name="_method"]):not([name="quiz_id"]):not([name="is_editing"])');
+                    // Clear any existing hidden inputs (except _token, _method, quiz_id, is_editing, course_id)
+                    const existingHidden = form.querySelectorAll('input[type="hidden"]:not([name="_token"]):not([name="_method"]):not([name="quiz_id"]):not([name="is_editing"]):not([name="course_id"])');
                     existingHidden.forEach(input => input.remove());
                     
                     // Create hidden input for questions
@@ -665,41 +718,72 @@
                 const quizId = {{ $quiz->id ?? 'null' }};
                 const courseCode = '{{ $quiz->course->course_code ?? "" }}';
                 
+                let title = 'Delete Assessment?';
                 let message = 'Are you sure you want to delete this assessment?';
+                let warning = '';
                 
                 if (status === 'Published') {
-                    message = 'WARNING: This assessment is PUBLISHED and learners may have already taken it.\n\n' +
-                              'Deleting it will remove all associated submissions and results.\n\n' +
-                              'Are you absolutely sure you want to delete this assessment?';
+                    title = 'Delete Published Assessment?';
+                    message = 'This assessment is PUBLISHED and learners may have already taken it.';
+                    warning = 'Deleting it will remove all associated submissions and results.';
                 } else if (status === 'Draft') {
-                    message = 'Are you sure you want to delete this draft assessment?\n\n' +
-                              'This action cannot be undone.';
+                    title = 'Delete Draft Assessment?';
+                    message = 'This action cannot be undone.';
                 }
                 
-                if (confirm(message)) {
-                    // Send delete request
-                    fetch(`/implementor/assessment-builder/${quizId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert('Assessment deleted successfully');
-                            window.location.href = `/implementor/course-information/${courseCode}`;
-                        } else {
-                            alert('Error: ' + data.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Delete error:', error);
-                        alert('Failed to delete assessment');
-                    });
-                }
+                Swal.fire({
+                    icon: 'warning',
+                    title: title,
+                    html: warning ? `<p>${message}</p><p class="mt-2 font-semibold text-red-600">${warning}</p>` : message,
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Yes, delete it',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Send delete request
+                        fetch(`/implementor/assessment-builder/${quizId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: 'Assessment deleted successfully',
+                                    confirmButtonColor: '#000000',
+                                    timer: 2000,
+                                    timerProgressBar: true
+                                }).then(() => {
+                                    window.location.href = `/implementor/course-information/${courseCode}`;
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: data.message,
+                                    confirmButtonColor: '#000000'
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Delete error:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Failed to delete assessment',
+                                confirmButtonColor: '#000000'
+                            });
+                        });
+                    }
+                });
             },
 
             // ===== PREVIEW FUNCTIONALITY =====

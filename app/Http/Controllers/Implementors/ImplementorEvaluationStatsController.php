@@ -5,13 +5,8 @@ namespace App\Http\Controllers\Implementors;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\CourseEnrollee;
-use App\Models\ProgramEvaluation;
-use App\Models\ImplementerEvaluation;
-use App\Models\EvaluationQuestion;
-use App\Models\RatingResponse;
-use App\Models\CommentResponse;
-use App\Models\ImplementerRatingResponse;
-use App\Models\ImplementerCommentResponse;
+use App\Models\CourseFeedback;
+use App\Models\ImplementorFeedback;
 use Illuminate\Support\Facades\Auth;
 
 class ImplementorEvaluationStatsController extends Controller
@@ -27,82 +22,120 @@ class ImplementorEvaluationStatsController extends Controller
             ->whereIn('status', ['Active', 'Completed'])
             ->count();
 
-        // Get completed evaluations
-        $completedProgramEvals = ProgramEvaluation::where('course_id', $course->id)
-            ->where('status', 'inactive')
-            ->get();
-            
-        $completedImpEvals = ImplementerEvaluation::where('course_id', $course->id)
-            ->where('status', 'inactive')
-            ->get();
+        // Get all feedback submissions for this course
+        $courseFeedbacks = CourseFeedback::where('course_id', $course->id)->get();
+        $implementorFeedbacks = ImplementorFeedback::where('course_id', $course->id)->get();
 
-        // Get questions
-        $programRatingQuestions = EvaluationQuestion::programRatings()->active()->get();
-        $programCommentQuestions = EvaluationQuestion::programComments()->active()->get();
-        $implementerRatingQuestions = EvaluationQuestion::implementerRatings()->active()->get();
-        $implementerCommentQuestions = EvaluationQuestion::implementerComments()->active()->get();
-
-        // Get responses
-        $courseRatingResponses = RatingResponse::whereIn('prog_evaluation_id', $completedProgramEvals->pluck('id'))->get();
-        $courseCommentResponses = CommentResponse::whereIn('prog_evaluation_id', $completedProgramEvals->pluck('id'))->get();
-        $impRatingResponses = ImplementerRatingResponse::whereIn('imp_eval_id', $completedImpEvals->pluck('id'))->get();
-        $impCommentResponses = ImplementerCommentResponse::whereIn('imp_eval_id', $completedImpEvals->pluck('id'))->get();
-
-        // Build stats
+        // Course Feedback Statistics
         $courseFeedbackStats = [
-            'total_responses' => $completedProgramEvals->count(),
-            'completion_rate' => $enrolledCount > 0 ? round(($completedProgramEvals->count() / $enrolledCount) * 100, 1) : 0,
-            'questions' => $programRatingQuestions->map(function ($question) use ($courseRatingResponses) {
-                $qResponses = $courseRatingResponses->where('prog_rating_id', $question->id);
-                return [
-                    'id' => $question->id,
-                    'text' => $question->text,
-                    'average' => $qResponses->count() > 0 ? round($qResponses->avg('rating_value'), 1) : null,
-                    'count' => $qResponses->count(),
-                    'distribution' => $this->buildDistribution($qResponses, 'rating_value'),
-                ];
-            }),
+            'total_responses' => $courseFeedbacks->count(),
+            'completion_rate' => $enrolledCount > 0 ? round(($courseFeedbacks->count() / $enrolledCount) * 100, 1) : 0,
+            'averages' => [
+                'overall' => $courseFeedbacks->avg('overall_rating') ? round($courseFeedbacks->avg('overall_rating'), 1) : 0,
+                'materials' => $courseFeedbacks->avg('materials_rating') ? round($courseFeedbacks->avg('materials_rating'), 1) : 0,
+                'structure' => $courseFeedbacks->avg('structure_rating') ? round($courseFeedbacks->avg('structure_rating'), 1) : 0,
+                'engagement' => $courseFeedbacks->avg('engagement_rating') ? round($courseFeedbacks->avg('engagement_rating'), 1) : 0,
+            ],
+            'distribution' => [
+                'overall' => $this->buildDistribution($courseFeedbacks, 'overall_rating'),
+                'materials' => $this->buildDistribution($courseFeedbacks, 'materials_rating'),
+                'structure' => $this->buildDistribution($courseFeedbacks, 'structure_rating'),
+                'engagement' => $this->buildDistribution($courseFeedbacks, 'engagement_rating'),
+            ],
+            'questions' => [
+                [
+                    'id' => 1,
+                    'text' => 'Overall course rating',
+                    'average' => $courseFeedbacks->avg('overall_rating') ? round($courseFeedbacks->avg('overall_rating'), 1) : null,
+                    'distribution' => $this->buildDistribution($courseFeedbacks, 'overall_rating'),
+                ],
+                [
+                    'id' => 2,
+                    'text' => 'Course materials quality',
+                    'average' => $courseFeedbacks->avg('materials_rating') ? round($courseFeedbacks->avg('materials_rating'), 1) : null,
+                    'distribution' => $this->buildDistribution($courseFeedbacks, 'materials_rating'),
+                ],
+                [
+                    'id' => 3,
+                    'text' => 'Course structure',
+                    'average' => $courseFeedbacks->avg('structure_rating') ? round($courseFeedbacks->avg('structure_rating'), 1) : null,
+                    'distribution' => $this->buildDistribution($courseFeedbacks, 'structure_rating'),
+                ],
+                [
+                    'id' => 4,
+                    'text' => 'Course engagement',
+                    'average' => $courseFeedbacks->avg('engagement_rating') ? round($courseFeedbacks->avg('engagement_rating'), 1) : null,
+                    'distribution' => $this->buildDistribution($courseFeedbacks, 'engagement_rating'),
+                ],
+            ],
         ];
 
+        // Implementor Feedback Statistics
         $implementorFeedbackStats = [
-            'total_responses' => $completedImpEvals->count(),
-            'completion_rate' => $enrolledCount > 0 ? round(($completedImpEvals->count() / $enrolledCount) * 100, 1) : 0,
-            'questions' => $implementerRatingQuestions->map(function ($question) use ($impRatingResponses) {
-                $qResponses = $impRatingResponses->where('imp_rating_id', $question->id);
-                return [
-                    'id' => $question->id,
-                    'text' => $question->text,
-                    'average' => $qResponses->count() > 0 ? round($qResponses->avg('rating_value'), 1) : null,
-                    'count' => $qResponses->count(),
-                    'distribution' => $this->buildDistribution($qResponses, 'rating_value'),
-                ];
-            }),
+            'total_responses' => $implementorFeedbacks->count(),
+            'completion_rate' => $enrolledCount > 0 ? round(($implementorFeedbacks->count() / $enrolledCount) * 100, 1) : 0,
+            'averages' => [
+                'teaching_effectiveness' => $implementorFeedbacks->avg('teaching_effectiveness_rating') ? round($implementorFeedbacks->avg('teaching_effectiveness_rating'), 1) : 0,
+                'responsiveness' => $implementorFeedbacks->avg('responsiveness_rating') ? round($implementorFeedbacks->avg('responsiveness_rating'), 1) : 0,
+                'explanation_clarity' => $implementorFeedbacks->avg('explanation_clarity_rating') ? round($implementorFeedbacks->avg('explanation_clarity_rating'), 1) : 0,
+                'recommendation' => $implementorFeedbacks->avg('recommendation_rating') ? round($implementorFeedbacks->avg('recommendation_rating'), 1) : 0,
+            ],
+            'distribution' => [
+                'teaching_effectiveness' => $this->buildDistribution($implementorFeedbacks, 'teaching_effectiveness_rating'),
+                'responsiveness' => $this->buildDistribution($implementorFeedbacks, 'responsiveness_rating'),
+                'explanation_clarity' => $this->buildDistribution($implementorFeedbacks, 'explanation_clarity_rating'),
+                'recommendation' => $this->buildDistribution($implementorFeedbacks, 'recommendation_rating'),
+            ],
+            'questions' => [
+                [
+                    'id' => 6,
+                    'text' => 'Teaching effectiveness',
+                    'average' => $implementorFeedbacks->avg('teaching_effectiveness_rating') ? round($implementorFeedbacks->avg('teaching_effectiveness_rating'), 1) : null,
+                    'distribution' => $this->buildDistribution($implementorFeedbacks, 'teaching_effectiveness_rating'),
+                ],
+                [
+                    'id' => 7,
+                    'text' => 'Responsiveness to learners',
+                    'average' => $implementorFeedbacks->avg('responsiveness_rating') ? round($implementorFeedbacks->avg('responsiveness_rating'), 1) : null,
+                    'distribution' => $this->buildDistribution($implementorFeedbacks, 'responsiveness_rating'),
+                ],
+                [
+                    'id' => 8,
+                    'text' => 'Explanation clarity',
+                    'average' => $implementorFeedbacks->avg('explanation_clarity_rating') ? round($implementorFeedbacks->avg('explanation_clarity_rating'), 1) : null,
+                    'distribution' => $this->buildDistribution($implementorFeedbacks, 'explanation_clarity_rating'),
+                ],
+                [
+                    'id' => 9,
+                    'text' => 'Would recommend this instructor',
+                    'average' => $implementorFeedbacks->avg('recommendation_rating') ? round($implementorFeedbacks->avg('recommendation_rating'), 1) : null,
+                    'distribution' => $this->buildDistribution($implementorFeedbacks, 'recommendation_rating'),
+                ],
+            ],
         ];
 
         // Build trends
         $trends = [
-            'course' => $completedProgramEvals->groupBy(fn($e) => $e->created_at?->format('Y-m-d') ?? 'unknown')->map->count(),
-            'implementor' => $completedImpEvals->groupBy(fn($e) => $e->created_at?->format('Y-m-d') ?? 'unknown')->map->count(),
+            'course' => $courseFeedbacks->groupBy(fn($e) => $e->created_at?->format('Y-m-d') ?? 'unknown')->map->count(),
+            'implementor' => $implementorFeedbacks->groupBy(fn($e) => $e->created_at?->format('Y-m-d') ?? 'unknown')->map->count(),
         ];
 
         // Build comments
         $comments = [
-            'course' => $courseCommentResponses->filter(fn($r) => !empty($r->comment))->map(function ($response) use ($programCommentQuestions) {
-                $question = $programCommentQuestions->firstWhere('id', $response->prog_comment_id);
+            'course' => $courseFeedbacks->filter(fn($r) => !empty($r->comment))->map(function ($feedback) {
                 return [
-                    'question' => $question?->text ?? 'Comment',
-                    'comment' => $response->comment,
-                    'created_at' => $response->created_at?->format('M d, Y'),
+                    'question' => 'General feedback',
+                    'comment' => $feedback->comment,
+                    'created_at' => $feedback->created_at?->format('M d, Y'),
                 ];
-            }),
-            'implementor' => $impCommentResponses->filter(fn($r) => !empty($r->comment))->map(function ($response) use ($implementerCommentQuestions) {
-                $question = $implementerCommentQuestions->firstWhere('id', $response->imp_comment_id);
+            })->values(),
+            'implementor' => $implementorFeedbacks->filter(fn($r) => !empty($r->comment))->map(function ($feedback) {
                 return [
-                    'question' => $question?->text ?? 'Comment',
-                    'comment' => $response->comment,
-                    'created_at' => $response->created_at?->format('M d, Y'),
+                    'question' => 'General feedback',
+                    'comment' => $feedback->comment,
+                    'created_at' => $feedback->created_at?->format('M d, Y'),
                 ];
-            }),
+            })->values(),
         ];
 
         return view('implementor.evaluation-stats', compact(
@@ -115,10 +148,10 @@ class ImplementorEvaluationStatsController extends Controller
         ));
     }
 
-    private function buildDistribution($responses, $field)
+    private function buildDistribution($collection, $field)
     {
         $base = collect([1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0]);
-        $dist = $responses->groupBy($field)->map->count();
+        $dist = $collection->groupBy($field)->map->count();
         return $base->merge($dist)->sortKeysDesc();
     }
 }

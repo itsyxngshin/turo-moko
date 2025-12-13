@@ -176,9 +176,9 @@ class AssessmentBuilderController extends Controller
                 'status' => $status,
                 'start_date' => now(),
                 'end_date' => $request->closing_schedule ?: now()->addDays(7),
-                'timer_hours' => $request->timer_hours,
-                'timer_minutes' => $request->timer_minutes,
-                'submission_limit' => $request->submission_limit,
+                'timer_hours' => $request->timer_hours ?: 0,
+                'timer_minutes' => $request->timer_minutes ?: 0,
+                'submission_limit' => $request->submission_limit ?: 1,
                 'visibility' => true,
             ]);
 
@@ -249,13 +249,13 @@ class AssessmentBuilderController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => "Assessment {$action} successfully! Quiz ID: {$quiz->id}",
+                    'message' => "Assessment {$action} successfully!",
                     'quiz_id' => $quiz->id,
                     'course_code' => $course ? $course->course_code : null
                 ]);
             }
             
-            return redirect()->back()->with('success', "Assessment {$action} successfully! Quiz ID: {$quiz->id}");
+            return redirect()->back()->with('success', "Assessment {$action} successfully!");
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -380,9 +380,9 @@ class AssessmentBuilderController extends Controller
                 'description' => $request->description,
                 'status' => $status,
                 'end_date' => $request->closing_schedule ?: $quiz->end_date,
-                'timer_hours' => $request->timer_hours,
-                'timer_minutes' => $request->timer_minutes,
-                'submission_limit' => $request->submission_limit,
+                'timer_hours' => $request->timer_hours ?: 0,
+                'timer_minutes' => $request->timer_minutes ?: 0,
+                'submission_limit' => $request->submission_limit ?: 1,
             ]);
 
             // Delete existing related records in the correct order to satisfy FKs
@@ -454,13 +454,13 @@ class AssessmentBuilderController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => "Assessment {$action} successfully! Quiz ID: {$quiz->id}",
+                    'message' => "Assessment {$action} successfully!",
                     'quiz_id' => $quiz->id,
                     'course_code' => $course ? $course->course_code : null
                 ]);
             }
             
-            return redirect()->back()->with('success', "Assessment {$action} successfully! Quiz ID: {$quiz->id}");
+            return redirect()->back()->with('success', "Assessment {$action} successfully!");
 
         } catch (\Exception $e) {
             DB::rollBack();

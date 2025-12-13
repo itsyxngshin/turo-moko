@@ -27,9 +27,14 @@ class ConversationList extends Component
     {
         $this->conversations = Conversation::where('user_one_id', Auth::id())
             ->orWhere('user_two_id', Auth::id())
-            ->with(['userOne', 'userTwo', 'messages' => function($query) {
-                $query->latest()->limit(1);
-            }])
+            ->with([
+                'userOne.profile.photo', 
+                'userTwo.profile.photo', 
+                // FIXED: Sort by Newest First so ->first() gives the latest message
+                'messages' => function($query) {
+                    $query->orderBy('created_at', 'desc'); 
+                }
+            ])
             ->latest('updated_at')
             ->get();
     }

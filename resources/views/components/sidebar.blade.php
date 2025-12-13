@@ -1,85 +1,40 @@
-<!-- Alpine.js for interactivity -->
-
-<!-- Lucide Icons -->
 <script src="https://unpkg.com/lucide@latest"></script>
+<style> [x-cloak] { display: none !important; } </style>
 
-<style>
-    /* Prevent flicker before Alpine initializes */
-    [x-cloak] { display: none !important; }
-</style>
-
-<!-- MOBILE SIDEBAR WITH TOGGLE -->
-<div x-data="{ open: false }" class="md:hidden">
-    <!-- Toggle button -->
-    <div @click="open = !open"
-         class="fixed top-1/2 left-0 transform -translate-y-1/2 bg-white border border-gray-200 rounded-r-full shadow cursor-pointer z-[10001] flex items-center justify-center w-10 h-16">
-        <i data-lucide="menu" class="w-6 h-6 text-gray-700"></i>
-    </div>
-
-
-  <!-- Sidebar -->
-    <aside x-show="open"
-           x-transition:enter="transition-transform duration-300"
-           x-transition:enter-start="-translate-x-full"
-           x-transition:enter-end="translate-x-0"
-           x-transition:leave="transition-transform duration-300"
-           x-transition:leave-start="translate-x-0"
-           x-transition:leave-end="-translate-x-full"
-           class="fixed top-0 left-0 h-full w-64 bg-white rounded-r-3xl border border-gray-200 shadow-xl p-6 z-[10000]">
-        
-    <div class="flex items-center justify-between mb-8">
-      <div class="flex items-center gap-3">
-        <img src="{{ asset('images/turo_moko_logo.png') }}" class="h-10 w-10 rounded-full">
-        <span class="text-gray-800 font-semibold text-lg">Turo-Moko</span>
-      </div>
-      <button @click="open = false" class="p-1 rounded-full hover:bg-gray-100">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
-    </div>
-
-    <!-- Sidebar Links (Learner Only) -->
-    <nav class="flex flex-col gap-4 text-gray-700">
-      <a href="{{ route('learner.hub') }}" class="flex items-center gap-3">
-        <i data-lucide="home" class="w-6 h-6"></i> Home
-      </a>
-
-      <a href="{{ route('learner.classes') }}" class="flex items-center gap-3">
-        <i data-lucide="book" class="w-6 h-6"></i> Courses
-      </a>
-
-      <a href="{{ route('auth.chat') }}" class="flex items-center gap-3">
-        <i data-lucide="message-circle" class="w-6 h-6"></i> Chat
-      </a>
-
-      <form method="POST" action="{{ route('auth.logout') }}">
-        @csrf
-        <button class="flex items-center gap-3 text-red-600 mt-6">
-          <i data-lucide="log-out" class="w-6 h-6"></i> Logout
-        </button>
-      </form>
-    </nav>
-  </aside>
-
-  
-  <!-- Backdrop -->
-    <div x-show="open"
-         @click="open = false"
-         x-transition.opacity
-         class="fixed inset-0 bg-black/40 z-[9999]"></div>
-</div>
-
+{{-- 
+    1. Update x-data to include 'showLogoutModal: false' 
+--}}
 <aside 
-    x-data="{ expanded: false, windowWidth: window.innerWidth }" 
-    x-init="lucide.createIcons()" 
+    x-data="{ expanded: true, showLogoutModal: false }"
+    x-init="
+        lucide.createIcons();
+        init = true;
+    "
+    x-cloak
     x-on:resize.window="windowWidth = window.innerWidth"
-    :class="expanded ? 'w-56' : 'w-[70px]'" 
-    class="hidden md:flex transition-all duration-300 ease-in-out h-[750px] bg-white rounded-3xl border border-gray-200 shadow-sm flex flex-col py-6 ml-4 mt-2 overflow-hidden"
+    :class="expanded ? 'w-56' : 'w-[70px]'"
+    class="hidden md:flex transition-all duration-300 ease-in-out h-[750px] bg-white 
+           rounded-3xl border border-gray-200 shadow-sm flex flex-col py-6 ml-4 mt-2 
+           overflow-hidden"
 >
+
     {{-- Logo / Toggle --}}
     <div class="flex flex-col gap-8">
-        <div @click="expanded = !expanded" class="flex items-center gap-2 cursor-pointer transition-all duration-300 px-2 justify-start">
-            <img src="{{ asset('images/turo_moko_logo.png') }}" alt="TURO-MOKO Logo" class="h-10 w-10 rounded-full object-cover ml-2">
-            <span x-show="expanded" x-transition.opacity.duration.300ms x-cloak class="text-gray-800 font-semibold text-base whitespace-nowrap">
+        <div 
+            @click="expanded = !expanded"
+            class="flex items-center gap-3 cursor-pointer px-2 ml-4"
+        >
+            <div class="flex flex-col justify-between w-6 h-5">
+                <span class="block h-0.5 w-full bg-gray-700"></span>
+                <span class="block h-0.5 w-full bg-gray-700"></span>
+                <span class="block h-0.5 w-full bg-gray-700"></span>
+            </div>
+
+            <span 
+                x-show="expanded"
+                x-cloak
+                class="text-orange-500 font-semibold text-base whitespace-nowrap"
+            >
                 Turo-Moko
             </span>
         </div>
@@ -157,37 +112,96 @@
         </div>
     </div>
 
-    <!-- Logout -->
-    {{-- Logout (Pushed to bottom) --}}
+    {{-- 
+        2. UPDATED LOGOUT BUTTON 
+        Removed the <form> wrapper here. Instead, it just toggles the modal.
+    --}}
     <div class="px-3 mt-auto pt-4 shrink-0">
-        <form method="POST" action="{{ route('auth.logout') }}">
-            @csrf
-            <button type="submit" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all duration-200 group" title="Logout">
-                <i data-lucide="log-out" class="w-5 h-5 shrink-0 group-hover:stroke-red-600"></i>
-                <span x-show="expanded" x-transition.opacity.duration.200ms x-cloak class="text-sm font-medium whitespace-nowrap">Logout</span>
-            </button>
-        </form>
+        <button 
+            type="button" 
+            @click="showLogoutModal = true" 
+            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all duration-200 group" 
+            title="Logout"
+        >
+            <i data-lucide="log-out" class="w-5 h-5 shrink-0 group-hover:stroke-red-600"></i>
+            <span x-show="expanded" x-transition.opacity.duration.200ms x-cloak class="text-sm font-medium whitespace-nowrap">Logout</span>
+        </button>
     </div>
+
+    {{-- 
+        3. MODAL COMPONENT (Teleported to Body)
+        Using x-teleport moves this HTML to the bottom of the <body> tag, 
+        fixing z-index/overflow issues.
+    --}}
+    <template x-teleport="body">
+        <div 
+            x-show="showLogoutModal" 
+            x-transition.opacity 
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+            style="display: none;" {{-- Prevents FOUC --}}
+        >
+            {{-- Modal Box --}}
+            <div 
+                x-show="showLogoutModal"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 scale-90"
+                x-transition:enter-end="opacity-100 scale-100"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100 scale-100"
+                x-transition:leave-end="opacity-0 scale-90"
+                @click.away="showLogoutModal = false"
+                class="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4 p-6 text-center"
+            >
+                {{-- Icon --}}
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                    <i data-lucide="log-out" class="h-6 w-6 text-red-600"></i>
+                </div>
+
+                {{-- Text --}}
+                <h3 class="text-lg font-bold text-gray-900 mb-2">Confirm Logout</h3>
+                <p class="text-sm text-gray-500 mb-6">
+                    Are you sure you want to log out of your account?
+                </p>
+
+                {{-- Actions --}}
+                <div class="flex gap-3 justify-center">
+                    {{-- Cancel --}}
+                    <button 
+                        @click="showLogoutModal = false" 
+                        class="px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-medium transition-colors"
+                    >
+                        Cancel
+                    </button>
+
+                    {{-- Confirm (Actual Form) --}}
+                    <form method="POST" action="{{ route('auth.logout') }}">
+                        @csrf
+                        <button 
+                            type="submit" 
+                            class="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 font-medium transition-colors"
+                        >
+                            Yes, Logout
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </template>
+
 </aside>
 
+{{-- Scripts --}}
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        lucide.createIcons(); // Render all Lucide icons
+        lucide.createIcons();
     });
-</script>
-
-<script>
-  document.addEventListener("alpine:init", () => {
-    Alpine.data('mobileSidebar', () => ({
-        open: false,
-        toggle() {
-            this.open = !this.open;
-            document.querySelector('[x-data="{ mobileOpen: false }"]').__x.$data.mobileOpen = this.open;
-        }
-    }));
-  });
-
-  document.addEventListener("DOMContentLoaded", () => {
-      lucide.createIcons();
-  });
+    
+    // Re-initialize icons when modal opens (optional, usually handled by Alpine/Livewire)
+    document.addEventListener("alpine:initialized", () => {
+        Alpine.effect(() => {
+            // If the modal state changes, we might need to refresh icons inside the teleported template
+            // typically not strictly necessary for static icons inside modal but good practice
+            setTimeout(() => lucide.createIcons(), 50);
+        });
+    });
 </script>

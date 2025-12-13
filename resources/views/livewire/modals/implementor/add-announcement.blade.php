@@ -75,16 +75,16 @@
     >
 
         <!-- Uploading Overlay -->
-        <div wire:loading wire:target="attachment"
-             class="absolute top-0 left-0 w-full h-full bg-gray-100  flex items-center justify-center z-50 rounded-md">
-            <div class="flex flex-col items-center justify-center">
-                <svg class="animate-spin h-16 w-16 text-orange-500 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span class="text-orange-500 font-medium">Uploading...</span>
-            </div>
-        </div>
+        <div x-show="uploading" class="absolute inset-0 bg-gray-100 flex items-center justify-center z-50 rounded-md">
+    <div class="flex flex-col items-center justify-center">
+        <svg class="animate-spin h-16 w-16 text-orange-500 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span class="text-orange-500 font-medium">Uploading...</span>
+    </div>
+</div>
+
 
         <!-- Preview -->
         <div x-show="filePreview" class="flex flex-col items-center text-gray-600 z-10">
@@ -107,7 +107,7 @@
     <!-- Hidden File Input -->
     <input 
         type="file" 
-        wire:model="attachment"
+        wire:model="attachments"
         x-ref="fileInput"
         hidden
         @change="showPreview($event)"
@@ -143,95 +143,100 @@
 </div>
 
 <script>
-document.addEventListener('livewire:init', () => {
-    Livewire.on('announcement-saved', () => {
-        document.querySelectorAll('[x-data]').forEach(el => {
-            if (el.__x) el.__x.$data.open = false;
-        });
-    });
-});
-
-
-</script>
-
-<script>
-window.addEventListener('announcement-saved', () => {
+window.addEventListener('announcement-updated', () => {
     Swal.fire({
         icon: 'success',
-        title: 'Announcement created!',
-        showConfirmButton: true,
-        timer: 3000,
-        timerProgressBar: true,
-    }).then(() => {
-        // Reset the file upload box
-        const uploadComponent = document.querySelector('[x-data="fileUpload()"]');
-        if (uploadComponent && uploadComponent.__x) {
-            uploadComponent.__x.$data.filePreview = null;
-            uploadComponent.__x.$data.isImage = false;
-            const fileInput = uploadComponent.querySelector('input[type="file"]');
-            if (fileInput) fileInput.value = '';
+        title: 'Announcement updated!',
+        showConfirmButton: true,   // show OK button
+        timer: 3000,               // auto-close after 3 seconds (optional)
+        timerProgressBar: true,    // shows progress bar
+        allowOutsideClick: false,  // prevents clicking outside to close
+        allowEscapeKey: false,     // prevents pressing ESC to close
+    }).then((result) => {
+        // This triggers when OK is clicked or timer ends
+        if (result.isConfirmed || result.dismiss === Swal.DismissReason.timer) {
+
+            // Close all Alpine modals
+            document.querySelectorAll('[x-data]').forEach(el => {
+                if (el.__x) el.__x.$data.open = false;
+            });
+
+            // Reset file upload
+            const uploadComponent = document.querySelector('[x-data="fileUpload()"]');
+            if (uploadComponent && uploadComponent.__x) {
+                uploadComponent.__x.resetFileUpload();
+            }
+
+            // Reload page
+            location.reload();
         }
-        // Refresh the page after SweetAlert
-        location.reload();
     });
 });
 </script>
+
+
+
+
+
 
 <script>
 document.addEventListener('alpine:init', () => {
     Alpine.data('fileUpload', () => ({
-        dragging: false,
-        filePreview: false,
-        fileName: '',
-        fileIcon: '',
-
-        showPreview(event) {
-            const file = event.target.files[0];
-            if (!file) {
-                this.removeFile();
-                return;
-            }
-
-            // Do NOT show preview until Livewire finishes upload
-            this.filePreview = false;
-
-            this.fileName = file.name;
-            const ext = file.name.split('.').pop().toLowerCase();
-            if (['jpg','jpeg','png','gif','webp'].includes(ext)) this.fileIcon = '🖼️';
-            else if (['mp4','mov','avi','mkv'].includes(ext)) this.fileIcon = '🎞️';
-            else if (['pdf'].includes(ext)) this.fileIcon = '📕';
-            else if (['doc','docx'].includes(ext)) this.fileIcon = '📘';
-            else this.fileIcon = '📄';
-
-            // Wait until Livewire finishes upload to show the preview
-            Livewire.on('attachment-uploaded', () => {
-                this.filePreview = true;
-            });
-        },
-
-        handleDrop(event) {
-            this.dragging = false;
-            const file = event.dataTransfer.files[0];
-            if (!file) return;
-
-            const dt = new DataTransfer();
-            dt.items.add(file);
-            this.$refs.fileInput.files = dt.files;
-
-            this.showPreview({ target: { files: [file] } });
-        },
-
-        removeFile() {
-            this.filePreview = false;
-            this.fileName = '';
-            this.fileIcon = '';
-            if (this.$refs.fileInput) this.$refs.fileInput.value = '';
-        },
-
-        resetFileUpload() {
+    dragging: false,
+    filePreview: false,
+    fileName: '',
+    fileIcon: '',
+    uploading: false, // new flag for actual upload
+    showPreview(event) {
+        const file = event.target.files[0];
+        if (!file) {
             this.removeFile();
+            return;
         }
-    }));
+
+        this.uploading = true; // start showing uploading overlay
+        this.fileName = file.name;
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (['jpg','jpeg','png','gif','webp'].includes(ext)) this.fileIcon = '🖼️';
+        else if (['mp4','mov','avi','mkv'].includes(ext)) this.fileIcon = '🎞️';
+        else if (['pdf'].includes(ext)) this.fileIcon = '📕';
+        else if (['doc','docx'].includes(ext)) this.fileIcon = '📘';
+        else this.fileIcon = '📄';
+
+        // Wait for Livewire upload to finish
+        window.addEventListener('attachment-uploaded', () => {
+            this.filePreview = true;
+            this.uploading = false; // stop spinner
+        }, { once: true });
+    },
+
+    handleDrop(event) {
+        this.dragging = false;
+        const file = event.dataTransfer.files[0];
+        if (!file) return;
+
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        this.$refs.fileInput.files = dt.files;
+
+        this.showPreview({ target: { files: [file] } });
+    },
+
+    removeFile() {
+        this.filePreview = false;
+        this.fileName = '';
+        this.fileIcon = '';
+        this.uploading = false; // make sure spinner stops
+        if (this.$refs.fileInput) this.$refs.fileInput.value = '';
+    },
+
+    resetFileUpload() {
+        this.removeFile();
+    }
+}));
+
+
+      
 });
 </script>
 

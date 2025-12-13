@@ -1,4 +1,4 @@
-<?php
+    <?php
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
@@ -176,7 +176,7 @@ Route::post('/course/{course}/enroll', [DashboardController::class, 'enroll'])
     Route::get('/assessment', fn() => view('livewire.learner.assessment'))->name('assessment');
     Route::get('/evaluation', fn() => view('livewire.learner.evaluation'))->name('evaluation');
     Route::get('/settings', fn() => view('livewire.learner.settings'))->name('settings');
-    Route::get('/evaluation-status', fn() => view('livewire.learner.evaluation-status'))->name('evaluation-status');
+    Route::get('/evaluation-status', \App\Livewire\Learner\EvaluationStatus::class)->name('evaluation-status');
 
     // Dynamic Pages
     Route::get('/activity/{id}', function($id) {
@@ -196,12 +196,7 @@ Route::post('/course/{course}/enroll', [DashboardController::class, 'enroll'])
     Route::get('/assessment/{quiz}/result', [LearnerAssessmentController::class, 'result'])
         ->name('assessment.result');
 
-Route::get('/suggested-courses', function() {
-    $suggestedCourses = Course::latest()->get(); // Or add your filtering logic
-    return view('livewire.learner.show-all-courses', compact('suggestedCourses'));
-})->name('show-all-courses');
-
-
+    Route::get('/suggested-courses', \App\Livewire\Learner\ShowAllCourses::class)->name('show-all-courses');
 
 });
 

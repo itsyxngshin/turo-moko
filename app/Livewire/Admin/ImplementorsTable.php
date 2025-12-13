@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\User;
+use Livewire\Attributes\On; 
 use Illuminate\Support\Facades\Storage;
 
 class ImplementorsTable extends Component
@@ -16,6 +17,20 @@ class ImplementorsTable extends Component
     public $sortDirection = 'asc';
     protected $paginationTheme = 'tailwind';
 
+    public $flashState = [
+        'show' => false,
+        'type' => '', 
+        'message' => ''
+    ];
+
+    #[On('implementor-saved')] 
+    #[On('implementor-updated')] 
+    #[On('implementor-deleted')] 
+    public function handleAction($message = 'Operation successful.')
+    {
+        // This sets the session variable that your Blade view checks for
+        session()->flash('message', $message);
+    }
     // Reset page when search input changes
     public function updatingSearch()
     {

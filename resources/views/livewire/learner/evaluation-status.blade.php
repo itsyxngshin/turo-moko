@@ -1,19 +1,13 @@
-@extends('layouts.learner-layout')
+<div class="space-y-4 px-4 md:px-6">
 
-@section('title', 'Evaluation')
-
-@section('content')
-    <div class="space-y-6"> <!-- Single root element for Livewire -->
-
-    <!-- Header with Back Button and Title -->
-    <div class="flex items-center gap-3 mb-6 mt-8 ml-6">
-        <!-- Back Button -->
+    <!-- Page Header with Back Button -->
+    <div class="flex items-center gap-3 mb-6">
+        <!-- Back Button (Icon Only) -->
         <button onclick="history.back()"
-                class="flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-800 p-2 rounded-full shadow-sm hover:shadow-md transition-all duration-200">
+                class="flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium p-2 md:p-2.5 rounded-full shadow-sm hover:shadow-md transition-all duration-200">
             <i data-lucide="arrow-left" class="w-4 h-4 md:w-5 md:h-5"></i>
         </button>
 
-        <!-- Section Title -->
         <h1 class="text-2xl font-bold">Evaluations</h1>
     </div>
 
@@ -21,75 +15,87 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
         <!-- Pending Evaluations -->
-        <div class="bg-white rounded-2xl shadow-md p-6">
+        <section class="bg-white rounded-2xl shadow-md p-6">
             <h2 class="text-lg font-semibold mb-4 text-yellow-600 flex items-center gap-2">
                 <i data-lucide="clock" class="w-5 h-5"></i>
                 Pending Evaluations
             </h2>
 
-            @if(empty($pendingEvaluations) || count($pendingEvaluations) === 0)
+            @if($pendingEvaluations->isEmpty())
                 <p class="text-gray-500 text-center py-10">No pending evaluations 🎉</p>
             @else
                 <div class="space-y-4">
                     @foreach($pendingEvaluations as $evaluation)
-                        <div class="flex bg-gray-50 rounded-xl shadow-sm overflow-hidden border hover:shadow-md transition">
-                            <!-- Icon -->
-                            <div class="w-16 flex items-center justify-center bg-yellow-100">
-                                <i data-lucide="clock" class="w-6 h-6 text-yellow-600"></i>
+                        <div class="bg-white rounded-2xl shadow-md flex flex-col md:flex-row overflow-hidden border hover:shadow-lg transition">
+                            
+                            <!-- Icon / Thumbnail -->
+                            <div class="flex-shrink-0 flex items-center justify-center h-20 md:w-20 md:h-auto bg-yellow-100">
+                                <i data-lucide="clipboard-check" class="w-8 h-8 text-yellow-500"></i>
                             </div>
 
                             <!-- Content -->
-                            <div class="flex-1 p-4 flex flex-col justify-between">
+                            <div class="flex-1 p-5 flex flex-col justify-between">
                                 <div>
-                                    <p class="text-sm font-semibold">{{ $evaluation->title ?? 'Untitled' }}</p>
-                                    <p class="text-xs text-gray-500 mt-1">Due: {{ isset($evaluation->due_date) ? \Carbon\Carbon::parse($evaluation->due_date)->format('M d, Y') : 'N/A' }}</p>
+                                    <div class="flex justify-between items-start mb-2 flex-wrap gap-2">
+                                        <p class="text-xs text-gray-400">Course: {{ $evaluation->title }}</p>
+                                        <span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-0.5 rounded-full">
+                                            Pending
+                                        </span>
+                                    </div>
+                                    <h3 class="text-lg font-bold">Course Evaluation</h3>
+                                    <p class="text-xs text-gray-400 mt-1">{{ $evaluation->description }}</p>
                                 </div>
-                                <div class="mt-2 flex justify-end">
-                                    <button class="bg-yellow-600 text-white px-3 py-1 rounded-full text-xs hover:bg-yellow-700">
-                                        Submit
-                                    </button>
+
+                                <!-- Button -->
+                                <div class="flex justify-end mt-4">
+                                    <a href="{{ route('learner.course.show', ['course' => $evaluation->course_code]) }}"
+                                       class="bg-black text-white px-4 py-1.5 rounded-full text-sm hover:bg-gray-800 w-full md:w-auto text-center">
+                                        Submit Evaluation
+                                    </a>
                                 </div>
                             </div>
                         </div>
                     @endforeach
                 </div>
             @endif
-        </div>
+        </section>
 
         <!-- Completed Evaluations -->
-        <div class="bg-white rounded-2xl shadow-md p-6">
+        <section class="bg-white rounded-2xl shadow-md p-6">
             <h2 class="text-lg font-semibold mb-4 text-green-600 flex items-center gap-2">
                 <i data-lucide="check-circle" class="w-5 h-5"></i>
                 Completed Evaluations
             </h2>
 
-            @if(empty($completedEvaluations) || count($completedEvaluations) === 0)
-                <p class="text-gray-500 text-center py-10">No completed evaluations yet 🎉</p>
+            @if($completedEvaluations->isEmpty())
+                <p class="text-gray-500 text-center py-10">No completed evaluations yet</p>
             @else
                 <div class="space-y-4">
                     @foreach($completedEvaluations as $evaluation)
-                        <div class="flex bg-gray-50 rounded-xl shadow-sm overflow-hidden border hover:shadow-md transition">
-                            <!-- Icon -->
-                            <div class="w-16 flex items-center justify-center bg-green-100">
-                                <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
+                        <div class="bg-white rounded-2xl shadow-md flex flex-col md:flex-row overflow-hidden border hover:shadow-lg transition">
+                            
+                            <!-- Icon / Thumbnail -->
+                            <div class="flex-shrink-0 flex items-center justify-center h-20 md:w-20 md:h-auto bg-green-100">
+                                <i data-lucide="check-circle" class="w-8 h-8 text-green-500"></i>
                             </div>
 
                             <!-- Content -->
-                            <div class="flex-1 p-4 flex flex-col justify-between">
+                            <div class="flex-1 p-5 flex flex-col justify-between">
                                 <div>
-                                    <p class="text-sm font-semibold">{{ $evaluation->title ?? 'Untitled' }}</p>
-                                    <p class="text-xs text-gray-500 mt-1">Completed on: {{ isset($evaluation->completed_at) ? \Carbon\Carbon::parse($evaluation->completed_at)->format('M d, Y') : 'N/A' }}</p>
+                                    <div class="flex justify-between items-start mb-2 flex-wrap gap-2">
+                                        <p class="text-xs text-gray-400">Course: {{ $evaluation->title }}</p>
+                                        <span class="text-xs bg-green-100 text-green-600 px-2 py-0.5 rounded-full">
+                                            Completed
+                                        </span>
+                                    </div>
+                                    <h3 class="text-lg font-bold">Course Evaluation</h3>
+                                    <p class="text-xs text-gray-400 mt-1">Submitted: {{ $evaluation->completed_at ? $evaluation->completed_at->format('M d, Y') : 'N/A' }}</p>
                                 </div>
                             </div>
                         </div>
                     @endforeach
                 </div>
             @endif
-        </div>
-
+        </section>
     </div>
-
 </div>
-
-@endsection
-

@@ -1,30 +1,22 @@
 <div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         [x-cloak] { display: none !important; }
     </style>
 
     <main class="p-6">
-    <!-- Success/Error Alert -->
-    <div 
-        x-data="{ show: false, type: 'success', message: '' }"
-        @show-alert.window="
-            show = true;
-            type = $event.detail.type;
-            message = $event.detail.message;
-            setTimeout(() => show = false, 3000);
-        "
-        x-show="show"
-        x-transition
-        class="fixed top-20 right-4 z-50 px-6 py-3 rounded-lg shadow-lg"
-        :class="{
-            'bg-green-100 border border-green-400 text-green-700': type === 'success',
-            'bg-red-100 border border-red-400 text-red-700': type === 'error',
-            'bg-yellow-100 border border-yellow-400 text-yellow-700': type === 'warning'
-        }"
-        style="display: none;"
-    >
-        <p x-text="message"></p>
-    </div>
+    <!-- Back to Course Button -->
+    @if($course)
+        <div class="mb-4">
+            <a href="{{ route('implementor.course-information', $course->course_code) }}" 
+               class="inline-flex items-center text-gray-600 hover:text-gray-900 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to Course
+            </a>
+        </div>
+    @endif
 
     <!-- Header Section -->
     <div class="bg-white rounded-3xl border border-gray-200 shadow-sm py-6 px-8 mb-6">
@@ -392,3 +384,14 @@
     @endif
     </main>
 </div>
+
+<script>
+    @if(session('swal'))
+        Swal.fire({
+            icon: '{{ session('swal.icon') }}',
+            title: '{{ session('swal.title') }}',
+            text: '{{ session('swal.text') }}',
+            confirmButtonColor: '#000000'
+        });
+    @endif
+</script>

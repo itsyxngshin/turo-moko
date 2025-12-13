@@ -5,6 +5,10 @@ namespace App\Livewire\Learner;
 use Livewire\Component;
 use App\Models\Course;
 use App\Models\Assignment;
+use App\Models\CourseEnrollee;
+use App\Models\Quiz;
+use App\Models\Evaluation;
+use App\Models\CourseFeedback;
 use Illuminate\Support\Facades\Auth;
 
 class Classes extends Component
@@ -19,50 +23,102 @@ class Classes extends Component
     public $recentCourses;
     public $courses;
 
-    public function mount()
-    {
-        $user = Auth::user();
+public function mount()
+{
+    $user = Auth::user();
 
-        if (!$user) {
-            return redirect()->route('auth.login');
-        }
+    if (!$user) {
+        redirect()->route('auth.login')->send();
+    }
 
-        // Active Courses
-        $this->activeCourses = $user->enrolledCourses()
-            ->where('courses.status', 'active')
-            ->wherePivot('status', 'active')
-            ->get();
-        $this->activeCoursesCount = $this->activeCourses->count();
-
-       // Completed Courses
-    $this->completedCourses = $user->enrolledCourses()
-        ->wherePivot('status', 'completed') // lowercase matches the table
+    /* ================= ACTIVE COURSES ================= */
+    $this->activeCourses = $user->enrolledCourses()
+        ->where('courses.status', 'Active')
+        ->where('courses.visibility', 'Visible')
+        ->wherePivot('status', 'Active') // ✅ Only Active enrollee
+        ->with(['category', 'implementer.profile', 'activeCoverPhoto'])
         ->get();
 
-$this->completedCoursesCount = $this->completedCourses->count();
+    $this->activeCoursesCount = $this->activeCourses->count();
+
+    /* ================= COMPLETED COURSES ================= */
+    $this->completedCourses = $user->enrolledCourses()
+        ->where('courses.status', 'Active')
+        ->where('courses.visibility', 'Visible')
+        ->wherePivot('status', 'Completed') // ✅ Only Completed enrollee
+        ->with(['category', 'implementer.profile', 'activeCoverPhoto'])
+        ->get();
+
+    $this->completedCoursesCount = $this->completedCourses->count();
+
+    /* ================= PENDING ACTIVITIES ================= */
+    $courseIds = $this->activeCourses->pluck('id');
+
+    $enrolleeIds = CourseEnrollee::where('enrollee_id', $user->id)
+        ->whereIn('course_id', $courseIds)
+        ->pluck('id');
+
+    $pendingAssignments = Assignment::whereIn('course_id', $courseIds)
+        ->where('status', 'Open')
+        ->whereDoesntHave('submissions', function ($q) use ($enrolleeIds) {
+            $q->whereIn('enrollee_id', $enrolleeIds);
+        })
+        ->count();
+
+    $pendingQuizzes = Quiz::whereIn('course_id', $courseIds)
+        ->whereDoesntHave('results', function ($q) use ($enrolleeIds) {
+            $q->whereIn('course_enrollee_id', $enrolleeIds);
+        })
+        ->count();
+
+    $this->pendingActivities = $pendingAssignments + $pendingQuizzes;
+
+    /* ================= PENDING EVALUATIONS ================= */
+    $this->pendingEvaluations = $this->activeCourses->filter(function ($course) use ($user) {
+        $hasEvaluation = Evaluation::where('course_id', $course->id)->exists();
+        $hasFeedback = CourseFeedback::where('course_id', $course->id)
+            ->where('learner_id', $user->id)
+            ->exists();
+
+        return $hasEvaluation && !$hasFeedback;
+    })->count();
+
+/* ================= FEATURED COURSE ================= */
+$this->featuredCourse = Course::whereHas('enrollees', function ($q) use ($user) {
+        $q->where('users.id', $user->id)
+          ->where('course_enrollees.status', 'Active'); // ✅ Correct column
+    })
+    ->orderByDesc(function($query) use ($user) {
+        $query->select('course_enrollees.created_at')
+              ->from('course_enrollees')
+              ->whereColumn('courses.id', 'course_enrollees.course_id')
+              ->where('course_enrollees.enrollee_id', $user->id)
+              ->limit(1);
+    })
+    ->with(['category', 'implementer.profile', 'activeCoverPhoto'])
+    ->first();
+
+/* ================= RECENT COURSES ================= */
+$this->recentCourses = Course::whereHas('enrollees', function ($q) use ($user) {
+        $q->where('users.id', $user->id)
+          ->where('course_enrollees.status', 'Active'); // ✅ Correct column
+    })
+    ->orderByDesc(function($query) use ($user) {
+        $query->select('course_enrollees.created_at')
+              ->from('course_enrollees')
+              ->whereColumn('courses.id', 'course_enrollees.course_id')
+              ->where('course_enrollees.enrollee_id', $user->id)
+              ->limit(1);
+    })
+    ->with(['category', 'implementer.profile', 'activeCoverPhoto'])
+    ->take(5)
+    ->get();
 
 
-        // Pending assignments
-        $courseIds = $this->activeCourses->pluck('id');
-        $this->pendingActivities = Assignment::whereIn('course_id', $courseIds)
-            ->where('status', 'Pending')
-            ->count();
-        $this->pendingEvaluations = Assignment::whereIn('course_id', $courseIds)
-            ->where('status', 'Evaluation Pending')
-            ->count();
+    /* ================= COURSES FOR DISPLAY ================= */
+    $this->courses = $this->activeCourses; // ✅ Only Active enrollee
+}
 
-        // Featured Course (latest active)
-        $this->featuredCourse = $this->activeCourses->sortByDesc('pivot.enrollment_date')->first();
-
-        // Recent Courses (latest 5)
-        $this->recentCourses = $user->enrolledCourses()
-            ->latest('course_enrollees.enrollment_date')
-            ->take(5)
-            ->get();
-
-        // All active courses for display
-        $this->courses = $this->activeCourses;
-    }
 
     public function render()
     {

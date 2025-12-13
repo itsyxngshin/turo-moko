@@ -17,14 +17,15 @@ class AddAnnouncement extends Component
     public $course;
     public $title;
     public $details;
-    public $attachment; // single file
+    public $attachments; // ✅ match property name
     public $userId;
+    public $removeAttachment = false;
     public $uploadKey; // force re-render
 
     protected $rules = [
         'title' => 'required|string|max:255',
         'details' => 'required|string',
-        'attachment' => 'nullable|file|max:102400', // single attachment
+        'attachments' => 'nullable|file|max:102400', // ✅ match property name
     ];
 
     public function mount($courseId = null)
@@ -53,22 +54,22 @@ class AddAnnouncement extends Component
             'content'   => $this->details,
         ]);
 
-        if ($this->attachment) {
+        if ($this->attachments) { // ✅ use correct property
             if (!Storage::disk('public')->exists('course_attachments')) {
                 Storage::disk('public')->makeDirectory('course_attachments');
             }
 
-            $path = $this->attachment->store('course_attachments', 'public');
+            $path = $this->attachments->store('course_attachments', 'public');
 
             AnnouncementAttachment::create([
                 'announcement_id' => $announcement->id,
                 'file_path'       => $path,
-                'original_name'   => $this->attachment->getClientOriginalName(),
+                'original_name'   => $this->attachments->getClientOriginalName(),
             ]);
         }
 
-        // Reset form
-        $this->reset(['title', 'details', 'attachment']);
+        // Reset form including removeAttachment
+        $this->reset(['title', 'details', 'attachments', 'removeAttachment']);
         $this->uploadKey = uniqid();
 
         $this->dispatch('swal:success', [
@@ -83,7 +84,7 @@ class AddAnnouncement extends Component
 
     public function resetForm()
     {
-        $this->reset(['title', 'details', 'attachment']);
+        $this->reset(['title', 'details', 'attachments', 'removeAttachment']);
         $this->uploadKey = uniqid();
         $this->dispatch('reset-upload-box');
     }

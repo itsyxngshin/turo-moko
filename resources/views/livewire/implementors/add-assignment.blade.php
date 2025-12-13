@@ -3,7 +3,14 @@
     <!-- Main Content -->
     <main class="flex-1 pl-5 py-3">
         <!-- Header -->
-        <div class="flex justify-between items-center mb-2">
+        <div class="mb-4">
+            <a href="{{ route('implementor.course-information', $course->course_code) }}" 
+               class="inline-flex items-center text-gray-600 hover:text-gray-900 transition mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to Course
+            </a>
             <h1 class="text-2xl font-semibold text-gray-800">{{ $course->course_title }}</h1>
         </div>
 
@@ -32,40 +39,47 @@
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-600 mb-1">Additional Files</label>
-                                <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:bg-gray-50"
-                                     :class="{'border-blue-500 bg-blue-50': $wire.attachment}">
-                                    <input type="file" wire:model="attachment" class="hidden" id="uploadFile">
-                                    <label for="uploadFile" class="cursor-pointer">
-                                        <!-- Uploading State -->
-                                        <div wire:loading wire:target="attachment" class="flex flex-col items-center space-y-2">
-                                            <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg>
-                                            <span class="text-blue-600 text-sm font-medium">Uploading...</span>
-                                        </div>
-                                        
-                                        <!-- Success State -->
-                                        <div wire:loading.remove wire:target="attachment">
-                                            @if($attachment)
-                                                <div class="flex flex-col items-center space-y-2">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                    </svg>
-                                                    <span class="text-green-600 text-sm font-medium">{{ $attachment->getClientOriginalName() }}</span>
-                                                    <span class="text-gray-500 text-xs">File uploaded successfully</span>
-                                                </div>
-                                            @else
-                                                <div class="flex flex-col items-center space-y-2">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                                        <polyline points="14 2 14 8 20 8"/>
-                                                    </svg>
-                                                    <span class="text-gray-600 text-sm">Upload file</span>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    </label>
+                                <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:bg-gray-50"
+                                     :class="{'border-green-500 bg-green-50': $wire.attachment}">
+                                    
+                                    <!-- Uploading State -->
+                                    <div wire:loading wire:target="attachment" class="flex flex-col items-center justify-center space-y-2">
+                                        <svg class="animate-spin h-12 w-12 text-orange-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        <span class="text-orange-500 text-sm font-medium">Uploading file...</span>
+                                    </div>
+                                    
+                                    <!-- File Preview or Upload Area -->
+                                    <div wire:loading.remove wire:target="attachment">
+                                        @if($attachment)
+                                            <div class="flex flex-col items-center justify-center space-y-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <span class="text-green-600 text-sm font-medium">{{ $attachment->getClientOriginalName() }}</span>
+                                                <span class="text-gray-500 text-xs">File uploaded successfully</span>
+                                                
+                                                <!-- Remove File Button -->
+                                                <button type="button" 
+                                                        wire:click="removeAttachment"
+                                                        class="mt-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm rounded-lg transition">
+                                                    Remove file
+                                                </button>
+                                            </div>
+                                        @else
+                                            <label for="uploadFile" class="cursor-pointer flex flex-col items-center justify-center space-y-2">
+                                                <input type="file" wire:model="attachment" class="hidden" id="uploadFile">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-gray-400 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                                    <polyline points="14 2 14 8 20 8"/>
+                                                </svg>
+                                                <span class="text-gray-600 text-sm font-medium">Click to upload file</span>
+                                                <span class="text-gray-400 text-xs">PDF, DOC, DOCX, or other file types</span>
+                                            </label>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -169,3 +183,15 @@
         </div>
     </main>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    @if(session('swal'))
+        Swal.fire({
+            icon: '{{ session('swal.icon') }}',
+            title: '{{ session('swal.title') }}',
+            text: '{{ session('swal.text') }}',
+            confirmButtonColor: '#000000'
+        });
+    @endif
+</script>

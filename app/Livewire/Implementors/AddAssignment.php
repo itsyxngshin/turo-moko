@@ -127,7 +127,11 @@ class AddAssignment extends Component
             'post_date' => Carbon::now(),
         ]);
 
-        session()->flash('success', 'Assignment added successfully.');
+        session()->flash('swal', [
+            'icon' => 'success',
+            'title' => 'Success!',
+            'text' => 'Assignment added successfully.',
+        ]);
 
         return redirect()->route('implementor.course-information', $this->course->course_code);
     }
@@ -138,6 +142,11 @@ class AddAssignment extends Component
         $size = (int) filter_var($sizeString, FILTER_SANITIZE_NUMBER_INT);
         // Convert MB to KB
         return $size * 1024;
+    }
+
+    public function removeAttachment()
+    {
+        $this->attachment = null;
     }
 
     public function render()

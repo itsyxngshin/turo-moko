@@ -1,4 +1,13 @@
-<div x-data="{ open: false }" wire:poll.10s>
+<div x-data="{ open: false }" wire:poll.10s
+     x-init="
+        // Render icons initially
+        lucide.createIcons();
+        // Re-render icons after every Livewire update
+        Livewire.hook('message.processed', (message, component) => {
+            lucide.createIcons();
+        });
+     "
+>
     <!-- Bell Button -->
     <button @click="open = !open" class="relative p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors focus:outline-none">
         <i data-lucide="bell" class="w-6 h-6"></i>

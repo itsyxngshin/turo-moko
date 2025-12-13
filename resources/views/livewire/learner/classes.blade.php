@@ -75,7 +75,7 @@
         <!-- Header -->
         <div class="flex justify-between items-center mb-4 sm:mb-6">
             <h3 class="font-semibold text-lg sm:text-xl">Courses you’re taking</h3>
-            <button class="text-sm sm:text-base text-gray-500 hover:underline">View all</button>
+            <a href="{{ route('learner.courses.index') }}" class="text-sm sm:text-base text-gray-500 hover:underline">View all</a>
         </div>
 
         <!-- Cards -->

@@ -42,6 +42,7 @@ class ImplementorCourseInformationController extends Controller
 
         // Fetch assignments for this course
         $assignments = Assignment::where('course_id', $course->id)
+            ->withCount('submissions')
             ->orderBy('created_at', 'desc')
             ->get();
 

@@ -17,15 +17,9 @@
         if (this.fadingOut) return; // prevent duplicate timers
         this.isSubmitting = false;
 
-        // Wait 2 seconds to keep the thank-you text visible, then fade and close
+        // Wait 2 seconds to show thank-you message, then reload page
         setTimeout(() => {
-            this.fadingOut = true;
-
-            setTimeout(() => {
-                this.reset();
-                this.$wire.closeModal();
-                this.fadingOut = false;
-            }, 500); // fade-out duration (0.5s)
+            window.location.reload();
         }, 2000);
     },
     get progress() {

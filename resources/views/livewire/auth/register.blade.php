@@ -54,7 +54,7 @@
             <p class="text-sm text-gray-600 text-center mb-6">Register to continue.</p>
 
             <form wire:submit.prevent="register">
-                
+                {{-- 
                 <div class="mb-6">
                     <div class="flex bg-gray-100 rounded-xl p-1 text-sm font-semibold shadow-inner">
                         <button
@@ -83,6 +83,8 @@
                         <span class="font-bold text-orange-600 capitalize">{{ $roleName }}</span>.
                     </p>
                 </div>
+
+                --}}
 
                 <div class="mb-3">
                     <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
@@ -159,46 +161,89 @@
                     @error('phonenum') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                 </div>
 
+                {{-- PASSWORD FIELD --}}
                 <div class="mb-3">
                     <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                    <input 
-                        wire:model.live.debounce.500ms="password"
-                        type="password" 
-                        id="password" 
-                        placeholder="Enter password" 
-                        class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 @error('password') border-red-500 @enderror" 
-                    />
+                    
+                    <div class="relative mt-1" x-data="{ show: false }">
+                        <input 
+                            wire:model.live.debounce.500ms="password"
+                            :type="show ? 'text' : 'password'" 
+                            id="password" 
+                            placeholder="Enter password" 
+                            class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 @error('password') border-red-500 @enderror" 
+                        />
+                        
+                        {{-- TOGGLE BUTTON WITH SVG ICONS --}}
+                        <button 
+                            type="button" 
+                            @click="show = !show" 
+                            class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-orange-500 focus:outline-none"
+                        >
+                            {{-- Eye Icon (Show when password is hidden) --}}
+                            <svg x-show="!show" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+
+                            {{-- Eye Slash Icon (Show when password is visible) --}}
+                            <svg x-show="show" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5" style="display: none;">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    {{-- Error & Strength Meter --}}
                     @error('password') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
 
                     @if ($password)
-                    <div class="mt-2" x-data> <div class="w-full bg-gray-200 rounded-full h-2.5">
-                            <div 
-                                class="h-2.5 rounded-full {{ $this->passwordStrength['color'] }} transition-all duration-300" 
-                                style="width: {{ $this->passwordStrength['width'] }}"
-                            ></div>
+                        <div class="mt-2" x-data> 
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div 
+                                    class="h-2.5 rounded-full {{ $this->passwordStrength['color'] }} transition-all duration-300" 
+                                    style="width: {{ $this->passwordStrength['width'] }}"
+                                ></div>
+                            </div>
+                            
+                            <p class="text-xs mt-1
+                                @if($this->passwordStrength['strength'] == 'Weak') text-red-500 @endif
+                                @if($this->passwordStrength['strength'] == 'Medium') text-yellow-600 @endif
+                                @if($this->passwordStrength['strength'] == 'Strong') text-green-600 @endif
+                            ">
+                                Strength: <strong>{{ $this->passwordStrength['strength'] }}</strong>
+                            </p>
                         </div>
-                        
-                        <p class="text-xs mt-1
-                            @if($this->passwordStrength['strength'] == 'Weak') text-red-500 @endif
-                            @if($this->passwordStrength['strength'] == 'Medium') text-yellow-600 @endif
-                            @if($this->passwordStrength['strength'] == 'Strong') text-green-600 @endif
-                        ">
-                            Strength: <strong>{{ $this->passwordStrength['strength'] }}</strong>
-                        </p>
-                    </div>
                     @endif
                 </div>
 
+                {{-- CONFIRM PASSWORD FIELD --}}
                 <div class="mb-4">
                     <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Confirm Password</label>
 
-                    <input 
-                        wire:model.blur="password_confirmation"
-                        type="password" 
-                        id="password_confirmation" 
-                        placeholder="Confirm password" 
-                        class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 @error('password_confirmation') border-red-500 @enderror" 
-                    />
+                    <div class="relative mt-1" x-data="{ show: false }">
+                        <input 
+                            wire:model.blur="password_confirmation"
+                            :type="show ? 'text' : 'password'" 
+                            id="password_confirmation" 
+                            placeholder="Confirm password" 
+                            class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 @error('password_confirmation') border-red-500 @enderror" 
+                        />
+
+                        {{-- TOGGLE BUTTON WITH SVG ICONS --}}
+                        <button 
+                            type="button" 
+                            @click="show = !show" 
+                            class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-orange-500 focus:outline-none"
+                        >
+                            <svg x-show="!show" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <svg x-show="show" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5" style="display: none;">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                            </svg>
+                        </button>
+                    </div>
                     @error('password_confirmation') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                 </div>
 

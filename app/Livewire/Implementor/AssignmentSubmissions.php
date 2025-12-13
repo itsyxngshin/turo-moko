@@ -105,7 +105,7 @@ class AssignmentSubmissions extends Component
             return;
         }
 
-        $submission = Submission::with(['enrollee.user', 'assignment'])
+        $submission = Submission::with(['enrollee.user.profile', 'assignment'])
             ->findOrFail($submissionId);
 
         $this->submissionId = $submissionId;
@@ -118,7 +118,19 @@ class AssignmentSubmissions extends Component
             'assignment_title' => $submission->assignment->title ?? 'Assignment',
         ];
 
-        $this->studentName = $submission->enrollee->user->name ?? 'Unknown Student';
+        // Get student name - match the loadSubmissions logic
+        $studentName = 'Unknown Student';
+        if ($submission->enrollee && $submission->enrollee->user) {
+            $user = $submission->enrollee->user;
+            $profile = $user->profile;
+            if ($profile) {
+                $studentName = trim($profile->first_name . ' ' . $profile->last_name);
+            } else {
+                $studentName = $user->username ?? $user->email ?? 'Unknown Student';
+            }
+        }
+        
+        $this->studentName = $studentName;
         $this->submissionDate = $submission->created_at->format('M d, Y h:i A');
         $this->grade = $submission->grade;
 
