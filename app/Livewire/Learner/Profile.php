@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Course;
 use App\Models\Photo; 
 use App\Models\WorkPortfolio;
+use App\Models\PortfolioSet; // Explicit import
 use App\Models\Engagement;
 use App\Models\Log; 
 
@@ -57,17 +58,14 @@ class Profile extends Component
         // ------------------------------------------------------------------
         // [FETCH ACTIVE COURSES VIA PIVOT]
         // ------------------------------------------------------------------
-        // We use the 'enrolledCourses' relationship which is a belongsToMany.
-        // This returns 'Course' models but filtered by the pivot table.
-        // ------------------------------------------------------------------
         $this->activeCourses = $this->user->enrolledCourses()
-            ->wherePivot('status', 'Active') // Strictly look at course_enrollees.status
+            ->wherePivot('status', 'Active') 
             ->with([
-                'activeCoverPhoto',       // Assuming you have this relationship on Course model
+                'activeCoverPhoto',       
                 'category', 
-                'implementer.profile'     // To show Instructor Name
+                'implementer.profile'     
             ])
-            ->orderByPivot('enrollment_date', 'desc') // Show newest enrollments first
+            ->orderByPivot('enrollment_date', 'desc') 
             ->get();
 
         $this->activeCoursesCount = $this->activeCourses->count();
@@ -95,14 +93,35 @@ class Profile extends Component
 
     public function openEditModal()
     {
-        // Re-sync data on open
+        // 1. RELOAD USER FRESH (Critical Fix)
+        // We must re-fetch the user and relationships to ensure they aren't lost during Livewire updates
+        $this->user = User::with([
+            'profile.portfolioSets.workPortfolio', 
+            'engagements'
+        ])->find(Auth::id());
+
+        // 2. Safety Check
+        if (!$this->user || !$this->user->profile) {
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Error',
+                'text' => 'Profile not found.'
+            ]);
+            return;
+        }
+
+        // 3. Assign Data
         $this->first_name = $this->user->profile->first_name;
         $this->last_name = $this->user->profile->last_name;
         $this->middle_name = $this->user->profile->middle_name;
         $this->username = $this->user->username;
         $this->email = $this->user->email;
+
+        // 4. Load Lists
         $this->loadWorkExperiences();
         $this->engagements_list = $this->user->engagements->toArray();
+
+        // 5. Open Modal
         $this->showEditModal = true;
     }
 
@@ -119,18 +138,34 @@ class Profile extends Component
         ];
     }
 
+    // ==========================================================
+    // FIX APPLIED HERE: Delete Child (Set) before Parent (Work)
+    // ==========================================================
     public function removeWorkExperience($index)
     {
         $item = $this->work_experiences[$index];
+        
+        // Check if it's an existing database record
         if (!empty($item['portfolio_set_id'])) {
-            $set = \App\Models\PortfolioSet::find($item['portfolio_set_id']);
+            
+            $set = PortfolioSet::find($item['portfolio_set_id']);
+            
             if ($set) {
-                if ($set->work_portfolio_id) {
-                    \App\Models\WorkPortfolio::find($set->work_portfolio_id)?->delete();
-                }
+                // 1. Capture the Work Portfolio ID first
+                $workPortfolioId = $set->work_portfolio_id;
+                
+                // 2. DELETE THE LINKING RECORD FIRST (The Child)
+                // This removes the foreign key constraint immediately.
                 $set->delete();
+
+                // 3. NOW DELETE THE PARENT RECORD (The Work Portfolio)
+                if ($workPortfolioId) {
+                    WorkPortfolio::find($workPortfolioId)?->delete();
+                }
             }
         }
+        
+        // Remove from local array to update UI
         unset($this->work_experiences[$index]);
         $this->work_experiences = array_values($this->work_experiences);
     }
@@ -144,7 +179,7 @@ class Profile extends Component
     {
         $item = $this->engagements_list[$index];
         if (!empty($item['id'])) {
-            \App\Models\Engagement::find($item['id'])?->delete();
+            Engagement::find($item['id'])?->delete();
         }
         unset($this->engagements_list[$index]);
         $this->engagements_list = array_values($this->engagements_list);
@@ -177,10 +212,10 @@ class Profile extends Component
         // 4. Update Work Experiences
         foreach ($this->work_experiences as $work) {
             if (!empty($work['work_portfolio_id'])) {
-                \App\Models\WorkPortfolio::find($work['work_portfolio_id'])->update($work);
+                WorkPortfolio::find($work['work_portfolio_id'])->update($work);
             } else {
-                $new = \App\Models\WorkPortfolio::create($work);
-                \App\Models\PortfolioSet::create([
+                $new = WorkPortfolio::create($work);
+                PortfolioSet::create([
                     'profile_id' => $this->user->profile->id,
                     'work_portfolio_id' => $new->id,
                 ]);
@@ -191,7 +226,7 @@ class Profile extends Component
         foreach ($this->engagements_list as $eng) {
             if(empty($eng['title'])) continue; 
             if (isset($eng['id']) && $eng['id']) {
-                \App\Models\Engagement::find($eng['id'])->update(['title' => $eng['title'], 'description' => $eng['description']]);
+                Engagement::find($eng['id'])->update(['title' => $eng['title'], 'description' => $eng['description']]);
             } else {
                 $this->user->engagements()->create(['title' => $eng['title'], 'description' => $eng['description']]);
             }
@@ -218,6 +253,6 @@ class Profile extends Component
 
     public function render()
     {
-        return view('livewire.learner.profile')->layout('layouts.learner-layout');
+        return view('livewire.learner.profile')->layout('layouts.layout');
     }
 }

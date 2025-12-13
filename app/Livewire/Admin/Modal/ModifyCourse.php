@@ -13,83 +13,85 @@ class ModifyCourse extends Component
 {
     use WithFileUploads;
 
+    public $open = false; // Controls modal state if you use @entangle
     public $courseId;
     public $course_title;
     public $background;
     public $category;
-    public $visibility;         // Added visibility
-    public $thumbnail;           
-    public $categories = [];    
-    public $existingThumbnail;  
+    public $visibility;
+    public $thumbnail;
+    public $categories = [];
+    public $existingThumbnail;
     public $course;
-    public $tags = [];          
-    public $tagInput = '';      
-    public $start_date;         
-    public $end_date;  
+    public $tags = [];
+    public $tagInput = '';
+    public $start_date;
+    public $end_date;
     public $student_limit;
 
     public function mount($courseId)
     {
         $this->categories = \App\Models\Category::all();
 
-        $this->course = Course::with('activeCoverPhoto', 'implementer.profile' )->findOrFail($courseId);
+        $this->course = Course::with('activeCoverPhoto', 'implementer.profile')->findOrFail($courseId);
 
-        $this->courseId        = $this->course->id;
-        $this->course_title            = $this->course->course_title;
-        $this->background      = $this->course->background;
-        $this->category        = $this->course->category_id;
-        $this->visibility      = $this->course->visibility ?? 'visible'; // Set default if null
-        $this->student_limit   = $this->course->student_limit;
-        $this->start_date      = $this->course->start_date
-                                    ? \Carbon\Carbon::parse($this->course->start_date)->format('Y-m-d')
-                                    : null;
-        $this->end_date        = $this->course->end_date
-                                    ? \Carbon\Carbon::parse($this->course->end_date)->format('Y-m-d')
-                                    : null;
+        $this->courseId = $this->course->id;
+        // This variable matches the public property defined above
+        $this->course_title = $this->course->course_title; 
+        $this->background = $this->course->background;
+        $this->category = $this->course->category_id;
+        $this->visibility = $this->course->visibility ?? 'visible';
+        $this->student_limit = $this->course->student_limit;
+        
+        $this->start_date = $this->course->start_date
+            ? \Carbon\Carbon::parse($this->course->start_date)->format('Y-m-d') : null;
+        
+        $this->end_date = $this->course->end_date
+            ? \Carbon\Carbon::parse($this->course->end_date)->format('Y-m-d') : null;
 
-        $this->tags            = $this->course->tags->pluck('tag')->toArray();
+        $this->tags = $this->course->tags->pluck('tag')->toArray();
+        
         $this->existingThumbnail = $this->course->activeCoverPhoto
             ? Storage::url($this->course->activeCoverPhoto->path)
             : null;
     }
 
     public function addTag()
-{
-    $clean = strtolower(trim($this->tagInput));
-    $clean = preg_replace('/\s+/', '', $clean); // remove spaces
+    {
+        $clean = strtolower(trim($this->tagInput));
+        $clean = preg_replace('/\s+/', '', $clean);
 
-    if ($clean && !in_array($clean, $this->tags)) {
-        $this->tags[] = $clean;
+        if ($clean && !in_array($clean, $this->tags)) {
+            $this->tags[] = $clean;
+        }
+        $this->tagInput = '';
     }
 
-    $this->tagInput = ''; // reset input
-}
-
-public function removeTag($tag)
-{
-    $this->tags = array_filter($this->tags, fn($t) => $t !== $tag);
-}
+    public function removeTag($tag)
+    {
+        $this->tags = array_filter($this->tags, fn($t) => $t !== $tag);
+    }
 
     public function saveCourse()
     {
         $this->validate([
-            'course_title'   => 'required|string',
-            'background'     => 'required|string',
-            'category'       => 'required|integer',
-            'visibility'     => 'required|in:public,private', // Validate visibility
-            'thumbnail'      => 'nullable|image|max:2048',
-            'student_limit'  => 'required|integer|min:1|max:20',
+            'course_title'  => 'required|string',
+            'background'    => 'required|string',
+            'category'      => 'required|integer',
+            // FIXED: Validation must match HTML Select values (visible/hidden)
+            'visibility'    => 'required|in:visible,hidden', 
+            'thumbnail'     => 'nullable|image|max:2048',
+            'student_limit' => 'required|integer|min:1',
         ]);
 
         try {
             $course = Course::findOrFail($this->courseId);
 
-            // Update course info including visibility
             $course->update([
                 'course_title' => $this->course_title,
                 'background'   => $this->background,
                 'category_id'  => $this->category,
-                'visibility'   => $this->visibility, // Save visibility
+                'visibility'   => $this->visibility,
                 'start_date'   => $this->start_date,
                 'end_date'     => $this->end_date,
                 'student_limit'=> $this->student_limit,
@@ -113,7 +115,7 @@ public function removeTag($tag)
                                         ->first();
 
                 if ($coverPhoto) {
-                    if ($coverPhoto->path) {
+                    if ($coverPhoto->path && Storage::disk('public')->exists($coverPhoto->path)) {
                         Storage::disk('public')->delete($coverPhoto->path);
                     }
                     $coverPhoto->path = $path;
@@ -126,7 +128,7 @@ public function removeTag($tag)
                     ]);
                 }
 
-                $this->existingThumbnail = $path;
+                $this->existingThumbnail = Storage::url($path);
                 $this->thumbnail = null;
             }
 
@@ -134,6 +136,9 @@ public function removeTag($tag)
                 'type' => 'success',
                 'message' => 'Course updated successfully!',
             ]);
+            
+            // Close modal via Alpine
+            $this->open = false; 
 
         } catch (\Exception $e) {
             $this->dispatch('swal', [

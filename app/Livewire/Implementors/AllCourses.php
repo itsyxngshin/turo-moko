@@ -17,9 +17,10 @@ class AllCourses extends Component
                 'organization', 
                 'tags', 
                 'activeCoverPhoto', 
-                'implementer' // ✅ ADD THIS
+                'implementer'
             ])
             ->where('implementer_id', Auth::id()) 
+            ->where('status', '!=', 'deleted') // ✅ Exclude deleted courses
             ->latest()
             ->get();
     }

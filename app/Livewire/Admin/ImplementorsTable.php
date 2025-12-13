@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\User;
+use Livewire\Attributes\On; 
 use Illuminate\Support\Facades\Storage;
 
 class ImplementorsTable extends Component
@@ -25,22 +26,11 @@ class ImplementorsTable extends Component
     #[On('implementor-saved')] 
     #[On('implementor-updated')] 
     #[On('implementor-deleted')] 
-    public function handleFlashMessage($message = 'Operation successful')
+    public function handleAction($message = 'Operation successful.')
     {
-        $this->flashState = [
-            'show' => true,
-            'type' => 'success',
-            'message' => $message
-        ];
-
-        // Optional: Auto-hide after 3 seconds (requires Alpine in view)
+        // This sets the session variable that your Blade view checks for
+        session()->flash('message', $message);
     }
-
-    public function closeFlash()
-    {
-        $this->flashState['show'] = false;
-    }
-    
     // Reset page when search input changes
     public function updatingSearch()
     {

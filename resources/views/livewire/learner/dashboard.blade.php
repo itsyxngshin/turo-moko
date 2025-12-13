@@ -5,35 +5,100 @@
 @section('content')
 <div class="min-h-screen px-4 sm:px-6 md:px-8 py-6 space-y-10">
 
-   {{-- ================= RECENTLY ACCESSED ================= --}}
-@if($recentCourses->isNotEmpty())
-    @php 
-        $course = $recentCourses->first(); 
-    @endphp
-
-    @if($course->enrollees->contains(auth()->id()))
-        <div class="relative rounded-2xl shadow-lg overflow-hidden h-60 sm:h-72 md:h-80">
+    {{-- ================= HERO SECTION ================= --}}
+    @if($heroCourse)
+        <div class="relative rounded-2xl shadow-lg overflow-hidden h-60 sm:h-72 md:h-80 group">
+            
+            {{-- Background Image --}}
             <img 
-                src="{{ $course->activeCoverPhoto ? asset('storage/' . $course->activeCoverPhoto->path) : asset('storage/implementor/course/thumbnail.jpg') }}" 
-                class="absolute inset-0 w-full h-full object-cover"
+                src="{{ $heroCourse->activeCoverPhoto ? asset('storage/' . $heroCourse->activeCoverPhoto->path) : asset('storage/implementor/course/thumbnail.jpg') }}" 
+                class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             >
+            
+            {{-- Gradient Overlay --}}
             <div class="absolute inset-0 bg-black/40"></div>
+            
+            {{-- Content --}}
             <div class="relative z-10 h-full flex flex-col justify-center text-white px-4 sm:px-8">
-                <p class="text-sm">{{ $course->subject }}</p>
-                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold">
-                    {{ $course->course_title }}
+                
+                {{-- Label --}}
+                <p class="text-sm uppercase tracking-wider opacity-80 mb-1">
+                    @if($heroMode === 'resume')
+                        Continue Learning
+                    @else
+                        Featured Course
+                    @endif
+                </p>
+
+                {{-- Subject/Category --}}
+                <p class="text-sm font-medium opacity-90">{{ $heroCourse->category->category_name ?? 'General' }}</p>
+                
+                {{-- Title --}}
+                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold mt-1 max-w-2xl">
+                    {{ $heroCourse->course_title }}
                 </h2>
-                <a 
-                    href="{{ route('learner.course.show', $course) }}" 
-                    class="mt-4 inline-flex items-center gap-2 bg-white text-black px-5 py-3 rounded-full w-fit hover:bg-gray-200"
-                >
-                    <i data-lucide="play" class="w-5 h-5"></i>
-                    Continue course
-                </a>
+                
+                {{-- BUTTON AREA --}}
+                <div class="mt-6">
+                    @if($heroMode === 'resume')
+                        {{-- MODE: RESUME (Already Enrolled) --}}
+                        <a href="{{ route('learner.course.show', $heroCourse) }}" 
+                           class="inline-flex items-center gap-2 bg-white text-black px-6 py-3 rounded-full hover:bg-gray-200 transition-colors font-medium">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            Continue Course
+                        </a>
+
+                    @else
+                        {{-- MODE: SUGGEST/FEATURED --}}
+                        @php
+                            $isEnrolledHero = $heroCourse->enrollees()
+                                ->where('users.id', auth()->id())
+                                ->exists();
+                        @endphp
+
+                        @if($isEnrolledHero)
+                            {{-- Already Enrolled -> View --}}
+                            <a href="{{ route('learner.course.show', $heroCourse) }}" 
+                               class="inline-flex items-center gap-2 bg-white text-black px-6 py-3 rounded-full hover:bg-gray-200 transition-colors font-medium">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                View Course
+                            </a>
+                        @else
+                            {{-- Not Enrolled -> Enroll Button & Modal --}}
+                            <div x-data="{ open: false }">
+                                <button @click="open = true" 
+                                        class="inline-flex items-center gap-2 bg-white text-black px-6 py-3 rounded-full hover:bg-gray-200 transition-colors font-medium">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                                    Enroll Class
+                                </button>
+
+                                {{-- HERO ENROLL MODAL --}}
+                                <div x-show="open" x-cloak class="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 text-black">
+                                    <div @click.away="open = false" class="bg-white rounded-xl p-6 w-11/12 max-w-md shadow-2xl transform transition-all">
+                                        <h3 class="text-lg font-semibold mb-4">Confirm Enrollment</h3>
+                                        <p class="text-gray-600 mb-6">
+                                            Enroll in <strong>{{ $heroCourse->course_title }}</strong>?
+                                        </p>
+                                        <div class="flex justify-end gap-3">
+                                            <button @click="open=false" class="px-4 py-2 rounded-full border hover:bg-gray-50">
+                                                Cancel
+                                            </button>
+                                            <form method="POST" action="{{ route('learner.course.enroll', $heroCourse) }}">
+                                                @csrf
+                                                <button type="submit" class="px-4 py-2 rounded-full bg-black text-white hover:bg-gray-800">
+                                                    Confirm
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    @endif
+                </div>
             </div>
         </div>
     @endif
-@endif
 
 
     {{-- ================= COURSE SUGGESTIONS ================= --}}
@@ -61,17 +126,16 @@
                 <div class="p-5 flex flex-col flex-1 justify-between">
                     <div class="space-y-1">
                         <h3 class="text-lg md:text-xl font-medium text-black">{{ $course->course_title ?? '--' }}</h3>
-                            <p class="mt-1 text-sm text-gray-600">Category: {{ $course->category->category_name ?? '--' }}</p>
-                            <p class="mt-1 text-sm text-gray-600">Instructor: <span class="font-bold">{{ $course->implementer->profile->first_name ?? '--' }}</span></p>
-                            <p class="text-xs mt-1 text-gray-400 mb-1">
-                                {{ \Carbon\Carbon::parse($course->start_date)->format('M Y') ?? '' }} - 
-                                {{ \Carbon\Carbon::parse($course->end_date)->format('M Y') ?? '' }}
-                            </p>
+                        <p class="mt-1 text-sm text-gray-600">Category: {{ $course->category->category_name ?? '--' }}</p>
+                        <p class="mt-1 text-sm text-gray-600">Instructor: <span class="font-bold">{{ $course->implementer->profile->first_name ?? '--' }}</span></p>
+                        <p class="text-xs mt-1 text-gray-400 mb-1">
+                            {{ \Carbon\Carbon::parse($course->start_date)->format('M Y') ?? '' }} - 
+                            {{ \Carbon\Carbon::parse($course->end_date)->format('M Y') ?? '' }}
+                        </p>
                     </div>
 
                     {{-- BUTTON --}}
                     <div class="pt-4" x-data="{ open: false }">
-
                         @php
                             $isEnrolled = $course->enrollees()
                                 ->where('users.id', auth()->id())
@@ -89,27 +153,22 @@
                                 Enroll Class
                             </button>
 
-                            {{-- MODAL --}}
+                            {{-- SUGGESTION ENROLL MODAL --}}
                             <div x-show="open" x-cloak
                                  class="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50">
                                 <div @click.away="open = false"
                                      class="bg-white rounded-xl p-6 w-11/12 max-w-md">
-                                    <h3 class="text-lg font-semibold mb-4">
-                                        Confirm Enrollment
-                                    </h3>
+                                    <h3 class="text-lg font-semibold mb-4">Confirm Enrollment</h3>
                                     <p class="text-gray-600 mb-6">
                                         Enroll in <strong>{{ $course->course_title }}</strong>?
                                     </p>
                                     <div class="flex justify-end gap-3">
-                                        <button @click="open=false"
-                                                class="px-4 py-2 rounded-full border">
+                                        <button @click="open=false" class="px-4 py-2 rounded-full border hover:bg-gray-50">
                                             Cancel
                                         </button>
-                                        <form method="POST"
-                                              action="{{ route('learner.course.enroll', $course) }}">
+                                        <form method="POST" action="{{ route('learner.course.enroll', $course) }}">
                                             @csrf
-                                            <button type="submit"
-                                                    class="px-4 py-2 rounded-full bg-black text-white">
+                                            <button type="submit" class="px-4 py-2 rounded-full bg-black text-white hover:bg-gray-800">
                                                 Confirm
                                             </button>
                                         </form>

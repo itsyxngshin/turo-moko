@@ -3,16 +3,17 @@
     x-on:print-table.window="window.print()"
     class="p-6"
 >
-    @if($flashState['show'])
-        <div class="mb-6 p-4 rounded-lg bg-green-50 border border-green-200 flex items-start gap-3 shadow-sm transition-all">
-            <svg class="w-5 h-5 text-green-500 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <div class="flex-1">
-                <h3 class="text-sm font-bold text-green-800">Success</h3>
-                <p class="text-sm text-green-600">{{ $flashState['message'] }}</p>
+    @if (session()->has('message'))
+        <div class="mb-6 p-4 rounded-lg bg-green-50 border-l-4 border-green-500 flex items-center justify-between shadow-sm transition-all duration-500 ease-in-out">
+            <div class="flex items-center gap-3">
+                <svg class="w-5 h-5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div class="text-sm font-medium text-green-800">
+                    {{ session('message') }}
+                </div>
             </div>
-            <button wire:click="closeFlash" class="text-gray-400 hover:text-green-600">
+            <button onclick="this.parentElement.remove()" class="text-green-600 hover:text-green-800 focus:outline-none transition">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>

@@ -50,45 +50,53 @@
                     <div class="flex flex-col md:flex-row gap-8">
                         
                         <div class="flex flex-col items-center justify-start pt-4 relative min-w-[160px]">
+    
                             <label for="photoEdit" class="cursor-pointer group relative">
                                 <div class="w-40 h-40 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden hover:border-[#C28A56] transition relative">
                                     
-                                    {{-- LOGIC: Show New Preview OR Existing Photo OR Placeholder --}}
+                                    {{-- 1. PREVIEW LOGIC --}}
                                     @if ($photo)
                                         <img src="{{ $photo->temporaryUrl() }}" class="w-full h-full object-cover" alt="New Preview">
                                     @elseif ($existingPhoto)
                                         <img src="{{ asset('storage/' . $existingPhoto) }}" class="w-full h-full object-cover" alt="Current Photo">
                                     @else
                                         <div class="flex flex-col items-center text-gray-400">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                                             <span class="text-xs">No Photo</span>
                                         </div>
                                     @endif
 
                                     {{-- Hover Overlay --}}
-                                    <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center text-white text-xs opacity-0 group-hover:opacity-100 transition">
+                                    <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center text-white text-xs opacity-0 group-hover:opacity-100 transition z-10">
                                         Change Photo
                                     </div>
 
-                                    {{-- Loading State --}}
-                                    <div wire:loading wire:target="photo" class="absolute inset-0 bg-white/90 flex flex-col items-center justify-center text-gray-600 text-xs font-medium z-10">
-                                        Uploading...
+                                    {{-- 2. UPLOAD LOADING OVERLAY (Specific to Photo) --}}
+                                    {{-- This only shows when the "photo" property is busy (uploading) --}}
+                                    <div wire:loading wire:target="photo" class="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center text-gray-600 text-xs font-medium z-20">
+                                        <svg class="animate-spin h-6 w-6 mb-2 text-[#C28A56]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                        </svg>
+                                        <span class="animate-pulse">Uploading...</span>
                                     </div>
                                 </div>
                             </label>
                             
-                            <input id="photoEdit" type="file" wire:model="photo" class="hidden" accept="image/png, image/jpeg, image/jpg">
+                            {{-- Input must use .live for instant preview --}}
+                            <input id="photoEdit" type="file" wire:model.live="photo" class="hidden" accept="image/png, image/jpeg, image/jpg">
 
-                            {{-- Validation & File Info --}}
                             <div class="mt-3 text-center">
                                 @if ($photo)
-                                    <button type="button" wire:click="$set('photo', null)" class="text-xs text-red-500 hover:text-red-700 font-medium hover:underline mb-1 block mx-auto">
-                                        Undo Change
-                                    </button>
+                                    {{-- Hide remove button while uploading --}}
+                                    <div wire:loading.remove wire:target="photo">
+                                        <button type="button" wire:click="$set('photo', null)" class="text-xs text-red-500 hover:text-red-700 font-medium hover:underline mb-1 block mx-auto">
+                                            Undo Change
+                                        </button>
+                                    </div>
                                 @endif
 
-                                <p class="text-[10px] text-gray-400 uppercase tracking-wide">
-                                    Max Size: 3MB <br> Formats: JPG, PNG
-                                </p>
+                                <p class="text-[10px] text-gray-400 uppercase tracking-wide">Max Size: 1MB <br> Formats: JPG, PNG</p>
 
                                 @error('photo') 
                                     <span class="text-red-500 text-xs block mt-1 bg-red-50 px-2 py-1 rounded border border-red-100">{{ $message }}</span> 
@@ -219,8 +227,34 @@
 
                     <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
                         <button type="button" wire:click="closeModal" class="px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">Cancel</button>
-                        <button type="submit" class="px-5 py-2 bg-[#D7A86E] text-white rounded-lg hover:bg-[#c28a56] shadow-sm transition">
-                            Update Implementor
+                        
+                        <button 
+                            type="submit" 
+                            {{-- DISABLE button if "update" is running OR if "photo" is uploading --}}
+                            wire:loading.attr="disabled"
+                            wire:target="update, photo"
+                            class="px-5 py-2 bg-[#D7A86E] text-white rounded-lg hover:bg-[#c28a56] shadow-sm transition flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+                            
+                            {{-- Normal State --}}
+                            <span wire:loading.remove wire:target="update, photo">Update Implementor</span>
+                            
+                            {{-- Saving State --}}
+                            <span wire:loading wire:target="update" class="flex items-center gap-2">
+                                <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                </svg>
+                                Saving...
+                            </span>
+
+                            {{-- Uploading State --}}
+                            <span wire:loading wire:target="photo" class="flex items-center gap-2">
+                                <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                </svg>
+                                Uploading Photo...
+                            </span>
                         </button>
                     </div>
                 </form>

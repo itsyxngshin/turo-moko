@@ -128,7 +128,7 @@ class AddImplementor extends Component
             ];
 
             $this->dispatch('implementor-saved', message: "Implementor '{$this->username}' created successfully!");
-            $this->closeModal();
+            $this->resetPage();
 
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Add Implementor Error: ' . $e->getMessage());
