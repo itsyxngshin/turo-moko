@@ -7,6 +7,11 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <title>@yield('title', 'TuroMoko')</title>
 <link rel="icon" href="{{ asset('images/turo_moko_logo.png') }}" type="image/png">
+<<<<<<< Updated upstream
+=======
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" as="style" onload="this.rel='stylesheet'">
+
+>>>>>>> Stashed changes
 
 <!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -24,6 +29,15 @@
 <!-- Alpine.js -->
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
+<<<<<<< Updated upstream
+=======
+    <style>
+        html {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+
+>>>>>>> Stashed changes
 <script>
     tailwind.config = {
         theme: {
@@ -110,6 +124,7 @@
     </div>
 
     <!-- DESKTOP SIDEBAR -->
+<<<<<<< Updated upstream
     <aside x-data="{ expanded: true }"
            :class="expanded ? 'w-56' : 'w-[70px]'"
            class="hidden md:flex transition-all duration-300 ease-in-out h-[750px] bg-white rounded-3xl border border-gray-200 shadow-sm flex flex-col py-6 ml-4 mt-2 overflow-hidden sticky top-2 z-20">
@@ -125,6 +140,29 @@
                 <span x-show="expanded" x-cloak class="text-orange-500 font-semibold text-base whitespace-nowrap ml-4">
                     Turo-Moko
                 </span>
+=======
+<aside x-data="{
+        expanded: JSON.parse(localStorage.getItem('sidebarExpanded')) ?? true,
+        toggle() {
+            this.expanded = !this.expanded;
+            localStorage.setItem('sidebarExpanded', this.expanded);
+        }
+    }"
+    :class="expanded ? 'w-56' : 'w-[70px]'"
+    class="hidden md:flex transition-all duration-300 ease-in-out h-[750px] bg-white rounded-3xl border border-gray-200 shadow-sm flex flex-col py-6 ml-4 mt-2 overflow-hidden sticky top-2 z-20">
+
+    <!-- Logo / Toggle -->
+    <div class="flex flex-col gap-8">
+        <div @click="toggle()" class="flex items-center cursor-pointer px-2 ml-4">
+            <div class="flex flex-col justify-between w-6 h-5">
+                <span class="block h-0.5 w-full bg-gray-700"></span>
+                <span class="block h-0.5 w-full bg-gray-700"></span>
+                <span class="block h-0.5 w-full bg-gray-700"></span>
+            </div>
+            <span x-show="expanded" x-cloak class="text-orange-500 font-semibold text-base whitespace-nowrap ml-4">
+                Turo-Moko
+            </span>
+>>>>>>> Stashed changes
             </div>
 
             <!-- Sidebar Links -->
@@ -160,7 +198,11 @@
     <div class="flex-1 flex flex-col h-screen">
 
         <!-- Top Nav -->
+<<<<<<< Updated upstream
         <nav class="flex justify-between items-center h-16 px-6 sticky top-0 z-30 bg-gray-50 ml-0 md:ml-[calc(14rem+1rem)]">
+=======
+        <nav class="flex justify-between items-center h-16 px-6 sticky top-0 z-30 bg-gray-50">
+>>>>>>> Stashed changes
             <div class="flex items-center gap-4 pl-5">
                 <a href="{{ route('learner.profile') }}">
                     <div class="h-10 w-10 rounded-full overflow-hidden border-2 border-white shadow">
@@ -185,7 +227,11 @@
         </nav>
 
         <!-- Page Content -->
+<<<<<<< Updated upstream
         <main class="flex-1 overflow-y-auto p-4 scrollbar-hide pt-16">
+=======
+        <main class="flex-1 overflow-y-auto p-4 scrollbar-hide">
+>>>>>>> Stashed changes
             @yield('content')
             {{ $slot ?? '' }}
         </main>
