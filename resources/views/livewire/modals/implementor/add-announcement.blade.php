@@ -143,19 +143,43 @@
 </div>
 
 <script>
-window.addEventListener('announcement-updated', () => {
-    Swal.fire({
-        icon: 'success',
-        title: 'Announcement updated!',
-        showConfirmButton: true,   // show OK button
-        timer: 3000,               // auto-close after 3 seconds (optional)
-        timerProgressBar: true,    // shows progress bar
-        allowOutsideClick: false,  // prevents clicking outside to close
-        allowEscapeKey: false,     // prevents pressing ESC to close
-    }).then((result) => {
-        // This triggers when OK is clicked or timer ends
-        if (result.isConfirmed || result.dismiss === Swal.DismissReason.timer) {
+document.addEventListener('livewire:initialized', () => {
+    Livewire.on('announcement-created', () => {
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Announcement created successfully.',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#000000',
+            background: '#ffffff',
+            iconColor: '#000000',
+        }).then(() => {
+            // Close all Alpine modals
+            document.querySelectorAll('[x-data]').forEach(el => {
+                if (el.__x && el.__x.$data.open !== undefined) el.__x.$data.open = false;
+            });
 
+            // Reset file upload
+            const uploadComponent = document.querySelector('[x-data="fileUpload()"]');
+            if (uploadComponent && uploadComponent.__x) {
+                uploadComponent.__x.resetFileUpload();
+            }
+
+            // Reload page
+            location.reload();
+        });
+    });
+
+    Livewire.on('announcement-updated', () => {
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Announcement updated successfully.',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#000000',
+            background: '#ffffff',
+            iconColor: '#000000',
+        }).then(() => {
             // Close all Alpine modals
             document.querySelectorAll('[x-data]').forEach(el => {
                 if (el.__x) el.__x.$data.open = false;
@@ -169,7 +193,7 @@ window.addEventListener('announcement-updated', () => {
 
             // Reload page
             location.reload();
-        }
+        });
     });
 });
 </script>

@@ -72,13 +72,7 @@ class AddAnnouncement extends Component
         $this->reset(['title', 'details', 'attachments', 'removeAttachment']);
         $this->uploadKey = uniqid();
 
-        $this->dispatch('swal:success', [
-            'title' => 'Success!',
-            'text'  => 'Announcement created successfully.',
-            'icon'  => 'success',
-            'button' => 'OK'
-        ]);
-
+        $this->dispatch('announcement-created');
         $this->dispatch('announcement-saved');
     }
 
