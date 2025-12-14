@@ -418,6 +418,8 @@
                         <p class="text-sm text-gray-500 mt-0.5">
                             Score: <span class="font-semibold" x-text="selectedSubmission?.score + '/' + selectedSubmission?.total_points"></span>
                             (<span x-text="selectedSubmission?.percentage + '%'"></span>)
+                            <span class="mx-2">•</span>
+                            No. of attempts: <span class="font-semibold" x-text="selectedSubmission?.total_attempts || 1"></span>
                         </p>
                     </div>
                     <button @click="closeModal()" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
@@ -472,6 +474,39 @@
                                                     <span x-text="answer.correct_answer"></span>
                                                 </p>
                                             </template>
+                                        </div>
+                                    </template>
+                                    
+                                    <!-- For Short Answer - Show answer with correctness -->
+                                    <template x-if="['short_answer'].includes(answer.question_type)">
+                                        <div>
+                                            <!-- Student's Answer -->
+                                            <div class="bg-white rounded-lg p-3 mb-3 border border-gray-200">
+                                                <p class="text-sm font-medium text-gray-500 mb-1">Student's Answer:</p>
+                                                <p class="text-gray-900" x-text="answer.answer_text || 'No answer provided'"></p>
+                                            </div>
+                                            
+                                            <!-- Model Answer (if exists) -->
+                                            <template x-if="answer.correct_answer || answer.model_answer">
+                                                <div class="bg-blue-50 rounded-lg p-3 mb-3 border border-blue-200">
+                                                    <p class="text-sm font-medium text-blue-700 mb-1">Correct Answer:</p>
+                                                    <p class="text-blue-900" x-text="answer.correct_answer || answer.model_answer"></p>
+                                                </div>
+                                            </template>
+                                            
+                                            <!-- Grading Status -->
+                                            <div class="flex items-center gap-2 p-3 rounded-lg bg-white"
+                                                 :class="answer.is_correct ? 'border-2 border-green-300' : answer.points_earned < 0 ? 'border-2 border-amber-300' : 'border-2 border-red-300'">
+                                                <i :data-lucide="answer.is_correct ? 'check-circle' : answer.points_earned < 0 ? 'alert-circle' : 'x-circle'" 
+                                                   class="w-5 h-5"
+                                                   :class="answer.is_correct ? 'text-green-600' : answer.points_earned < 0 ? 'text-amber-600' : 'text-red-600'"></i>
+                                                <span class="font-medium" 
+                                                      :class="answer.is_correct ? 'text-green-600' : answer.points_earned < 0 ? 'text-amber-600' : 'text-red-600'"
+                                                      x-text="answer.is_correct ? 'Correct' : answer.points_earned < 0 ? 'Needs Manual Grading' : 'Incorrect'"></span>
+                                                <span class="ml-auto text-sm font-semibold"
+                                                      :class="answer.is_correct ? 'text-green-600' : answer.points_earned < 0 ? 'text-amber-600' : 'text-red-600'"
+                                                      x-text="answer.points_earned >= 0 ? answer.points_earned + '/' + answer.question_points : 'Ungraded'"></span>
+                                            </div>
                                         </div>
                                     </template>
                                     

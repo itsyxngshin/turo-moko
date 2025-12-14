@@ -1,4 +1,7 @@
 <div>
+<!-- Load SweetAlert2 outside the modal condition -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 @if($showModal)
 <div wire:key="course-feedback-modal"
      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
@@ -7,12 +10,15 @@
          x-data="{
     currentStep: 1,
     courseRatings: {1:0,2:0,3:0,4:0},
-    implementorRatings: {6:0,7:0,8:0,9:0},
-    courseComment:'',
+    likedMost: '',
+    couldBeBetter: '',
+    additionalSuggestions: '',
+    implementorRatings: {8:0,9:0,10:0,11:0},
     implementorComment:'',
-    totalSteps: 10,
+    totalSteps: 12,
     isSubmitting: false,
     fadingOut: false,
+    showError: false,
     handleFeedbackSubmitted() {
         if (this.fadingOut) return; // prevent duplicate timers
         this.isSubmitting = false;
@@ -25,6 +31,45 @@
     get progress() {
         return (this.currentStep / this.totalSteps) * 100;
     },
+    get isCurrentStepValid() {
+        // Text field steps (5, 6, 7, 12) are always valid (optional)
+        if ([5, 6, 7, 12].includes(this.currentStep)) {
+            return true;
+        }
+        
+        // Course star rating steps (1-4) must have a rating selected
+        if (this.currentStep >= 1 && this.currentStep <= 4) {
+            return this.courseRatings[this.currentStep] > 0;
+        }
+        
+        // Implementor star rating steps (8-11) must have a rating selected
+        if (this.currentStep >= 8 && this.currentStep <= 11) {
+            return this.implementorRatings[this.currentStep] > 0;
+        }
+        
+        return true;
+    },
+    get canSubmit() {
+        // Check all course star ratings are filled (1-4)
+        for (let i = 1; i <= 4; i++) {
+            if (!this.courseRatings[i] || this.courseRatings[i] === 0) return false;
+        }
+        // Check all implementor star ratings are filled (8-11)
+        for (let i = 8; i <= 11; i++) {
+            if (!this.implementorRatings[i] || this.implementorRatings[i] === 0) return false;
+        }
+        return true;
+    },
+    nextStep() {
+        if (!this.isCurrentStepValid) {
+            this.showError = true;
+            return;
+        }
+        this.showError = false;
+        if (this.currentStep < 12) {
+            this.currentStep++;
+        }
+    },
     init() {
         // Catch the already-true state after Livewire re-renders
         if (this.$wire.feedbackSubmitted) {
@@ -36,14 +81,21 @@
                 this.handleFeedbackSubmitted();
             }
         });
+        
+        // Reset error when rating changes
+        this.$watch('courseRatings', () => { this.showError = false; }, { deep: true });
+        this.$watch('implementorRatings', () => { this.showError = false; }, { deep: true });
     },
     reset() {
         this.currentStep = 1;
         this.courseRatings = {1:0,2:0,3:0,4:0};
-        this.implementorRatings = {6:0,7:0,8:0,9:0};
-        this.courseComment = '';
+        this.likedMost = '';
+        this.couldBeBetter = '';
+        this.additionalSuggestions = '';
+        this.implementorRatings = {8:0,9:0,10:0,11:0};
         this.implementorComment = '';
         this.isSubmitting = false;
+        this.showError = false;
     }
 }"
 :class="{'opacity-0 pointer-events-none scale-95 transition duration-500 ease-in-out': fadingOut}"
@@ -58,7 +110,7 @@ x-on:feedback-submitted.window="handleFeedbackSubmitted()">
         <!-- Header -->
         <div class="text-center py-6 border-b border-gray-100">
             <h1 class="text-2xl font-semibold text-gray-800 mb-3"
-                x-text="currentStep <= 5 ? 'Course Feedback' : 'Implementor Feedback'"></h1>
+                x-text="currentStep <= 7 ? 'Course Feedback' : 'Implementor Feedback'"></h1>
 
             <!-- Animated Progress Bar -->
             <div class="w-3/4 mx-auto h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -69,31 +121,35 @@ x-on:feedback-submitted.window="handleFeedbackSubmitted()">
 
         <!-- Steps -->
         <div class="p-8 text-center overflow-hidden">
-            @foreach([1,2,3,4,5,6,7,8,9,10] as $step)
+            @foreach([1,2,3,4,5,6,7,8,9,10,11,12] as $step)
                 <div x-show="currentStep === {{ $step }}" 
                      x-transition.opacity.duration.300ms x-cloak 
                      class="space-y-5">
 
                     {{-- Step Titles --}}
                     @if($step === 1)
-                        <h2 class="text-lg font-medium text-gray-800">How would you rate the overall course quality?</h2>
+                        <h2 class="text-lg font-medium text-gray-800">How well did the course help you understand the key topics?</h2>
                     @elseif($step === 2)
-                        <h2 class="text-lg font-medium text-gray-800">How useful were the course materials and resources?</h2>
+                        <h2 class="text-lg font-medium text-gray-800">How appropriate was the course content for your needs?</h2>
                     @elseif($step === 3)
-                        <h2 class="text-lg font-medium text-gray-800">How well-organized was the course structure?</h2>
+                        <h2 class="text-lg font-medium text-gray-800">How engaging were the course activities and materials?</h2>
                     @elseif($step === 4)
-                        <h2 class="text-lg font-medium text-gray-800">How engaging was the course content?</h2>
+                        <h2 class="text-lg font-medium text-gray-800">How appropriate was the time needed to complete the course?</h2>
                     @elseif($step === 5)
-                        <h2 class="text-lg font-medium text-gray-800">Additional comments about the course</h2>
+                        <h2 class="text-lg font-medium text-gray-800">What did you like most in the course?</h2>
                     @elseif($step === 6)
-                        <h2 class="text-lg font-medium text-gray-800">How would you rate the implementor's teaching effectiveness?</h2>
+                        <h2 class="text-lg font-medium text-gray-800">What could have made it better?</h2>
                     @elseif($step === 7)
-                        <h2 class="text-lg font-medium text-gray-800">How responsive was the implementor to questions and concerns?</h2>
+                        <h2 class="text-lg font-medium text-gray-800">Additional suggestions/comments/inquiry</h2>
                     @elseif($step === 8)
-                        <h2 class="text-lg font-medium text-gray-800">How clear were the implementor's explanations and instructions?</h2>
+                        <h2 class="text-lg font-medium text-gray-800">How would you rate the implementor's teaching effectiveness?</h2>
                     @elseif($step === 9)
-                        <h2 class="text-lg font-medium text-gray-800">How likely are you to take another course from this implementor?</h2>
+                        <h2 class="text-lg font-medium text-gray-800">How responsive was the implementor to questions and concerns?</h2>
                     @elseif($step === 10)
+                        <h2 class="text-lg font-medium text-gray-800">How clear were the implementor's explanations and instructions?</h2>
+                    @elseif($step === 11)
+                        <h2 class="text-lg font-medium text-gray-800">How likely are you to take another course from this implementor?</h2>
+                    @elseif($step === 12)
                         <h2 class="text-lg font-medium text-gray-800">Additional feedback for the implementor</h2>
                     @endif
 
@@ -119,14 +175,33 @@ x-on:feedback-submitted.window="handleFeedbackSubmitted()">
                             <span x-show="courseRatings[{{ $step }}] === 4">Very Good</span>
                             <span x-show="courseRatings[{{ $step }}] === 5">Excellent</span>
                         </div>
+                        
+                        <!-- Error Message -->
+                        <div x-show="showError && courseRatings[{{ $step }}] === 0" 
+                             x-transition.opacity.duration.300ms
+                             class="mt-3 text-red-600 text-sm font-medium">
+                            This question is required
+                        </div>
 
                     @elseif($step === 5)
-                        <p class="text-gray-600 mb-2">Share any additional feedback about the course</p>
-                        <textarea x-model="courseComment" rows="4"
+                        <p class="text-gray-600 mb-2 text-sm">(Optional)</p>
+                        <textarea x-model="likedMost" rows="4"
                                   class="w-full border border-gray-300 rounded-xl shadow-sm focus:ring-blue-500 focus:border-blue-500 resize-none"
-                                  placeholder="Your thoughts about the course..."></textarea>
+                                  placeholder="What aspects of the course did you enjoy?"></textarea>
 
-                    @elseif($step >= 6 && $step <= 9)
+                    @elseif($step === 6)
+                        <p class="text-gray-600 mb-2 text-sm">(Optional)</p>
+                        <textarea x-model="couldBeBetter" rows="4"
+                                  class="w-full border border-gray-300 rounded-xl shadow-sm focus:ring-blue-500 focus:border-blue-500 resize-none"
+                                  placeholder="Share your suggestions for improvement..."></textarea>
+
+                    @elseif($step === 7)
+                        <p class="text-gray-600 mb-2 text-sm">(Optional)</p>
+                        <textarea x-model="additionalSuggestions" rows="4"
+                                  class="w-full border border-gray-300 rounded-xl shadow-sm focus:ring-blue-500 focus:border-blue-500 resize-none"
+                                  placeholder="Any other comments or questions?"></textarea>
+
+                    @elseif($step >= 8 && $step <= 11)
                         <p class="text-gray-600">Please select a rating from 1 to 5 stars</p>
                         <div class="flex justify-center gap-3 mt-4">
                             <template x-for="star in 5" :key="'implementor-step{{ $step }}-' + star">
@@ -147,18 +222,25 @@ x-on:feedback-submitted.window="handleFeedbackSubmitted()">
                             <span x-show="implementorRatings[{{ $step }}] === 4">Very Good</span>
                             <span x-show="implementorRatings[{{ $step }}] === 5">Excellent</span>
                         </div>
+                        
+                        <!-- Error Message -->
+                        <div x-show="showError && implementorRatings[{{ $step }}] === 0" 
+                             x-transition.opacity.duration.300ms
+                             class="mt-3 text-red-600 text-sm font-medium">
+                            This question is required
+                        </div>
 
-                    @elseif($step === 10)
-                        <p class="text-gray-600 mb-2">Share any additional feedback for the implementor</p>
+                    @elseif($step === 12)
+                        <p class="text-gray-600 mb-2 text-sm">(Optional)</p>
                         <textarea x-model="implementorComment" rows="4"
                                   class="w-full border border-gray-300 rounded-xl shadow-sm focus:ring-blue-500 focus:border-blue-500 resize-none"
                                   placeholder="Your thoughts about the implementor..."></textarea>
 
                         <div class="mt-4 text-green-600 font-medium"
-     x-show="$wire.feedbackSubmitted"
-     x-transition.opacity.duration.500ms>
-     Thank you for your feedback!
-</div>
+                             x-show="$wire.feedbackSubmitted"
+                             x-transition.opacity.duration.500ms>
+                            Thank you for your feedback!
+                        </div>
 
                     @endif
                 </div>
@@ -167,26 +249,105 @@ x-on:feedback-submitted.window="handleFeedbackSubmitted()">
 
         <!-- Footer -->
         <div class="flex justify-between items-center border-t border-gray-100 bg-gray-50 px-6 py-4">
-            <button @click="if(currentStep > 1) currentStep--" 
+            <button @click="if(currentStep > 1) { currentStep--; showError = false; }" 
                     class="flex items-center gap-1 px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition">
                 &larr; Back
             </button>
 
-            <div>
-                <button x-show="currentStep < 10"
-                        @click="if(currentStep < 10) currentStep++"
-                        class="flex items-center gap-1 bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition">
+            <div class="flex flex-col items-end gap-2">
+                <!-- Next Button -->
+                <button x-show="currentStep < 12"
+                        @click="nextStep()"
+                        :disabled="!isCurrentStepValid"
+                        :class="!isCurrentStepValid ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'"
+                        class="flex items-center gap-1 bg-blue-600 text-white px-5 py-2 rounded-lg transition">
                     Next &rarr;
                 </button>
 
-                <button x-show="currentStep === 10"
-                        :disabled="isSubmitting"
+                <!-- Submit Button -->
+                <button x-show="currentStep === 12"
+                        :disabled="isSubmitting || !canSubmit"
                         @click="
+                            if (!canSubmit) {
+                                if (typeof Swal !== 'undefined') {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Incomplete Ratings',
+                                        text: 'Please complete all star rating questions before submitting.',
+                                        confirmButtonText: 'OK',
+                                        confirmButtonColor: '#000000',
+                                        background: '#ffffff',
+                                        iconColor: '#000000'
+                                    });
+                                } else {
+                                    alert('Please complete all star rating questions before submitting.');
+                                }
+                                return;
+                            }
+                            
                             isSubmitting = true;
-                            $wire.submitFeedback(courseRatings, implementorRatings, courseComment, implementorComment)
-                                .finally(() => { isSubmitting = false; });
+                            $wire.submitFeedback(courseRatings, likedMost, couldBeBetter, additionalSuggestions, implementorRatings, implementorComment)
+                                .then((result) => {
+                                    console.log('Submit result:', result);
+                                    if (result && result.success) {
+                                        if (typeof Swal !== 'undefined') {
+                                            Swal.fire({
+                                                icon: 'success',
+                                                title: 'Thank You!',
+                                                text: 'Your feedback has been submitted successfully.',
+                                                confirmButtonText: 'OK',
+                                                confirmButtonColor: '#000000',
+                                                background: '#ffffff',
+                                                iconColor: '#10B981',
+                                                timer: 2000,
+                                                timerProgressBar: true
+                                            }).then(() => {
+                                                window.location.reload();
+                                            });
+                                        } else {
+                                            alert('Thank you! Your feedback has been submitted.');
+                                            window.location.reload();
+                                        }
+                                    } else {
+                                        let errorMsg = result && result.message ? result.message : 'An error occurred. Please try again.';
+                                        console.error('Submission failed:', errorMsg);
+                                        if (typeof Swal !== 'undefined') {
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'Submission Failed',
+                                                text: errorMsg,
+                                                confirmButtonText: 'OK',
+                                                confirmButtonColor: '#000000',
+                                                background: '#ffffff',
+                                                iconColor: '#000000'
+                                            });
+                                        } else {
+                                            alert('Submission failed: ' + errorMsg);
+                                        }
+                                    }
+                                })
+                                .catch((error) => {
+                                    console.error('Network error:', error);
+                                    if (typeof Swal !== 'undefined') {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Connection Error',
+                                            text: 'Could not connect to server. Please try again.',
+                                            confirmButtonText: 'OK',
+                                            confirmButtonColor: '#000000',
+                                            background: '#ffffff',
+                                            iconColor: '#000000'
+                                        });
+                                    } else {
+                                        alert('Connection error. Please try again.');
+                                    }
+                                })
+                                .finally(() => { 
+                                    isSubmitting = false;
+                                });
                         "
-                        class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition disabled:opacity-60 disabled:cursor-not-allowed">
+                        :class="(!canSubmit || isSubmitting) ? 'opacity-60 cursor-not-allowed' : 'hover:bg-green-700'"
+                        class="bg-green-600 text-white px-6 py-2 rounded-lg transition">
                     <span x-show="!isSubmitting">Submit</span>
                     <span x-show="isSubmitting">Submitting...</span>
                 </button>

@@ -19,6 +19,8 @@
                 <p><span class="font-semibold">Last Updated:</span> {{ $course->updated_at->format('m/d/Y') }}</p>
             </div>
             <div class="flex space-x-3 mt-4">
+                <a href="{{ route('admin.course.evaluation-stats', $course->course_code) }}" 
+                   class="px-4 py-2 border rounded-lg hover:bg-gray-100">View Evaluation Stats</a>
                 <button class="px-4 py-2 border rounded-lg hover:bg-gray-100">Hide Course</button> 
                 <button class="px-4 py-2 border rounded-lg hover:bg-gray-100">Delete Course</button>
             </div>

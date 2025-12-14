@@ -123,8 +123,23 @@ class AssessmentResultsController extends Controller
     {
         $quiz = Quiz::with(['course', 'questions.choices'])->findOrFail($quizId);
         
-        // Get all quiz results with enrollee info
+        // Get only the latest attempt for each student
+        $latestAttempts = QuizResult::where('quiz_id', $quizId)
+            ->select('course_enrollee_id', DB::raw('MAX(attempt_number) as max_attempt'))
+            ->groupBy('course_enrollee_id')
+            ->get();
+
+        // Get the full results for those latest attempts only
         $results = QuizResult::where('quiz_id', $quizId)
+            ->whereIn('course_enrollee_id', $latestAttempts->pluck('course_enrollee_id'))
+            ->where(function($query) use ($latestAttempts) {
+                foreach ($latestAttempts as $attempt) {
+                    $query->orWhere(function($q) use ($attempt) {
+                        $q->where('course_enrollee_id', $attempt->course_enrollee_id)
+                          ->where('attempt_number', $attempt->max_attempt);
+                    });
+                }
+            })
             ->with(['enrollee.user.profile'])
             ->get();
 
@@ -193,10 +208,20 @@ class AssessmentResultsController extends Controller
             $user = $result->enrollee->user ?? null;
             $profile = $user->profile ?? null;
             
-            // Get student's answers for this quiz
+            // Get total number of attempts for this student
+            $totalAttempts = QuizResult::where('quiz_id', $quiz->id)
+                ->where('course_enrollee_id', $result->course_enrollee_id)
+                ->count();
+            
+            // Get student's answers for this quiz (latest attempt only)
+            // Get the most recent N answers where N = number of questions
+            $questionCount = $quiz->questions->count();
+            
             $answers = Answer::where('quiz_id', $quiz->id)
                 ->where('course_enrollee_id', $result->course_enrollee_id)
+                ->orderBy('created_at', 'desc')
                 ->with(['question', 'choice'])
+                ->limit($questionCount)
                 ->get();
 
             // Check if there are any ungraded long-answer questions (points = -1 means ungraded)
@@ -208,6 +233,8 @@ class AssessmentResultsController extends Controller
             return [
                 'id' => $result->id,
                 'course_enrollee_id' => $result->course_enrollee_id,
+                'attempt_number' => $result->attempt_number,
+                'total_attempts' => $totalAttempts,
                 'student_name' => $profile 
                     ? trim($profile->first_name . ' ' . $profile->last_name) 
                     : ($user->username ?? 'Unknown Student'),
@@ -352,9 +379,29 @@ class AssessmentResultsController extends Controller
     {
         $quiz = Quiz::with('questions')->findOrFail($quizId);
         
-        // Get all answers for this submission
+        // Get the latest attempt number for this student
+        $latestAttempt = QuizResult::where('quiz_id', $quizId)
+            ->where('course_enrollee_id', $courseEnrolleeId)
+            ->max('attempt_number');
+        
+        // Get the latest quiz result
+        $quizResult = QuizResult::where('quiz_id', $quizId)
+            ->where('course_enrollee_id', $courseEnrolleeId)
+            ->where('attempt_number', $latestAttempt)
+            ->first();
+            
+        if (!$quizResult) {
+            return;
+        }
+        
+        // Get all answers for this submission (latest attempt only)
+        // Get the most recent N answers where N = number of questions
+        $questionCount = $quiz->questions->count();
+        
         $answers = Answer::where('quiz_id', $quizId)
             ->where('course_enrollee_id', $courseEnrolleeId)
+            ->orderBy('created_at', 'desc')
+            ->limit($questionCount)
             ->get();
 
         // Calculate total score (ignore ungraded entries marked as < 0)
@@ -368,18 +415,12 @@ class AssessmentResultsController extends Controller
         $allGraded = $gradedAnswers >= $totalQuestions;
 
         // Update quiz result
-        $quizResult = QuizResult::where('quiz_id', $quizId)
-            ->where('course_enrollee_id', $courseEnrolleeId)
-            ->first();
-
-        if ($quizResult) {
-            $quizResult->update([
-                'score' => $totalScore,
-                'status' => $allGraded ? 'Checked' : 'Pending',
-                'checked_at' => $allGraded ? now() : null,
-                'remarks' => $allGraded ? 'Grading complete' : 'Partially graded',
-            ]);
-        }
+        $quizResult->update([
+            'score' => $totalScore,
+            'status' => $allGraded ? 'Checked' : 'Pending',
+            'checked_at' => $allGraded ? now() : null,
+            'remarks' => $allGraded ? 'Grading complete' : 'Partially graded',
+        ]);
     }
 
     /**
@@ -499,4 +540,3 @@ class AssessmentResultsController extends Controller
             });
     }
 }
-

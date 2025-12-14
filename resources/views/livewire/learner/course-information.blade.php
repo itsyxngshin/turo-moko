@@ -156,36 +156,49 @@
                                 $isExcel = in_array($ext, ['xls','xlsx']);
                             @endphp
 
-                            <a href="{{ $fileUrl }}" target="_blank" class="flex flex-col items-center justify-center w-40 h-full border rounded-md p-2 hover:bg-gray-100">
-                                @if($isImage)
-                                    <img src="{{ $fileUrl }}" class="w-24 h-24 object-cover rounded-md border mb-1">
-                                @elseif($isPDF)
-                                    <canvas class="w-24 h-24 mb-1 pdf-thumbnail" data-pdf="{{ $fileUrl }}"></canvas>
-                                @elseif($isVideo)
-                                    <video class="w-24 h-24 object-cover rounded-md border mb-1" muted>
-                                        <source src="{{ $fileUrl }}" type="video/{{ $ext }}">
-                                    </video>
-                                @elseif($isWord)
-                                    <div class="flex flex-col items-center justify-center w-24 h-24 border rounded-md p-2 mb-1 text-center">
-                                        <span class="text-4xl">📄</span>
-                                        <p class="text-xs mt-1">Word</p>
+                            <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <a href="{{ $fileUrl }}" target="_blank" class="flex items-center space-x-3 hover:opacity-80 transition">
+                                            @if($isImage)
+                                                <img src="{{ $fileUrl }}" class="w-12 h-12 object-cover rounded-md border">
+                                            @elseif($isPDF)
+                                                <div class="flex items-center justify-center w-12 h-12 bg-red-100 rounded-md">
+                                                    <span class="text-2xl">📕</span>
+                                                </div>
+                                            @elseif($isVideo)
+                                                <div class="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-md">
+                                                    <span class="text-2xl">🎞️</span>
+                                                </div>
+                                            @elseif($isWord)
+                                                <div class="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-md">
+                                                    <span class="text-2xl">📄</span>
+                                                </div>
+                                            @elseif($isExcel)
+                                                <div class="flex items-center justify-center w-12 h-12 bg-green-100 rounded-md">
+                                                    <span class="text-2xl">📊</span>
+                                                </div>
+                                            @else
+                                                <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-md">
+                                                    <span class="text-2xl">📄</span>
+                                                </div>
+                                            @endif
+                                            <div>
+                                                <p class="text-sm font-semibold text-blue-900">Module Materials</p>
+                                                <p class="text-sm text-blue-700">{{ $module->lessons->attachments_original_name ?? basename($attachment) }}</p>
+                                            </div>
+                                        </a>
                                     </div>
-                                @elseif($isExcel)
-                                    <div class="flex flex-col items-center justify-center w-24 h-24 border rounded-md p-2 mb-1 text-center">
-                                        <span class="text-4xl">📊</span>
-                                        <p class="text-xs mt-1">Excel</p>
-                                    </div>
-                                @else
-                                    <div class="flex flex-col items-center justify-center w-24 h-24 border rounded-md p-2 mb-1 text-center">
-                                        <span class="text-4xl">📄</span>
-                                        <p class="text-xs mt-1">File</p>
-                                    </div>
-                                @endif
-
-                                <p class="text-xs text-center truncate w-full">
-                                    {{ $module->lessons->attachments_original_name ?? '-' }}
-                                </p>
-                            </a>
+                                    <a href="{{ $fileUrl }}" 
+                                       download="{{ $module->lessons->attachments_original_name ?? basename($attachment) }}"
+                                       class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition flex items-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                        </svg>
+                                        Download
+                                    </a>
+                                </div>
+                            </div>
                     
                         @endif
                     </div>

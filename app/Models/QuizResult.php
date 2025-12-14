@@ -9,6 +9,7 @@ class QuizResult extends Model
     protected $fillable = [
         'quiz_id',
         'course_enrollee_id',
+        'attempt_number',
         'score',
         'remarks',
         'status',

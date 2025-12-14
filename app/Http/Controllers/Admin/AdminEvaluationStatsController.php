@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Implementors;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
@@ -9,13 +9,15 @@ use App\Models\CourseFeedback;
 use App\Models\ImplementorFeedback;
 use Illuminate\Support\Facades\Auth;
 
-class ImplementorEvaluationStatsController extends Controller
+class AdminEvaluationStatsController extends Controller
 {
     public function show(Course $course)
     {
-        $implementor = Auth::user();
-        if (!$implementor || (int) $implementor->role_id !== 2 || $course->implementer_id !== $implementor->id) {
-            abort(403, 'Unauthorized. You must be the implementor for this course.');
+        $user = Auth::user();
+        
+        // Check if user is admin (role_id = 3)
+        if (!$user || (int) $user->role_id !== 3) {
+            abort(403, 'Unauthorized. Admin access required.');
         }
 
         $enrolledCount = CourseEnrollee::where('course_id', $course->id)
@@ -157,7 +159,7 @@ class ImplementorEvaluationStatsController extends Controller
             })->values(),
         ];
 
-        return view('implementor.evaluation-stats', compact(
+        return view('admin.evaluation-stats', compact(
             'course',
             'courseFeedbackStats',
             'implementorFeedbackStats',
@@ -187,4 +189,3 @@ class ImplementorEvaluationStatsController extends Controller
         return collect($distribution)->sortKeysDesc();
     }
 }
-

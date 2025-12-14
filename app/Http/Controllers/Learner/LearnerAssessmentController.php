@@ -176,6 +176,12 @@ class LearnerAssessmentController extends Controller
         try {
             DB::beginTransaction();
 
+            // Get current attempt number for this student on this quiz
+            $attemptNumber = QuizResult::where('quiz_id', $quiz->id)
+                ->where('course_enrollee_id', $enrollee->id)
+                ->max('attempt_number') ?? 0;
+            $attemptNumber++; // Increment for new attempt
+
             $totalScore = 0;
             $hasUngradedAnswers = false;
 
@@ -253,6 +259,7 @@ class LearnerAssessmentController extends Controller
             $quizResult = QuizResult::create([
                 'quiz_id' => $quiz->id,
                 'course_enrollee_id' => $enrollee->id,
+                'attempt_number' => $attemptNumber,
                 'score' => $totalScore,
                 'status' => $hasUngradedAnswers ? 'Pending' : 'Checked',
                 'remarks' => $hasUngradedAnswers ? 'Awaiting manual grading' : 'Auto-graded',

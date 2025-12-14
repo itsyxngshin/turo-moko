@@ -82,6 +82,15 @@ Route::get('/', function () {
     return view('welcome');
 })->name('homepage');
 
+// TEMPORARY: Clear cache route for Hostinger deployment
+Route::get('/clear-all-cache', function() {
+    \Artisan::call('cache:clear');
+    \Artisan::call('config:clear');
+    \Artisan::call('view:clear');
+    \Artisan::call('route:clear');
+    return 'Cache cleared successfully! You can now remove this route from web.php';
+});
+
 // TEMPORARY: Fake login route for testing
 Route::get('/fake-login', function() {
     $user = \App\Models\User::where('role_id', 2)->first();
@@ -305,6 +314,10 @@ Route::middleware(['auth', 'role:admin'])
     Route::get('/implementors', fn() => view('livewire.admin.implementors'))->name('implementors');
     Route::get('/enrollees', Enrollees::class)->name('enrollees');
     Route::get('/courses', fn() => view('livewire.admin.courses'))->name('courses');
+    
+    // Evaluation Statistics
+    Route::get('/course/{course:course_code}/evaluation-stats', [\App\Http\Controllers\Admin\AdminEvaluationStatsController::class, 'show'])
+        ->name('course.evaluation-stats');
     
     // Moderation
  Route::get('/course-moderation/{id}', CourseModeration::class)

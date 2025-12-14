@@ -82,7 +82,7 @@
 
                     {{-- Join Button --}}
                     <button 
-                        @click="enrollCourse = {id: {{ $course->id }}, title: '{{ $course->course_title }}'}; showEnrollModal = true"
+                        @click="enrollCourse = {course_code: '{{ $course->course_code }}', title: '{{ $course->course_title }}', id: {{ $course->id }}}; showEnrollModal = true"
                         class="bg-black text-white px-5 py-2 rounded-full text-xs font-bold shadow-md transition transform hover:-translate-y-0.5 hover:bg-gray-800"
                     >
                         Join Class
@@ -125,7 +125,7 @@
                         Cancel
                     </button>
 
-                    <form :action="`/learner/course/enroll/${enrollCourse.id}`" method="POST">
+                    <form :action="`{{ url('learner/course') }}/${enrollCourse.course_code}/enroll`" method="POST">
                         @csrf
                         <button 
                             type="submit"

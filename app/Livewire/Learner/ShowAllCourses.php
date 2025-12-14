@@ -61,7 +61,8 @@ class ShowAllCourses extends Component
             ->where('status', 'Active')
             ->where('visibility', 'Visible')
             ->whereDoesntHave('enrolleeRecords', function ($query) use ($learnerId) {
-                $query->where('enrollee_id', $learnerId);
+                $query->where('enrollee_id', $learnerId)
+                      ->where('status', 'Active'); // Only exclude if actively enrolled
             })
             ->when($this->search, function ($query) {
                 $searchTerm = preg_quote($this->search, '/');

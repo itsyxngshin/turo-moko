@@ -14,11 +14,13 @@ class CourseFeedback extends Model
     protected $fillable = [
         'course_id',
         'learner_id',
-        'overall_rating',
-        'materials_rating',
-        'structure_rating',
-        'engagement_rating',
-        'comment',
+        'achievement_rating',
+        'appropriateness_rating',
+        'participation_rating',
+        'time_management_rating',
+        'liked_most',
+        'could_improve',
+        'additional_comments',
     ];
 
     // Relationships

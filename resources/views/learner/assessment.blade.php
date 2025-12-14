@@ -297,7 +297,17 @@ document.addEventListener('alpine:init', () => {
         },
 
         async autoSubmit() {
-            alert('Time is up! Your assessment will be submitted automatically.');
+            await Swal.fire({
+                icon: 'warning',
+                title: 'Time is Up!',
+                text: 'Your assessment will be submitted automatically.',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#000000',
+                background: '#ffffff',
+                iconColor: '#000000',
+                timer: 3000,
+                timerProgressBar: true
+            });
             const form = this.$refs.assessmentForm;
             const event = form ? { target: form } : null;
             await this.submitAssessment(event);
@@ -360,8 +370,21 @@ document.addEventListener('alpine:init', () => {
 
             if (!form) return;
 
-            // Confirm submission
-            if (!confirm('Are you sure you want to submit your assessment? You cannot change your answers after submission.')) {
+            // Confirm submission with SweetAlert2
+            const result = await Swal.fire({
+                icon: 'warning',
+                title: 'Submit Assessment?',
+                text: 'Are you sure you want to submit your assessment? You cannot change your answers after submission.',
+                showCancelButton: true,
+                confirmButtonText: 'Submit',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#000000',
+                cancelButtonColor: '#6B7280',
+                background: '#ffffff',
+                iconColor: '#000000',
+            });
+
+            if (!result.isConfirmed) {
                 return;
             }
 
@@ -391,7 +414,10 @@ document.addEventListener('alpine:init', () => {
                         icon: 'success',
                         title: 'Success!',
                         text: data.message,
-                        confirmButtonColor: '#111827'
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#000000',
+                        background: '#ffffff',
+                        iconColor: '#000000',
                     }).then(() => {
                         window.location.href = data.redirect_url;
                     });
@@ -400,7 +426,9 @@ document.addEventListener('alpine:init', () => {
                         icon: 'error',
                         title: 'Error',
                         text: data.message,
-                        confirmButtonColor: '#111827'
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#000000',
+                        background: '#ffffff',
                     });
                     this.submitting = false;
                 }
@@ -410,7 +438,9 @@ document.addEventListener('alpine:init', () => {
                     icon: 'error',
                     title: 'Error',
                     text: 'An error occurred while submitting your assessment. Please try again.',
-                    confirmButtonColor: '#111827'
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#000000',
+                    background: '#ffffff',
                 });
                 this.submitting = false;
             }
