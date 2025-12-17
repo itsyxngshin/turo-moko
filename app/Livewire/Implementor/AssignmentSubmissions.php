@@ -17,9 +17,11 @@ class AssignmentSubmissions extends Component
     public $assignments;
     public $selectedAssignmentId;
     public $submissions = [];
+    public $sortBy = 'name'; // 'name' or 'date'
     
     // Modal properties
     public $showGradeModal = false;
+    public $currentSubmissionIndex = -1;
     public $selectedSubmission;
     public $studentName;
     public $submissionDate;
@@ -88,12 +90,73 @@ class AssignmentSubmissions extends Component
                 'status' => $submission 
                     ? ($submission->grade !== null ? 'Graded' : 'Submitted') 
                     : 'Not Submitted',
-                'grade' => $submission?->grade ?? '-',
+                'grade' => $submission 
+                    ? ($submission->grade ?? '-')
+                    : 0, // No submission treated as 0
                 'online_text' => $submission?->instruction,
                 'file_path' => $submission?->attachment,
                 'has_submission' => $submission !== null,
             ];
         })->toArray();
+        
+        // Sort submissions based on selected sort option
+        $this->sortSubmissions();
+    }
+    
+    public function toggleSort($sortBy)
+    {
+        $this->sortBy = $sortBy;
+        $this->sortSubmissions();
+    }
+    
+    private function sortSubmissions()
+    {
+        // Separate into three groups: ungraded submissions, graded submissions, no submissions
+        $ungraded = array_filter($this->submissions, fn($s) => $s['has_submission'] && $s['status'] !== 'Graded');
+        $graded = array_filter($this->submissions, fn($s) => $s['has_submission'] && $s['status'] === 'Graded');
+        $noSubmission = array_filter($this->submissions, fn($s) => !$s['has_submission']);
+        
+        if ($this->sortBy === 'name') {
+            // Sort alphabetically by student name for all groups
+            usort($ungraded, function($a, $b) {
+                return strcasecmp($a['student_name'], $b['student_name']);
+            });
+            usort($graded, function($a, $b) {
+                return strcasecmp($a['student_name'], $b['student_name']);
+            });
+            usort($noSubmission, function($a, $b) {
+                return strcasecmp($a['student_name'], $b['student_name']);
+            });
+        } else {
+            // Sort by submission date (most recent first)
+            usort($ungraded, function($a, $b) {
+                // Put submissions without dates at the end
+                if (!$a['submitted_at'] && !$b['submitted_at']) return 0;
+                if (!$a['submitted_at']) return 1;
+                if (!$b['submitted_at']) return -1;
+                
+                return $b['submitted_at']->timestamp <=> $a['submitted_at']->timestamp;
+            });
+            usort($graded, function($a, $b) {
+                // Put submissions without dates at the end
+                if (!$a['submitted_at'] && !$b['submitted_at']) return 0;
+                if (!$a['submitted_at']) return 1;
+                if (!$b['submitted_at']) return -1;
+                
+                return $b['submitted_at']->timestamp <=> $a['submitted_at']->timestamp;
+            });
+            // For no submission, sort by name as fallback (no dates to sort by)
+            usort($noSubmission, function($a, $b) {
+                return strcasecmp($a['student_name'], $b['student_name']);
+            });
+        }
+        
+        // Combine: ungraded first, then graded, then no submission
+        $this->submissions = array_merge(
+            array_values($ungraded), 
+            array_values($graded), 
+            array_values($noSubmission)
+        );
     }
 
     public function openGradeModal($submissionId)
@@ -104,6 +167,14 @@ class AssignmentSubmissions extends Component
                 'message' => 'No submission found for this student.'
             ]);
             return;
+        }
+        
+        // Find the index of this submission
+        foreach ($this->submissions as $index => $sub) {
+            if ($sub['id'] === $submissionId) {
+                $this->currentSubmissionIndex = $index;
+                break;
+            }
         }
 
         $submission = Submission::with(['enrollee.user.profile', 'assignment'])
@@ -185,7 +256,39 @@ class AssignmentSubmissions extends Component
     public function closeGradeModal()
     {
         $this->showGradeModal = false;
-        $this->reset(['selectedSubmission', 'studentName', 'submissionDate', 'grade', 'submissionId', 'textFileContent']);
+        $this->reset(['selectedSubmission', 'studentName', 'submissionDate', 'grade', 'submissionId', 'textFileContent', 'currentSubmissionIndex']);
+    }
+    
+    public function navigateToPrevious()
+    {
+        if ($this->currentSubmissionIndex > 0) {
+            $prevIndex = $this->currentSubmissionIndex - 1;
+            
+            // Find previous submission that has content
+            while ($prevIndex >= 0 && !$this->submissions[$prevIndex]['has_submission']) {
+                $prevIndex--;
+            }
+            
+            if ($prevIndex >= 0 && $this->submissions[$prevIndex]['has_submission']) {
+                $this->openGradeModal($this->submissions[$prevIndex]['id']);
+            }
+        }
+    }
+    
+    public function navigateToNext()
+    {
+        if ($this->currentSubmissionIndex < count($this->submissions) - 1) {
+            $nextIndex = $this->currentSubmissionIndex + 1;
+            
+            // Find next submission that has content
+            while ($nextIndex < count($this->submissions) && !$this->submissions[$nextIndex]['has_submission']) {
+                $nextIndex++;
+            }
+            
+            if ($nextIndex < count($this->submissions) && $this->submissions[$nextIndex]['has_submission']) {
+                $this->openGradeModal($this->submissions[$nextIndex]['id']);
+            }
+        }
     }
 
     public function saveGrade()
@@ -204,13 +307,28 @@ class AssignmentSubmissions extends Component
 
         // Update local state
         $this->updateSubmissionInList($this->submissionId, $this->grade);
+        
+        // Re-sort submissions to reflect the new graded status
+        $this->sortSubmissions();
 
         $this->dispatch('show-alert', [
             'type' => 'success',
             'message' => 'Grade saved successfully!'
         ]);
         
-        $this->closeGradeModal();
+        // Auto-advance to next ungraded submission
+        $nextUngradedIndex = $this->findNextUngradedSubmission();
+        
+        if ($nextUngradedIndex !== -1) {
+            $this->openGradeModal($this->submissions[$nextUngradedIndex]['id']);
+        } else {
+            // No more ungraded submissions, close modal
+            $this->closeGradeModal();
+            $this->dispatch('show-alert', [
+                'type' => 'info',
+                'message' => 'All submissions have been graded!'
+            ]);
+        }
     }
 
     private function updateSubmissionInList($submissionId, $grade)
@@ -222,6 +340,24 @@ class AssignmentSubmissions extends Component
                 break;
             }
         }
+    }
+    
+    private function findNextUngradedSubmission()
+    {
+        // After sorting, ungraded submissions are always at the top
+        // Simply find the first ungraded submission from the beginning
+        for ($i = 0; $i < count($this->submissions); $i++) {
+            if ($this->submissions[$i]['has_submission'] && $this->submissions[$i]['status'] !== 'Graded') {
+                return $i;
+            }
+        }
+        
+        return -1; // No ungraded submissions found
+    }
+    
+    public function hasMoreUngradedSubmissions()
+    {
+        return $this->findNextUngradedSubmission() !== -1;
     }
 
     public function render()

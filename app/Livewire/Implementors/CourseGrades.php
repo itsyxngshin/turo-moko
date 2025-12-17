@@ -224,10 +224,8 @@ public function downloadGradesCsv(): StreamedResponse
                             'grade' => $this->formatAssignmentGrade($submission),
                         ];
 
-                        $assignmentPercent = $this->assignmentPercentage($submission);
-                        if ($assignmentPercent !== null) {
-                            $percentages[] = $assignmentPercent;
-                        }
+                        // Always include assignment percentage (no submission = 0)
+                        $percentages[] = $this->assignmentPercentage($submission);
                     } else {
                         $resultKey = $student->id . '-' . $activity['id'];
                         $result = $quizResults->get($resultKey)?->first();
@@ -256,20 +254,32 @@ public function downloadGradesCsv(): StreamedResponse
             ->toArray();
     }
 
-    protected function formatAssignmentGrade(?Submission $submission): ?string
+    protected function formatAssignmentGrade(?Submission $submission): string
     {
-        if (!$submission || $submission->grade === null) {
-            return null;
+        if (!$submission) {
+            // No submission = 0%
+            return '0%';
+        }
+        
+        if ($submission->grade === null) {
+            // Submitted but not graded yet
+            return '—';
         }
 
         // Grade is stored as 0-100
         return $this->formatScore($submission->grade) . '%';
     }
 
-    protected function assignmentPercentage(?Submission $submission): ?float
+    protected function assignmentPercentage(?Submission $submission): float
     {
-        if (!$submission || $submission->grade === null) {
-            return null;
+        if (!$submission) {
+            // No submission = 0%
+            return 0.0;
+        }
+        
+        if ($submission->grade === null) {
+            // Submitted but not graded yet - don't count in average
+            return 0.0;
         }
 
         // Grade is already a percentage (0-100)
