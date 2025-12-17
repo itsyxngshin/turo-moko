@@ -94,22 +94,67 @@
 
                 </div>
             </div>
+
+<!-- Timeline Container with Drag & Drop -->
+<div x-data="timelineDragDrop()" x-init="initDragAndDrop()" id="timeline-container">
             
-@foreach ($timeline as $item)
+@foreach ($timeline as $index => $item)
 
     @switch($item['type'])
+        @case('section_header')
+            @php $sectionHeader = $item['model']; @endphp
+            <!-- Section Header -->
+            <div x-data="{ open: false }" class="mb-6 mt-8" data-id="section_header_{{ $sectionHeader->id }}">
+                <div class="bg-gradient-to-r from-orange-50 to-white border-l-4 border-orange-500 py-6 px-4 rounded-r-lg shadow-sm group relative">
+                    <div class="flex items-center justify-center">
+                        <!-- Drag Handle -->
+                        <div class="drag-handle cursor-grab active:cursor-grabbing absolute left-4 flex-shrink-0" draggable="true">
+                            <i data-lucide="grip-vertical" class="w-6 h-6 text-orange-400 group-hover:text-orange-600"></i>
+                        </div>
+                        
+                        <h3 class="text-2xl font-bold text-orange-500 text-center flex-1">
+                            {{ $sectionHeader->title }}
+                        </h3>
+
+                        <!-- Three-dot menu -->
+                        <div class="absolute right-4">
+                            <button @click="open = !open" class="p-2 rounded-full hover:bg-orange-100 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="M7 12a2 2 0 1 1-4 0a2 2 0 0 1 4 0m7 0a2 2 0 1 1-4 0a2 2 0 0 1 4 0m7 0a2 2 0 1 1-4 0a2 2 0 0 1 4 0"/>
+                                </svg>
+                            </button>
+
+                            <!-- Dropdown Menu -->
+                            <div 
+                                x-show="open" 
+                                @click.outside="open = false" 
+                                x-transition
+                                class="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg z-50"
+                            >
+                                @livewire('modals.implementor.edit-section-header', ['sectionHeaderId' => $sectionHeader->id], key('edit-section-header-' . $sectionHeader->id))
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @break
+
         @case('module')
                             @php $module = $item['model']; @endphp
             <!-- Module -->
             <div class="space-y-4">
              
-<div x-data="{ open: false }" x-cloak x-transition class="mb-4">
+<div x-data="{ open: false }" x-cloak x-transition class="mb-4" data-id="module_{{ $module->id }}">
 
     <!-- Clickable Module Card -->
     <button 
-        class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer"
+        class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer group"
         @click="open = true"
     >
+        <!-- Drag Handle -->
+        <div class="drag-handle cursor-grab active:cursor-grabbing mr-3 flex-shrink-0" draggable="true">
+            <i data-lucide="grip-vertical" class="w-6 h-6 text-gray-400 group-hover:text-gray-600"></i>
+        </div>
         <div class="m-auto">
             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" class="ml-5 mr-10 mb-2" viewBox="0 0 24 24" fill="#ef5350">
                 <path d="M13 9h5.5L13 3.5zM6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2m4.93 10.44c.41.9.93 1.64 1.53 2.15l.41.32c-.87.16-2.07.44-3.34.93l-.11.04l.5-1.04c.45-.87.78-1.66 1.01-2.4m6.48 3.81c.18-.18.27-.41.28-.66c.03-.2-.02-.39-.12-.55c-.29-.47-1.04-.69-2.28-.69l-1.29.07l-.87-.58c-.63-.52-1.2-1.43-1.6-2.56l.04-.14c.33-1.33.64-2.94-.02-3.6a.85.85 0 0 0-.61-.24h-.24c-.37 0-.7.39-.79.77c-.37 1.33-.15 2.06.22 3.27v.01c-.25.88-.57 1.9-1.08 2.93l-.96 1.8l-.89.49c-1.2.75-1.77 1.59-1.88 2.12c-.04.19-.02.36.05.54l.03.05l.48.31l.44.11c.81 0 1.73-.95 2.97-3.07l.18-.07c1.03-.33 2.31-.56 4.03-.75c1.03.51 2.24.74 3 .74c.44 0 .74-.11.91-.3m-.41-.71l.09.11c-.01.1-.04.11-.09.13h-.04l-.19.02c-.46 0-1.17-.19-1.9-.51c.09-.1.13-.1.23-.1c1.4 0 1.8.25 1.9.35M7.83 17c-.65 1.19-1.24 1.85-1.69 2c.05-.38.5-1.04 1.21-1.69zm3.02-6.91c-.23-.9-.24-1.63-.07-2.05l.07-.12l.15.05c.17.24.19.56.09 1.1l-.03.16l-.16.82z"/>
@@ -303,7 +348,12 @@
                  @case('assignment')
                     @php $assignment = $item['model']; @endphp
                 <a href="{{ route('implementor.course.assignment.edit', [$course->course_code, $assignment->id]) }}"
-                   class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mb-4 block">
+                   class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mb-4 block group"
+                   data-id="assignment_{{ $assignment->id }}">
+                    <!-- Drag Handle -->
+                    <div class="drag-handle cursor-grab active:cursor-grabbing mr-3 flex-shrink-0" draggable="true">
+                        <i data-lucide="grip-vertical" class="w-6 h-6 text-gray-400 group-hover:text-gray-600"></i>
+                    </div>
                     <div class="m-auto">
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" class="ml-5 mr-10 mb-2" viewBox="0 0 24 24">
                             <g fill="none">
@@ -352,7 +402,12 @@
                 @case('quiz')
                     @php $assessment = $item['model']; @endphp
                 <a href="{{ route('implementor.assessment-builder') }}?quiz_id={{ $assessment->id }}" 
-                   class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mt-4 mb-4">
+                   class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mt-4 mb-4 group"
+                   data-id="quiz_{{ $assessment->id }}">
+                    <!-- Drag Handle -->
+                    <div class="drag-handle cursor-grab active:cursor-grabbing mr-3 flex-shrink-0" draggable="true">
+                        <i data-lucide="grip-vertical" class="w-6 h-6 text-gray-400 group-hover:text-gray-600"></i>
+                    </div>
                     <div class="m-auto">
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" class="ml-5 mr-10 mb-2" viewBox="0 0 48 48">
                             <g fill="#F44336">
@@ -382,8 +437,13 @@
                     @php $evaluation = $item['model']; @endphp
                 <a
                     href="{{ route('implementor.course.evaluation-stats', $course->course_code) }}"
-                    class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mb-4 block"
+                    class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mb-4 block group"
+                    data-id="evaluation_{{ $evaluation->id }}"
                 >
+                    <!-- Drag Handle -->
+                    <div class="drag-handle cursor-grab active:cursor-grabbing mr-3 flex-shrink-0" draggable="true">
+                        <i data-lucide="grip-vertical" class="w-6 h-6 text-gray-400 group-hover:text-gray-600"></i>
+                    </div>
                     <div class="m-auto">
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" class="ml-5 mr-10 mb-2" viewBox="0 0 24 24">
                             <path fill="#4285F4" d="M22 16a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4c0-1.11.89-2 2-2h12a2 2 0 0 1 2 2zm-6 4v2H4a2 2 0 0 1-2-2V7h2v13zm-3-6l7-7l-1.41-1.41L13 11.17L9.91 8.09L8.5 9.5z"/>
@@ -417,30 +477,38 @@
                         }
                     }"
                     x-transition
-                    x-cloak
-                    class="mb-4 mt-4">
-                    <!-- Clickable announcement -->
-                    <button 
-                        class="bg-white w-full flex items-start mb-4 p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer"
-                        @click="open = true"
-                    >
-                        <div class=" m-auto">
-                            
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 ml-5 mr-10 text-blue-500 mb-2" viewBox="0 0 48 48" fill="currentColor"> <path fill-rule="evenodd" d="M33 18.535c1.163.348 2 .465 2 .465v-3h2a5 5 0 0 0 0-10h-5.764A5.236 5.236 0 0 0 26 11.236c0 4.518 4.348 6.506 7 7.299M40 11a3 3 0 0 1-3 3h-4v2.435a13 13 0 0 1-1.603-.667C29.414 14.774 28 13.36 28 11.236A3.236 3.236 0 0 1 31.236 8H37a3 3 0 0 1 3 3m-25.183 6.993A4.998 4.998 0 0 1 14.998 8h3.169A4.833 4.833 0 0 1 23 12.833c0 4.042-3.63 5.89-6 6.667c-1.148.376-2 .5-2 .5v-2zM17 16.071l-2.11-.076A2.998 2.998 0 0 1 14.997 10h3.169A2.833 2.833 0 0 1 21 12.833c0 1.915-1.217 3.17-2.924 4.06c-.36.188-.725.348-1.076.484zM28 24c0 2.21-1.79 4-4 4s-4-1.79-4-4s1.79-4 4-4s4 1.79 4 4m-2 0a1.999 1.999 0 1 1-4 0a1.999 1.999 0 1 1 4 0m-7 2c0 2.21-1.79 4-4 4s-4-1.79-4-4s1.79-4 4-4s4 1.79 4 4m-2 0a1.999 1.999 0 1 1-4 0a1.999 1.999 0 1 1 4 0M6 36.546C6 33.522 11.996 32 15 32c.585 0 1.284.058 2.03.173C18.371 31.19 20.827 30 24 30s5.629 1.19 6.971 2.173A13.6 13.6 0 0 1 33 32c3.004 0 9 1.523 9 4.545V42H6zm15.652-.523c.348.324.348.493.348.522V40H8v-3.455c0-.03 0-.198.348-.522c.363-.339.962-.7 1.776-1.03C11.756 34.333 13.75 34 15 34s3.244.333 4.876.993c.814.33 1.413.691 1.776 1.03m6.49-3.167A10.4 10.4 0 0 0 24 32c-1.656 0-3.064.386-4.141.856C22.074 33.6 24 34.832 24 36.546c0-1.714 1.926-2.945 4.142-3.69M40 36.546c0-.03 0-.199-.348-.523c-.363-.339-.962-.7-1.776-1.03C36.244 34.333 34.25 34 33 34s-3.244.333-4.876.993c-.814.33-1.413.691-1.776 1.03c-.348.324-.348.493-.348.522V40h14zM33 30c2.21 0 4-1.79 4-4s-1.79-4-4-4s-4 1.79-4 4s1.79 4 4 4m0-2a1.999 1.999 0 1 0 0-4a1.999 1.999 0 1 0 0 4" clip-rule="evenodd"/> </svg>
+                    x-cloak>
+                    
+                    <!-- Draggable announcement item -->
+                    <div class="mb-4 mt-4"
+                        data-id="announcement_{{ $announcement->id }}">
+                        <!-- Clickable announcement -->
+                        <button 
+                            class="bg-white w-full flex items-start mb-4 p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer group"
+                            @click="open = true"
+                        >
+                            <!-- Drag Handle -->
+                            <div class="drag-handle cursor-grab active:cursor-grabbing mr-3 flex-shrink-0" draggable="true">
+                                <i data-lucide="grip-vertical" class="w-6 h-6 text-gray-400 group-hover:text-gray-600"></i>
+                            </div>
+                            <div class=" m-auto">
+                                
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 ml-5 mr-10 text-blue-500 mb-2" viewBox="0 0 48 48" fill="currentColor"> <path fill-rule="evenodd" d="M33 18.535c1.163.348 2 .465 2 .465v-3h2a5 5 0 0 0 0-10h-5.764A5.236 5.236 0 0 0 26 11.236c0 4.518 4.348 6.506 7 7.299M40 11a3 3 0 0 1-3 3h-4v2.435a13 13 0 0 1-1.603-.667C29.414 14.774 28 13.36 28 11.236A3.236 3.236 0 0 1 31.236 8H37a3 3 0 0 1 3 3m-25.183 6.993A4.998 4.998 0 0 1 14.998 8h3.169A4.833 4.833 0 0 1 23 12.833c0 4.042-3.63 5.89-6 6.667c-1.148.376-2 .5-2 .5v-2zM17 16.071l-2.11-.076A2.998 2.998 0 0 1 14.997 10h3.169A2.833 2.833 0 0 1 21 12.833c0 1.915-1.217 3.17-2.924 4.06c-.36.188-.725.348-1.076.484zM28 24c0 2.21-1.79 4-4 4s-4-1.79-4-4s1.79-4 4-4s4 1.79 4 4m-2 0a1.999 1.999 0 1 1-4 0a1.999 1.999 0 1 1 4 0m-7 2c0 2.21-1.79 4-4 4s-4-1.79-4-4s1.79-4 4-4s4 1.79 4 4m-2 0a1.999 1.999 0 1 1-4 0a1.999 1.999 0 1 1 4 0M6 36.546C6 33.522 11.996 32 15 32c.585 0 1.284.058 2.03.173C18.371 31.19 20.827 30 24 30s5.629 1.19 6.971 2.173A13.6 13.6 0 0 1 33 32c3.004 0 9 1.523 9 4.545V42H6zm15.652-.523c.348.324.348.493.348.522V40H8v-3.455c0-.03 0-.198.348-.522c.363-.339.962-.7 1.776-1.03C11.756 34.333 13.75 34 15 34s3.244.333 4.876.993c.814.33 1.413.691 1.776 1.03m6.49-3.167A10.4 10.4 0 0 0 24 32c-1.656 0-3.064.386-4.141.856C22.074 33.6 24 34.832 24 36.546c0-1.714 1.926-2.945 4.142-3.69M40 36.546c0-.03 0-.199-.348-.523c-.363-.339-.962-.7-1.776-1.03C36.244 34.333 34.25 34 33 34s-3.244.333-4.876.993c-.814.33-1.413.691-1.776 1.03c-.348.324-.348.493-.348.522V40h14zM33 30c2.21 0 4-1.79 4-4s-1.79-4-4-4s-4 1.79-4 4s1.79 4 4 4m0-2a1.999 1.999 0 1 0 0-4a1.999 1.999 0 1 0 0 4" clip-rule="evenodd"/> </svg>
 
-                        </div>
-                        
-                        <div class="flex-1 text-left">
-                            <h3 class="font-semibold">{{ $announcement->title }}</h3>
-                            <span class="text-sm text-gray-400">{{ $announcement->created_at->diffForHumans() }}</span>
+                            </div>
                             
-                        </div>
-                        <div class="m-auto">
-                             <span class="text-sm text-gray-400">{{ $announcement->created_at->format('F j, Y') }}</span>
-                        </div>
-                </button>
+                            <div class="flex-1 text-left">
+                                <h3 class="font-semibold">{{ $announcement->title }}</h3>
+                                <span class="text-sm text-gray-400">{{ $announcement->created_at->diffForHumans() }}</span>
+                                
+                            </div>
+                            <div class="m-auto">
+                                 <span class="text-sm text-gray-400">{{ $announcement->created_at->format('F j, Y') }}</span>
+                            </div>
+                        </button>
+                    </div>
 
-                    <!-- Modal -->
+                    <!-- Modal (outside draggable container) -->
                     <div 
                         x-show="open" 
                         x-transition
@@ -576,6 +644,9 @@
 @break
 @endswitch
 @endforeach
+
+</div>
+<!-- End Timeline Container -->
                     
 
 
@@ -588,6 +659,200 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.7.107/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+// Alpine.js Drag & Drop Component - Phase 2 Enhanced
+function timelineDragDrop() {
+    return {
+        draggedElement: null,
+        draggedId: null,
+        draggedType: null,
+        lastHoveredElement: null,
+        
+        initDragAndDrop() {
+            const container = document.getElementById('timeline-container');
+            if (!container) return;
+            
+            // Dragstart
+            container.addEventListener('dragstart', (e) => {
+                if (e.target.closest('.drag-handle')) {
+                    this.draggedElement = e.target.closest('[data-id]');
+                    if (this.draggedElement) {
+                        this.draggedId = this.draggedElement.dataset.id;
+                        this.draggedType = this.getItemType(this.draggedId);
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.dataTransfer.setData('text/html', this.draggedElement.outerHTML);
+                        this.applyDragStyles(this.draggedElement);
+                        
+                        const itemType = this.draggedType === 'section_header' ? 'SECTION' : 'ITEM';
+                        console.log(`🎯 Started dragging ${itemType}:`, this.draggedId);
+                    }
+                }
+            });
+            
+            // Dragend
+            container.addEventListener('dragend', (e) => {
+                if (this.draggedElement) {
+                    this.removeDragStyles(this.draggedElement);
+                    // Remove all drop zone styles
+                    container.querySelectorAll('[data-id]').forEach(el => {
+                        this.removeDropZoneStyles(el);
+                    });
+                    
+                    console.log('✅ Drag operation completed');
+                    
+                    setTimeout(() => {
+                        this.draggedElement = null;
+                        this.draggedId = null;
+                        this.draggedType = null;
+                        this.lastHoveredElement = null;
+                    }, 200);
+                }
+            });
+            
+            // Dragover
+            container.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                
+                const dropTarget = e.target.closest('[data-id]');
+                if (dropTarget && dropTarget !== this.draggedElement) {
+                    // Remove styles from last hovered element
+                    if (this.lastHoveredElement && this.lastHoveredElement !== dropTarget) {
+                        this.removeDropZoneStyles(this.lastHoveredElement);
+                    }
+                    
+                    this.applyDropZoneStyles(dropTarget);
+                    this.lastHoveredElement = dropTarget;
+                }
+            });
+            
+            // Dragleave
+            container.addEventListener('dragleave', (e) => {
+                const dropTarget = e.target.closest('[data-id]');
+                if (dropTarget && dropTarget !== this.draggedElement) {
+                    // Only remove if we're really leaving (not just entering a child)
+                    const relatedTarget = e.relatedTarget;
+                    if (!dropTarget.contains(relatedTarget)) {
+                        this.removeDropZoneStyles(dropTarget);
+                        if (this.lastHoveredElement === dropTarget) {
+                            this.lastHoveredElement = null;
+                        }
+                    }
+                }
+            });
+            
+            // Drop
+            container.addEventListener('drop', (e) => {
+                e.preventDefault();
+                
+                if (this.draggedElement) {
+                    const dropTarget = e.target.closest('[data-id]');
+                    if (dropTarget && dropTarget !== this.draggedElement) {
+                        // Get all items in current order
+                        const allItems = Array.from(container.querySelectorAll('[data-id]'));
+                        const draggedIndex = allItems.indexOf(this.draggedElement);
+                        const targetIndex = allItems.indexOf(dropTarget);
+                        
+                        if (draggedIndex !== -1 && targetIndex !== -1) {
+                            // Simple reordering: insert dragged item at target position
+                            if (draggedIndex < targetIndex) {
+                                // Moving down - insert after target
+                                dropTarget.parentNode.insertBefore(this.draggedElement, dropTarget.nextSibling);
+                            } else {
+                                // Moving up - insert before target
+                                dropTarget.parentNode.insertBefore(this.draggedElement, dropTarget);
+                            }
+                        }
+                        
+                        this.removeDropZoneStyles(dropTarget);
+                        
+                        // Log the move
+                        console.log('📦 Moved:', this.draggedId, '→', draggedIndex < targetIndex ? 'after' : 'before', dropTarget.dataset.id);
+                        
+                        // Save the new order to database
+                        this.saveOrder();
+                    }
+                }
+            });
+        },
+        
+        applyDragStyles(element) {
+            if (element) {
+                element.style.opacity = '0.8';
+                element.style.transform = 'scale(1.02)';
+                element.style.transition = 'all 0.2s ease';
+                element.style.zIndex = '1000';
+            }
+        },
+        
+        removeDragStyles(element) {
+            if (element) {
+                element.style.opacity = '1';
+                element.style.transform = 'scale(1)';
+                element.style.zIndex = '';
+                element.style.transition = 'all 0.2s ease';
+            }
+        },
+        
+        applyDropZoneStyles(element) {
+            if (element) {
+                element.style.borderTop = '3px solid #F97316';
+                element.style.borderBottom = '3px solid #F97316';
+                element.style.backgroundColor = 'rgba(249, 115, 22, 0.05)';
+                element.style.transition = 'all 0.15s ease';
+            }
+        },
+        
+        removeDropZoneStyles(element) {
+            if (element) {
+                element.style.borderTop = '';
+                element.style.borderBottom = '';
+                element.style.backgroundColor = '';
+                element.style.marginTop = '';
+                element.style.transition = '';
+            }
+        },
+        
+        saveOrder() {
+            // Debounce to prevent multiple rapid calls
+            if (this.saveTimeout) {
+                clearTimeout(this.saveTimeout);
+            }
+            
+            this.saveTimeout = setTimeout(() => {
+                const container = document.getElementById('timeline-container');
+                if (!container) return;
+                
+                // Get all items in their current order
+                const items = Array.from(container.querySelectorAll('[data-id]'))
+                    .map(el => el.dataset.id);
+                
+                console.log('💾 Saving order to database:', items);
+                
+                // Send to backend
+                fetch(`/implementor/course/{{ $courseId }}/reorder-timeline`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({ items })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('✅ Order saved successfully');
+                    } else {
+                        console.error('❌ Failed to save order:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Error saving order:', error);
+                });
+            }, 500); // Wait 500ms after last drop before saving
+        }
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     const canvases = document.querySelectorAll(".pdf-thumbnail");
     canvases.forEach(canvas => {

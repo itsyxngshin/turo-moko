@@ -152,7 +152,10 @@ class EditAssignment extends Component
     {
         $courseCode = $this->course->course_code;
         
-        // Delete the assignment (cascades will handle submissions)
+        // Delete related submissions first to avoid foreign key constraint error
+        $this->assignment->submissions()->delete();
+        
+        // Delete the assignment
         $this->assignment->delete();
 
         session()->flash('swal', [

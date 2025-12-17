@@ -41,12 +41,23 @@ class AddEvaluation extends Component
         }
 
         // Create evaluations if they don't exist
+        // Get the next order number across ALL timeline items
+        $maxOrder = max(
+            \App\Models\Module::where('course_id', $this->courseId)->max('order') ?? 0,
+            \App\Models\Assignment::where('course_id', $this->courseId)->max('order') ?? 0,
+            \App\Models\Quiz::where('course_id', $this->courseId)->max('order') ?? 0,
+            ProgramEvaluation::where('course_id', $this->courseId)->max('order') ?? 0,
+            \App\Models\Announcement::where('course_id', $this->courseId)->max('order') ?? 0,
+            \App\Models\SectionHeader::where('course_id', $this->courseId)->max('order') ?? 0
+        );
+
         ProgramEvaluation::firstOrCreate([
             'course_id'   => $this->courseId,
             'enrollee_id' => null,
         ], [
             'description' => 'Course Evaluation',
             'status'      => 'active',
+            'order'       => $maxOrder + 1,
         ]);
 
         ImplementerEvaluation::firstOrCreate([

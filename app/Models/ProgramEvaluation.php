@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProgramEvaluation extends Model
 {
-    protected $fillable = ['course_id', 'description', 'status'];
+    protected $fillable = ['course_id', 'description', 'status', 'order'];
 
     public function course()
     {

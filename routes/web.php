@@ -267,6 +267,11 @@ Route::middleware(['auth', 'role:implementor', 'verified'])
     Route::delete('/announcement/{course:course_code}', [ImplementorCourseInformationController::class, 'deleteAnnouncement'])->name('announcement.delete');
 
     // --------------------------
+    // Timeline Order
+    // --------------------------
+    Route::post('/course/{course:id}/reorder-timeline', [ImplementorCourseInformationController::class, 'reorderTimeline'])->name('course.reorder-timeline');
+
+    // --------------------------
     // Assessment Builder
     // --------------------------
     Route::get('/assessment-builder', [AssessmentBuilderController::class, 'create'])->name('assessment-builder');

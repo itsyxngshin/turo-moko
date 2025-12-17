@@ -168,6 +168,16 @@ class AssessmentBuilderController extends Controller
             // Determine status based on action
             $status = $request->input('action') === 'publish' ? 'Published' : 'Draft';
 
+            // Get the next order number across ALL timeline items
+            $maxOrder = max(
+                \App\Models\Module::where('course_id', $request->course_id)->max('order') ?? 0,
+                \App\Models\Assignment::where('course_id', $request->course_id)->max('order') ?? 0,
+                Quiz::where('course_id', $request->course_id)->max('order') ?? 0,
+                \App\Models\ProgramEvaluation::where('course_id', $request->course_id)->max('order') ?? 0,
+                \App\Models\Announcement::where('course_id', $request->course_id)->max('order') ?? 0,
+                \App\Models\SectionHeader::where('course_id', $request->course_id)->max('order') ?? 0
+            );
+
             // Create the quiz
             $quiz = Quiz::create([
                 'course_id' => $request->course_id,
@@ -180,6 +190,7 @@ class AssessmentBuilderController extends Controller
                 'timer_minutes' => $request->timer_minutes ?: 0,
                 'submission_limit' => $request->submission_limit ?: 1,
                 'visibility' => true,
+                'order' => $maxOrder + 1,
             ]);
 
             // Process questions (already decoded above)

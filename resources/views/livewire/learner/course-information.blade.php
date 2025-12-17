@@ -82,9 +82,24 @@
 </div>
             
 
-            <!-- Module -->
+            <!-- Course Timeline (Ordered by drag-and-drop) -->
             <div class="space-y-4">
-                @foreach ($modules as $module)
+                @foreach ($timeline as $item)
+                    @switch($item['type'])
+                        @case('section_header')
+                            @php $section = $item['data']; @endphp
+                            <!-- Section Header (Read-only) -->
+                            <div class="mb-6 mt-8">
+                                <div class="bg-gradient-to-r from-orange-50 to-white border-l-4 border-orange-500 py-6 px-4 rounded-r-lg shadow-sm">
+                                    <h3 class="text-2xl font-bold text-orange-500 text-center">
+                                        {{ $section->title }}
+                                    </h3>
+                                </div>
+                            </div>
+                            @break
+
+                        @case('module')
+                            @php $module = $item['data']; @endphp
 <div x-data="{ open: false }" x-cloak x-transition class="mb-4">
 
  <button class="bg-white w-full flex flex-col sm:flex-row items-center sm:items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer" @click="open = true">
@@ -213,10 +228,10 @@
                     </div>
 
                 </div>
-                @endforeach
+                            @break
 
-                {{-- Assignments Section --}}
-                @foreach ($assignments as $assignment)
+                        @case('assignment')
+                            @php $assignment = $item['data']; @endphp
                 <a href="{{ route('learner.activity.show', ['course' => $course->course_code, 'assignment' => $assignment->id]) }}" 
                   class="bg-white w-full flex flex-col sm:flex-row items-center sm:items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mb-4">
                      <div class="flex-shrink-0 mb-3 sm:mb-0 sm:mr-4 flex justify-center w-full sm:w-auto">
@@ -267,10 +282,10 @@
                         @endif
                     </div>
                 </a>
-                @endforeach
+                            @break
 
-                {{-- Assessments/Quizzes Section --}}
-                @foreach ($quiz as $assessment)
+                        @case('quiz')
+                            @php $assessment = $item['data']; @endphp
                 <a href="{{ route('learner.assessment.show', $assessment) }}" 
                    class="bg-white mt-5 w-full flex flex-col sm:flex-row items-center sm:items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mb-4">
     <!-- Icon -->
@@ -307,14 +322,15 @@
                         @endif
                     </div>
                 </a>
-                @endforeach
+                            @break
                
-                @foreach ($evaluations as $evaluation)
-                @php
-                    $evalCompleted = $evaluation->learner_completed ?? false;
-                    $badgeClasses = $evalCompleted ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700';
-                    $badgeLabel = $evaluation->learner_status ?? ($evalCompleted ? 'Completed' : 'Available');
-                @endphp
+                        @case('evaluation')
+                            @php 
+                                $evaluation = $item['data'];
+                                $evalCompleted = $evaluation->learner_completed ?? false;
+                                $badgeClasses = $evalCompleted ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700';
+                                $badgeLabel = $evaluation->learner_status ?? ($evalCompleted ? 'Completed' : 'Available');
+                            @endphp
 <button
     type="button"
     x-data
@@ -350,10 +366,10 @@
                         @endif
                     </div>
                 </button>
-                @endforeach
+                            @break
 
-
-                @foreach($announcements as $announcement)
+                        @case('announcement')
+                            @php $announcement = $item['data']; @endphp
                 <div x-data="{ open:false }"
                     x-transition
                     x-cloak
@@ -482,11 +498,9 @@
         
     </div>
 </div>
-@endforeach
-
-                        
-                    
-
+                            @break
+                    @endswitch
+                @endforeach
 
 
             </div>

@@ -109,6 +109,16 @@ class AddAssignment extends Component
         // Convert max size to KB
         $maxSizeKB = $this->convertToKB($this->maxSize);
 
+        // Get the next order number across ALL timeline items
+        $maxOrder = max(
+            \App\Models\Module::where('course_id', $this->course->id)->max('order') ?? 0,
+            Assignment::where('course_id', $this->course->id)->max('order') ?? 0,
+            \App\Models\Quiz::where('course_id', $this->course->id)->max('order') ?? 0,
+            \App\Models\ProgramEvaluation::where('course_id', $this->course->id)->max('order') ?? 0,
+            \App\Models\Announcement::where('course_id', $this->course->id)->max('order') ?? 0,
+            \App\Models\SectionHeader::where('course_id', $this->course->id)->max('order') ?? 0
+        );
+
         Assignment::create([
             'course_id' => $this->course->id,
             'lesson_id' => null, // Course-level assignment, not linked to lesson
@@ -122,7 +132,7 @@ class AddAssignment extends Component
             'filetype_allowed' => $filetypeAllowed,
             'text_allowed' => $textAllowed,
             'max_file_size' => $maxSizeKB,
-            'order' => null,
+            'order' => $maxOrder + 1,
             'visibility' => 'Active',
             'post_date' => Carbon::now(),
         ]);

@@ -44,11 +44,22 @@ class AddModule extends Component
                 $originalName = $this->attachments->getClientOriginalName();
             }
 
+            // Get the next order number across ALL timeline items
+            $maxOrder = max(
+                Module::where('course_id', $this->courseId)->max('order') ?? 0,
+                \App\Models\Assignment::where('course_id', $this->courseId)->max('order') ?? 0,
+                \App\Models\Quiz::where('course_id', $this->courseId)->max('order') ?? 0,
+                \App\Models\ProgramEvaluation::where('course_id', $this->courseId)->max('order') ?? 0,
+                \App\Models\Announcement::where('course_id', $this->courseId)->max('order') ?? 0,
+                \App\Models\SectionHeader::where('course_id', $this->courseId)->max('order') ?? 0
+            );
+
             // Create the module
             $module = Module::create([
                 'course_id'     => $this->courseId,
                 'module_number' => $this->module_number,
                 'module_title'  => $this->module_title,
+                'order'         => $maxOrder + 1,
             ]);
 
             // Create the lesson/content

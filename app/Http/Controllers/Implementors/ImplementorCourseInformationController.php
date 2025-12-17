@@ -14,7 +14,9 @@ use App\Models\Announcement;
 use App\Models\CourseEnrollee;
 use App\Models\CourseFeedback;
 use App\Models\ImplementorFeedback;
+use App\Models\SectionHeader;
 use Illuminate\Support\Collection;
+use Illuminate\Http\Request;
 
 class ImplementorCourseInformationController extends Controller
 {
@@ -33,20 +35,24 @@ class ImplementorCourseInformationController extends Controller
             abort(403, 'Unauthorized: You do not own this course.');
         }
 
+        // One-time initialization: Fix order values for items that have order = 0
+        $this->initializeOrderValues($course->id);
+
         // Fetch related data
         $announcements = Announcement::where('course_id', $course->id)
     ->with(['user.profile.photo']) // ✅ eager-load user -> profile -> photo
-    ->orderBy('created_at', 'desc')
+    ->orderBy('order', 'asc')
     ->get();
 
 
         // Fetch assignments for this course
         $assignments = Assignment::where('course_id', $course->id)
             ->withCount('submissions')
-            ->orderBy('created_at', 'desc')
+            ->orderBy('order', 'asc')
             ->get();
 
         $evaluations = ProgramEvaluation::where('course_id', $course->id)
+            ->orderBy('order', 'asc')
             ->get()
             ->map(function ($evaluation) {
                 // Default due date: 7 days after creation
@@ -114,13 +120,18 @@ class ImplementorCourseInformationController extends Controller
         ];
         $quiz = Quiz::where('course_id', $course->id)
             ->withCount('results')
-            ->orderBy('created_at', 'desc')
+            ->orderBy('order', 'asc')
             ->get();
 
         // Fetch modules
         $modules = Module::where('course_id', $course->id)
-            ->orderBy('module_number', 'asc')
+            ->orderBy('order', 'asc')
             ->with('lessons')
+            ->get();
+
+        // Fetch section headers
+        $sectionHeaders = SectionHeader::where('course_id', $course->id)
+            ->orderBy('order', 'asc')
             ->get();
 
             
@@ -129,34 +140,40 @@ $timeline = collect()
     ->merge($modules->map(fn ($m) => [
         'type' => 'module',
         'model' => $m,
-        'date' => $m->created_at,
+        'order' => $m->order ?? 0,
     ]))
 
     ->merge($assignments->map(fn ($a) => [
         'type' => 'assignment',
         'model' => $a,
-        'date' => $a->created_at,
+        'order' => $a->order ?? 0,
     ]))
 
     ->merge($quiz->map(fn ($q) => [
         'type' => 'quiz',
         'model' => $q,
-        'date' => $q->created_at,
+        'order' => $q->order ?? 0,
     ]))
 
     ->merge($evaluations->map(fn ($e) => [
         'type' => 'evaluation',
         'model' => $e,
-        'date' => $e->created_at,
+        'order' => $e->order ?? 0,
     ]))
 
     ->merge($announcements->map(fn ($n) => [
         'type' => 'announcement',
         'model' => $n,
-        'date' => $n->created_at,
+        'order' => $n->order ?? 0,
     ]))
 
-    ->sortBy('date')   // ✅ oldest → newest
+    ->merge($sectionHeaders->map(fn ($s) => [
+        'type' => 'section_header',
+        'model' => $s,
+        'order' => $s->order ?? 0,
+    ]))
+
+    ->sortBy('order')   // ✅ Sort by order column
     ->values();
 
         return view('livewire.implementors.implementor-course-details', [
@@ -190,9 +207,168 @@ $timeline = collect()
             abort(403, 'Unauthorized.');
         }
 
+        // Delete related submissions first to avoid foreign key constraint error
+        $assignment->submissions()->delete();
+
         $assignment->delete();
 
         return redirect()->back()->with('success', 'Assignment deleted successfully.');
+    }
+
+    public function reorderTimeline(Course $course, Request $request)
+    {
+        $implementor = auth()->user();
+        
+        // Authorization check
+        if (!$implementor || $implementor->role_id !== 2 || $course->implementer_id !== $implementor->id) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        try {
+            $orderedItems = $request->input('items', []);
+            
+            // Update order for each item type
+            foreach ($orderedItems as $index => $item) {
+                // Get last part as ID, everything before as type
+                $lastUnderscore = strrpos($item, '_');
+                if ($lastUnderscore === false) continue;
+                
+                $type = substr($item, 0, $lastUnderscore);
+                $id = substr($item, $lastUnderscore + 1);
+                
+                if (!$id || !is_numeric($id)) continue;
+                
+                $order = $index + 1; // 1-based ordering
+                
+                switch ($type) {
+                    case 'section_header':
+                        SectionHeader::where('id', $id)
+                            ->where('course_id', $course->id)
+                            ->update(['order' => $order]);
+                        break;
+                        
+                    case 'module':
+                        Module::where('id', $id)
+                            ->where('course_id', $course->id)
+                            ->update(['order' => $order]);
+                        break;
+                        
+                    case 'assignment':
+                        Assignment::where('id', $id)
+                            ->where('course_id', $course->id)
+                            ->update(['order' => $order]);
+                        break;
+                        
+                    case 'quiz':
+                        Quiz::where('id', $id)
+                            ->where('course_id', $course->id)
+                            ->update(['order' => $order]);
+                        break;
+                        
+                    case 'evaluation':
+                        ProgramEvaluation::where('id', $id)
+                            ->where('course_id', $course->id)
+                            ->update(['order' => $order]);
+                        break;
+                        
+                    case 'announcement':
+                        Announcement::where('id', $id)
+                            ->where('course_id', $course->id)
+                            ->update(['order' => $order]);
+                        break;
+                }
+            }
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Timeline order updated successfully'
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to update order',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Initialize order values for items that have order = 0
+     * This runs once to fix existing data
+     */
+    private function initializeOrderValues($courseId)
+    {
+        // Collect all timeline items
+        $items = collect();
+        
+        // Add all items with their created_at timestamp
+        Module::where('course_id', $courseId)->where('order', 0)->get()->each(function($item) use ($items) {
+            $items->push(['type' => 'module', 'id' => $item->id, 'created_at' => $item->created_at]);
+        });
+        
+        Assignment::where('course_id', $courseId)->where('order', 0)->get()->each(function($item) use ($items) {
+            $items->push(['type' => 'assignment', 'id' => $item->id, 'created_at' => $item->created_at]);
+        });
+        
+        Quiz::where('course_id', $courseId)->where('order', 0)->get()->each(function($item) use ($items) {
+            $items->push(['type' => 'quiz', 'id' => $item->id, 'created_at' => $item->created_at]);
+        });
+        
+        ProgramEvaluation::where('course_id', $courseId)->where('order', 0)->get()->each(function($item) use ($items) {
+            $items->push(['type' => 'evaluation', 'id' => $item->id, 'created_at' => $item->created_at]);
+        });
+        
+        Announcement::where('course_id', $courseId)->where('order', 0)->get()->each(function($item) use ($items) {
+            $items->push(['type' => 'announcement', 'id' => $item->id, 'created_at' => $item->created_at]);
+        });
+        
+        SectionHeader::where('course_id', $courseId)->where('order', 0)->get()->each(function($item) use ($items) {
+            $items->push(['type' => 'section_header', 'id' => $item->id, 'created_at' => $item->created_at]);
+        });
+        
+        // If no items need initialization, return early
+        if ($items->isEmpty()) {
+            return;
+        }
+        
+        // Sort by created_at and assign sequential order numbers
+        $items = $items->sortBy('created_at')->values();
+        
+        // Get the current max order to start from there
+        $maxOrder = max(
+            Module::where('course_id', $courseId)->max('order') ?? 0,
+            Assignment::where('course_id', $courseId)->max('order') ?? 0,
+            Quiz::where('course_id', $courseId)->max('order') ?? 0,
+            ProgramEvaluation::where('course_id', $courseId)->max('order') ?? 0,
+            Announcement::where('course_id', $courseId)->max('order') ?? 0,
+            SectionHeader::where('course_id', $courseId)->max('order') ?? 0
+        );
+        
+        // Update each item with its new order
+        $items->each(function($item, $index) use ($courseId, $maxOrder) {
+            $order = $maxOrder + $index + 1;
+            
+            switch($item['type']) {
+                case 'module':
+                    Module::where('id', $item['id'])->where('course_id', $courseId)->update(['order' => $order]);
+                    break;
+                case 'assignment':
+                    Assignment::where('id', $item['id'])->where('course_id', $courseId)->update(['order' => $order]);
+                    break;
+                case 'quiz':
+                    Quiz::where('id', $item['id'])->where('course_id', $courseId)->update(['order' => $order]);
+                    break;
+                case 'evaluation':
+                    ProgramEvaluation::where('id', $item['id'])->where('course_id', $courseId)->update(['order' => $order]);
+                    break;
+                case 'announcement':
+                    Announcement::where('id', $item['id'])->where('course_id', $courseId)->update(['order' => $order]);
+                    break;
+                case 'section_header':
+                    SectionHeader::where('id', $item['id'])->where('course_id', $courseId)->update(['order' => $order]);
+                    break;
+            }
+        });
     }
 
 }

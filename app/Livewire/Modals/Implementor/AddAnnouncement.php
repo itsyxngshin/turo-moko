@@ -47,11 +47,22 @@ class AddAnnouncement extends Component
     {
         $this->validate();
 
+        // Get the next order number across ALL timeline items
+        $maxOrder = max(
+            \App\Models\Module::where('course_id', $this->courseId)->max('order') ?? 0,
+            \App\Models\Assignment::where('course_id', $this->courseId)->max('order') ?? 0,
+            \App\Models\Quiz::where('course_id', $this->courseId)->max('order') ?? 0,
+            \App\Models\ProgramEvaluation::where('course_id', $this->courseId)->max('order') ?? 0,
+            Announcement::where('course_id', $this->courseId)->max('order') ?? 0,
+            \App\Models\SectionHeader::where('course_id', $this->courseId)->max('order') ?? 0
+        );
+
         $announcement = Announcement::create([
             'course_id' => $this->courseId,
             'user_id'   => $this->userId,
             'title'     => $this->title,
             'content'   => $this->details,
+            'order'     => $maxOrder + 1,
         ]);
 
         if ($this->attachments) { // ✅ use correct property

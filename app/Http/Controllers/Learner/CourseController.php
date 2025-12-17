@@ -13,6 +13,7 @@ use App\Models\Module;
 use App\Models\ProgramEvaluation;
 use App\Models\Quiz;
 use App\Models\QuizResult;
+use App\Models\SectionHeader;
 use App\Models\Submission;
 use Illuminate\Support\Collection;
 
@@ -94,20 +95,20 @@ public function show(Course $course)
         abort(403, 'You are not enrolled in this course.');
     }
 
-    // Modules ordered by module_number (oldest to newest)
+    // Modules ordered by order column
     $modules = Module::where('course_id', $course->id)
-    ->where('visibility', 'Visible')   // ✅ Only modules with Visible visibility
-    ->orderBy('module_number', 'asc')
+    ->where('visibility', 'Visible')
+    ->orderBy('order', 'asc')
     ->with('lessons')
     ->get();
 
 
-    // Quizzes ordered by creation date ascending (oldest first)
+    // Quizzes ordered by order column
     $quizzes = Quiz::where('course_id', $course->id)
         ->where('status', 'Published')
         ->where('visibility', true)
         ->withCount('results')
-        ->orderBy('created_at', 'asc')
+        ->orderBy('order', 'asc')
         ->get();
 
     $enrolleeRecord = CourseEnrollee::where('course_id', $course->id)
@@ -133,9 +134,9 @@ public function show(Course $course)
         });
     }
 
-    // Assignments ordered by creation date ascending (oldest first)
+    // Assignments ordered by order column
     $assignments = Assignment::where('course_id', $course->id)
-        ->orderBy('created_at', 'asc')
+        ->orderBy('order', 'asc')
         ->get();
 
     if ($enrolleeRecord) {
@@ -154,9 +155,9 @@ public function show(Course $course)
         });
     }
 
-    // Evaluations ordered by creation date ascending (oldest first)
+    // Evaluations ordered by order column
     $evaluations = ProgramEvaluation::where('course_id', $course->id)
-        ->orderBy('created_at', 'asc')
+        ->orderBy('order', 'asc')
         ->get()
         ->map(function ($evaluation) use ($learner) {
             $evaluation->due_date = $evaluation->created_at
@@ -171,30 +172,34 @@ public function show(Course $course)
             return $evaluation;
         });
 
-    // Announcements ordered by creation date ascending (oldest first)
+    // Announcements ordered by order column
     $announcements = Announcement::where('course_id', $course->id)
-        ->orderBy('created_at', 'asc')
+        ->orderBy('order', 'asc')
+        ->get();
+
+    // Section Headers ordered by order column
+    $sectionHeaders = SectionHeader::where('course_id', $course->id)
+        ->orderBy('order', 'asc')
         ->get();
 
 
 
 $timeline = collect();
 
-/* MODULES (use module_number order as their "date") */
+/* MODULES */
 foreach ($modules as $module) {
     $timeline->push([
         'type' => 'module',
-        'sort_date' => $module->module_number,
+        'order' => $module->order,
         'data' => $module,
     ]);
 }
-
 
 /* ASSIGNMENTS */
 foreach ($assignments as $assignment) {
     $timeline->push([
         'type' => 'assignment',
-        'sort_date' => $assignment->created_at,
+        'order' => $assignment->order,
         'data' => $assignment,
     ]);
 }
@@ -203,7 +208,7 @@ foreach ($assignments as $assignment) {
 foreach ($quizzes as $quiz) {
     $timeline->push([
         'type' => 'quiz',
-        'sort_date' => $quiz->created_at,
+        'order' => $quiz->order,
         'data' => $quiz,
     ]);
 }
@@ -212,7 +217,7 @@ foreach ($quizzes as $quiz) {
 foreach ($evaluations as $evaluation) {
     $timeline->push([
         'type' => 'evaluation',
-        'sort_date' => $evaluation->created_at,
+        'order' => $evaluation->order,
         'data' => $evaluation,
     ]);
 }
@@ -221,16 +226,22 @@ foreach ($evaluations as $evaluation) {
 foreach ($announcements as $announcement) {
     $timeline->push([
         'type' => 'announcement',
-        'sort_date' => $announcement->created_at,
+        'order' => $announcement->order,
         'data' => $announcement,
     ]);
 }
 
-/* 🔑 GLOBAL ORDER: OLDEST → NEWEST */
-$timeline = $timeline->sortBy([
-    ['type', 'asc'],
-    ['sort_date', 'asc'],
-])->values();
+/* SECTION HEADERS */
+foreach ($sectionHeaders as $section) {
+    $timeline->push([
+        'type' => 'section_header',
+        'order' => $section->order,
+        'data' => $section,
+    ]);
+}
+
+/* ORDER BY order COLUMN */
+$timeline = $timeline->sortBy('order')->values();
 
 
   return view('livewire.learner.course-information', [
@@ -240,7 +251,8 @@ $timeline = $timeline->sortBy([
     'assignments' => $assignments,
     'evaluations' => $evaluations,
     'announcements' => $announcements,
-    'timeline' => $timeline, // ✅ THIS IS THE FIX
+    'sectionHeaders' => $sectionHeaders,
+    'timeline' => $timeline,
 ]);
 
 
