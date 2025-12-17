@@ -25,6 +25,7 @@ class AssignmentSubmissions extends Component
     public $submissionDate;
     public $grade;
     public $submissionId;
+    public $textFileContent = null;
     
     public function mount()
     {
@@ -109,6 +110,47 @@ class AssignmentSubmissions extends Component
             ->findOrFail($submissionId);
 
         $this->submissionId = $submissionId;
+        
+        // Determine file type and preview capability
+        $fileExtension = null;
+        $fileType = null;
+        $canPreview = false;
+        
+        if ($submission->attachment) {
+            $fileExtension = strtolower(pathinfo($submission->attachment, PATHINFO_EXTENSION));
+            
+            // Categorize file types
+            if (in_array($fileExtension, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'])) {
+                $fileType = 'image';
+                $canPreview = true;
+            } elseif ($fileExtension === 'pdf') {
+                $fileType = 'pdf';
+                $canPreview = true;
+            } elseif (in_array($fileExtension, ['txt', 'md', 'csv'])) {
+                $fileType = 'text';
+                $canPreview = true;
+            } elseif (in_array($fileExtension, ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'])) {
+                $fileType = 'document';
+                $canPreview = true; // Use Google Docs viewer
+            } else {
+                $fileType = 'other';
+                $canPreview = false;
+            }
+        }
+        
+        // Load text file content if applicable
+        $this->textFileContent = null;
+        if ($submission->attachment && $fileType === 'text') {
+            try {
+                $fullPath = storage_path('app/public/' . $submission->attachment);
+                if (file_exists($fullPath)) {
+                    $this->textFileContent = file_get_contents($fullPath);
+                }
+            } catch (\Exception $e) {
+                $this->textFileContent = 'Error loading file content.';
+            }
+        }
+        
         $this->selectedSubmission = [
             'id' => $submission->id,
             'online_text' => $submission->instruction,
@@ -116,6 +158,9 @@ class AssignmentSubmissions extends Component
             'file_url' => $submission->attachment ? Storage::url($submission->attachment) : null,
             'file_name' => $submission->attachment_original_name ?? ($submission->attachment ? basename($submission->attachment) : null),
             'assignment_title' => $submission->assignment->title ?? 'Assignment',
+            'file_extension' => $fileExtension,
+            'file_type' => $fileType,
+            'can_preview' => $canPreview,
         ];
 
         // Get student name - match the loadSubmissions logic
@@ -140,7 +185,7 @@ class AssignmentSubmissions extends Component
     public function closeGradeModal()
     {
         $this->showGradeModal = false;
-        $this->reset(['selectedSubmission', 'studentName', 'submissionDate', 'grade', 'submissionId']);
+        $this->reset(['selectedSubmission', 'studentName', 'submissionDate', 'grade', 'submissionId', 'textFileContent']);
     }
 
     public function saveGrade()
