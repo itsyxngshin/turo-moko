@@ -390,8 +390,8 @@
                         
                             <div class="flex border-b pb-2">
                               <img 
-                                    src="{{ $announcement->user?->photo?->photos
-                                            ? asset('storage/' . $announcement->user->photo->photos)
+                                    src="{{ $announcement->user?->profile?->photo?->photos
+                                            ? asset('storage/' . $announcement->user->profile->photo->photos)
                                             : asset('implementor/course/thumbnail.png') }}"
                                     class="w-10 h-10 rounded-full mt-1"
                                 />

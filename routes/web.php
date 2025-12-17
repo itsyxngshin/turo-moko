@@ -58,6 +58,7 @@ use App\Http\Controllers\Implementors\ImplementorAddAssignmentController;
 use App\Http\Controllers\Implementors\ImplementorEvaluationStatsController;
 use App\Http\Controllers\Learner\CourseController as LearnerCourseController;
 use App\Livewire\Implementors\AllCourses;
+use App\Http\Controllers\Implementors\CourseEnrollmentController;
 
 // Assessment Controllers (CRITICAL - DO NOT REMOVE)
 use App\Http\Controllers\AssessmentBuilderController;
@@ -81,6 +82,7 @@ use App\Livewire\Implementors\ProfileSpace;
 Route::get('/', function () {
     return view('welcome');
 })->name('homepage');
+
 
 // TEMPORARY: Clear cache route for Hostinger deployment
 Route::get('/clear-all-cache', function() {
@@ -173,10 +175,13 @@ Route::post('/course/{course}/enroll', [DashboardController::class, 'enroll'])
  Route::get('/notifications', fn() => view('learner.notifications-page'))->name('notifications');
  Route::post('/course/{course}/leave', [CourseController::class, 'leaveCourse'])
     ->name('course.leave');
+    Route::get('/courses/{course:course_code}/join', 
+    [CourseEnrollmentController::class, 'join']
+)->name('course.join');
 
  
  // Livewire Viewsaction: 
-     Route::get('/profile', LearnerProfile::class)->name('profile');
+ Route::get('/profile', LearnerProfile::class)->name('profile');
     Route::get('/enrolled', fn() => view('livewire.learner.enrolled'))->name('enrolled');
     Route::get('/activity', fn() => view('livewire.learner.activities'))->name('activity');
     Route::get('/course', fn() => view('livewire.learner.course'))->name('course');
@@ -235,6 +240,7 @@ Route::middleware(['auth', 'role:implementor', 'verified'])
     Route::get('/course-information/{course:course_code}', [ImplementorCourseInformationController::class, 'show'])->name('course-information');
     Route::get('/course/{course:course_code}/grades', ImplementorCourseGrades::class)->name('course-grades');
     Route::get('/course/{course:course_code}/participants', CourseParticipants::class)->name('course-participants');
+    
 
     // --------------------------
     // Create / Store Courses
@@ -318,6 +324,9 @@ Route::middleware(['auth', 'role:admin'])
     // Evaluation Statistics
     Route::get('/course/{course:course_code}/evaluation-stats', [\App\Http\Controllers\Admin\AdminEvaluationStatsController::class, 'show'])
         ->name('course.evaluation-stats');
+    // web.php
+
+
     
     // Moderation
  Route::get('/course-moderation/{id}', CourseModeration::class)

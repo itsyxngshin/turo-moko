@@ -49,12 +49,6 @@
                 </div>
             </div>
 
-            {{-- Header Actions --}}
-            <div class="flex items-center gap-2">
-                <button class="p-2 text-gray-400 hover:bg-gray-100 rounded-full transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
-                </button>
-            </div>
         </div>
 
 
@@ -149,35 +143,41 @@
         </div>
 
         {{-- ================= INPUT AREA ================= --}}
-        <div class="bg-white p-3 md:p-4 border-t border-gray-200 sticky bottom-0 z-20">
-            <div class="flex items-end gap-2 max-w-4xl mx-auto">
-                
-                {{-- REMOVED ATTACHMENT BUTTON --}}
-
-                {{-- Input Field --}}
-                <div class="flex-1 bg-gray-100 rounded-2xl flex items-center px-4 py-2 focus-within:ring-2 focus-within:ring-orange-500/50 focus-within:bg-white transition-all">
-                    <input 
-                        type="text" 
-                        wire:model.live="body" 
-                        wire:keydown.enter="sendMessage"
-                        placeholder="Type a message..." 
-                        class="w-full bg-transparent border-none focus:ring-0 text-gray-700 placeholder-gray-500 max-h-32 py-1.5"
-                    >
-                </div>
-
-                {{-- Send Button --}}
-                <button 
-                    wire:click="sendMessage" 
-                    @if(trim($body) === '') disabled @endif
-                    class="p-3 rounded-full flex items-center justify-center transition-all duration-200 mb-1 shadow-md
-                        {{ trim($body) === '' ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-orange-600 text-white hover:bg-orange-700 hover:scale-105' }}"
-                >
-                    <svg class="w-5 h-5 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                    </svg>
-                </button>
-            </div>
+        <div class="bg-white p-3 md:p-4 border-t border-gray-200 sticky bottom-12 md:bottom-0 z-20">
+    <div class="flex items-center gap-2 max-w-4xl mx-auto">
+        
+        {{-- Input Field --}}
+        <div class="flex-1 bg-gray-100 rounded-2xl flex items-center px-4 py-2
+                    focus-within:ring-2 focus-within:ring-orange-500/50
+                    focus-within:bg-white transition-all">
+            <input 
+                type="text" 
+                wire:model.live="body" 
+                wire:keydown.enter="sendMessage"
+                placeholder="Type a message..." 
+                class="w-full bg-transparent border-none focus:ring-0 text-gray-700
+                       placeholder-gray-500 py-1.5 text-sm md:text-base"
+            >
         </div>
+
+        {{-- Send Button --}}
+        <button 
+            wire:click="sendMessage" 
+            @if(trim($body) === '') disabled @endif
+            class="p-2 md:p-3 rounded-full flex items-center justify-center
+                   transition-all duration-200 shadow-md shrink-0
+                   {{ trim($body) === '' 
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                        : 'bg-orange-600 text-white hover:bg-orange-700 hover:scale-105' }}"
+        >
+            <svg class="w-5 h-5 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+            </svg>
+        </button>
+    </div>
+</div>
+
 
     @else
         {{-- ================= NO CONVERSATION SELECTED ================= --}}

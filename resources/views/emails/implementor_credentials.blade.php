@@ -33,7 +33,7 @@
             <a href="{{ route('auth.login') }}" class="btn" style="color: white;">Log In to Dashboard</a>
         </p>
 
-        <p><em>For security reasons, we recommend changing your password after your first login.</em></p>
+        <p><em>For security reasons, we recommend changing your password after your first login. Your verification code shall be sent in a seperate email</em></p>
 
         <div class="footer">
             &copy; {{ date('Y') }} Turo-Moko. All rights reserved.

@@ -14,11 +14,13 @@ class Dashboard extends Component
     public function render()
     {
         // 1. Basic Counts
-        $enrolleesCount = User::where('role_id', 1)->count(); // Role 1 = Learner
-        $implementorsCount = User::where('role_id', 2)->count(); // Role 2 = Implementor
-        $coursesCount = Course::count();
+        $enrolleesCount = User::where('role_id', 1)->count(); 
+        $implementorsCount = User::where('role_id', 2)->count(); 
+        
+        // Count ONLY non-deleted courses
+        $coursesCount = Course::where('status', '!=', 'deleted')->count();
 
-        // 2. "Active Students" Percentage (Learners with at least one active enrollment)
+        // 2. "Active Students" Percentage
         $activeLearnersCount = CourseEnrollee::where('status', 'Active')
             ->distinct('enrollee_id')
             ->count('enrollee_id');
@@ -27,8 +29,9 @@ class Dashboard extends Component
             ? round(($activeLearnersCount / $enrolleesCount) * 100) 
             : 0;
 
-        // 3. "Active Mentors" Percentage (Implementors with at least one active course)
-        $activeImplementorsCount = Course::where('status', 'active')
+        // 3. "Active Mentors" Percentage
+        // Ensure we only look at active courses that are NOT deleted
+        $activeImplementorsCount = Course::where('status', 'active') 
             ->distinct('implementer_id')
             ->count('implementer_id');
 
@@ -38,6 +41,7 @@ class Dashboard extends Component
 
         // 4. Latest Courses List
         $latestCourses = Course::with('activeCoverPhoto')
+            ->where('status', '!=', 'deleted') // ✅ FILTER: Hide deleted courses
             ->latest()
             ->take(4)
             ->get();

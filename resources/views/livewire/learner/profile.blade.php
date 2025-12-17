@@ -5,6 +5,7 @@
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Profile</h1>
         </header>
 
+        {{-- PROFILE HEADER CARD --}}
         <section class="bg-white rounded-3xl p-6 md:p-8 mb-8 shadow-sm border border-gray-100 relative">
             
             <div class="absolute top-4 right-4 md:top-6 md:right-6" x-data="{ open: false }">
@@ -18,8 +19,20 @@
                     @click.away="open = false"
                     class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-20 overflow-hidden"
                     style="display: none;">
-                    <button wire:click="openEditModal" @click="open = false" class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                    
+                    <button wire:click="openEditModal" 
+                            @click="open = false" 
+                            class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                        
+                        <svg wire:loading.remove wire:target="openEditModal" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+
+                        <svg wire:loading wire:target="openEditModal" class="animate-spin w-4 h-4 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                        </svg>
+
                         Edit Profile
                     </button>
                 </div>
@@ -27,7 +40,7 @@
 
             <div class="flex flex-col md:flex-row items-center gap-6 md:gap-8">
                 <div class="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden bg-blue-100 border-4 border-white shadow-md flex-shrink-0">
-                    @if($user->profile->photo_id)
+                    @if($user->profile->photo_id && $user->profile->photo)
                         <img src="{{ asset('storage/' . $user->profile->photo->photos) }}" class="w-full h-full object-cover">
                     @else
                         <img src="https://ui-avatars.com/api/?name={{ urlencode($user->profile->first_name . ' ' . $user->profile->last_name) }}&background=bfdbfe&color=1e3a8a&size=128" class="w-full h-full object-cover">
@@ -45,6 +58,7 @@
             </div>
         </section>
 
+        {{-- WORK EXPERIENCE & ENGAGEMENTS --}}
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10 w-full">
             
             <div class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
@@ -119,17 +133,21 @@
             </div>
         </div>
 
+        {{-- ACTIVE COURSES SECTION --}}
         <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8 mb-10">
             <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                 <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
                     <span class="w-2 h-8 bg-black rounded-full"></span>
                     Courses you're taking
                 </h3>
-                <span class="text-gray-500 text-sm font-medium">{{ $activeCoursesCount }} Active</span>
+                
+                {{-- ✅ FIX: Use $this->activeCourses->count() --}}
+                <span class="text-gray-500 text-sm font-medium">{{ $this->activeCourses->count() }} Active</span>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                @forelse ($activeCourses as $course)
+                {{-- ✅ FIX: Use $this->activeCourses (Computed Property) --}}
+                @forelse ($this->activeCourses as $course)
                     <div class="bg-white rounded-2xl shadow-md flex flex-col sm:flex-row overflow-hidden border border-gray-100 h-auto sm:h-52 hover:shadow-lg transition">
                         
                         <div class="w-full sm:w-1/2 h-48 sm:h-full relative bg-gray-200">
@@ -191,6 +209,7 @@
 
     </main>
 
+    {{-- EDIT MODAL --}}
     @if($showEditModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" 
         x-data @keydown.escape.window="$wire.set('showEditModal', false)">
@@ -209,11 +228,13 @@
                 <div>
                     <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-4">Basic Information</h3>
                     <div class="flex flex-col items-center gap-4 mb-6">
-                        <div class="relative group cursor-pointer" onclick="document.getElementById('photoInput').click()">
+                        
+                        {{-- ✅ FIX: Using unique ID 'learnerPhotoInput' --}}
+                        <div class="relative group cursor-pointer" onclick="document.getElementById('learnerPhotoInput').click()">
                             <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-md bg-gray-100">
                                 @if ($new_photo)
                                     <img src="{{ $new_photo->temporaryUrl() }}" class="w-full h-full object-cover">
-                                @elseif ($user->profile->photo_id)
+                                @elseif ($user->profile->photo_id && $user->profile->photo)
                                     <img src="{{ asset('storage/' . $user->profile->photo->photos) }}" class="w-full h-full object-cover">
                                 @else
                                     <img src="https://ui-avatars.com/api/?name={{ urlencode($first_name . ' ' . $last_name) }}&background=bfdbfe&color=1e3a8a&size=128" class="w-full h-full object-cover">
@@ -223,7 +244,9 @@
                                 <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                             </div>
                         </div>
-                        <input type="file" id="photoInput" wire:model="new_photo" class="hidden" accept="image/png, image/jpeg, image/jpg">
+
+                        {{-- ✅ FIX: Unique ID --}}
+                        <input type="file" id="learnerPhotoInput" wire:model="new_photo" class="hidden" accept="image/png, image/jpeg, image/jpg">
                         <div wire:loading wire:target="new_photo" class="text-xs text-blue-500 font-bold">Uploading...</div>
                     </div>
 
@@ -253,6 +276,7 @@
 
                 <hr class="border-gray-100 border-dashed">
 
+                {{-- WORK EXPERIENCE FORM --}}
                 <div>
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wide">Work Experience</h3>
@@ -283,6 +307,7 @@
 
                 <hr class="border-gray-100 border-dashed">
 
+                {{-- ENGAGEMENTS FORM --}}
                 <div>
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wide">Engagements</h3>

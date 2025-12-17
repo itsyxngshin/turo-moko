@@ -105,17 +105,11 @@ class Course extends Model
      * Course → Lesson → Assignment
      * --------------------------------------
      */
-    public function assignments()
-    {
-        return $this->hasManyThrough(
-            Assignment::class, // final model
-            Lesson::class,     // intermediate model
-            'course_id',       // FK on lessons table
-            'lesson_id',       // FK on assignments table
-            'id',              // PK on courses
-            'id'               // PK on lessons
-        );
-    }
+   public function assignments()
+{
+    return $this->hasMany(Assignment::class, 'course_id', 'id');
+}
+
 
     /**
      * --------------------------------------

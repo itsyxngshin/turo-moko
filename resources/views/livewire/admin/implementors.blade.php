@@ -3,7 +3,7 @@
 @section('title', 'TURO-MOKO Admin')
 
 @section('content')
-<div class="flex h-screen p-5 bg-[#f2f9fb]">
+<div class="flex h-screen p-5 bg-gray">
     
     <!-- Main Content -->
     <main class="flex-1">

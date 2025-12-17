@@ -130,7 +130,7 @@ class AddAssignment extends Component
         session()->flash('swal', [
             'icon' => 'success',
             'title' => 'Success!',
-            'text' => 'Assignment added successfully.',
+            'text' => 'Assignment added successfully!',
         ]);
 
         return redirect()->route('implementor.course-information', $this->course->course_code);

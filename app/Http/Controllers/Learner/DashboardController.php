@@ -17,31 +17,34 @@ class DashboardController extends Controller
 {
     $user = Auth::user();
 
-    // 1. Last Accessed Course (enrolled and not dropped)
-    $lastAccessed = $user->enrolledCourses() 
+  
+    /* ================= LAST ACCESSED COURSE ================= */
+    $lastAccessed = $user->enrolledCourses()
         ->where('courses.status', 'Active')
         ->where('courses.visibility', 'Visible')
-        ->wherePivot('status', 'Active') // <-- only active enrollee
-        ->orderByPivot('created_at', 'desc') 
+        ->wherePivot('status', 'Active') // exclude Dropped
+        ->orderByPivot('updated_at', 'desc') // ✅ last interaction
+        ->orderByPivot('created_at', 'desc') // fallback: last enrolled
         ->first();
 
-    // 2. Determine the "Hero" Course
+    /* ================= HERO COURSE ================= */
     $heroCourse = $lastAccessed;
     $heroMode = 'resume';
 
-    // 3. Fallback: Featured course if no last accessed
-    if (!$heroCourse) {
-        $heroCourse = Course::where('status', 'Active')
-            ->where('visibility', 'Visible')
-            ->whereDoesntHave('enrollees', function ($query) use ($user) {
-                $query->where('enrollee_id', $user->id)
-                      ->where('status', 'Dropped'); // Exclude dropped
-            })
-            ->latest()
-            ->first();
+   /* ================= FALLBACK FEATURED COURSE ================= */
+if (!$heroCourse) {
+    $heroCourse = Course::where('status', 'Active')
+        ->where('visibility', 'Visible')
+        ->whereDoesntHave('enrollees', function ($q) use ($user) {
+            $q->where('enrollee_id', $user->id)
+              ->whereIn('status', ['Active', 'Completed']); // ✅ exclude only these
+        })
+        ->latest()
+        ->first();
 
-        $heroMode = 'suggest';
-    }
+    $heroMode = 'suggest';
+}
+
 
     // 4. Suggested courses (active, visible, not dropped, not enrolled)
     $suggestedCourses = Course::where('status', 'Active')
@@ -67,50 +70,61 @@ class DashboardController extends Controller
     /**
      * Enroll the user in a course.
      */
-    public function enroll(Course $course)
-    {
-        $learner = Auth::user();
+   public function enroll(Course $course)
+{
+    $learner = Auth::user();
 
-        // Check if already enrolled
-        $alreadyEnrolled = CourseEnrollee::where('course_id', $course->id)
-            ->where('enrollee_id', $learner->id)
-            ->exists();
+    // Find existing enrollee record (any status)
+    $enrollee = CourseEnrollee::where('course_id', $course->id)
+        ->where('enrollee_id', $learner->id)
+        ->first();
 
-        if ($alreadyEnrolled) {
-            return redirect()->route('learner.course.show', $course)
-                ->with('swal', [
-                    'icon' => 'info',
-                    'title' => 'Notice',
-                    'text' => 'You are already enrolled in this course.'
-                ]);
-        }
-
-        // Check if course is full
-        // Note: We use $course->id here for accuracy
-        $currentEnrollees = CourseEnrollee::where('course_id', $course->id)->count();
-        
-        if ($currentEnrollees >= $course->student_limit) {
-            return back()->with('swal', [
-                'icon' => 'error',
-                'title' => 'Course Full',
-                'text' => 'Sorry, this course has reached its student limit.'
+    // If already ACTIVE → stop
+    if ($enrollee && $enrollee->status === 'Active') {
+        return redirect()->route('learner.course.show', $course)
+            ->with('swal', [
+                'icon' => 'info',
+                'title' => 'Notice',
+                'text' => 'You are already enrolled in this course.'
             ]);
-        }
+    }
 
-        // Enroll the student
+    // Check if course is full (ONLY count ACTIVE enrollees)
+    $currentEnrollees = CourseEnrollee::where('course_id', $course->id)
+        ->where('status', 'Active')
+        ->count();
+
+    if ($currentEnrollees >= $course->student_limit) {
+        return back()->with('swal', [
+            'icon' => 'error',
+            'title' => 'Course Full',
+            'text' => 'Sorry, this course has reached its student limit.'
+        ]);
+    }
+
+    // If enrollee exists but was Dropped → REACTIVATE
+    if ($enrollee) {
+        $enrollee->update([
+            'status' => 'Active',
+            'enrollment_date' => now(),
+        ]);
+    } 
+    // Else → NEW enrollment
+    else {
         CourseEnrollee::create([
             'course_id' => $course->id,
             'enrollee_id' => $learner->id,
             'enrollment_date' => now(),
-            'status' => 'Active', // Default status
+            'status' => 'Active',
         ]);
-
-        // Redirect to the course show page after enrollment
-        return redirect()->route('learner.course.show', $course)
-            ->with('swal', [
-                'icon' => 'success',
-                'title' => 'Enrolled!',
-                'text' => 'You have successfully enrolled in the course.'
-            ]);
     }
+
+    return redirect()->route('learner.course.show', $course)
+        ->with('swal', [
+            'icon' => 'success',
+            'title' => 'Enrolled!',
+            'text' => 'You have successfully enrolled in the course.'
+        ]);
+}
+
 }

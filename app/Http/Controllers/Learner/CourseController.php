@@ -14,6 +14,7 @@ use App\Models\ProgramEvaluation;
 use App\Models\Quiz;
 use App\Models\QuizResult;
 use App\Models\Submission;
+use Illuminate\Support\Collection;
 
 class CourseController extends Controller
 {
@@ -38,7 +39,7 @@ public function index()
     $courses = Course::whereHas('enrollees', function ($q) use ($userId) {
             $q->where('course_enrollees.enrollee_id', $userId);
         })
-        ->orderBy('title')
+        ->orderBy('course_title')
         ->get();
 
     // Optional placeholders
@@ -175,14 +176,74 @@ public function show(Course $course)
         ->orderBy('created_at', 'asc')
         ->get();
 
-    return view('livewire.learner.course-information', [
-        'course' => $course,
-        'modules' => $modules,
-        'quiz' => $quizzes,
-        'assignments' => $assignments,
-        'evaluations' => $evaluations,
-        'announcements' => $announcements,
+
+
+$timeline = collect();
+
+/* MODULES (use module_number order as their "date") */
+foreach ($modules as $module) {
+    $timeline->push([
+        'type' => 'module',
+        'sort_date' => $module->module_number,
+        'data' => $module,
     ]);
+}
+
+
+/* ASSIGNMENTS */
+foreach ($assignments as $assignment) {
+    $timeline->push([
+        'type' => 'assignment',
+        'sort_date' => $assignment->created_at,
+        'data' => $assignment,
+    ]);
+}
+
+/* QUIZZES */
+foreach ($quizzes as $quiz) {
+    $timeline->push([
+        'type' => 'quiz',
+        'sort_date' => $quiz->created_at,
+        'data' => $quiz,
+    ]);
+}
+
+/* EVALUATIONS */
+foreach ($evaluations as $evaluation) {
+    $timeline->push([
+        'type' => 'evaluation',
+        'sort_date' => $evaluation->created_at,
+        'data' => $evaluation,
+    ]);
+}
+
+/* ANNOUNCEMENTS */
+foreach ($announcements as $announcement) {
+    $timeline->push([
+        'type' => 'announcement',
+        'sort_date' => $announcement->created_at,
+        'data' => $announcement,
+    ]);
+}
+
+/* 🔑 GLOBAL ORDER: OLDEST → NEWEST */
+$timeline = $timeline->sortBy([
+    ['type', 'asc'],
+    ['sort_date', 'asc'],
+])->values();
+
+
+  return view('livewire.learner.course-information', [
+    'course' => $course,
+    'modules' => $modules,
+    'quiz' => $quizzes,
+    'assignments' => $assignments,
+    'evaluations' => $evaluations,
+    'announcements' => $announcements,
+    'timeline' => $timeline, // ✅ THIS IS THE FIX
+]);
+
+
 }
 
 

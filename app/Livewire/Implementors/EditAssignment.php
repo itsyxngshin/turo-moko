@@ -122,7 +122,11 @@ class EditAssignment extends Component
 
         $this->assignment->update($updateData);
 
-        session()->flash('success', 'Assignment updated successfully.');
+        session()->flash('swal', [
+            'icon' => 'success',
+            'title' => 'Success!',
+            'text' => 'Assignment updated successfully!',
+        ]);
 
         return redirect()->route('implementor.course-information', $this->course->course_code);
     }
@@ -151,7 +155,11 @@ class EditAssignment extends Component
         // Delete the assignment (cascades will handle submissions)
         $this->assignment->delete();
 
-        session()->flash('success', 'Assignment deleted successfully.');
+        session()->flash('swal', [
+            'icon' => 'success',
+            'title' => 'Success!',
+            'text' => 'Assignment deleted successfully!',
+        ]);
         
         return redirect()->route('implementor.course-information', $courseCode);
     }

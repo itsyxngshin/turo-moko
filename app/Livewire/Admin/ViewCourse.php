@@ -4,39 +4,101 @@ namespace App\Livewire\Admin;
 
 use Livewire\Component;
 use App\Models\Course;
+use App\Models\Assignment;
+use App\Models\Module;
+use App\Models\Lesson;
+use App\Models\Quiz;
+use App\Models\Evaluation;
+use App\Models\Announcement;
 
 class ViewCourse extends Component
 {
-    public $courseCode;    // Accept course_code from URL or Blade
     public $course;
-    public $modules;
-    public $evaluations;
-    public $announcements;
+    public $timeline = [];
+    public $courseCode;
 
-    /**
-     * Mount the component with course_code
-     */
     public function mount($courseCode)
     {
-        $this->courseCode = $courseCode;
+        $this->courseCode = $courseCode; // Accepts ID or course_code
 
-        // Fetch course by course_code
         $this->course = Course::with([
-            'activeCoverPhoto',
-            'enrollees',
-            'modules.lessons',          // fetch lessons for each module
+            'modules.lessons', // hasOne lesson
+            'assignments',
+            'quizzes',
             'evaluations',
-            'announcements.attachments' // load attachments with announcements
-        ])->where('course_code', $this->courseCode)->firstOrFail();
+            'announcements.attachments'
+        ])
+        ->when(is_numeric($courseCode), fn($query) => $query->where('id', $courseCode),
+               fn($query) => $query->where('course_code', $courseCode))
+        ->firstOrFail();
 
-        // Modules are already loaded via eager loading
-        $this->modules = $this->course->modules;
-        $this->evaluations = $this->course->evaluations;
-        $this->announcements = $this->course->announcements;
+        $this->buildTimeline();
+    }
+
+    private function buildTimeline()
+    {
+        $timeline = [];
+
+        // Modules and their lessons
+        foreach ($this->course->modules as $module) {
+            $timeline[] = [
+                'type' => 'module',
+                'data' => $module,
+                'created_at' => $module->created_at
+            ];
+
+            if ($module->lessons) {  // hasOne returns a single model or null
+                $timeline[] = [
+                    'type' => 'lesson',
+                    'data' => $module->lessons,
+                    'created_at' => $module->lessons->created_at
+                ];
+            }
+        }
+
+        // Assignments (directly linked to course)
+        foreach ($this->course->assignments as $assignment) {
+            $timeline[] = [
+                'type' => 'assignment',
+                'data' => $assignment,
+                'created_at' => $assignment->created_at
+            ];
+        }
+
+        // Quizzes
+        foreach ($this->course->quizzes as $quiz) {
+            $timeline[] = [
+                'type' => 'quiz',
+                'data' => $quiz,
+                'created_at' => $quiz->created_at
+            ];
+        }
+
+        // Evaluations
+        foreach ($this->course->evaluations as $evaluation) {
+            $timeline[] = [
+                'type' => 'evaluation',
+                'data' => $evaluation,
+                'created_at' => $evaluation->created_at
+            ];
+        }
+
+        // Announcements
+        foreach ($this->course->announcements as $announcement) {
+            $timeline[] = [
+                'type' => 'announcement',
+                'data' => $announcement,
+                'created_at' => $announcement->created_at
+            ];
+        }
+
+        // Sort timeline by creation date
+        $this->timeline = collect($timeline)->sortBy('created_at')->values();
     }
 
     public function render()
     {
-        return view('livewire.admin.view-course')->layout('layouts.layout');;
+        return view('livewire.admin.view-course')
+            ->layout('layouts.layout');
     }
 }

@@ -3,54 +3,32 @@
 namespace App\Livewire\Component;
 
 use Livewire\Component;
-use App\Models\Message;
 use App\Models\Conversation;
-use App\Models\User;
 use Livewire\Attributes\On;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Builder;
 
 class ConversationList extends Component
 {
-    public $conversations;
     public $selectedConversationId = null;
-    
-    // NEW: Search properties
     public $isSearching = false;
 
+    // We don't need loadConversations() anymore since render() handles it
     public function mount()
     {
-        $this->loadConversations();
+        // Keep empty or handle other setup
     }
 
-    public function loadConversations()
-    {
-        $this->conversations = Conversation::where('user_one_id', Auth::id())
-            ->orWhere('user_two_id', Auth::id())
-            ->with([
-                'userOne.profile.photo', 
-                'userTwo.profile.photo', 
-                // FIXED: Sort by Newest First so ->first() gives the latest message
-                'messages' => function($query) {
-                    $query->orderBy('created_at', 'desc'); 
-                }
-            ])
-            ->latest('updated_at')
-            ->get();
-    }
-
-    // NEW: Start or open conversation
     #[On('startConversation')]
     public function startConversation($userId)
     {
-        // 1. Check if conversation already exists
+        // 1. Check if conversation exists
         $conversation = Conversation::where(function($q) use ($userId) {
             $q->where('user_one_id', Auth::id())->where('user_two_id', $userId);
         })->orWhere(function($q) use ($userId) {
             $q->where('user_one_id', $userId)->where('user_two_id', Auth::id());
         })->first();
 
-        // 2. If not, create it
+        // 2. Create if missing
         if (!$conversation) {
             $conversation = Conversation::create([
                 'user_one_id' => Auth::id(),
@@ -59,10 +37,7 @@ class ConversationList extends Component
         }
 
         $this->isSearching = false;
-        
-        // 4. Reload list to show the new/updated conversation at top
-        $this->loadConversations();
-        
+        // The list will auto-refresh because render() runs next
     }
 
     public function selectConversation($conversationId)
@@ -73,6 +48,22 @@ class ConversationList extends Component
 
     public function render()
     {
-        return view('livewire.component.conversation-list');
+        // ✅ FETCH DATA HERE
+        // This ensures the 'orderBy desc' constraint is applied on every render/click
+        $conversations = Conversation::where('user_one_id', Auth::id())
+            ->orWhere('user_two_id', Auth::id())
+            ->with([
+                'userOne.profile.photo', 
+                'userTwo.profile.photo', 
+                'messages' => function($query) {
+                    $query->orderBy('created_at', 'desc'); // Newest First
+                }
+            ])
+            ->latest('updated_at')
+            ->get();
+
+        return view('livewire.component.conversation-list', [
+            'conversations' => $conversations
+        ]);
     }
 }

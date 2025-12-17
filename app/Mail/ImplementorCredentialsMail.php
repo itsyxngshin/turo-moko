@@ -28,7 +28,7 @@ class ImplementorCredentialsMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Welcome to Turo-Moko - Your Account Credentials',
+            subject: 'Welcome to TURO-MOKO - Your Account Credentials',
         );
     }
 

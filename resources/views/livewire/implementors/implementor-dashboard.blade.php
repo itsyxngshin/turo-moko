@@ -85,7 +85,7 @@
             <div class="flex flex-col items-end justify-end h-full text-right relative z-10">
                 <h3 class="text-sm font-medium text-slate-500">Evaluation Score</h3>
                 <div class="mt-1 flex items-center gap-2 justify-end">
-                    <p class="text-3xl font-semibold text-slate-900">{{ $overallRating ? number_format($overallRating, 1) : '--' }}</p>
+                    <p class="text-3xl font-semibold text-slate-900">{{ $overallRating ? number_format($overallRating, 1) : '0' }}</p>
                 </div>
             </div>
         </div>

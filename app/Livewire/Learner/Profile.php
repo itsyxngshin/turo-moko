@@ -3,12 +3,13 @@
 namespace App\Livewire\Learner;
 
 use Livewire\WithFileUploads;
+use Livewire\Attributes\Computed; // ✅ Required for 504 Fix
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-use App\Models\Course;
 use App\Models\Photo; 
 use App\Models\WorkPortfolio;
+use App\Models\PortfolioSet;
 use App\Models\Engagement;
 use App\Models\Log; 
 
@@ -27,10 +28,6 @@ class Profile extends Component
     public $work_experiences = [];
     public $engagements_list = []; 
 
-    // Course Data
-    public $activeCourses; 
-    public $activeCoursesCount = 0;
-
     public function mount()
     {
         if (!Auth::check()) return redirect()->route('login');
@@ -38,7 +35,8 @@ class Profile extends Component
         // 1. Load User & Profile Data
         $this->user = User::with([
             'profile.portfolioSets.workPortfolio', 
-            'engagements'
+            'engagements',
+            'profile.photo' // ✅ Ensure photo is loaded initially
         ])->find(Auth::id());
         
         $this->active_engagement = $this->user->engagements->last();
@@ -53,24 +51,22 @@ class Profile extends Component
         // 3. Load Form Lists
         $this->loadWorkExperiences();
         $this->engagements_list = $this->user->engagements->toArray();
+    }
 
-        // ------------------------------------------------------------------
-        // [FETCH ACTIVE COURSES VIA PIVOT]
-        // ------------------------------------------------------------------
-        // We use the 'enrolledCourses' relationship which is a belongsToMany.
-        // This returns 'Course' models but filtered by the pivot table.
-        // ------------------------------------------------------------------
-        $this->activeCourses = $this->user->enrolledCourses()
-            ->wherePivot('status', 'Active') // Strictly look at course_enrollees.status
+    // ✅ FIXED: Computed Property to solve 504 Timeout
+    #[Computed]
+    public function activeCourses()
+    {
+        return $this->user->enrolledCourses()
+            ->wherePivot('status', 'Active') 
             ->with([
-                'activeCoverPhoto',       // Assuming you have this relationship on Course model
+                'activeCoverPhoto',       
                 'category', 
-                'implementer.profile'     // To show Instructor Name
+                'implementer.profile'     
             ])
-            ->orderByPivot('enrollment_date', 'desc') // Show newest enrollments first
+            ->orderByPivot('enrollment_date', 'desc') 
+            ->take(6) // ✅ Limit to 6 to prevent overload
             ->get();
-
-        $this->activeCoursesCount = $this->activeCourses->count();
     }
 
     public function loadWorkExperiences()
@@ -95,7 +91,19 @@ class Profile extends Component
 
     public function openEditModal()
     {
-        // Re-sync data on open
+        // ✅ FIXED: Reload User with ALL relationships (especially profile.photo)
+        $this->user = User::with([
+            'profile.portfolioSets.workPortfolio', 
+            'engagements',
+            'profile.photo' 
+        ])->find(Auth::id());
+
+        if (!$this->user || !$this->user->profile) {
+            $this->dispatch('swal', ['icon' => 'error', 'title' => 'Error', 'text' => 'Profile not found.']);
+            return;
+        }
+
+        // Re-sync data
         $this->first_name = $this->user->profile->first_name;
         $this->last_name = $this->user->profile->last_name;
         $this->middle_name = $this->user->profile->middle_name;
@@ -103,6 +111,7 @@ class Profile extends Component
         $this->email = $this->user->email;
         $this->loadWorkExperiences();
         $this->engagements_list = $this->user->engagements->toArray();
+        
         $this->showEditModal = true;
     }
 
@@ -119,18 +128,27 @@ class Profile extends Component
         ];
     }
 
+    // ✅ FIXED: Delete Logic (Child before Parent)
     public function removeWorkExperience($index)
     {
         $item = $this->work_experiences[$index];
+        
         if (!empty($item['portfolio_set_id'])) {
-            $set = \App\Models\PortfolioSet::find($item['portfolio_set_id']);
+            $set = PortfolioSet::find($item['portfolio_set_id']);
+            
             if ($set) {
-                if ($set->work_portfolio_id) {
-                    \App\Models\WorkPortfolio::find($set->work_portfolio_id)?->delete();
-                }
+                $workPortfolioId = $set->work_portfolio_id;
+                
+                // 1. Delete the LINK (PortfolioSet) first
                 $set->delete();
+
+                // 2. Delete the RECORD (WorkPortfolio) second
+                if ($workPortfolioId) {
+                    WorkPortfolio::find($workPortfolioId)?->delete();
+                }
             }
         }
+        
         unset($this->work_experiences[$index]);
         $this->work_experiences = array_values($this->work_experiences);
     }
@@ -144,7 +162,7 @@ class Profile extends Component
     {
         $item = $this->engagements_list[$index];
         if (!empty($item['id'])) {
-            \App\Models\Engagement::find($item['id'])?->delete();
+            Engagement::find($item['id'])?->delete();
         }
         unset($this->engagements_list[$index]);
         $this->engagements_list = array_values($this->engagements_list);
@@ -177,10 +195,10 @@ class Profile extends Component
         // 4. Update Work Experiences
         foreach ($this->work_experiences as $work) {
             if (!empty($work['work_portfolio_id'])) {
-                \App\Models\WorkPortfolio::find($work['work_portfolio_id'])->update($work);
+                WorkPortfolio::find($work['work_portfolio_id'])->update($work);
             } else {
-                $new = \App\Models\WorkPortfolio::create($work);
-                \App\Models\PortfolioSet::create([
+                $new = WorkPortfolio::create($work);
+                PortfolioSet::create([
                     'profile_id' => $this->user->profile->id,
                     'work_portfolio_id' => $new->id,
                 ]);
@@ -191,7 +209,7 @@ class Profile extends Component
         foreach ($this->engagements_list as $eng) {
             if(empty($eng['title'])) continue; 
             if (isset($eng['id']) && $eng['id']) {
-                \App\Models\Engagement::find($eng['id'])->update(['title' => $eng['title'], 'description' => $eng['description']]);
+                Engagement::find($eng['id'])->update(['title' => $eng['title'], 'description' => $eng['description']]);
             } else {
                 $this->user->engagements()->create(['title' => $eng['title'], 'description' => $eng['description']]);
             }

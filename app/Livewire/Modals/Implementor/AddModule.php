@@ -16,8 +16,8 @@ class AddModule extends Component
     public $module_number;
     public $module_title;
     public $content;
-    public $attachments;
-    public $attachments_removed = false; // Flag for removed file
+    public $attachments;               // Current file upload
+    public $removeAttachment = false;  // For tracking removal in UI
 
     protected $listeners = ['refreshModuleList' => '$refresh'];
 
@@ -33,36 +33,31 @@ class AddModule extends Component
                 'module_number' => 'required|integer',
                 'module_title'  => 'required|string|max:255',
                 'content'       => 'required|string',
-                 'attachments'   => 'nullable|file|max:10240',
+                'attachments'   => 'nullable|file|max:10240',
             ]);
 
-            // Determine file path
-           $filePath = null;
-$originalName = null;
+            $filePath = null;
+            $originalName = null;
 
-if ($this->attachments) {
-    $filePath = $this->attachments->store('attachments', 'public'); 
-    $originalName = $this->attachments->getClientOriginalName();
-}
-
+            if ($this->attachments && !$this->removeAttachment) {
+                $filePath = $this->attachments->store('attachments', 'public');
+                $originalName = $this->attachments->getClientOriginalName();
+            }
 
             // Create the module
             $module = Module::create([
                 'course_id'     => $this->courseId,
                 'module_number' => $this->module_number,
                 'module_title'  => $this->module_title,
-                
-    // Set module hidden for learners
             ]);
 
-            // Create lesson/content for this module
+            // Create the lesson/content
             Lesson::create([
                 'module_id'                 => $module->id,
                 'content'                   => $this->content,
                 'attachments'               => $filePath,
                 'attachments_original_name' => $originalName,
             ]);
-
 
             $this->resetForm();
 
@@ -74,13 +69,20 @@ if ($this->attachments) {
             ]);
 
         } catch (\Throwable $e) {
-             dd($e->getMessage());
+            dd($e->getMessage());
         }
     }
 
     public function resetForm()
     {
-        $this->reset(['module_number', 'module_title', 'content', 'attachments', 'attachments_removed']);
+        $this->reset([
+            'module_number',
+            'module_title',
+            'content',
+            'attachments',
+            'removeAttachment'
+        ]);
+
         $this->dispatch('reset-upload-box');
     }
 

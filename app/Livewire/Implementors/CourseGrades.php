@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CourseGrades extends Component
 {
@@ -34,6 +35,57 @@ class CourseGrades extends Component
         $this->course = $course;
         $this->refreshData();
     }
+
+
+
+public function downloadGradesCsv(): StreamedResponse
+{
+    $activities = collect($this->activities);
+    $students = collect($this->students);
+
+    $filename = 'course-grades-' . now()->format('Y-m-d') . '.csv';
+
+    return response()->streamDownload(function () use ($activities, $students) {
+
+        $handle = fopen('php://output', 'w');
+
+        // Header row
+        $headers = ['Student Name', 'Email'];
+
+        foreach ($activities as $activity) {
+            $headers[] = $activity['label'];
+        }
+
+        $headers[] = 'Final Grade';
+
+        fputcsv($handle, $headers);
+
+        // Student rows
+        foreach ($students as $student) {
+            $row = [
+                $student['name'],
+                $student['email'],
+            ];
+
+            foreach ($activities as $activity) {
+                $cell = $student['activities'][$activity['key']] ?? null;
+                $row[] = $cell && $cell['grade'] !== null ? $cell['grade'] : '';
+            }
+
+            $row[] = $student['final_grade'] !== null
+                ? $student['final_grade']
+                : '';
+
+            fputcsv($handle, $row);
+        }
+
+        fclose($handle);
+
+    }, $filename, [
+        'Content-Type' => 'text/csv',
+    ]);
+}
+
 
     public function refreshData(): void
     {

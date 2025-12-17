@@ -49,51 +49,104 @@
                 <form wire:submit.prevent="update" class="space-y-6">
                     <div class="flex flex-col md:flex-row gap-8">
                         
-                        <div class="flex flex-col items-center justify-start pt-4 relative min-w-[160px]">
-                            <label for="photoEdit" class="cursor-pointer group relative">
-                                <div class="w-40 h-40 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden hover:border-[#C28A56] transition relative">
-                                    
-                                    {{-- LOGIC: Show New Preview OR Existing Photo OR Placeholder --}}
-                                    @if ($photo)
-                                        <img src="{{ $photo->temporaryUrl() }}" class="w-full h-full object-cover" alt="New Preview">
-                                    @elseif ($existingPhoto)
-                                        <img src="{{ asset('storage/' . $existingPhoto) }}" class="w-full h-full object-cover" alt="Current Photo">
-                                    @else
-                                        <div class="flex flex-col items-center text-gray-400">
-                                            <span class="text-xs">No Photo</span>
-                                        </div>
+                        <div class="flex flex-col items-center justify-start pt-4 relative min-w-[200px]"
+                             x-data="{ 
+                                dragging: false,
+                                imagePreview: null,
+                                
+                                // Initialize preview with existing photo if available
+                                init() {
+                                    @if($existingPhoto)
+                                        this.imagePreview = '{{ asset('storage/' . $existingPhoto) }}';
                                     @endif
-
-                                    {{-- Hover Overlay --}}
-                                    <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center text-white text-xs opacity-0 group-hover:opacity-100 transition">
-                                        Change Photo
-                                    </div>
-
-                                    {{-- Loading State --}}
-                                    <div wire:loading wire:target="photo" class="absolute inset-0 bg-white/90 flex flex-col items-center justify-center text-gray-600 text-xs font-medium z-10">
-                                        Uploading...
-                                    </div>
+                                },
+                        
+                                showPreview(event) {
+                                    const file = event.target.files[0];
+                                    if (file) {
+                                        this.imagePreview = URL.createObjectURL(file);
+                                    }
+                                },
+                                handleDrop(event) {
+                                    this.dragging = false;
+                                    const file = event.dataTransfer.files[0];
+                                    if (file) {
+                                        this.imagePreview = URL.createObjectURL(file);
+                                        @this.upload('photo', file);
+                                    }
+                                },
+                                removeImage() {
+                                    this.imagePreview = null;
+                                    $refs.fileInput.value = ''; 
+                                    @this.set('photo', null);
+                                    
+                                    // Optional: If you want removing the image to also clear the database record immediately or mark it for deletion, 
+                                    // you might need an extra Livewire method like @this.markPhotoForDeletion()
+                                }
+                             }"
+                             x-init="init()">
+                        
+                            <div 
+                                x-bind:class="dragging ? 'bg-orange-50 border-[#C28A56]' : 'bg-gray-50 border-gray-300'"
+                                class="relative w-40 h-40 rounded-full border-2 border-dashed flex items-center justify-center cursor-pointer overflow-hidden transition-all duration-200 group"
+                                @click="$refs.fileInput.click()"
+                                @dragover.prevent="dragging = true"
+                                @dragleave.prevent="dragging = false"
+                                @drop.prevent="handleDrop($event)"
+                            >
+                                
+                                <div wire:loading wire:target="photo" 
+                                     class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/90 text-gray-600 text-xs font-medium">
+                                    <svg class="animate-spin h-8 w-8 mb-2 text-[#C28A56]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                    </svg>
+                                    Uploading...
                                 </div>
-                            </label>
-                            
-                            <input id="photoEdit" type="file" wire:model="photo" class="hidden" accept="image/png, image/jpeg, image/jpg">
-
-                            {{-- Validation & File Info --}}
-                            <div class="mt-3 text-center">
-                                @if ($photo)
-                                    <button type="button" wire:click="$set('photo', null)" class="text-xs text-red-500 hover:text-red-700 font-medium hover:underline mb-1 block mx-auto">
-                                        Undo Change
+                        
+                                <template x-if="imagePreview">
+                                    <div class="relative w-full h-full">
+                                        <img :src="imagePreview" class="w-full h-full object-cover">
+                                        
+                                        <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-200">
+                                            <span class="text-white text-xs font-bold">Change Photo</span>
+                                        </div>
+                                    </div>
+                                </template>
+                        
+                                <template x-if="!imagePreview">
+                                    <div class="flex flex-col items-center text-gray-400 p-2 text-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        <span class="text-[10px] font-medium">Click or Drop</span>
+                                    </div>
+                                </template>
+                            </div>
+                        
+                            <div class="mt-3 text-center w-full">
+                                <template x-if="imagePreview">
+                                    <button type="button" @click.stop="removeImage()" class="text-xs text-red-500 hover:text-red-700 font-medium hover:underline">
+                                        @if($photo) Undo Change @else Remove Photo @endif
                                     </button>
-                                @endif
-
-                                <p class="text-[10px] text-gray-400 uppercase tracking-wide">
-                                    Max Size: 3MB <br> Formats: JPG, PNG
-                                </p>
-
+                                </template>
+                        
                                 @error('photo') 
-                                    <span class="text-red-500 text-xs block mt-1 bg-red-50 px-2 py-1 rounded border border-red-100">{{ $message }}</span> 
+                                    <span class="text-red-500 text-xs block mt-1 bg-red-50 px-2 py-1 rounded border border-red-100">
+                                        {{ $message }}
+                                    </span> 
                                 @enderror
                             </div>
+                        
+                            <input 
+                                type="file" 
+                                wire:model="photo" 
+                                x-ref="fileInput" 
+                                hidden 
+                                accept="image/png, image/jpeg, image/jpg"
+                                @change="showPreview($event)"
+                            >
                         </div>
 
                         <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -421,7 +421,7 @@
                     class="mb-4 mt-4">
                     <!-- Clickable announcement -->
                     <button 
-                        class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer"
+                        class="bg-white w-full flex items-start mb-4 p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer"
                         @click="open = true"
                     >
                         <div class=" m-auto">
@@ -451,9 +451,9 @@
                         
                             <div class="flex border-b pb-2">
                               <img 
-                                    src="{{ $announcement->user && $announcement->user->profile && $announcement->user->profile->photo
-                                        ? asset('storage/' . $announcement->user->profile->photo->photos)
-                                        : asset('implementor/course/thumbnail.png') }}"
+                                    src="{{ $announcement->user?->profile?->photo?->photos
+                                            ? asset('storage/' . $announcement->user->profile->photo->photos)
+                                            : asset('implementor/course/thumbnail.png') }}"
                                     class="w-10 h-10 rounded-full"
                                 />
                                 
@@ -586,6 +586,7 @@
   
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.7.107/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const canvases = document.querySelectorAll(".pdf-thumbnail");
@@ -603,6 +604,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }).catch(err => console.error("PDF render error:", err));
     });
 });
+
+@if(session('swal'))
+    Swal.fire({
+        icon: '{{ session('swal.icon') }}',
+        title: '{{ session('swal.title') }}',
+        text: '{{ session('swal.text') }}',
+        confirmButtonColor: '#000000'
+    });
+@endif
 </script>
 </div>
 @endsection

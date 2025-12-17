@@ -1,8 +1,56 @@
-@extends('layouts.learner-layout')
+<!DOCTYPE html>
+<html lang="en">
 
-@section('title', $quiz->quiz_title)
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+ <title>{{ $quiz->quiz_title }}</title>
+<link rel="icon" href="{{ asset('images/turo_moko_logo.png') }}" type="image/png">
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" as="style" onload="this.rel='stylesheet'">
 
-@section('content')
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Trix Editor -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/trix/2.0.0/trix.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/trix/2.0.0/trix.umd.min.js"></script>
+
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<!-- Alpine.js -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        html {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+
+<script>
+    tailwind.config = {
+        theme: {
+            extend: { fontFamily: { sans: ['Poppins', 'sans-serif'] } }
+        }
+    }
+</script>
+
+<style>
+    [x-cloak] { display: none !important; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+
+@livewireStyles
+</head>
+
+<body class="bg-white">
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
     [x-cloak] { display: none !important; }
@@ -448,4 +496,5 @@ document.addEventListener('alpine:init', () => {
     }));
 });
 </script>
-@endsection
+</body>
+</html>

@@ -24,7 +24,23 @@ class AddEvaluation extends Component
             return;
         }
 
-        // Use firstOrCreate to prevent duplicates
+        // Check if evaluation already exists
+        $programEvaluationExists = ProgramEvaluation::where('course_id', $this->courseId)->exists();
+        $implementerEvaluationExists = ImplementerEvaluation::where('course_id', $this->courseId)
+            ->where('implementer_id', $implementerId)
+            ->exists();
+
+        if ($programEvaluationExists && $implementerEvaluationExists) {
+            $this->dispatch('evaluation-modal-close');
+            $this->dispatch('swal:evaluation-exists', [
+                'title' => 'Already Exists',
+                'text'  => 'An evaluation has already been added to this course.',
+                'icon'  => 'info'
+            ]);
+            return;
+        }
+
+        // Create evaluations if they don't exist
         ProgramEvaluation::firstOrCreate([
             'course_id'   => $this->courseId,
             'enrollee_id' => null,

@@ -53,6 +53,14 @@ class ActivityDetail extends Component
     // State management
     public $currentState = 'NOT_SUBMITTED'; // NOT_SUBMITTED, SUBMITTING, SUBMITTED
 
+    protected function validationAttributes()
+    {
+        return [
+            'fileUpload' => 'file',
+            'onlineText' => 'text submission',
+        ];
+    }
+
     public function mount(Course $course, Assignment $assignment)
     {
         $this->course = $course;
@@ -128,7 +136,7 @@ class ActivityDetail extends Component
                     'mimes:' . self::ALLOWED_EXTENSIONS,
                 ],
             ], [
-                'fileUpload.max' => 'File size must not exceed ' . $this->formatFileSize($maxSizeKB) . '. Your file is ' . $this->formatFileSize($this->fileUpload->getSize() / 1024) . '.',
+                'fileUpload.max' => 'The file size must not exceed ' . $this->formatFileSize($maxSizeKB) . '. Your file is ' . $this->formatFileSize($this->fileUpload->getSize() / 1024) . '.',
                 'fileUpload.mimes' => 'Invalid file type. Allowed types: PDF, Word, Excel, PowerPoint, Text, Images (JPG, PNG), and ZIP files.',
             ]);
         }
@@ -151,7 +159,7 @@ class ActivityDetail extends Component
                 'fileUpload' => 'nullable|file|max:' . $maxSizeKB . '|mimes:' . self::ALLOWED_EXTENSIONS,
                 'onlineText' => 'nullable|string|min:10',
             ], [
-                'fileUpload.max' => 'File size must not exceed ' . $this->formatFileSize($maxSizeKB) . '.',
+                'fileUpload.max' => 'The file size must not exceed ' . $this->formatFileSize($maxSizeKB) . '.',
                 'fileUpload.mimes' => 'Invalid file type. Allowed: PDF, Word, Excel, PowerPoint, Text, Images, ZIP.',
                 'onlineText.min' => 'Text submission must be at least 10 characters.',
             ]);
@@ -167,7 +175,7 @@ class ActivityDetail extends Component
                 'fileUpload' => 'required|file|max:' . $maxSizeKB . '|mimes:' . self::ALLOWED_EXTENSIONS,
             ], [
                 'fileUpload.required' => 'Please upload a file for this assignment.',
-                'fileUpload.max' => 'File size must not exceed ' . $this->formatFileSize($maxSizeKB) . '.',
+                'fileUpload.max' => 'The file size must not exceed ' . $this->formatFileSize($maxSizeKB) . '.',
                 'fileUpload.mimes' => 'Invalid file type. Allowed: PDF, Word, Excel, PowerPoint, Text, Images (JPG, PNG), ZIP.',
             ]);
         } elseif ($this->assignment->text_allowed) {
