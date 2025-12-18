@@ -11,15 +11,26 @@ class LiveSearchStudents extends Component
     public $course;           // Course object passed from parent
     public $searchName = '';  // Search input
     public $searchResults = []; // Matching students
-    public $loading = false;
+    
+    // NEW: Array to hold students selected but not yet saved
+    public $stagedUsers = []; 
 
-    // Called automatically whenever $searchName is updated
     public function updatedSearchName()
     {
         $query = $this->searchName;
 
-        if (strlen($query) >= 2) { // Minimum 2 chars to search
+        if (strlen($query) >= 2) {
+            // Get IDs of users already enrolled to exclude them from search
+            $existingIds = CourseEnrollee::where('course_id', $this->course->id)
+                ->pluck('enrollee_id')
+                ->toArray();
+            
+            // Get IDs of users currently in the staging area to exclude them
+            $stagedIds = array_column($this->stagedUsers, 'id');
+            $excludedIds = array_merge($existingIds, $stagedIds);
+
             $this->searchResults = User::where('role_id', 1) // learners only
+                ->whereNotIn('id', $excludedIds) // Exclude existing/staged
                 ->where(function($q) use ($query) {
                     $q->whereHas('profile', function($q2) use ($query) {
                         $q2->where('first_name', 'like', "%{$query}%")
@@ -29,60 +40,77 @@ class LiveSearchStudents extends Component
                     ->orWhere('username', 'like', "%{$query}%");
                 })
                 ->with('profile')
+                ->take(10) // Limit results for performance
                 ->get();
         } else {
             $this->searchResults = [];
         }
     }
 
-    // Add enrollee
-    public function addEnrollee($userId)
+    // NEW: Add user to temporary list instead of DB
+    public function stageUser($userId)
     {
-        $this->loading = true;
+        $user = User::with('profile')->find($userId);
 
-        $exists = CourseEnrollee::where('course_id', $this->course->id)
-            ->where('enrollee_id', $userId)
-            ->exists();
-
-        if ($exists) {
-            session()->flash('error', 'User is already enrolled.');
-            $this->loading = false;
-            return;
+        if ($user) {
+            // Add to staged array
+            $this->stagedUsers[] = [
+                'id' => $user->id,
+                'name' => $user->profile->first_name . ' ' . $user->profile->last_name,
+                'username' => $user->username
+            ];
         }
 
-        CourseEnrollee::create([
-            'course_id' => $this->course->id,
-            'enrollee_id' => $userId,
-            'enrollment_date' => now(),
-            'status' => 'Active',
-        ]);
-
-        session()->flash('success', 'Enrollee added successfully.');
-
-        // Clear search
+        // Clear search to allow adding next student immediately
         $this->searchName = '';
         $this->searchResults = [];
-
-        $this->loading = false;
     }
 
-    // Remove enrollee
+    // NEW: Remove from temporary list
+    public function unstageUser($index)
+    {
+        unset($this->stagedUsers[$index]);
+        $this->stagedUsers = array_values($this->stagedUsers); // Re-index array
+    }
+
+    // NEW: Save all staged users to DB
+    public function enrollStaged()
+    {
+        if (empty($this->stagedUsers)) return;
+
+        foreach ($this->stagedUsers as $user) {
+            // Double check existence to prevent errors
+            $exists = CourseEnrollee::where('course_id', $this->course->id)
+                ->where('enrollee_id', $user['id'])
+                ->exists();
+
+            if (!$exists) {
+                CourseEnrollee::create([
+                    'course_id' => $this->course->id,
+                    'enrollee_id' => $user['id'],
+                    'enrollment_date' => now(),
+                    'status' => 'Active',
+                ]);
+            }
+        }
+
+        session()->flash('success', count($this->stagedUsers) . ' enrollees added successfully.');
+        
+        $this->stagedUsers = []; // Clear list
+    }
+
+    // Remove enrollee (Existing logic)
     public function removeEnrollee($enrolleeId)
     {
-        $this->loading = true;
-
         CourseEnrollee::where('id', $enrolleeId)->delete();
-
         session()->flash('success', 'Enrollee removed successfully.');
-
-        $this->loading = false;
     }
 
-    // Computed property for enrollees table
     public function getEnrolleesProperty()
     {
         return CourseEnrollee::where('course_id', $this->course->id)
             ->with('user.profile')
+            ->latest('enrollment_date')
             ->get();
     }
 
