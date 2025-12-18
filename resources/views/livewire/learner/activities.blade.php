@@ -42,13 +42,19 @@
           <div class="flex-1 p-5 flex flex-col justify-between">
             <div>
               <div class="flex justify-between items-start mb-2">
-                <p class="text-xs text-gray-400">Course: {{ $activity->course_title }}</p>
-                <span class="text-xs 
-                  @if($assignment->due_date->isPast()) bg-red-100 text-red-600 
-                  @else bg-yellow-100 text-yellow-600 @endif 
-                  px-2 py-0.5 rounded-full">
-                  Due: {{ $assignment->due_date->format('M d') }}
-                </span>
+                <p class="text-xs text-gray-400">Course: {{ $assignment->course_title }}</p>
+                @if($assignment->due_date)
+                  <span class="text-xs 
+                    @if($assignment->due_date->isPast()) bg-red-100 text-red-600 
+                    @else bg-yellow-100 text-yellow-600 @endif 
+                    px-2 py-0.5 rounded-full">
+                    Due: {{ $assignment->due_date->format('M d') }}
+                  </span>
+                @else
+                  <span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                    No due date
+                  </span>
+                @endif
               </div>
               <h4 class="font-semibold text-lg mb-1">{{ $assignment->title }}</h4>
               <p class="text-sm text-gray-500 leading-snug">

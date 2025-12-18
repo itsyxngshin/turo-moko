@@ -16,6 +16,25 @@ class ActivityDetail extends Component
 {
     use WithFileUploads;
 
+    // Allowed file types for LMS submissions
+    const ALLOWED_MIME_TYPES = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'text/plain',
+        'image/jpeg',
+        'image/png',
+        'image/jpg',
+        'application/zip',
+        'application/x-zip-compressed',
+    ];
+
+    const ALLOWED_EXTENSIONS = 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,jpg,jpeg,png,zip';
+
     // Computed properties for Livewire
     protected function queryStringComputedPropertyCache()
     {
@@ -33,6 +52,14 @@ class ActivityDetail extends Component
     
     // State management
     public $currentState = 'NOT_SUBMITTED'; // NOT_SUBMITTED, SUBMITTING, SUBMITTED
+
+    protected function validationAttributes()
+    {
+        return [
+            'fileUpload' => 'file',
+            'onlineText' => 'text submission',
+        ];
+    }
 
     public function mount(Course $course, Assignment $assignment)
     {
@@ -80,14 +107,37 @@ class ActivityDetail extends Component
         $this->currentState = 'SUBMITTING';
     }
 
+    public function cancelSubmission()
+    {
+        // Reset form fields
+        $this->fileUpload = null;
+        $this->onlineText = $this->submission->instruction ?? '';
+        
+        // Go back to appropriate state
+        $this->currentState = $this->submission ? 'SUBMITTED' : 'NOT_SUBMITTED';
+    }
+
+    public function removeFile()
+    {
+        $this->fileUpload = null;
+    }
+
     public function updatedFileUpload()
     {
-        // Validate file size immediately when file is selected
+        // Validate file size and type immediately when file is selected
         if ($this->fileUpload) {
+            $maxSizeKB = $this->assignment->max_file_size;
+            
             $this->validateOnly('fileUpload', [
-                'fileUpload' => 'file|max:' . $this->assignment->max_file_size,
+                'fileUpload' => [
+                    'required',
+                    'file',
+                    'max:' . $maxSizeKB,
+                    'mimes:' . self::ALLOWED_EXTENSIONS,
+                ],
             ], [
-                'fileUpload.max' => 'File size must not exceed ' . $this->formatFileSize($this->assignment->max_file_size) . '.',
+                'fileUpload.max' => 'The file size must not exceed ' . $this->formatFileSize($maxSizeKB) . '. Your file is ' . $this->formatFileSize($this->fileUpload->getSize() / 1024) . '.',
+                'fileUpload.mimes' => 'Invalid file type. Allowed types: PDF, Word, Excel, PowerPoint, Text, Images (JPG, PNG), and ZIP files.',
             ]);
         }
     }
@@ -101,13 +151,16 @@ class ActivityDetail extends Component
         }
 
         // Dynamic validation based on assignment type
+        $maxSizeKB = $this->assignment->max_file_size;
+        
         if ($this->assignment->filetype_allowed && $this->assignment->text_allowed) {
             // Both allowed - at least one required
             $this->validate([
-                'fileUpload' => 'nullable|file|max:' . $this->assignment->max_file_size,
+                'fileUpload' => 'nullable|file|max:' . $maxSizeKB . '|mimes:' . self::ALLOWED_EXTENSIONS,
                 'onlineText' => 'nullable|string|min:10',
             ], [
-                'fileUpload.max' => 'File size must not exceed ' . $this->formatFileSize($this->assignment->max_file_size) . '.',
+                'fileUpload.max' => 'The file size must not exceed ' . $this->formatFileSize($maxSizeKB) . '.',
+                'fileUpload.mimes' => 'Invalid file type. Allowed: PDF, Word, Excel, PowerPoint, Text, Images, ZIP.',
                 'onlineText.min' => 'Text submission must be at least 10 characters.',
             ]);
 
@@ -119,10 +172,11 @@ class ActivityDetail extends Component
         } elseif ($this->assignment->filetype_allowed) {
             // File submission required
             $this->validate([
-                'fileUpload' => 'required|file|max:' . $this->assignment->max_file_size,
+                'fileUpload' => 'required|file|max:' . $maxSizeKB . '|mimes:' . self::ALLOWED_EXTENSIONS,
             ], [
                 'fileUpload.required' => 'Please upload a file for this assignment.',
-                'fileUpload.max' => 'File size must not exceed ' . $this->formatFileSize($this->assignment->max_file_size) . '.',
+                'fileUpload.max' => 'The file size must not exceed ' . $this->formatFileSize($maxSizeKB) . '.',
+                'fileUpload.mimes' => 'Invalid file type. Allowed: PDF, Word, Excel, PowerPoint, Text, Images (JPG, PNG), ZIP.',
             ]);
         } elseif ($this->assignment->text_allowed) {
             // Text submission required
@@ -165,11 +219,19 @@ class ActivityDetail extends Component
         }
 
         $this->currentState = 'SUBMITTED';
-        session()->flash('success', 'Assignment submitted successfully!');
+        $this->dispatch('swal', [
+            'icon' => 'success',
+            'title' => 'Success!',
+            'text' => 'Assignment submitted successfully!'
+        ]);
     }
 
     public function editSubmission()
     {
+        if ($this->isPastDue) {
+            session()->flash('error', 'This assignment is past the due date. You cannot edit your submission.');
+            return;
+        }
         $this->currentState = 'SUBMITTING';
     }
 
@@ -187,7 +249,11 @@ class ActivityDetail extends Component
             $this->fileUpload = null;
             $this->currentState = 'NOT_SUBMITTED';
             
-            session()->flash('success', 'Submission removed successfully!');
+            $this->dispatch('swal', [
+                'icon' => 'success',
+                'title' => 'Removed!',
+                'text' => 'Submission removed successfully!'
+            ]);
         }
     }
 

@@ -38,6 +38,6 @@ class EditProfile extends Component
     public function render()
     {
         return view('livewire.learner.edit-profile')
-            ->layout('layouts.layout');
+            ->layout('layouts.learner-layout');
     }
 }

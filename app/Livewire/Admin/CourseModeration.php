@@ -5,19 +5,58 @@ namespace App\Livewire\Admin;
 use Livewire\Component;
 use App\Models\Course;
 use App\Models\Module;
+use App\Models\CourseFeedback;
+use App\Models\ImplementorFeedback;
 
 class CourseModeration extends Component
 {
     public $course;
     public $modules;
+    public $courseFeedbackStats = [];
+public $implementorFeedbackStats = [];
 
-    public function mount($id)
-    {
-        // Load course with its modules and implementer
-        $this->course = Course::with(['modules', 'implementer'])->findOrFail($id);
 
-        $this->refreshModules();
-    }
+
+public function mount($id)
+{
+    $this->course = Course::with(['modules','implementer'])->findOrFail($id);
+
+    $this->refreshModules();
+    $this->loadFeedbackStats();
+}
+private function loadFeedbackStats()
+{
+    $courseFeedbacks = CourseFeedback::where('course_id', $this->course->id)->get();
+    $implementorFeedbacks = ImplementorFeedback::where('course_id', $this->course->id)->get();
+
+    $this->courseFeedbackStats = [
+        'averages' => [
+            // MUST match Eval Stats controller
+            'overall' => round(
+                $courseFeedbacks->avg('achievement_rating') ?? 0,
+                1
+            ),
+        ],
+    ];
+
+    $this->implementorFeedbackStats = [
+        'averages' => [
+            'teaching_effectiveness' => round(
+                $implementorFeedbacks->avg('teaching_effectiveness_rating') ?? 0,
+                1
+            ),
+        ],
+    ];
+}
+
+
+public function getActiveEnrolleesCountProperty()
+{
+    return $this->course->enrolleeRecords()
+                ->where('status', 'active') // or ->where('is_active', 1) depending on your schema
+                ->count();
+}
+
 
     public function approveModule($moduleId)
     {

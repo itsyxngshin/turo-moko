@@ -1,4 +1,4 @@
-<div class="px-6 py-6 max-w-full" wire:poll.20s="refreshData">
+<div class="px-6 py-0 max-w-full" wire:poll.20s="refreshData">
     @php
         $activityCollection = collect($activities);
         $studentCollection = collect($students);
@@ -6,7 +6,35 @@
         $courseName = $course->name ?? $course->course_title ?? '--';
     @endphp
 
+    <!-- Back to Course Button -->
+    <div class="mb-4">
+        <a href="{{ route('implementor.course-information', $course->course_code) }}" 
+           class="inline-flex items-center text-gray-600 hover:text-gray-900 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Course
+        </a>
+    </div>
+
     <h2 class="text-2xl font-bold mb-6">{{ $courseName }} — Grades</h2>
+    
+    <div class="flex justify-between items-center px-4 pb-3 border-b">
+    <p class="font-semibold text-gray-700">Grade Sheet</p>
+
+    <button
+        wire:click="downloadGradesCsv"
+        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold
+               bg-black text-white rounded-lg hover:bg-gray-800 transition">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
+             viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16"/>
+        </svg>
+        Download CSV
+    </button>
+</div>
+
 
     <div class="overflow-x-auto scrollbar-hide bg-white rounded-2xl shadow-sm border">
         @if ($activityCollection->isEmpty())
@@ -26,9 +54,10 @@
                         </th>
 
                         @foreach ($activityCollection as $activity)
-                            <th class="px-6 py-4 text-center font-semibold whitespace-nowrap w-32">
+                            <th class="px-4 py-3 text-center font-semibold w-32 break-words whitespace-normal leading-snug">
                                 {{ $activity['label'] }}
                             </th>
+
                         @endforeach
 
                         <th class="px-6 py-4 text-center font-semibold w-32">Final Grade</th>
@@ -120,3 +149,15 @@
     }
     </style>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    @if(session('swal'))
+        Swal.fire({
+            icon: '{{ session('swal.icon') }}',
+            title: '{{ session('swal.title') }}',
+            text: '{{ session('swal.text') }}',
+            confirmButtonColor: '#000000'
+        });
+    @endif
+</script>

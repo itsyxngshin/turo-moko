@@ -9,14 +9,14 @@
 
        
        <!-- Header -->
-<div class="relative h-56 bg-cover bg-center rounded-lg overflow-hidden" 
+<div class="relative h-48 sm:h-56 md:h-64 bg-cover bg-center rounded-lg overflow-hidden"
      style="background-image: url('{{ $course->activeCoverPhoto
         ? asset('storage/' . $course->activeCoverPhoto->path)
         : asset('storage/implementor/course/thumbnail.jpg') }}');">
 
     <!-- Back Button (Always in front) -->
-    <button 
-        onclick="history.back()" 
+    <a 
+        href="{{ route('learner.classes') }}" 
         class="absolute top-4 left-4 flex items-center gap-2 text-white px-3 py-2 hover:bg-opacity-50 font-semibold z-50 group overflow-hidden"
     >
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -25,7 +25,7 @@
         <span class="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
             Back
         </span>
-    </button>
+    </a>
 
 
     <!-- Course Cover -->
@@ -74,39 +74,59 @@
                     </div>
                 </div>
 
-                <!-- Centered Title + Description -->
-                <div class="text-center">
-                    <h2 class="text-[30px] font-bold mt-2 mb-2">Course Introduction</h2>
-                    <p class=" mb-5">{{ $course->background ?? '--' }}</p>              
-                
-                </div>
-            </div>
+<div class="px-4 sm:px-6 md:px-9 py-4 sm:py-6 rounded-lg my-4 md:my-6 border shadow-sm bg-white">
+    <div class="text-center">
+        <h2 class="text-2xl sm:text-3xl font-bold mt-2 mb-2">Course Introduction</h2>
+        <p class="mb-4 sm:mb-5 text-sm sm:text-base">{{ $course->background ?? '--' }}</p>              
+    </div>
+</div>
             
 
-            <!-- Module -->
+            <!-- Course Timeline (Ordered by drag-and-drop) -->
             <div class="space-y-4">
-                @foreach ($modules as $module)
+                @foreach ($timeline as $item)
+                    @switch($item['type'])
+                        @case('section_header')
+                            @php $section = $item['data']; @endphp
+                            <!-- Section Header (Read-only) -->
+                            <div class="mb-6 mt-8">
+    <div class="py-6 px-4 rounded-r-lg bg-gradient-to-r from-orange-50 to-white/50 border border-gray/30 border-l-4 border-l-orange-500 shadow-sm transform-gpu backdrop-blur-sm">
+        <h3 class="text-2xl font-bold text-orange-500 text-center">
+            {{ $section->title }}
+        </h3>
+    </div>
+</div>
+
+                            @break
+
+                        @case('module')
+                            @php $module = $item['data']; @endphp
 <div x-data="{ open: false }" x-cloak x-transition class="mb-4">
 
-    <!-- Clickable Module Card -->
-    <button 
-        class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer"
-        @click="open = true"
-    >
-        <div class="m-auto">
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" class="ml-5 mr-10 mb-2" viewBox="0 0 24 24" fill="#ef5350">
+ <button class="bg-white w-full flex flex-col sm:flex-row items-center sm:items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer" @click="open = true">
+    
+    <!-- Icon -->
+    <div class="flex-shrink-0 mb-3 sm:mb-0 sm:mr-4 flex justify-center w-full sm:w-auto">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" class="ml-5 mr-10 mb-2" viewBox="0 0 24 24" fill="#ef5350">
                 <path d="M13 9h5.5L13 3.5zM6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2m4.93 10.44c.41.9.93 1.64 1.53 2.15l.41.32c-.87.16-2.07.44-3.34.93l-.11.04l.5-1.04c.45-.87.78-1.66 1.01-2.4m6.48 3.81c.18-.18.27-.41.28-.66c.03-.2-.02-.39-.12-.55c-.29-.47-1.04-.69-2.28-.69l-1.29.07l-.87-.58c-.63-.52-1.2-1.43-1.6-2.56l.04-.14c.33-1.33.64-2.94-.02-3.6a.85.85 0 0 0-.61-.24h-.24c-.37 0-.7.39-.79.77c-.37 1.33-.15 2.06.22 3.27v.01c-.25.88-.57 1.9-1.08 2.93l-.96 1.8l-.89.49c-1.2.75-1.77 1.59-1.88 2.12c-.04.19-.02.36.05.54l.03.05l.48.31l.44.11c.81 0 1.73-.95 2.97-3.07l.18-.07c1.03-.33 2.31-.56 4.03-.75c1.03.51 2.24.74 3 .74c.44 0 .74-.11.91-.3m-.41-.71l.09.11c-.01.1-.04.11-.09.13h-.04l-.19.02c-.46 0-1.17-.19-1.9-.51c.09-.1.13-.1.23-.1c1.4 0 1.8.25 1.9.35M7.83 17c-.65 1.19-1.24 1.85-1.69 2c.05-.38.5-1.04 1.21-1.69zm3.02-6.91c-.23-.9-.24-1.63-.07-2.05l.07-.12l.15.05c.17.24.19.56.09 1.1l-.03.16l-.16.82z"/>
             </svg>
-        </div>
-        <div class="flex-1 text-left">
-            <h3 class="font-semibold">Module  {{$module->module_number}}: {{ $module->module_title }}</h3>
-            <span class="text-sm text-gray-400">{{ $module->created_at->diffForHumans() }}</span>
-        </div>
-        <div class="m-auto">
-            <span class="text-sm text-gray-400">{{ $module->created_at->format('F j, Y') }}</span>
-        </div>
-        
-    </button>
+    </div>
+
+    <!-- Text Content -->
+    <div class="flex-1 text-center sm:text-left">
+        <h3 class="font-semibold">Module {{ $module->module_number }}: {{ $module->module_title }}</h3>
+        <span class="text-sm text-gray-400 block mt-1 sm:mt-0">
+            {{ $module->created_at->diffForHumans() }}
+        </span>
+    </div>
+
+    <!-- Date on right for larger screens -->
+    <div class="mt-2 sm:mt-0 sm:ml-4 flex-shrink-0 text-center sm:text-right w-full sm:w-auto">
+        <span class="text-sm text-gray-400">{{ $module->created_at->format('F j, Y') }}</span>
+    </div>
+</button>
+
+
 
     <!-- Module Modal -->
     <div 
@@ -115,7 +135,8 @@
         x-transition
         class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
     >
-        <div class="bg-white rounded-lg w-11/12 md:w-2/3 max-h-[90vh] overflow-auto p-6 relative">
+        <div class="bg-white rounded-lg w-full sm:w-11/12 md:w-2/3 max-h-[90vh] overflow-auto p-4 sm:p-6 relative">
+
 
             <!-- Modal Header -->
             <div class="flex justify-between items-center border-b pb-2">
@@ -151,36 +172,49 @@
                                 $isExcel = in_array($ext, ['xls','xlsx']);
                             @endphp
 
-                            <a href="{{ $fileUrl }}" target="_blank" class="flex flex-col items-center justify-center w-40 h-full border rounded-md p-2 hover:bg-gray-100">
-                                @if($isImage)
-                                    <img src="{{ $fileUrl }}" class="w-24 h-24 object-cover rounded-md border mb-1">
-                                @elseif($isPDF)
-                                    <canvas class="w-24 h-24 mb-1 pdf-thumbnail" data-pdf="{{ $fileUrl }}"></canvas>
-                                @elseif($isVideo)
-                                    <video class="w-24 h-24 object-cover rounded-md border mb-1" muted>
-                                        <source src="{{ $fileUrl }}" type="video/{{ $ext }}">
-                                    </video>
-                                @elseif($isWord)
-                                    <div class="flex flex-col items-center justify-center w-24 h-24 border rounded-md p-2 mb-1 text-center">
-                                        <span class="text-4xl">📄</span>
-                                        <p class="text-xs mt-1">Word</p>
+                            <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <a href="{{ $fileUrl }}" target="_blank" class="flex items-center space-x-3 hover:opacity-80 transition">
+                                            @if($isImage)
+                                                <img src="{{ $fileUrl }}" class="w-12 h-12 object-cover rounded-md border">
+                                            @elseif($isPDF)
+                                                <div class="flex items-center justify-center w-12 h-12 bg-red-100 rounded-md">
+                                                    <span class="text-2xl">📕</span>
+                                                </div>
+                                            @elseif($isVideo)
+                                                <div class="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-md">
+                                                    <span class="text-2xl">🎞️</span>
+                                                </div>
+                                            @elseif($isWord)
+                                                <div class="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-md">
+                                                    <span class="text-2xl">📄</span>
+                                                </div>
+                                            @elseif($isExcel)
+                                                <div class="flex items-center justify-center w-12 h-12 bg-green-100 rounded-md">
+                                                    <span class="text-2xl">📊</span>
+                                                </div>
+                                            @else
+                                                <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-md">
+                                                    <span class="text-2xl">📄</span>
+                                                </div>
+                                            @endif
+                                            <div>
+                                                <p class="text-sm font-semibold text-blue-900">Module Materials</p>
+                                                <p class="text-sm text-blue-700">{{ $module->lessons->attachments_original_name ?? basename($attachment) }}</p>
+                                            </div>
+                                        </a>
                                     </div>
-                                @elseif($isExcel)
-                                    <div class="flex flex-col items-center justify-center w-24 h-24 border rounded-md p-2 mb-1 text-center">
-                                        <span class="text-4xl">📊</span>
-                                        <p class="text-xs mt-1">Excel</p>
-                                    </div>
-                                @else
-                                    <div class="flex flex-col items-center justify-center w-24 h-24 border rounded-md p-2 mb-1 text-center">
-                                        <span class="text-4xl">📄</span>
-                                        <p class="text-xs mt-1">File</p>
-                                    </div>
-                                @endif
-
-                                <p class="text-xs text-center truncate w-full">
-                                    {{ $module->lessons->attachments_original_name ?? '-' }}
-                                </p>
-                            </a>
+                                    <a href="{{ $fileUrl }}" 
+                                       download="{{ $module->lessons->attachments_original_name ?? basename($attachment) }}"
+                                       class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition flex items-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                        </svg>
+                                        Download
+                                    </a>
+                                </div>
+                            </div>
                     
                         @endif
                     </div>
@@ -195,13 +229,13 @@
                     </div>
 
                 </div>
-                @endforeach
+                            @break
 
-                {{-- Assignments Section --}}
-                @foreach ($assignments as $assignment)
+                        @case('assignment')
+                            @php $assignment = $item['data']; @endphp
                 <a href="{{ route('learner.activity.show', ['course' => $course->course_code, 'assignment' => $assignment->id]) }}" 
-                   class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mb-4">
-                    <div class="m-auto">
+                  class="bg-white w-full flex flex-col sm:flex-row items-center sm:items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mb-4">
+                     <div class="flex-shrink-0 mb-3 sm:mb-0 sm:mr-4 flex justify-center w-full sm:w-auto">
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" class="ml-5 mr-10 mb-2" viewBox="0 0 24 24">
                             <g fill="none">
                                 <path fill="url(#assignment-gradient1-learner)" d="M4 6.25A2.25 2.25 0 0 1 6.25 4h11.5A2.25 2.25 0 0 1 20 6.25v13.5A2.25 2.25 0 0 1 17.75 22H6.25A2.25 2.25 0 0 1 4 19.75z"/>
@@ -249,13 +283,14 @@
                         @endif
                     </div>
                 </a>
-                @endforeach
+                            @break
 
-                {{-- Assessments/Quizzes Section --}}
-                @foreach ($quiz as $assessment)
+                        @case('quiz')
+                            @php $assessment = $item['data']; @endphp
                 <a href="{{ route('learner.assessment.show', $assessment) }}" 
-                   class="bg-white mt-5 w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer  mb-4">
-                    <div class="m-auto">
+                   class="bg-white mt-5 w-full flex flex-col sm:flex-row items-center sm:items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mb-4">
+    <!-- Icon -->
+    <div class="flex-shrink-0 mb-3 sm:mb-0 sm:mr-4 flex justify-center w-full sm:w-auto">
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" class="ml-5 mr-10 mb-2" viewBox="0 0 48 48">
                             <g fill="#F44336">
                                 <path d="M20 18.6L17.75 24h4.5z"/>
@@ -263,8 +298,8 @@
                             </g>
                         </svg>
                     </div>
-                    <div class="flex-1 text-left">
-                        <h3 class="font-semibold">{{ $assessment->quiz_title }}
+                     <div class="flex-1 text-center sm:text-left">
+        <h3 class="font-semibold">{{ $assessment->quiz_title }}
                             @if(($assessment->learner_status ?? 'Available') === 'Completed')
                                 <span class="ml-2 px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700">
                                     Completed
@@ -288,18 +323,19 @@
                         @endif
                     </div>
                 </a>
-                @endforeach
+                            @break
                
-                @foreach ($evaluations as $evaluation)
-                @php
-                    $evalCompleted = $evaluation->learner_completed ?? false;
-                    $badgeClasses = $evalCompleted ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700';
-                    $badgeLabel = $evaluation->learner_status ?? ($evalCompleted ? 'Completed' : 'Available');
-                @endphp
-                <button
-                    type="button"
-                    x-data
-                    class="bg-white w-full flex items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mb-4 {{ $evalCompleted ? 'opacity-80 cursor-default' : '' }}"
+                        @case('evaluation')
+                            @php 
+                                $evaluation = $item['data'];
+                                $evalCompleted = $evaluation->learner_completed ?? false;
+                                $badgeClasses = $evalCompleted ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700';
+                                $badgeLabel = $evaluation->learner_status ?? ($evalCompleted ? 'Completed' : 'Available');
+                            @endphp
+<button
+    type="button"
+    x-data
+    class="bg-white w-full flex flex-col sm:flex-row items-center sm:items-start p-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer mb-4 {{ $evalCompleted ? 'opacity-80 cursor-default' : '' }}"
                     @click.prevent="
                         if (!{{ $evalCompleted ? 'true' : 'false' }}) {
                             Livewire.dispatch('openFeedbackModal', { 
@@ -309,19 +345,19 @@
                         }
                     "
                 >
-                    <div class="m-auto">
+    <div class="flex-shrink-0 mb-3 sm:mb-0 sm:mr-4 flex justify-center w-full sm:w-auto">
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" class="ml-5 mr-10 mb-2" viewBox="0 0 24 24">
                             <path fill="#4285F4" d="M22 16a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4c0-1.11.89-2 2-2h12a2 2 0 0 1 2 2zm-6 4v2H4a2 2 0 0 1-2-2V7h2v13zm-3-6l7-7l-1.41-1.41L13 11.17L9.91 8.09L8.5 9.5z"/>
                         </svg>
                     </div>
-                    <div class="flex-1 text-left">
-                        <h3 class="font-semibold flex items-center gap-2">
+    <div class="flex-1 text-center sm:text-left">
+        <h3 class="font-semibold flex items-center justify-center sm:justify-start gap-2">
                             {{ $evaluation->title ?? $evaluation->description ?? 'Evaluation' }}
                             <span class="ml-1 px-2 py-1 text-xs rounded-full {{ $badgeClasses }}">
                                 {{ $badgeLabel }}
                             </span>
                         </h3>
-                        <span class="text-sm text-gray-400 block">
+                               <span class="text-sm text-gray-400 block mt-1 sm:mt-0">
                             {{ $evaluation->created_at?->diffForHumans() ?? '--' }}
                         </span>
                     </div>
@@ -331,26 +367,26 @@
                         @endif
                     </div>
                 </button>
-                @endforeach
+                            @break
 
-
-                @foreach($announcements as $announcement)
+                        @case('announcement')
+                            @php $announcement = $item['data']; @endphp
                 <div x-data="{ open:false }"
                     x-transition
                     x-cloak
                     class="mb-4">
                     <!-- Clickable announcement -->
                     <button 
-                        class="bg-white w-full flex items-start p-4 mt-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer"
+                         class="bg-white w-full flex flex-col sm:flex-row items-center sm:items-start p-4 mt-4 rounded-lg shadow hover:bg-gray-50 cursor-pointer"
                         @click="open = true"
                     >
-                        <div class=" m-auto">
+                        <div class="flex-shrink-0 mb-3 sm:mb-0 sm:mr-4 flex justify-center w-full sm:w-auto">
                             
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 ml-5 mr-10 text-blue-500 mb-2" viewBox="0 0 48 48" fill="currentColor"> <path fill-rule="evenodd" d="M33 18.535c1.163.348 2 .465 2 .465v-3h2a5 5 0 0 0 0-10h-5.764A5.236 5.236 0 0 0 26 11.236c0 4.518 4.348 6.506 7 7.299M40 11a3 3 0 0 1-3 3h-4v2.435a13 13 0 0 1-1.603-.667C29.414 14.774 28 13.36 28 11.236A3.236 3.236 0 0 1 31.236 8H37a3 3 0 0 1 3 3m-25.183 6.993A4.998 4.998 0 0 1 14.998 8h3.169A4.833 4.833 0 0 1 23 12.833c0 4.042-3.63 5.89-6 6.667c-1.148.376-2 .5-2 .5v-2zM17 16.071l-2.11-.076A2.998 2.998 0 0 1 14.997 10h3.169A2.833 2.833 0 0 1 21 12.833c0 1.915-1.217 3.17-2.924 4.06c-.36.188-.725.348-1.076.484zM28 24c0 2.21-1.79 4-4 4s-4-1.79-4-4s1.79-4 4-4s4 1.79 4 4m-2 0a1.999 1.999 0 1 1-4 0a1.999 1.999 0 1 1 4 0m-7 2c0 2.21-1.79 4-4 4s-4-1.79-4-4s1.79-4 4-4s4 1.79 4 4m-2 0a1.999 1.999 0 1 1-4 0a1.999 1.999 0 1 1 4 0M6 36.546C6 33.522 11.996 32 15 32c.585 0 1.284.058 2.03.173C18.371 31.19 20.827 30 24 30s5.629 1.19 6.971 2.173A13.6 13.6 0 0 1 33 32c3.004 0 9 1.523 9 4.545V42H6zm15.652-.523c.348.324.348.493.348.522V40H8v-3.455c0-.03 0-.198.348-.522c.363-.339.962-.7 1.776-1.03C11.756 34.333 13.75 34 15 34s3.244.333 4.876.993c.814.33 1.413.691 1.776 1.03m6.49-3.167A10.4 10.4 0 0 0 24 32c-1.656 0-3.064.386-4.141.856C22.074 33.6 24 34.832 24 36.546c0-1.714 1.926-2.945 4.142-3.69M40 36.546c0-.03 0-.199-.348-.523c-.363-.339-.962-.7-1.776-1.03C36.244 34.333 34.25 34 33 34s-3.244.333-4.876.993c-.814.33-1.413.691-1.776 1.03c-.348.324-.348.493-.348.522V40h14zM33 30c2.21 0 4-1.79 4-4s-1.79-4-4-4s-4 1.79-4 4s1.79 4 4 4m0-2a1.999 1.999 0 1 0 0-4a1.999 1.999 0 1 0 0 4" clip-rule="evenodd"/> </svg>
 
                         </div>
                         
-                        <div class="flex-1 text-left">
+                        <div class="flex-1 text-center sm:text-left">
                             <h3 class="font-semibold">{{ $announcement->title }}</h3>
                             <span class="text-sm text-gray-400">{{ $announcement->created_at->diffForHumans() }}</span>
                             
@@ -371,8 +407,8 @@
                         
                             <div class="flex border-b pb-2">
                               <img 
-                                    src="{{ $announcement->user?->photo?->photos
-                                            ? asset('storage/' . $announcement->user->photo->photos)
+                                    src="{{ $announcement->user?->profile?->photo?->photos
+                                            ? asset('storage/' . $announcement->user->profile->photo->photos)
                                             : asset('implementor/course/thumbnail.png') }}"
                                     class="w-10 h-10 rounded-full mt-1"
                                 />
@@ -463,11 +499,9 @@
         
     </div>
 </div>
-@endforeach
-
-                        
-                    
-
+                            @break
+                    @endswitch
+                @endforeach
 
 
             </div>

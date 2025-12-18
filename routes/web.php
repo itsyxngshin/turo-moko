@@ -1,4 +1,4 @@
-<?php
+    <?php
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
@@ -58,6 +58,7 @@ use App\Http\Controllers\Implementors\ImplementorAddAssignmentController;
 use App\Http\Controllers\Implementors\ImplementorEvaluationStatsController;
 use App\Http\Controllers\Learner\CourseController as LearnerCourseController;
 use App\Livewire\Implementors\AllCourses;
+use App\Http\Controllers\Implementors\CourseEnrollmentController;
 
 // Assessment Controllers (CRITICAL - DO NOT REMOVE)
 use App\Http\Controllers\AssessmentBuilderController;
@@ -81,6 +82,16 @@ use App\Livewire\Implementors\ProfileSpace;
 Route::get('/', function () {
     return view('welcome');
 })->name('homepage');
+
+
+// TEMPORARY: Clear cache route for Hostinger deployment
+Route::get('/clear-all-cache', function() {
+    \Artisan::call('cache:clear');
+    \Artisan::call('config:clear');
+    \Artisan::call('view:clear');
+    \Artisan::call('route:clear');
+    return 'Cache cleared successfully! You can now remove this route from web.php';
+});
 
 // TEMPORARY: Fake login route for testing
 Route::get('/fake-login', function() {
@@ -108,6 +119,14 @@ Route::middleware('guest')->group(function () {
     Route::get('/forgot-password', ForgetPassword::class)->name('auth.forget-password');
     Route::get('/reset-password/{token}', ResetPassword::class)->name('password.reset');
 });
+
+    // Show confirmation page
+Route::get('/courses/{course:course_code}/join', [CourseEnrollmentController::class, 'join'])
+    ->name('course.join');
+
+// Handle confirmation
+Route::post('/courses/{course:course_code}/enroll', [CourseEnrollmentController::class, 'confirmEnrollment'])
+    ->name('course.enroll.confirm');
 
 
 /*
@@ -167,7 +186,7 @@ Route::post('/course/{course}/enroll', [DashboardController::class, 'enroll'])
 
  
  // Livewire Viewsaction: 
-     Route::get('/profile', LearnerProfile::class)->name('profile');
+ Route::get('/profile', LearnerProfile::class)->name('profile');
     Route::get('/enrolled', fn() => view('livewire.learner.enrolled'))->name('enrolled');
     Route::get('/activity', fn() => view('livewire.learner.activities'))->name('activity');
     Route::get('/course', fn() => view('livewire.learner.course'))->name('course');
@@ -176,7 +195,7 @@ Route::post('/course/{course}/enroll', [DashboardController::class, 'enroll'])
     Route::get('/assessment', fn() => view('livewire.learner.assessment'))->name('assessment');
     Route::get('/evaluation', fn() => view('livewire.learner.evaluation'))->name('evaluation');
     Route::get('/settings', fn() => view('livewire.learner.settings'))->name('settings');
-    Route::get('/evaluation-status', fn() => view('livewire.learner.evaluation-status'))->name('evaluation-status');
+    Route::get('/evaluation-status', \App\Livewire\Learner\EvaluationStatus::class)->name('evaluation-status');
 
     // Dynamic Pages
     Route::get('/activity/{id}', function($id) {
@@ -196,12 +215,7 @@ Route::post('/course/{course}/enroll', [DashboardController::class, 'enroll'])
     Route::get('/assessment/{quiz}/result', [LearnerAssessmentController::class, 'result'])
         ->name('assessment.result');
 
-Route::get('/suggested-courses', function() {
-    $suggestedCourses = Course::latest()->get(); // Or add your filtering logic
-    return view('livewire.learner.show-all-courses', compact('suggestedCourses'));
-})->name('show-all-courses');
-
-
+    Route::get('/suggested-courses', \App\Livewire\Learner\ShowAllCourses::class)->name('show-all-courses');
 
 });
 
@@ -231,6 +245,7 @@ Route::middleware(['auth', 'role:implementor', 'verified'])
     Route::get('/course-information/{course:course_code}', [ImplementorCourseInformationController::class, 'show'])->name('course-information');
     Route::get('/course/{course:course_code}/grades', ImplementorCourseGrades::class)->name('course-grades');
     Route::get('/course/{course:course_code}/participants', CourseParticipants::class)->name('course-participants');
+    
 
     // --------------------------
     // Create / Store Courses
@@ -255,7 +270,12 @@ Route::middleware(['auth', 'role:implementor', 'verified'])
     // --------------------------
     Route::get('/create-announcement', [ImplementorAddAnnouncementController::class, 'show'])->name('add-announcement');
     Route::delete('/announcement/{course:course_code}', [ImplementorCourseInformationController::class, 'deleteAnnouncement'])->name('announcement.delete');
-
+    
+    // --------------------------
+    // Timeline Order
+    // --------------------------
+    Route::post('/course/{course:id}/reorder-timeline', [ImplementorCourseInformationController::class, 'reorderTimeline'])->name('course.reorder-timeline');
+    
     // --------------------------
     // Assessment Builder
     // --------------------------
@@ -310,6 +330,13 @@ Route::middleware(['auth', 'role:admin'])
     Route::get('/implementors', fn() => view('livewire.admin.implementors'))->name('implementors');
     Route::get('/enrollees', Enrollees::class)->name('enrollees');
     Route::get('/courses', fn() => view('livewire.admin.courses'))->name('courses');
+    
+    // Evaluation Statistics
+    Route::get('/course/{course:course_code}/evaluation-stats', [\App\Http\Controllers\Admin\AdminEvaluationStatsController::class, 'show'])
+        ->name('course.evaluation-stats');
+    // web.php
+
+
     
     // Moderation
  Route::get('/course-moderation/{id}', CourseModeration::class)

@@ -9,8 +9,10 @@ use App\Models\User;
 use App\Models\Profile;
 use App\Models\Photo;
 use App\Models\Log;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
+use App\Mail\VerificationCodeMail;
 use App\Mail\ImplementorCredentialsMail;
 
 class AddImplementor extends Component
@@ -58,10 +60,10 @@ class AddImplementor extends Component
 
     public function save()
     {
-        $this->resetAlert(); // Clear previous alerts
+        $this->resetAlert();
         
         $this->validate([
-            'photo' => 'nullable|image|max:1024',
+            'photo' => 'nullable|image|max:3072',
             'first_name' => 'required|string',
             'last_name' => 'required|string',
             'email' => 'required|email|unique:users,email|ends_with:@gmail.com,@turo-moko.com',
@@ -72,6 +74,9 @@ class AddImplementor extends Component
                 'regex:/[A-Z]/', 'regex:/[a-z]/', 'regex:/[0-9]/', 'regex:/[@$!%*#?&]/'
             ],
         ]);
+
+        // Start Transaction
+        DB::beginTransaction();
 
         try {
             $formattedPhone = '+63' . $this->phonenum;
@@ -103,11 +108,7 @@ class AddImplementor extends Component
                 'role_id' => 2,
             ]);
 
-            // 4. Mail & Log
-            Mail::to($this->email)->send(new ImplementorCredentialsMail(
-                $this->first_name, $this->username, $this->email, $this->password
-            ));
-
+            // 4. Log
             Log::create([
                 'user_id' => Auth::id(),
                 'action' => 'admin.create_implementor',
@@ -117,8 +118,19 @@ class AddImplementor extends Component
                 'properties' => ['created_user_id' => $user->id]
             ]);
 
+            // 5. Send Emails
+            // We do this LAST so if it fails, the catch block rolls back the User creation
+            Mail::to($this->email)->send(new ImplementorCredentialsMail(
+                $this->first_name, $this->username, $this->email, $this->password
+            ));
+            
+            $code = rand(100000, 999999); 
+            Mail::to($user->email)->send(new VerificationCodeMail($code));
+
+            // Commit Transaction (Save to DB permanently)
+            DB::commit();
+
             // SUCCESS STATE
-            // We clear the inputs so they can add another, but keep the modal open to show the success message
             $this->reset(['first_name', 'middle_name', 'last_name', 'phonenum', 'email', 'username', 'password', 'password_confirmation', 'photo']);
             
             $this->alert = [
@@ -128,15 +140,20 @@ class AddImplementor extends Component
             ];
 
             $this->dispatch('implementor-saved', message: "Implementor '{$this->username}' created successfully!");
-            $this->resetPage();
+            
+            // REMOVED: $this->resetPage(); 
+            // Reason: This causes an error if the component doesn't use WithPagination trait.
 
         } catch (\Exception $e) {
+            // Rollback Transaction (Undo DB changes if error occurred)
+            DB::rollBack();
+
             \Illuminate\Support\Facades\Log::error('Add Implementor Error: ' . $e->getMessage());
             
             $this->alert = [
                 'show' => true,
                 'type' => 'error',
-                'message' => 'Something went wrong. Please check your internet connection or input.'
+                'message' => 'Error: ' . $e->getMessage() // Showing message temporarily to help you debug
             ];
         }
     }

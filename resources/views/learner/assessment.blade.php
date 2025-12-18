@@ -1,8 +1,57 @@
-@extends('layouts.layout')
+<!DOCTYPE html>
+<html lang="en">
 
-@section('title', $quiz->quiz_title)
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+ <title>{{ $quiz->quiz_title }}</title>
+<link rel="icon" href="{{ asset('images/turo_moko_logo.png') }}" type="image/png">
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" as="style" onload="this.rel='stylesheet'">
 
-@section('content')
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Trix Editor -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/trix/2.0.0/trix.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/trix/2.0.0/trix.umd.min.js"></script>
+
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<!-- Alpine.js -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        html {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+
+<script>
+    tailwind.config = {
+        theme: {
+            extend: { fontFamily: { sans: ['Poppins', 'sans-serif'] } }
+        }
+    }
+</script>
+
+<style>
+    [x-cloak] { display: none !important; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+
+@livewireStyles
+</head>
+
+<body class="bg-white">
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
     [x-cloak] { display: none !important; }
 
@@ -143,6 +192,17 @@
                             ({{ $question['points'] }} {{ $question['points'] == 1 ? 'point' : 'points' }})
                         </span>
                     </div>
+
+                    {{-- Question Image (if available) --}}
+                    @if(!empty($question['image_path']))
+                        <div class="mb-4">
+                            <img 
+                                src="{{ $question['image_path'] }}" 
+                                alt="{{ $question['image_name'] ?? 'Question image' }}" 
+                                class="max-w-full sm:max-w-md max-h-64 rounded-lg border border-gray-200 shadow-sm"
+                            />
+                        </div>
+                    @endif
 
                     {{-- Question Types --}}
                     @if($question['type'] === 'multiple_choice')
@@ -296,7 +356,17 @@ document.addEventListener('alpine:init', () => {
         },
 
         async autoSubmit() {
-            alert('Time is up! Your assessment will be submitted automatically.');
+            await Swal.fire({
+                icon: 'warning',
+                title: 'Time is Up!',
+                text: 'Your assessment will be submitted automatically.',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#000000',
+                background: '#ffffff',
+                iconColor: '#000000',
+                timer: 3000,
+                timerProgressBar: true
+            });
             const form = this.$refs.assessmentForm;
             const event = form ? { target: form } : null;
             await this.submitAssessment(event);
@@ -359,8 +429,21 @@ document.addEventListener('alpine:init', () => {
 
             if (!form) return;
 
-            // Confirm submission
-            if (!confirm('Are you sure you want to submit your assessment? You cannot change your answers after submission.')) {
+            // Confirm submission with SweetAlert2
+            const result = await Swal.fire({
+                icon: 'warning',
+                title: 'Submit Assessment?',
+                text: 'Are you sure you want to submit your assessment? You cannot change your answers after submission.',
+                showCancelButton: true,
+                confirmButtonText: 'Submit',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#000000',
+                cancelButtonColor: '#6B7280',
+                background: '#ffffff',
+                iconColor: '#000000',
+            });
+
+            if (!result.isConfirmed) {
                 return;
             }
 
@@ -386,19 +469,43 @@ document.addEventListener('alpine:init', () => {
                 const data = await response.json();
 
                 if (data.success) {
-                    alert(data.message);
-                    window.location.href = data.redirect_url;
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: data.message,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#000000',
+                        background: '#ffffff',
+                        iconColor: '#000000',
+                    }).then(() => {
+                        window.location.href = data.redirect_url;
+                    });
                 } else {
-                    alert('Error: ' + data.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#000000',
+                        background: '#ffffff',
+                    });
                     this.submitting = false;
                 }
             } catch (error) {
                 console.error('Submission error:', error);
-                alert('An error occurred while submitting your assessment. Please try again.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while submitting your assessment. Please try again.',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#000000',
+                    background: '#ffffff',
+                });
                 this.submitting = false;
             }
         }
     }));
 });
 </script>
-@endsection
+</body>
+</html>

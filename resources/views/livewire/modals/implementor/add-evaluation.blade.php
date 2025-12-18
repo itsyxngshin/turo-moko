@@ -76,6 +76,18 @@ window.addEventListener('swal:evaluation-added', (event) => {
         location.reload();
     });
 });
+
+window.addEventListener('swal:evaluation-exists', (event) => {
+    const detail = event.detail[0] || event.detail;
+    Swal.fire({
+        icon: detail.icon || 'info',
+        title: detail.title || 'Info',
+        text: detail.text || '',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#3B82F6',
+        background: '#ffffff',
+    });
+});
 </script>
 
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>

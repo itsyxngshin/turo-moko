@@ -3,13 +3,13 @@
 namespace App\Livewire\Learner;
 
 use Livewire\WithFileUploads;
+use Livewire\Attributes\Computed; // ✅ Required for 504 Fix
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-use App\Models\Course;
 use App\Models\Photo; 
 use App\Models\WorkPortfolio;
-use App\Models\PortfolioSet; // Explicit import
+use App\Models\PortfolioSet;
 use App\Models\Engagement;
 use App\Models\Log; 
 
@@ -28,10 +28,6 @@ class Profile extends Component
     public $work_experiences = [];
     public $engagements_list = []; 
 
-    // Course Data
-    public $activeCourses; 
-    public $activeCoursesCount = 0;
-
     public function mount()
     {
         if (!Auth::check()) return redirect()->route('login');
@@ -39,7 +35,8 @@ class Profile extends Component
         // 1. Load User & Profile Data
         $this->user = User::with([
             'profile.portfolioSets.workPortfolio', 
-            'engagements'
+            'engagements',
+            'profile.photo' // ✅ Ensure photo is loaded initially
         ])->find(Auth::id());
         
         $this->active_engagement = $this->user->engagements->last();
@@ -54,11 +51,13 @@ class Profile extends Component
         // 3. Load Form Lists
         $this->loadWorkExperiences();
         $this->engagements_list = $this->user->engagements->toArray();
+    }
 
-        // ------------------------------------------------------------------
-        // [FETCH ACTIVE COURSES VIA PIVOT]
-        // ------------------------------------------------------------------
-        $this->activeCourses = $this->user->enrolledCourses()
+    // ✅ FIXED: Computed Property to solve 504 Timeout
+    #[Computed]
+    public function activeCourses()
+    {
+        return $this->user->enrolledCourses()
             ->wherePivot('status', 'Active') 
             ->with([
                 'activeCoverPhoto',       
@@ -66,9 +65,8 @@ class Profile extends Component
                 'implementer.profile'     
             ])
             ->orderByPivot('enrollment_date', 'desc') 
+            ->take(6) // ✅ Limit to 6 to prevent overload
             ->get();
-
-        $this->activeCoursesCount = $this->activeCourses->count();
     }
 
     public function loadWorkExperiences()
@@ -93,35 +91,27 @@ class Profile extends Component
 
     public function openEditModal()
     {
-        // 1. RELOAD USER FRESH (Critical Fix)
-        // We must re-fetch the user and relationships to ensure they aren't lost during Livewire updates
+        // ✅ FIXED: Reload User with ALL relationships (especially profile.photo)
         $this->user = User::with([
             'profile.portfolioSets.workPortfolio', 
-            'engagements'
+            'engagements',
+            'profile.photo' 
         ])->find(Auth::id());
 
-        // 2. Safety Check
         if (!$this->user || !$this->user->profile) {
-            $this->dispatch('swal', [
-                'icon' => 'error',
-                'title' => 'Error',
-                'text' => 'Profile not found.'
-            ]);
+            $this->dispatch('swal', ['icon' => 'error', 'title' => 'Error', 'text' => 'Profile not found.']);
             return;
         }
 
-        // 3. Assign Data
+        // Re-sync data
         $this->first_name = $this->user->profile->first_name;
         $this->last_name = $this->user->profile->last_name;
         $this->middle_name = $this->user->profile->middle_name;
         $this->username = $this->user->username;
         $this->email = $this->user->email;
-
-        // 4. Load Lists
         $this->loadWorkExperiences();
         $this->engagements_list = $this->user->engagements->toArray();
-
-        // 5. Open Modal
+        
         $this->showEditModal = true;
     }
 
@@ -138,34 +128,27 @@ class Profile extends Component
         ];
     }
 
-    // ==========================================================
-    // FIX APPLIED HERE: Delete Child (Set) before Parent (Work)
-    // ==========================================================
+    // ✅ FIXED: Delete Logic (Child before Parent)
     public function removeWorkExperience($index)
     {
         $item = $this->work_experiences[$index];
         
-        // Check if it's an existing database record
         if (!empty($item['portfolio_set_id'])) {
-            
             $set = PortfolioSet::find($item['portfolio_set_id']);
             
             if ($set) {
-                // 1. Capture the Work Portfolio ID first
                 $workPortfolioId = $set->work_portfolio_id;
                 
-                // 2. DELETE THE LINKING RECORD FIRST (The Child)
-                // This removes the foreign key constraint immediately.
+                // 1. Delete the LINK (PortfolioSet) first
                 $set->delete();
 
-                // 3. NOW DELETE THE PARENT RECORD (The Work Portfolio)
+                // 2. Delete the RECORD (WorkPortfolio) second
                 if ($workPortfolioId) {
                     WorkPortfolio::find($workPortfolioId)?->delete();
                 }
             }
         }
         
-        // Remove from local array to update UI
         unset($this->work_experiences[$index]);
         $this->work_experiences = array_values($this->work_experiences);
     }

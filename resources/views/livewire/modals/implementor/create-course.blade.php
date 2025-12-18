@@ -126,33 +126,57 @@
                         <div 
                             x-bind:class="dragging ? 'bg-gray-200' : 'bg-gray-50'"
                             class="relative mt-2 my-3 flex items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-lg p-4 cursor-pointer"
+                            :class="{'border-green-500 bg-green-50': imagePreview}"
                             @click="$refs.fileInput.click()"
                             @dragover.prevent="dragging = true"
                             @dragleave.prevent="dragging = false"
                             @drop.prevent="handleDrop($event)"
                         >
+                            <!-- Uploading State -->
+                            <div wire:loading wire:target="thumbnail" class="flex flex-col items-center justify-center space-y-2">
+                                <svg class="animate-spin h-12 w-12 text-orange-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span class="text-orange-500 text-sm font-medium">Uploading...</span>
+                            </div>
 
-                            <!-- Preview -->
-                            <template x-if="imagePreview">
-                                <div class="relative w-full h-40 flex items-center justify-center">
-                                    <img :src="imagePreview" class="w-full h-full object-cover rounded-lg">
-                                    <button 
-                                        @click.stop="removeImage(); $wire.clearThumbnail()" 
-                                        class="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-xl p-1 rounded-full shadow-md">
-                                        &times;
-                                    </button>
+                            <!-- Content (hidden during upload) -->
+                            <div wire:loading.remove wire:target="thumbnail" class="w-full">
+                                <!-- Preview with Success Indicator -->
+                                <template x-if="imagePreview">
+                                    <div class="flex flex-col items-center justify-center space-y-2">
+                                        <div class="relative w-full h-40 flex items-center justify-center">
+                                            <img :src="imagePreview" class="w-full h-full object-cover rounded-lg">
+                                        </div>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span class="text-green-600 text-sm font-medium">Photo uploaded successfully</span>
+                                        
+                                        <!-- Remove File Button -->
+                                        <button 
+                                            type="button"
+                                            @click.stop="removeImage(); $wire.clearThumbnail()" 
+                                            class="mt-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm rounded-lg transition">
+                                            Remove file
+                                        </button>
+                                    </div>
+                                </template>
 
-                                </div>
-                            </template>
-
-                            <!-- Placeholder -->
-                            <template x-if="!imagePreview">
-                                <div class="flex flex-col items-center">
-                                    <p class="mt-2 text-sm text-gray-600 text-center">
-                                        Drag & drop a photo or <span class="text-blue-500">click here to upload</span>
-                                    </p>
-                                </div>
-                            </template>
+                                <!-- Placeholder -->
+                                <template x-if="!imagePreview">
+                                    <div class="flex flex-col items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" class="text-gray-500">
+                                            <path fill="currentColor" d="M13 19c0 .7.13 1.37.35 2H5a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h14a2 2 0 0 1 2 2v8.35c-.63-.22-1.3-.35-2-.35V5H5v14zm.96-6.71l-2.75 3.54l-1.96-2.36L6.5 17h6.85c.4-1.12 1.12-2.09 2.05-2.79zM20 18v-3h-2v3h-3v2h3v3h2v-3h3v-2z"/>
+                                        </svg>
+                                        <p class="mt-2 text-sm text-gray-600 text-center">
+                                            Drag & drop a photo or <span class="text-blue-500">click here to upload</span>
+                                        </p>
+                                        <p class="text-xs text-gray-400 mt-1">PNG, JPG, JPEG (Max 2MB)</p>
+                                    </div>
+                                </template>
+                            </div>
                         </div>
 
                         <!-- Hidden File Input -->
@@ -225,7 +249,7 @@ window.addEventListener('course-saved', () => {
 window.addEventListener('swal:success', (event) => {
     Swal.fire({
         icon: 'success', // lowercase 'success' for a check icon
-            title: 'Succes!',
+            title: 'Success!',
             text: 'Course Updated Successfully!', // optional message passed from Livewire
             confirmButtonText: 'OK',
             confirmButtonColor: '#000000ff', // green button

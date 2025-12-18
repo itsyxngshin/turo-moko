@@ -13,12 +13,12 @@
             </div>
         </div>
 
-        <!-- Pending Activities -->
+        <!-- Pending Assignments -->
         <div class="bg-white shadow rounded-2xl p-4 sm:p-5 flex items-center gap-4 cursor-pointer hover:bg-gray-50"
             onclick="window.location='{{ route('learner.activities') }}'">
             <img src="https://img.icons8.com/fluency/48/000000/todo-list.png" class="w-10 h-10" alt="Pending">
             <div>
-                <p class="font-semibold text-base sm:text-lg">Pending activities</p>
+                <p class="font-semibold text-base sm:text-lg">Pending assignments</p>
                 <p class="text-gray-500 text-sm">{{ $pendingActivities }}</p>
             </div>
         </div>
@@ -75,7 +75,7 @@
         <!-- Header -->
         <div class="flex justify-between items-center mb-4 sm:mb-6">
             <h3 class="font-semibold text-lg sm:text-xl">Courses you’re taking</h3>
-            <button class="text-sm sm:text-base text-gray-500 hover:underline">View all</button>
+            <a href="{{ route('learner.courses.index') }}" class="text-sm sm:text-base text-gray-500 hover:underline">View all</a>
         </div>
 
         <!-- Cards -->
@@ -88,17 +88,15 @@
                             ? asset('storage/' . $course->activeCoverPhoto->path)
                             : asset('storage/implementor/course/thumbnail.jpg') }}"
                              class="w-full h-full object-cover rounded-t-2xl sm:rounded-l-2xl sm:rounded-tr-none">
-                        <p class="text-xs text-gray-400 mt-1 line-clamp-2 sm:line-clamp-3 px-2 sm:px-0">
-                            {{ $course->background ?? 'No description available.' }}
-                        </p>
+                        
                     </div>
 
                     <!-- Course Info -->
                     <div class="p-4 sm:p-6 flex flex-col justify-between w-full sm:w-1/2 h-full">
                         <div>
                             <h3 class="text-lg md:text-xl font-medium text-black">{{ $course->course_title ?? '--' }}</h3>
-                            <p class="mt-1 text-sm text-gray-600">Category: {{ $course->category->category_name ?? '--' }}</p>
-                            <p class="mt-1 text-sm text-gray-600">Instructor: <span class="font-bold">{{ $course->implementer->profile->first_name ?? '--' }}</span></p>
+                            <p class="mt-1 text-xs text-gray-600">Category: {{ $course->category->category_name ?? '--' }}</p>
+                            <p class="mt-1 text-xs text-gray-600">Instructor: <span class="font-bold">{{ $course->implementer->profile->first_name ?? '--' }}</span></p>
                             <p class="text-xs mt-1 text-gray-400 mb-1">
                                 {{ \Carbon\Carbon::parse($course->start_date)->format('M Y') ?? '' }} - 
                                 {{ \Carbon\Carbon::parse($course->end_date)->format('M Y') ?? '' }}

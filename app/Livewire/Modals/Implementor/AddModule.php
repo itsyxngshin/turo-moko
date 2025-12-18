@@ -16,8 +16,8 @@ class AddModule extends Component
     public $module_number;
     public $module_title;
     public $content;
-    public $attachments;
-    public $attachments_removed = false; // Flag for removed file
+    public $attachments;               // Current file upload
+    public $removeAttachment = false;  // For tracking removal in UI
 
     protected $listeners = ['refreshModuleList' => '$refresh'];
 
@@ -32,37 +32,43 @@ class AddModule extends Component
             $this->validate([
                 'module_number' => 'required|integer',
                 'module_title'  => 'required|string|max:255',
-                'content'       => 'required|string',
-                 'attachments'   => 'nullable|file|max:10240',
+                'content'       => 'nullable|string',
+                'attachments'   => 'nullable|file|max:10240',
             ]);
 
-            // Determine file path
-           $filePath = null;
-$originalName = null;
+            $filePath = null;
+            $originalName = null;
 
-if ($this->attachments) {
-    $filePath = $this->attachments->store('attachments', 'public'); 
-    $originalName = $this->attachments->getClientOriginalName();
-}
+            if ($this->attachments && !$this->removeAttachment) {
+                $filePath = $this->attachments->store('attachments', 'public');
+                $originalName = $this->attachments->getClientOriginalName();
+            }
 
+            // Get the next order number across ALL timeline items
+            $maxOrder = max(
+                Module::where('course_id', $this->courseId)->max('order') ?? 0,
+                \App\Models\Assignment::where('course_id', $this->courseId)->max('order') ?? 0,
+                \App\Models\Quiz::where('course_id', $this->courseId)->max('order') ?? 0,
+                \App\Models\ProgramEvaluation::where('course_id', $this->courseId)->max('order') ?? 0,
+                \App\Models\Announcement::where('course_id', $this->courseId)->max('order') ?? 0,
+                \App\Models\SectionHeader::where('course_id', $this->courseId)->max('order') ?? 0
+            );
 
             // Create the module
             $module = Module::create([
                 'course_id'     => $this->courseId,
                 'module_number' => $this->module_number,
                 'module_title'  => $this->module_title,
-                
-    // Set module hidden for learners
+                'order'         => $maxOrder + 1,
             ]);
 
-            // Create lesson/content for this module
+            // Create the lesson/content
             Lesson::create([
                 'module_id'                 => $module->id,
                 'content'                   => $this->content,
                 'attachments'               => $filePath,
                 'attachments_original_name' => $originalName,
             ]);
-
 
             $this->resetForm();
 
@@ -73,14 +79,27 @@ if ($this->attachments) {
                 'text'  => 'Module & Lesson added successfully!',
             ]);
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Re-throw validation exceptions to show field-specific errors
+            throw $e;
         } catch (\Throwable $e) {
-             dd($e->getMessage());
+            $this->dispatch('swal:error', [
+                'title' => 'Error!',
+                'text'  => $e->getMessage(),
+            ]);
         }
     }
 
     public function resetForm()
     {
-        $this->reset(['module_number', 'module_title', 'content', 'attachments', 'attachments_removed']);
+        $this->reset([
+            'module_number',
+            'module_title',
+            'content',
+            'attachments',
+            'removeAttachment'
+        ]);
+
         $this->dispatch('reset-upload-box');
     }
 

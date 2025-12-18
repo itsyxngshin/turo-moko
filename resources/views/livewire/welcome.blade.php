@@ -30,7 +30,7 @@
             Community-based Education of Civil Society<br class="hidden md:block">
             Organizations in Albay
         </p>
-        <a href="#" class="inline-flex items-center gap-2 bg-white text-black font-semibold text-sm px-5 py-2 rounded-full hover:bg-gray-200 transition">
+        <a href="{{ route('auth.register') }}" class="inline-flex items-center gap-2 bg-white text-black font-semibold text-sm px-5 py-2 rounded-full hover:bg-gray-200 transition">
             Get Started <span class="text-orange-500">➔</span>
         </a>
         </div>

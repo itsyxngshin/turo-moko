@@ -1,13 +1,12 @@
 <div class="p-6 bg-white rounded-lg shadow-sm border border-gray-100 relative">
-    
+
     {{-- HEADER & SEARCH --}}
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-xl font-bold text-gray-800">Enrollees Management</h2>
-        
         <div class="relative w-64">
             <input wire:model.live.debounce.300ms="search" 
                    type="text" 
-                   placeholder="Search student or course..." 
+                   placeholder="Search student..." 
                    class="pl-10 pr-4 py-2 w-full border border-gray-200 rounded-full text-sm focus:outline-none focus:border-blue-500 transition">
             <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
         </div>
@@ -27,95 +26,59 @@
             <thead class="bg-gray-50 text-gray-600 uppercase text-xs font-semibold tracking-wide">
                 <tr>
                     <th class="px-6 py-3 rounded-tl-lg">Student</th>
-                    <th class="px-6 py-3">Course Enrolled</th>
-                    <th class="px-6 py-3">Date</th>
-                    <th class="px-6 py-3">Status</th>
-                    <th class="px-6 py-3 rounded-tr-lg text-right">Actions</th>
+                    <th class="px-6 py-3">Actions</th>
                 </tr>
             </thead>
 
             <tbody class="divide-y divide-gray-100 bg-white">
-                @forelse ($enrollees as $record)
-                    <tr class="hover:bg-gray-50 transition-colors">
+                @forelse ($enrolleesByStudent as $studentId => $records)
+                    @php
+                        $firstRecord = $records->first();
+                    @endphp
 
+                    <tr class="hover:bg-gray-50 transition-colors">
                         {{-- Student Column --}}
                         <td class="px-6 py-4 align-middle">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-full overflow-hidden border border-gray-200 flex-shrink-0 bg-gray-100">
-                                    @if($record->enrollee->profile && $record->enrollee->profile->photo)
-                                        <img src="{{ asset('storage/' . $record->enrollee->profile->photo->photos) }}" class="w-full h-full object-cover">
+                                    @if($firstRecord->enrollee->profile && $firstRecord->enrollee->profile->photo)
+                                        <img src="{{ asset('storage/' . $firstRecord->enrollee->profile->photo->photos) }}" class="w-full h-full object-cover">
                                     @else
-                                        <img src="https://ui-avatars.com/api/?name={{ urlencode($record->enrollee->profile->first_name ?? 'U') }}&background=random&color=fff" class="w-full h-full object-cover">
+                                        <img src="https://ui-avatars.com/api/?name={{ urlencode($firstRecord->enrollee->profile->first_name ?? 'U') }}&background=random&color=fff" class="w-full h-full object-cover">
                                     @endif
                                 </div>
                                 <div>
                                     <p class="text-sm font-bold text-gray-800">
-                                        {{ $record->enrollee->profile->first_name ?? '—' }} 
-                                        {{ $record->enrollee->profile->last_name ?? '' }}
+                                        {{ $firstRecord->enrollee->profile->first_name ?? '—' }} 
+                                        {{ $firstRecord->enrollee->profile->last_name ?? '' }}
                                     </p>
-                                    <p class="text-xs text-gray-400">{{ $record->enrollee->email }}</p>
+                                    <p class="text-xs text-gray-400">{{ $firstRecord->enrollee->email }}</p>
                                 </div>
                             </div>
                         </td>
 
-                        {{-- Course Column --}}
-                        <td class="px-6 py-4 text-sm font-medium text-gray-700">
-                            {{ $record->course->course_title ?? 'Unknown Course' }}
-                        </td>
-
-                        {{-- Date Column --}}
-                        <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
-                            {{ $record->enrollment_date ? \Carbon\Carbon::parse($record->enrollment_date)->format('M d, Y') : '—' }}
-                        </td>
-
-                        {{-- Status Column --}}
-                        <td class="px-6 py-4">
-                            @php
-                                $statusColors = [
-                                    'Active' => 'bg-green-100 text-green-700 border-green-200',
-                                    'Completed' => 'bg-blue-100 text-blue-700 border-blue-200',
-                                    'Dropped' => 'bg-red-100 text-red-700 border-red-200',
-                                ];
-                                $color = $statusColors[$record->status] ?? 'bg-gray-100 text-gray-700 border-gray-200';
-                            @endphp
-                            <span class="px-3 py-1 rounded-full text-xs font-bold border {{ $color }}">
-                                {{ $record->status }}
-                            </span>
-                        </td>
-
                         {{-- Actions Column --}}
-                        <td class="px-6 py-4 text-right whitespace-nowrap">
-                            
-                            {{-- EDIT BUTTON --}}
-                            <button wire:click="editEnrollee({{ $record->id }})" 
-                                    class="text-blue-500 hover:text-blue-700 hover:bg-blue-50 px-2 py-1.5 rounded transition mr-1" 
-                                    title="Edit Information">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                </svg>
-                            </button>
-
-                            {{-- DROP / UNDROP BUTTONS --}}
-                            @if($record->status !== 'Dropped')
-                                <button wire:click="confirmDrop({{ $record->id }})" 
-                                        class="text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1.5 rounded transition font-bold text-xs uppercase tracking-wide border border-transparent hover:border-red-200">
-                                    Drop
-                                </button>
-                            @else
-                                <button wire:click="confirmUndrop({{ $record->id }})" 
-                                        class="text-green-500 hover:text-green-700 hover:bg-green-50 px-3 py-1.5 rounded transition font-bold text-xs uppercase tracking-wide border border-transparent hover:border-green-200">
-                                    Restore
-                                </button>
-                            @endif
-                        </td>
+                       <td class="px-6 py-4 text-left whitespace-nowrap flex items-center gap-2">
+                        {{-- EDIT BUTTON --}}
+                        <button wire:click="editEnrollee({{ $firstRecord->id }})" 
+                                class="text-blue-500 hover:text-blue-700 hover:bg-blue-50 px-2 py-1.5 rounded transition mr-1 flex items-center gap-1" 
+                                title="Edit Information">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                        </button>
+                    
+                        {{-- VIEW COURSES BUTTON --}}
+                        <button wire:click="viewCourses({{ $firstRecord->enrollee->id }})"
+                                class="text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 px-3 py-1.5 rounded transition font-bold text-xs uppercase tracking-wide border border-transparent hover:border-indigo-200 ml-auto">
+                            View Courses
+                        </button>
+                    </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-gray-400">
-                            <div class="flex flex-col items-center gap-2">
-                                <svg class="w-10 h-10 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                                <span>No enrollment records found.</span>
-                            </div>
+                        <td colspan="2" class="px-6 py-12 text-center text-gray-400">
+                            No enrollment records found.
                         </td>
                     </tr>
                 @endforelse
@@ -123,9 +86,78 @@
         </table>
     </div>
 
+    {{-- PAGINATION --}}
     <div class="mt-4 px-2">
         {{ $enrollees->links() }}
     </div>
+
+    {{-- COURSE MODAL --}}
+    @if($showCoursesModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div class="bg-white rounded-lg shadow-xl w-11/12 md:w-2/3 lg:w-1/2 max-h-[80vh] overflow-y-auto">
+                <div class="flex justify-between items-center p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold">Courses of {{ $selectedStudentName }}</h3>
+                    <button wire:click="$set('showCoursesModal', false)" class="text-gray-400 hover:text-gray-600">&times;</button>
+                </div>
+
+                <div class="p-4">
+                    @if($selectedStudentCourses->isEmpty())
+                        <p class="text-gray-500 text-sm">No courses found.</p>
+                    @else
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-gray-50 text-gray-600 uppercase font-semibold text-xs tracking-wide">
+                                <tr>
+                                    <th class="px-4 py-2">Course</th>
+                                    <th class="px-4 py-2">Enrollment Date</th>
+                                    <th class="px-4 py-2">Status</th>
+                                    <th class="px-4 py-2 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                @foreach($selectedStudentCourses as $course)
+                                    @php
+                                        $statusColors = [
+                                            'Active' => 'bg-green-100 text-green-700 border-green-200',
+                                            'Completed' => 'bg-blue-100 text-blue-700 border-blue-200',
+                                            'Dropped' => 'bg-red-100 text-red-700 border-red-200',
+                                        ];
+                                        $color = $statusColors[$course->status ?? 'Active'] ?? 'bg-gray-100 text-gray-700 border-gray-200';
+                                    @endphp
+                                    <tr>
+                                        <td class="px-4 py-2">{{ $course->course->course_title ?? 'Unknown' }}</td>
+                                        <td class="px-4 py-2">{{ $course->enrollment_date ? \Carbon\Carbon::parse($course->enrollment_date)->format('M d, Y') : '—' }}</td>
+                                        <td class="px-4 py-2">
+                                            <span class="px-2 py-1 rounded-full text-xs font-bold border {{ $color }}">
+                                                {{ $course->status ?? '—' }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-2 text-right whitespace-nowrap">
+
+    {{-- DROP / UNDROP BUTTONS --}}
+    @if($course->status !== 'Dropped')
+        <button wire:click="confirmDrop({{ $course->id }})" 
+                class="text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1.5 rounded transition font-bold text-xs uppercase tracking-wide border border-transparent hover:border-red-200">
+            Drop
+        </button>
+    @else
+        <button wire:click="confirmUndrop({{ $course->id }})" 
+                class="text-green-500 hover:text-green-700 hover:bg-green-50 px-3 py-1.5 rounded transition font-bold text-xs uppercase tracking-wide border border-transparent hover:border-green-200">
+            Restore
+        </button>
+    @endif
+</td>
+
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @endif
+
+
 
     {{-- ======================== MODALS ======================== --}}
 

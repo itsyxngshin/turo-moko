@@ -5,7 +5,7 @@
     $initials = strtoupper(substr($profile->first_name ?? 'U', 0, 1) . substr($profile->last_name ?? '', 0, 1));
 @endphp
 
-<nav class="flex flex-col md:flex-row md:items-center justify-between w-full px-4 py-4 md:py-2 gap-2 pt-14 md:pt-2">
+<nav class="flex flex-col md:flex-row md:items-center justify-between w-full px-4 py-4 md:py-2 gap-2 md:pt-2 z-0 relative">
 
     {{-- TOP ROW: Profile + Greeting (left) & Notifications (right) --}}
     <div class="flex items-center justify-between w-full">
@@ -45,12 +45,10 @@
 
             {{-- Greeting --}}  
             <div class="flex flex-col justify-center leading-tight">
-                <h1 class="text-lg font-bold text-gray-800">
-                    Hello,
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-orange-600">
-                        {{ $profile->first_name ?? 'User' }}
-                    </span>!
-                </h1>
+<h1 class="text-lg font-bold text-gray-800">
+    Hello, <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-orange-600">{{ $profile->first_name ?? 'User' }}</span>!
+</h1>
+
 
                 <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                     {{ $user->role->role_name ?? 'Dashboard' }}
@@ -61,40 +59,6 @@
         {{-- RIGHT SIDE — Notifications --}}
         <div class="flex items-center gap-3">
             <livewire:partials.nav-notif class="flex-shrink-0" />
-        </div>
-    </div>
-
-    {{-- MOBILE SEARCH --}}
-    <div class="w-full mt-3 md:hidden">
-        <div class="relative w-full">
-            <input
-                wire:model.live.debounce.300ms="search"
-                type="text"
-                placeholder="Search..."
-                class="pl-4 pr-10 py-2 rounded-full border border-gray-200 text-sm w-full
-                       focus:outline-none focus:border-gray-400 focus:ring-0 transition placeholder-gray-400">
-
-            <svg class="w-4 h-4 text-gray-400 absolute right-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-        </div>
-    </div>
-
-    {{-- DESKTOP SEARCH --}}
-    <div class="hidden md:flex items-center gap-4 mt-2 md:mt-0">
-        <div class="relative w-72">
-            <input
-                wire:model.live.debounce.300ms="search"
-                type="text"
-                placeholder="Search tags, orgs, categories..."
-                class="pl-4 pr-10 py-2 rounded-full border border-gray-200 text-sm w-full
-                       focus:outline-none focus:border-gray-400 focus:ring-0 transition placeholder-gray-400">
-
-            <svg class="w-4 h-4 text-gray-400 absolute right-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
         </div>
     </div>
 

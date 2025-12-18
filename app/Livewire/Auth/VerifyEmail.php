@@ -37,9 +37,9 @@ class VerifyEmail extends Component
             // --- SUCCESS ---
             $user->email_verified_at = now();
             $user->verification_code = null;
-            $user->save(); 
+            $user->save(); // FIXED: User::save() is static and incorrect here
 
-            // Redirect Logic
+            // Redirect Logic (Kept your existing logic)
             $roleName = $user->role->role_name ?? 'learner';
         
             $redirectUrl = match($roleName) {

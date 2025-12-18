@@ -1,30 +1,24 @@
 <div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         [x-cloak] { display: none !important; }
+        .fullscreen-viewer { display: none; }
+        .fullscreen-viewer.active { display: flex; }
     </style>
 
     <main class="p-6">
-    <!-- Success/Error Alert -->
-    <div 
-        x-data="{ show: false, type: 'success', message: '' }"
-        @show-alert.window="
-            show = true;
-            type = $event.detail.type;
-            message = $event.detail.message;
-            setTimeout(() => show = false, 3000);
-        "
-        x-show="show"
-        x-transition
-        class="fixed top-20 right-4 z-50 px-6 py-3 rounded-lg shadow-lg"
-        :class="{
-            'bg-green-100 border border-green-400 text-green-700': type === 'success',
-            'bg-red-100 border border-red-400 text-red-700': type === 'error',
-            'bg-yellow-100 border border-yellow-400 text-yellow-700': type === 'warning'
-        }"
-        style="display: none;"
-    >
-        <p x-text="message"></p>
-    </div>
+    <!-- Back to Course Button -->
+    @if($course)
+        <div class="mb-4">
+            <a href="{{ route('implementor.course-information', $course->course_code) }}" 
+               class="inline-flex items-center text-gray-600 hover:text-gray-900 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to Course
+            </a>
+        </div>
+    @endif
 
     <!-- Header Section -->
     <div class="bg-white rounded-3xl border border-gray-200 shadow-sm py-6 px-8 mb-6">
@@ -117,10 +111,11 @@
                     </div>
                     <h3 class="text-2xl font-bold text-gray-900 mb-1">
                         @php
-                            $gradedSubs = array_filter($submissions, fn($s) => $s['grade'] !== '-');
-                            $avgGrade = count($gradedSubs) > 0 ? array_sum(array_map(fn($s) => $s['grade'], $gradedSubs)) / count($gradedSubs) : 0;
+                            // Only include students who actually submitted in the average
+                            $submittedGrades = array_filter($submissions, fn($s) => $s['has_submission'] && $s['grade'] !== '-');
+                            $avgGrade = count($submittedGrades) > 0 ? array_sum(array_map(fn($s) => $s['grade'], $submittedGrades)) / count($submittedGrades) : 0;
                         @endphp
-                        {{ count($gradedSubs) > 0 ? number_format($avgGrade, 1) : '-' }}
+                        {{ count($submittedGrades) > 0 ? number_format($avgGrade, 1) : '-' }}
                     </h3>
                     <p class="text-sm text-gray-500">Average Grade</p>
                 </div>
@@ -161,8 +156,37 @@
 
             <!-- Student Submissions Table -->
             <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                     <h2 class="text-lg font-semibold text-gray-900">Student Submissions</h2>
+                    
+                    <!-- Sort Toggle -->
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-600">Sort by:</span>
+                        <div class="inline-flex rounded-lg border border-gray-300 p-1 bg-gray-50">
+                            <button 
+                                wire:click="toggleSort('name')"
+                                class="px-3 py-1.5 text-sm font-medium rounded-md transition-colors {{ $sortBy === 'name' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900' }}"
+                            >
+                                <div class="flex items-center gap-1.5">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                                    </svg>
+                                    Name
+                                </div>
+                            </button>
+                            <button 
+                                wire:click="toggleSort('date')"
+                                class="px-3 py-1.5 text-sm font-medium rounded-md transition-colors {{ $sortBy === 'date' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900' }}"
+                            >
+                                <div class="flex items-center gap-1.5">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    Date
+                                </div>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 
                 @if(count($submissions) > 0)
@@ -201,8 +225,8 @@
                                             @endif
                                         </td>
                                         <td class="px-6 py-4">
-                                            <span class="font-semibold text-gray-900">
-                                                {{ $submission['grade'] !== '-' ? number_format($submission['grade'], 2) : '-' }}
+                                            <span class="font-semibold {{ $submission['grade'] === 0 && !$submission['has_submission'] ? 'text-red-600' : 'text-gray-900' }}">
+                                                {{ is_numeric($submission['grade']) ? number_format($submission['grade'], 2) : $submission['grade'] }}
                                             </span>
                                         </td>
                                         <td class="px-6 py-4">
@@ -250,12 +274,74 @@
 
     <!-- Grading Modal -->
     @if($showGradeModal && $selectedSubmission)
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" wire:key="grade-modal-{{ $submissionId }}">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+        <div wire:key="grade-modal-{{ $submissionId }}" x-data="{ isTransitioning: false }">
+            <!-- Modal Backdrop -->
+            <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <!-- Navigation Zones -->
+                @php
+                    $hasPrevious = false;
+                    $hasNext = false;
+                    $currentPosition = $currentSubmissionIndex + 1;
+                    $totalSubmissions = count(array_filter($submissions, fn($s) => $s['has_submission']));
+                    
+                    // Check if there's a previous submission
+                    for ($i = $currentSubmissionIndex - 1; $i >= 0; $i--) {
+                        if ($submissions[$i]['has_submission']) {
+                            $hasPrevious = true;
+                            break;
+                        }
+                    }
+                    
+                    // Check if there's a next submission
+                    for ($i = $currentSubmissionIndex + 1; $i < count($submissions); $i++) {
+                        if ($submissions[$i]['has_submission']) {
+                            $hasNext = true;
+                            break;
+                        }
+                    }
+                @endphp
+                
+                <!-- Left Navigation Zone -->
+                @if($hasPrevious)
+                    <div 
+                        wire:click="navigateToPrevious"
+                        class="absolute left-0 top-0 bottom-0 w-24 flex items-center justify-start pl-4 cursor-pointer group z-20 hover:bg-black hover:bg-opacity-10 transition-all"
+                        title="Previous submission"
+                    >
+                        <div class="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                @endif
+                
+                <!-- Right Navigation Zone -->
+                @if($hasNext)
+                    <div 
+                        wire:click="navigateToNext"
+                        class="absolute right-0 top-0 bottom-0 w-24 flex items-center justify-end pr-4 cursor-pointer group z-20 hover:bg-black hover:bg-opacity-10 transition-all"
+                        title="Next submission"
+                    >
+                        <div class="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                    </div>
+                @endif
+                
+                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto transition-all duration-300"
+                     :class="isTransitioning ? 'opacity-50 scale-95' : 'opacity-100 scale-100'">
                 <!-- Modal Header -->
                 <div class="flex justify-between items-center p-6 border-b sticky top-0 bg-white z-10 rounded-t-2xl">
-                    <div>
-                        <h2 class="text-xl font-bold text-gray-800">Grade Submission</h2>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3">
+                            <h2 class="text-xl font-bold text-gray-800">Grade Submission</h2>
+                            <span class="text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 font-medium">
+                                {{ $currentPosition }} of {{ $totalSubmissions }}
+                            </span>
+                        </div>
                         <p class="text-sm text-gray-600 mt-1">{{ $selectedSubmission['assignment_title'] }}</p>
                     </div>
                     <button 
@@ -308,30 +394,31 @@
                                     </svg>
                                     File Submission
                                 </h3>
-                                <div class="border border-gray-200 rounded-xl p-4 bg-white">
+                                
+                                <!-- File Info & Download -->
+                                <div class="border border-gray-200 rounded-xl p-4 bg-white mb-4">
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center gap-3">
-                                            <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <div class="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                 </svg>
                                             </div>
                                             <div>
                                                 <p class="font-medium text-gray-800">{{ $selectedSubmission['file_name'] }}</p>
-                                                <p class="text-xs text-gray-500">Click download to view file</p>
                                             </div>
                                         </div>
-                                        <a 
-                                            href="{{ $selectedSubmission['file_url'] }}" 
-                                            target="_blank"
-                                            download
-                                            class="px-4 py-2 bg-black text-white text-sm rounded-lg hover:bg-gray-800 transition flex items-center gap-2"
+                                        <button 
+                                            onclick="openFullScreenViewer()"
+                                            type="button"
+                                            class="px-4 py-2 bg-orange-500 text-white text-sm rounded-lg hover:bg-orange-600 transition flex items-center gap-2"
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
-                                            Download
-                                        </a>
+                                            View
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -373,22 +460,186 @@
                 </div>
 
                 <!-- Modal Footer -->
-                <div class="flex justify-end gap-3 p-6 border-t bg-gray-50 rounded-b-2xl">
-                    <button 
-                        wire:click="closeGradeModal" 
-                        class="px-6 py-3 border border-gray-300 rounded-xl hover:bg-gray-100 transition font-medium"
-                    >
-                        Cancel
-                    </button>
-                    <button 
-                        wire:click="saveGrade"
-                        class="px-6 py-3 bg-black text-white rounded-xl hover:bg-gray-800 transition font-medium"
-                    >
-                        Save Grade
-                    </button>
+                <div class="flex justify-between items-center p-6 border-t bg-gray-50 rounded-b-2xl">
+                    <!-- Navigation Buttons -->
+                    <div class="flex gap-2">
+                        @if($hasPrevious)
+                            <button 
+                                wire:click="navigateToPrevious"
+                                class="px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-100 transition font-medium flex items-center gap-2"
+                                title="Previous submission (Left Arrow)"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                                Previous
+                            </button>
+                        @endif
+                        
+                        @if($hasNext)
+                            <button 
+                                wire:click="navigateToNext"
+                                class="px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-100 transition font-medium flex items-center gap-2"
+                                title="Next submission (Right Arrow)"
+                            >
+                                Next
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        @endif
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="flex gap-3">
+                        <button 
+                            wire:click="closeGradeModal" 
+                            class="px-6 py-3 border border-gray-300 rounded-xl hover:bg-gray-100 transition font-medium"
+                        >
+                            Cancel
+                        </button>
+                        <button 
+                            wire:click="saveGrade"
+                            class="px-6 py-3 bg-black text-white rounded-xl hover:bg-gray-800 transition font-medium flex items-center gap-2"
+                        >
+                            Submit Grade
+                            @if($this->hasMoreUngradedSubmissions())
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                </svg>
+                            @endif
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+            <!-- Full Screen File Viewer (Google Drive style) -->
+            <div id="fullscreen-viewer" 
+                 class="fullscreen-viewer fixed inset-0 bg-black bg-opacity-70 z-[100] items-center justify-center p-4">
+                
+                <!-- Header Bar -->
+                <div class="absolute top-0 left-0 right-0 bg-orange-500 bg-opacity-90 backdrop-blur-sm p-4 flex items-center justify-between z-10 shadow-lg">
+                    <div class="flex items-center gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span class="text-white font-medium" x-text="fileName"></span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        @if($selectedSubmission['file_type'] !== 'pdf')
+                            <a 
+                                href="{{ $selectedSubmission['file_url'] ?? '#' }}" 
+                                download
+                                class="px-4 py-2 bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg transition flex items-center gap-2"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                                Download
+                            </a>
+                        @endif
+                        <button 
+                            onclick="closeFullScreenViewer()"
+                            type="button"
+                            class="w-10 h-10 flex items-center justify-center text-white hover:bg-white hover:bg-opacity-20 rounded-full transition"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- File Content -->
+                <div class="w-full h-full flex items-center justify-center pt-20 pb-8" onclick="event.stopPropagation()">
+                    @if($selectedSubmission['file_type'] === 'image')
+                        <!-- Image Preview -->
+                        <img 
+                            src="{{ $selectedSubmission['file_url'] }}" 
+                            alt="File preview" 
+                            class="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                        >
+                    @elseif($selectedSubmission['file_type'] === 'pdf')
+                        <!-- PDF Preview -->
+                        <iframe 
+                            src="{{ $selectedSubmission['file_url'] }}" 
+                            class="w-full h-full bg-white rounded-lg shadow-2xl"
+                            style="max-width: 1200px;"
+                        ></iframe>
+                    @elseif($selectedSubmission['file_type'] === 'text')
+                        <!-- Text File Preview -->
+                        <div class="bg-white rounded-lg shadow-2xl p-8 max-w-4xl w-full h-full overflow-auto">
+                            <pre class="text-sm text-gray-700 whitespace-pre-wrap font-mono">{{ $textFileContent ?? 'Unable to load file content' }}</pre>
+                        </div>
+                    @elseif($selectedSubmission['file_type'] === 'document')
+                        <!-- Document Preview -->
+                        <iframe 
+                            src="https://docs.google.com/viewer?url={{ urlencode(url($selectedSubmission['file_url'])) }}&embedded=true" 
+                            class="w-full h-full bg-white rounded-lg shadow-2xl"
+                            style="max-width: 1200px;"
+                        ></iframe>
+                    @endif
                 </div>
             </div>
         </div>
     @endif
     </main>
 </div>
+
+<script>
+    function openFullScreenViewer() {
+        const viewer = document.getElementById('fullscreen-viewer');
+        if (viewer) {
+            viewer.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeFullScreenViewer() {
+        const viewer = document.getElementById('fullscreen-viewer');
+        if (viewer) {
+            viewer.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+
+    // Close viewer when clicking outside content
+    document.addEventListener('click', function(e) {
+        const viewer = document.getElementById('fullscreen-viewer');
+        if (viewer && viewer.classList.contains('active')) {
+            if (e.target.id === 'fullscreen-viewer') {
+                closeFullScreenViewer();
+            }
+        }
+    });
+    
+    // Keyboard navigation for grading modal
+    document.addEventListener('keydown', function(e) {
+        // Only handle if grading modal is open (check if element exists)
+        const gradingModal = document.querySelector('[wire\\:key^="grade-modal-"]');
+        if (!gradingModal) return;
+        
+        if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            const prevBtn = gradingModal.querySelector('button[wire\\:click="navigateToPrevious"]');
+            if (prevBtn) prevBtn.click();
+        } else if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            const nextBtn = gradingModal.querySelector('button[wire\\:click="navigateToNext"]');
+            if (nextBtn) nextBtn.click();
+        } else if (e.key === 'Escape') {
+            const closeBtn = gradingModal.querySelector('button[wire\\:click="closeGradeModal"]');
+            if (closeBtn) closeBtn.click();
+        }
+    });
+
+    @if(session('swal'))
+        Swal.fire({
+            icon: '{{ session('swal.icon') }}',
+            title: '{{ session('swal.title') }}',
+            text: '{{ session('swal.text') }}',
+            confirmButtonColor: '#000000'
+        });
+    @endif
+</script>

@@ -60,18 +60,29 @@ class ShowAllCourses extends Component
         $suggestedCourses = Course::query()
             ->where('status', 'Active')
             ->where('visibility', 'Visible')
-            ->whereDoesntHave('enrollees', function ($query) use ($learnerId) {
-                $query->where('course_enrollees.enrollee_id', $learnerId);
+            ->whereDoesntHave('enrolleeRecords', function ($query) use ($learnerId) {
+                $query->where('enrollee_id', $learnerId)
+                      ->where('status', 'Active'); // Only exclude if actively enrolled
             })
             ->when($this->search, function ($query) {
-                $query->where('course_title', 'like', '%' . $this->search . '%')
-                      ->orWhere('subject', 'like', '%' . $this->search . '%');
+                $searchTerm = preg_quote($this->search, '/');
+                $query->where(function($q) use ($searchTerm) {
+                    $q->whereRaw('course_title REGEXP ?', ["[[:<:]]" . $searchTerm])
+                      ->orWhereRaw('course_code REGEXP ?', ["[[:<:]]" . $searchTerm])
+                      ->orWhereHas('category', function($categoryQuery) use ($searchTerm) {
+                          $categoryQuery->whereRaw('category_name REGEXP ?', ["[[:<:]]" . $searchTerm]);
+                      })
+                      ->orWhereHas('implementer.profile', function($implementerQuery) use ($searchTerm) {
+                          $implementerQuery->whereRaw('first_name REGEXP ?', ["[[:<:]]" . $searchTerm])
+                                          ->orWhereRaw('last_name REGEXP ?', ["[[:<:]]" . $searchTerm]);
+                      });
+                });
             })
             ->latest()
             ->get();
 
         return view('livewire.learner.show-all-courses', [
             'suggestedCourses' => $suggestedCourses,
-        ]);
+        ])->layout('layouts.layout')->title('Suggested Courses');
     }
 }

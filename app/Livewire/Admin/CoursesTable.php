@@ -120,7 +120,7 @@ class CoursesTable extends Component
             })
             // Optional: Sort so "Deleted" items might go to the bottom, or just standard date sort
             ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            ->paginate(7);
 
         return view('livewire.admin.courses-table', [
             'courses' => $courses,

@@ -60,28 +60,41 @@
                         ></textarea>
                     </div>
 
-                 <!-- File Upload -->
-<div x-data="fileUpload()" class="w-full text-left" x-on:reset-upload-box.window="resetFileUpload()">
+<!-- Upload Box Container -->
+<div x-data="fileUpload()" class="relative w-full text-left">
     <label class="text-black font-medium">Attachment</label>
 
     <!-- Upload Box -->
     <div 
-        :class="dragging ? 'bg-gray-100 z-50' : 'bg-gray-50 z-50'"
-        class="relative mt-2 my-3 flex flex-col items-center justify-center w-full min-h-[140px] border rounded-md border-gray-300 p-4 cursor-pointer"
+        :class="dragging ? 'bg-gray-100' : 'bg-gray-50'"
+        class="relative mt-2 my-3 w-full min-h-[140px] border rounded-md border-gray-300 p-4 cursor-pointer flex items-center justify-center"
         @click="$refs.fileInput.click()"
         @dragover.prevent="dragging = true"
         @dragleave.prevent="dragging = false"
         @drop.prevent="handleDrop($event)"
     >
+
+        <!-- Uploading Overlay -->
+        <div x-show="uploading" class="absolute inset-0 bg-gray-100 flex items-center justify-center z-50 rounded-md">
+    <div class="flex flex-col items-center justify-center">
+        <svg class="animate-spin h-16 w-16 text-orange-500 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span class="text-orange-500 font-medium">Uploading...</span>
+    </div>
+</div>
+
+
         <!-- Preview -->
-        <div x-show="filePreview" class="flex flex-col items-center text-gray-600">
+        <div x-show="filePreview" class="flex flex-col items-center text-gray-600 z-10">
             <span class="text-4xl" x-text="fileIcon"></span>
             <p class="text-sm mt-2 break-all" x-text="fileName"></p>
-            <button @click.stop="removeFile" class="mt-2 text-red-500 underline text-sm">Remove</button>
+            <button type="button" @click.stop="removeFile" class="mt-2 text-red-500 underline text-sm">Remove</button>
         </div>
 
         <!-- Placeholder -->
-        <div x-show="!filePreview" class="flex flex-col items-center text-gray-600">
+        <div x-show="!filePreview" class="flex flex-col items-center text-gray-600 z-10">
             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24">
                 <path fill="#4b5563" d="M23 18h-3v-3h-2v3h-3v2h3v3h2v-3h3M6 2a2 2 0 0 0-2 2v16c0 1.11.89 2 2 2h7.81c-.36-.62-.61-1.3-.73-2H6V4h7v5h5v4.08c.33-.05.67-.08 1-.08c.34 0 .67.03 1 .08V8l-6-6M8 12v2h8v-2m-8 4v2h5v-2Z"/>
             </svg>
@@ -94,118 +107,160 @@
     <!-- Hidden File Input -->
     <input 
         type="file" 
-        wire:model="attachment"
+        wire:model="attachments"
         x-ref="fileInput"
         hidden
         @change="showPreview($event)"
         accept="image/*,video/*,.pdf,.doc,.docx"
-    >
-
-    @error('attachment') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+    />
 </div>
-
-<script>
-document.addEventListener('alpine:init', () => {
-    Alpine.data('fileUpload', () => ({
-        dragging: false,
-        filePreview: false,
-        fileName: '',
-        fileIcon: '',
-
-        showPreview(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            this.filePreview = true;
-            this.fileName = file.name;
-
-            const ext = file.name.split('.').pop().toLowerCase();
-            if (['jpg','jpeg','png','gif','webp'].includes(ext)) this.fileIcon = '🖼️';
-            else if (['mp4','mov','avi','mkv'].includes(ext)) this.fileIcon = '🎞️';
-            else if (['pdf'].includes(ext)) this.fileIcon = '📕';
-            else if (['doc','docx'].includes(ext)) this.fileIcon = '📘';
-            else this.fileIcon = '📄';
-        },
-
-        handleDrop(event) {
-            this.dragging = false;
-            const file = event.dataTransfer.files[0];
-            if (!file) return;
-            this.$refs.fileInput.files = event.dataTransfer.files;
-            this.showPreview({ target: { files: [file] } });
-        },
-
-        removeFile() {
-            this.filePreview = false;
-            this.fileName = '';
-            this.fileIcon = '';
-            this.$refs.fileInput.value = '';
-            this.$dispatch('input', null);
-        },
-
-        resetFileUpload() {
-            this.removeFile();
-        }
-    }));
-});
-</script>
-
 
 
                 </div>
             
 
             <!-- Footer Buttons -->
-            <div class="flex justify-end gap-x-3 mt-6">
-                <button 
-                    @click="open = false"
-                    wire:click="resetForm"
-                    class="px-5 py-2 border border-gray-400 rounded-full hover:bg-gray-100"
-                >
-                    Discard
-                </button>
-                <button 
-                    class="px-6 py-2 bg-black text-white rounded-full hover:bg-gray-800"
-                >
-                    Save and display
-                </button>
-            </div>
+<div class="flex justify-end gap-x-3 mt-6">
+    <button 
+        type="button"
+        @click="open = false"
+        wire:click="resetForm"
+        class="px-5 py-2 border border-gray-400 rounded-full hover:bg-gray-100"
+    >
+        Discard
+    </button>
+    <button 
+        type="submit"
+        class="px-6 py-2 bg-black text-white rounded-full hover:bg-gray-800"
+    >
+        Save and display
+    </button>
+</div>
+
             </form>
         </div>
     </div>
 </div>
 
 <script>
-document.addEventListener('livewire:init', () => {
-    Livewire.on('announcement-saved', () => {
-        document.querySelectorAll('[x-data]').forEach(el => {
-            if (el.__x) el.__x.$data.open = false;
+document.addEventListener('livewire:initialized', () => {
+    Livewire.on('announcement-created', () => {
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Announcement created successfully.',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#000000',
+            background: '#ffffff',
+            iconColor: '#000000',
+        }).then(() => {
+            // Close all Alpine modals
+            document.querySelectorAll('[x-data]').forEach(el => {
+                if (el.__x && el.__x.$data.open !== undefined) el.__x.$data.open = false;
+            });
+
+            // Reset file upload
+            const uploadComponent = document.querySelector('[x-data="fileUpload()"]');
+            if (uploadComponent && uploadComponent.__x) {
+                uploadComponent.__x.resetFileUpload();
+            }
+
+            // Reload page
+            location.reload();
+        });
+    });
+
+    Livewire.on('announcement-updated', () => {
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Announcement updated successfully.',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#000000',
+            background: '#ffffff',
+            iconColor: '#000000',
+        }).then(() => {
+            // Close all Alpine modals
+            document.querySelectorAll('[x-data]').forEach(el => {
+                if (el.__x) el.__x.$data.open = false;
+            });
+
+            // Reset file upload
+            const uploadComponent = document.querySelector('[x-data="fileUpload()"]');
+            if (uploadComponent && uploadComponent.__x) {
+                uploadComponent.__x.resetFileUpload();
+            }
+
+            // Reload page
+            location.reload();
         });
     });
 });
-
-
 </script>
 
+
+
+
+
+
 <script>
-window.addEventListener('announcement-saved', () => {
-    Swal.fire({
-        icon: 'success',
-        title: 'Announcement created!',
-        showConfirmButton: true,
-        timer: 3000,
-        timerProgressBar: true,
-    }).then(() => {
-        // Reset the file upload box
-        const uploadComponent = document.querySelector('[x-data="fileUpload()"]');
-        if (uploadComponent && uploadComponent.__x) {
-            uploadComponent.__x.$data.filePreview = null;
-            uploadComponent.__x.$data.isImage = false;
-            const fileInput = uploadComponent.querySelector('input[type="file"]');
-            if (fileInput) fileInput.value = '';
+document.addEventListener('alpine:init', () => {
+    Alpine.data('fileUpload', () => ({
+    dragging: false,
+    filePreview: false,
+    fileName: '',
+    fileIcon: '',
+    uploading: false, // new flag for actual upload
+    showPreview(event) {
+        const file = event.target.files[0];
+        if (!file) {
+            this.removeFile();
+            return;
         }
-        // Refresh the page after SweetAlert
-        location.reload();
-    });
+
+        this.uploading = true; // start showing uploading overlay
+        this.fileName = file.name;
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (['jpg','jpeg','png','gif','webp'].includes(ext)) this.fileIcon = '🖼️';
+        else if (['mp4','mov','avi','mkv'].includes(ext)) this.fileIcon = '🎞️';
+        else if (['pdf'].includes(ext)) this.fileIcon = '📕';
+        else if (['doc','docx'].includes(ext)) this.fileIcon = '📘';
+        else this.fileIcon = '📄';
+
+        // Wait for Livewire upload to finish
+        window.addEventListener('attachment-uploaded', () => {
+            this.filePreview = true;
+            this.uploading = false; // stop spinner
+        }, { once: true });
+    },
+
+    handleDrop(event) {
+        this.dragging = false;
+        const file = event.dataTransfer.files[0];
+        if (!file) return;
+
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        this.$refs.fileInput.files = dt.files;
+
+        this.showPreview({ target: { files: [file] } });
+    },
+
+    removeFile() {
+        this.filePreview = false;
+        this.fileName = '';
+        this.fileIcon = '';
+        this.uploading = false; // make sure spinner stops
+        if (this.$refs.fileInput) this.$refs.fileInput.value = '';
+    },
+
+    resetFileUpload() {
+        this.removeFile();
+    }
+}));
+
+
+      
 });
 </script>
 

@@ -122,7 +122,11 @@ class EditAssignment extends Component
 
         $this->assignment->update($updateData);
 
-        session()->flash('success', 'Assignment updated successfully.');
+        session()->flash('swal', [
+            'icon' => 'success',
+            'title' => 'Success!',
+            'text' => 'Assignment updated successfully!',
+        ]);
 
         return redirect()->route('implementor.course-information', $this->course->course_code);
     }
@@ -148,10 +152,17 @@ class EditAssignment extends Component
     {
         $courseCode = $this->course->course_code;
         
-        // Delete the assignment (cascades will handle submissions)
+        // Delete related submissions first to avoid foreign key constraint error
+        $this->assignment->submissions()->delete();
+        
+        // Delete the assignment
         $this->assignment->delete();
 
-        session()->flash('success', 'Assignment deleted successfully.');
+        session()->flash('swal', [
+            'icon' => 'success',
+            'title' => 'Success!',
+            'text' => 'Assignment deleted successfully!',
+        ]);
         
         return redirect()->route('implementor.course-information', $courseCode);
     }
@@ -162,6 +173,29 @@ class EditAssignment extends Component
         $size = (int) filter_var($sizeString, FILTER_SANITIZE_NUMBER_INT);
         // Convert MB to KB
         return $size * 1024;
+    }
+
+    public function removeAttachment()
+    {
+        // Clear the new uploaded file
+        $this->attachment = null;
+        
+        // If there's an existing attachment in the database, mark it for deletion
+        if ($this->assignment->attachment) {
+            // Delete the file from storage
+            if (Storage::disk('public')->exists($this->assignment->attachment)) {
+                Storage::disk('public')->delete($this->assignment->attachment);
+            }
+            
+            // Update the database
+            $this->assignment->update([
+                'attachment' => null,
+                'attachment_original_name' => null,
+            ]);
+            
+            // Refresh the assignment model to reflect changes
+            $this->assignment->refresh();
+        }
     }
 
     public function render()

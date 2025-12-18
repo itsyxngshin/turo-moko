@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CourseGrades extends Component
 {
@@ -34,6 +35,57 @@ class CourseGrades extends Component
         $this->course = $course;
         $this->refreshData();
     }
+
+
+
+public function downloadGradesCsv(): StreamedResponse
+{
+    $activities = collect($this->activities);
+    $students = collect($this->students);
+
+    $filename = 'course-grades-' . now()->format('Y-m-d') . '.csv';
+
+    return response()->streamDownload(function () use ($activities, $students) {
+
+        $handle = fopen('php://output', 'w');
+
+        // Header row
+        $headers = ['Student Name', 'Email'];
+
+        foreach ($activities as $activity) {
+            $headers[] = $activity['label'];
+        }
+
+        $headers[] = 'Final Grade';
+
+        fputcsv($handle, $headers);
+
+        // Student rows
+        foreach ($students as $student) {
+            $row = [
+                $student['name'],
+                $student['email'],
+            ];
+
+            foreach ($activities as $activity) {
+                $cell = $student['activities'][$activity['key']] ?? null;
+                $row[] = $cell && $cell['grade'] !== null ? $cell['grade'] : '';
+            }
+
+            $row[] = $student['final_grade'] !== null
+                ? $student['final_grade']
+                : '';
+
+            fputcsv($handle, $row);
+        }
+
+        fclose($handle);
+
+    }, $filename, [
+        'Content-Type' => 'text/csv',
+    ]);
+}
+
 
     public function refreshData(): void
     {
@@ -172,9 +224,10 @@ class CourseGrades extends Component
                             'grade' => $this->formatAssignmentGrade($submission),
                         ];
 
-                        $assignmentPercent = $this->assignmentPercentage($submission);
-                        if ($assignmentPercent !== null) {
-                            $percentages[] = $assignmentPercent;
+                        // Include in final grade calculation based on submission status
+                        $percentage = $this->assignmentPercentage($submission);
+                        if ($percentage !== null) {
+                            $percentages[] = $percentage;
                         }
                     } else {
                         $resultKey = $student->id . '-' . $activity['id'];
@@ -182,6 +235,7 @@ class CourseGrades extends Component
                         $totalPoints = $quizTotals[$activity['id']] ?? null;
                         $quizPercent = $this->quizPercentage($result, $totalPoints);
 
+                        // Include in final grade: no submission = 0, submitted = percentage or null if not graded
                         if ($quizPercent !== null) {
                             $percentages[] = $quizPercent;
                         }
@@ -204,10 +258,16 @@ class CourseGrades extends Component
             ->toArray();
     }
 
-    protected function formatAssignmentGrade(?Submission $submission): ?string
+    protected function formatAssignmentGrade(?Submission $submission): string
     {
-        if (!$submission || $submission->grade === null) {
-            return null;
+        if (!$submission) {
+            // No submission = 0%
+            return '0%';
+        }
+        
+        if ($submission->grade === null) {
+            // Submitted but not graded yet
+            return '—';
         }
 
         // Grade is stored as 0-100
@@ -216,7 +276,13 @@ class CourseGrades extends Component
 
     protected function assignmentPercentage(?Submission $submission): ?float
     {
-        if (!$submission || $submission->grade === null) {
+        if (!$submission) {
+            // No submission = 0% (included in final grade)
+            return 0.0;
+        }
+        
+        if ($submission->grade === null) {
+            // Submitted but not graded yet - excluded from final grade calculation
             return null;
         }
 
@@ -226,8 +292,14 @@ class CourseGrades extends Component
 
     protected function formatQuizGrade(?QuizResult $result, ?float $totalPoints): ?string
     {
-        if (!$result || $result->score === null) {
-            return null;
+        if (!$result) {
+            // No submission = 0%
+            return '0%';
+        }
+        
+        if ($result->score === null) {
+            // Submitted but not graded yet
+            return '—';
         }
 
         if ($totalPoints && $totalPoints > 0) {
@@ -240,7 +312,13 @@ class CourseGrades extends Component
 
     protected function quizPercentage(?QuizResult $result, ?float $totalPoints): ?float
     {
-        if (!$result || $result->score === null || !$totalPoints || $totalPoints <= 0) {
+        if (!$result) {
+            // No submission = 0% (included in final grade)
+            return 0.0;
+        }
+        
+        if ($result->score === null || !$totalPoints || $totalPoints <= 0) {
+            // Submitted but not graded yet OR invalid total points - excluded from final grade
             return null;
         }
 

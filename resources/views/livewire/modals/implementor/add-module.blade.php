@@ -171,6 +171,17 @@ window.addEventListener('swal:module-error', (event) => {
         iconColor: '#000000',
     });
 });
+
+window.addEventListener('swal:error', (event) => {
+    Swal.fire({
+        icon: 'error',
+        title: event.detail.title || 'Error!',
+        text: event.detail.text || 'Something went wrong!',
+        confirmButtonColor: '#000000',
+        background: '#ffffff',
+        iconColor: '#000000',
+    });
+});
 </script>
 
 

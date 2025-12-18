@@ -3,7 +3,7 @@
 @section('title', 'Activities')
 
 @section('content')
-<div class="space-y-4 px-4 md:px-6 mt-10">
+<div class="space-y-4 px-4 md:px-6">
 
     <!-- Page Header with Back Button -->
     <div class="flex items-center gap-3 mb-6">
@@ -13,41 +13,34 @@
             <i data-lucide="arrow-left" class="w-4 h-4 md:w-5 md:h-5"></i>
         </button>
 
-        <h1 class="text-2xl font-bold">Pending Activities</h1>
+        <h1 class="text-2xl font-bold">Pending Assignments</h1>
     </div>
 
     <!-- Activities Grid -->
     <section class="bg-white rounded-2xl shadow-md p-6">
         @if(empty($activities) || count($activities) === 0)
-            <p class="text-gray-500 text-center py-10">No pending activities 🎉</p>
+            <p class="text-gray-500 text-center py-10">No pending assignments 🎉</p>
         @else
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 @foreach ($activities as $activity)
+                    @php $activity = (object) $activity; @endphp
                     <div class="bg-white rounded-2xl shadow-md flex flex-col md:flex-row overflow-hidden border hover:shadow-lg transition">
                         
                         <!-- Icon / Thumbnail -->
-                        <div class="flex-shrink-0 flex items-center justify-center h-20 md:w-20 md:h-auto
-                          @if($activity->type === 'assignment') bg-orange-100 
-                          @elseif($activity->type === 'quiz') bg-blue-100 
-                          @else bg-gray-100 @endif">
-                            <i data-lucide="{{ $activity->type === 'assignment' ? 'clipboard-list' : 'file-text' }}" 
-                               class="w-8 h-8 
-                               @if($activity->type === 'assignment') text-orange-500 
-                               @elseif($activity->type === 'quiz') text-blue-500 
-                               @else text-gray-500 @endif">
-                            </i>
+                        <div class="flex-shrink-0 flex items-center justify-center h-20 md:w-20 md:h-auto bg-orange-100">
+                            <i data-lucide="clipboard-list" class="w-8 h-8 text-orange-500"></i>
                         </div>
 
                         <!-- Content -->
                         <div class="flex-1 p-5 flex flex-col justify-between">
                             <div>
                                 <div class="flex justify-between items-start mb-2 flex-wrap gap-2">
-                                    <p class="text-xs text-gray-400">Course: {{ $activity->title ?? 'N/A' }}</p>
+                                    <p class="text-xs text-gray-400">Course: {{ $activity->course_name ?? 'N/A' }}</p>
                                     <span class="text-xs 
-                                        @if(isset($activity->due_date) && \Carbon\Carbon::parse($activity->due_date)->isPast()) bg-red-100 text-red-600 
+                                        @if($activity->due_date && \Carbon\Carbon::parse($activity->due_date)->isPast()) bg-red-100 text-red-600 
                                         @else bg-yellow-100 text-yellow-600 @endif 
                                         px-2 py-0.5 rounded-full">
-                                        Due: {{ isset($activity->due_date) ? \Carbon\Carbon::parse($activity->due_date)->format('M d') : 'N/A' }}
+                                        Due: {{ $activity->due_date ? \Carbon\Carbon::parse($activity->due_date)->format('M d, Y') : 'No due date' }}
                                     </span>
                                 </div>
                                 <h3 class="text-lg font-bold">{{ $activity->title ?? 'Untitled Activity' }}</h3>
@@ -56,9 +49,10 @@
 
                             <!-- Button -->
                             <div class="flex justify-end mt-4">
-                                <button class="bg-black text-white px-4 py-1.5 rounded-full text-sm hover:bg-gray-800 w-full md:w-auto">
-                                    {{ $activity->type === 'quiz' ? 'Start Quiz' : 'Submit' }}
-                                </button>
+                                <a href="{{ route('learner.activity.show', ['course' => $activity->course_code, 'assignment' => $activity->id]) }}"
+                                   class="bg-black text-white px-4 py-1.5 rounded-full text-sm hover:bg-gray-800 w-full md:w-auto text-center">
+                                    Submit Assignment
+                                </a>
                             </div>
                         </div>
                     </div>

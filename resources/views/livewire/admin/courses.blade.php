@@ -5,10 +5,10 @@
 
 @section('content')
 
-<div class="flex h-screen p-5 bg-[#f2f9fb]">
+<div class="flex h-screen px-5 bg-gray">
     
     <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto">
+    <main class="flex-1">
         
     <h1 class="text-2xl font-bold mb-6">Manage Courses</h1>
     @livewire('admin.courses-table')

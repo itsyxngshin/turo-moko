@@ -10,13 +10,13 @@
     <section class="mt-3 grid grid-cols-1 lg:grid-cols-4 gap-6"> <!-- reduced top margin slightly -->
 
         <!-- Enrollees Card -->
-        <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition p-6 relative overflow-hidden w-full h-[335px]">
+        <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition p-4 relative overflow-hidden w-full h-[150px]">
             <!-- Large faint background icon -->
             <svg class="absolute inset-0 m-auto w-32 h-32 text-indigo-100 opacity-20" fill="currentColor" viewBox="0 0 32 32">
                 <path d="M7.5 18A3.5 3.5 0 0 0 4 21.5v.5c0 2.393 1.523 4.417 3.685 5.793C9.859 29.177 12.802 30 16 30s6.14-.823 8.315-2.206C26.477 26.418 28 24.394 28 22v-.5a3.5 3.5 0 0 0-3.5-3.5z"/>
                 <path d="M16 16a7 7 0 1 0 0-14a7 7 0 0 0 0 14"/>
             </svg>
-            <div class="w-16 h-16 rounded-full bg-indigo-50 flex items-center justify-center absolute top-4 left-4 z-10">
+            <div class="w-14 h-14 rounded-full bg-indigo-50 flex items-center justify-center absolute top-4 left-4 z-10">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-indigo-500" fill="currentColor" viewBox="0 0 32 32">
                     <path d="M7.5 18A3.5 3.5 0 0 0 4 21.5v.5c0 2.393 1.523 4.417 3.685 5.793C9.859 29.177 12.802 30 16 30s6.14-.823 8.315-2.206C26.477 26.418 28 24.394 28 22v-.5a3.5 3.5 0 0 0-3.5-3.5z"/>
                     <path d="M16 16a7 7 0 1 0 0-14a7 7 0 0 0 0 14"/>
@@ -32,12 +32,12 @@
         </div>
 
         <!-- Submissions Card -->
-        <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition p-6 relative overflow-hidden w-full h-[335px]">
+        <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition p-4 relative overflow-hidden w-full h-[150px]">
             <svg class="absolute inset-0 m-auto w-32 h-32 text-amber-200 opacity-20" fill="currentColor" viewBox="0 0 16 16">
                 <path d="M2 7h12v5a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z"/>
                 <path d="M9.5 2A1.5 1.5 0 0 1 11 3.5V5h1c.506 0 .967.19 1.32.5H2.68C3.034 5.19 3.495 5 4 5h1V3.5A1.5 1.5 0 0 1 6.5 2z"/>
             </svg>
-            <div class="w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center absolute top-4 left-4 z-10">
+            <div class="w-14 h-14 rounded-full bg-amber-50 flex items-center justify-center absolute top-4 left-4 z-10">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-amber-500" fill="currentColor" viewBox="0 0 16 16">
                     <path d="M2 7h12v5a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z"/>
                     <path d="M9.5 2A1.5 1.5 0 0 1 11 3.5V5h1c.506 0 .967.19 1.32.5H2.68C3.034 5.19 3.495 5 4 5h1V3.5A1.5 1.5 0 0 1 6.5 2z"/>
@@ -52,33 +52,13 @@
             </div>
         </div>
 
-        <!-- Evaluations Card -->
-        <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition p-6 relative overflow-hidden w-full h-[335px]">
-            <svg class="absolute inset-0 m-auto w-32 h-32 text-sky-200 opacity-20" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M2 6a2 2 0 0 1 2-2h6c.768 0 2 1 2 2l1 6.5-1 6.736A3 3 0 0 1 10 20H4a2 2 0 0 1-2-2z"/>
-                <path d="M22 6a2 2 0 0 0-2-2h-6c-.768 0-2 1-2 2l-1 6.5 1 6.736c.53.475 1.232.764 2 .764h6a2 2 0 0 0 2-2z"/>
-            </svg>
-            <div class="w-16 h-16 rounded-full bg-sky-50 flex items-center justify-center absolute top-4 left-4 z-10">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-sky-500" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M2 6a2 2 0 0 1 2-2h6c.768 0 2 1 2 2l1 6.5-1 6.736A3 3 0 0 1 10 20H4a2 2 0 0 1-2-2z"/>
-                    <path d="M22 6a2 2 0 0 0-2-2h-6c-.768 0-2 1-2 2l-1 6.5 1 6.736c.53.475 1.232.764 2 .764h6a2 2 0 0 0 2-2z"/>
-                </svg>
-            </div>
-            <div class="flex flex-col items-end justify-end h-full text-right relative z-10">
-                <h3 class="text-sm font-medium text-slate-500">Evaluations</h3>
-                <div class="mt-1 flex items-center gap-2 justify-end">
-                    <p class="text-3xl font-semibold text-slate-900">{{ $evaluationsCount ?? '--' }}</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Courses Card -->
-        <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition p-6 relative overflow-hidden w-full h-[335px]">
+<!-- Courses Card -->
+        <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition p-4 relative overflow-hidden w-full h-[150px]">
             <svg class="absolute inset-0 m-auto w-32 h-32 text-green-200 opacity-20" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M2 6a2 2 0 0 1 2-2h6c.768 0 2 1 2 2l1 6.5-1 6.736A3 3 0 0 1 10 20H4a2 2 0 0 1-2-2z"/>
                 <path d="M22 6a2 2 0 0 0-2-2h-6c-.768 0-2 1-2 2l-1 6.5 1 6.736c.53.475 1.232.764 2 .764h6a2 2 0 0 0 2-2z"/>
             </svg>
-            <div class="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center absolute top-4 left-4 z-10">
+            <div class="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center absolute top-4 left-4 z-10">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-green-500" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M2 6a2 2 0 0 1 2-2h6c.768 0 2 1 2 2l1 6.5-1 6.736A3 3 0 0 1 10 20H4a2 2 0 0 1-2-2z"/>
                     <path d="M22 6a2 2 0 0 0-2-2h-6c-.768 0-2 1-2 2l-1 6.5 1 6.736c.53.475 1.232.764 2 .764h6a2 2 0 0 0 2-2z"/>
@@ -89,6 +69,28 @@
                 <p class="mt-1 text-3xl font-semibold text-slate-900">{{ $coursesCount ?? '--' }}</p>
             </div>
         </div>
+        
+        <!-- Evaluations Card -->
+        <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition p-4 relative overflow-hidden w-full h-[150px]">
+            <svg class="absolute inset-0 m-auto w-32 h-32 text-sky-200 opacity-20" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M2 6a2 2 0 0 1 2-2h6c.768 0 2 1 2 2l1 6.5-1 6.736A3 3 0 0 1 10 20H4a2 2 0 0 1-2-2z"/>
+                <path d="M22 6a2 2 0 0 0-2-2h-6c-.768 0-2 1-2 2l-1 6.5 1 6.736c.53.475 1.232.764 2 .764h6a2 2 0 0 0 2-2z"/>
+            </svg>
+            <div class="w-14 h-14 rounded-full bg-sky-50 flex items-center justify-center absolute top-4 left-4 z-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-sky-500" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M2 6a2 2 0 0 1 2-2h6c.768 0 2 1 2 2l1 6.5-1 6.736A3 3 0 0 1 10 20H4a2 2 0 0 1-2-2z"/>
+                    <path d="M22 6a2 2 0 0 0-2-2h-6c-.768 0-2 1-2 2l-1 6.5 1 6.736c.53.475 1.232.764 2 .764h6a2 2 0 0 0 2-2z"/>
+                </svg>
+            </div>
+            <div class="flex flex-col items-end justify-end h-full text-right relative z-10">
+                <h3 class="text-sm font-medium text-slate-500">Evaluation Score</h3>
+                <div class="mt-1 flex items-center gap-2 justify-end">
+                    <p class="text-3xl font-semibold text-slate-900">{{ $overallRating ? number_format($overallRating, 1) : '0' }}</p>
+                </div>
+            </div>
+        </div>
+
+        
 
     </section>
 
@@ -105,7 +107,9 @@
         @forelse($courses->take(2) as $course) {{-- Only 2 cards --}}
             <article class="relative rounded-2xl border border-gray-300 bg-white shadow-sm overflow-hidden">
     <div class="grid md:grid-cols-[300px,1fr] grid-cols-1 gap-4 p-4 relative"> <!-- make this relative -->
-        <img src="{{ $course->activeCoverPhoto ? asset('storage/'.$course->activeCoverPhoto->path) : '/img/default-cover.png' }}"
+        <img src="{{ $course->activeCoverPhoto
+                            ? asset('storage/' . $course->activeCoverPhoto->path)
+                            : asset('storage/implementor/course/thumbnail.jpg') }}"
              alt="Course cover"
              class="w-full md:w-[300px] h-[180px] object-cover rounded-xl flex-shrink-0" />
 

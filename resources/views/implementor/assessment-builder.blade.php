@@ -3,11 +3,33 @@
 @section('title', 'Assessment Builder')
 
 @section('content')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
     [x-cloak] { display: none !important; }
 </style>
 
 <main x-data="assessmentBuilder">
+    <!-- Back to Course Button -->
+    @php
+        $course = null;
+        if ($courseId = request('course_id')) {
+            $course = \App\Models\Course::find($courseId);
+        } elseif ($quiz && $quiz->course_id) {
+            $course = \App\Models\Course::find($quiz->course_id);
+        }
+    @endphp
+    @if($course)
+        <div class="ml-4 mt-2 mb-2">
+            <a href="{{ route('implementor.course-information', $course->course_code) }}" 
+               class="inline-flex items-center text-gray-600 hover:text-gray-900 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to Course
+            </a>
+        </div>
+    @endif
+
     <!-- Assessment Builder -->
     <div x-show="!isPreviewMode">
     <form
@@ -46,12 +68,29 @@
         <div class="space-y-6">
         <div class="flex flex-col">
                 <label class="font-semibold text-sm mb-2">Course Name</label>
-                <select x-model="assessment.course_id" name="course_id" class="block border rounded-lg p-3 cursor-pointer hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                <option value="">Select course</option>
-                    @foreach($courses as $course)
-                        <option value="{{ $course->id }}">{{ $course->course_title }}</option>
-                    @endforeach
-            </select>
+                @php
+                    $currentCourse = null;
+                    if ($quiz) {
+                        $currentCourse = $quiz->course;
+                    } else {
+                        $courseId = request()->get('course_id');
+                        $currentCourse = $courseId ? \App\Models\Course::find($courseId) : null;
+                    }
+                @endphp
+                
+                @if($currentCourse)
+                    <!-- Display course name as read-only text -->
+                    <div class="block border rounded-lg p-3 bg-gray-50 text-gray-700">
+                        {{ $currentCourse->course_title }}
+                    </div>
+                    
+                    <!-- Hidden input to preserve course_id (always present) -->
+                    <input type="hidden" name="course_id" value="{{ $currentCourse->id }}" id="course-id-input">
+                @else
+                    <div class="block border rounded-lg p-3 bg-gray-50 text-gray-500">
+                        No course selected
+                    </div>
+                @endif
         </div>
 
             <div class="grid grid-cols-2 gap-6">
@@ -126,12 +165,49 @@
                         <template x-if="item.type === 'multiple_choice'">
                             <div>
                                 <input type="text" placeholder="Enter question..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText"  />
+                                
+                                <!-- Image Upload Section -->
+                                <div class="mb-4">
+                                    <template x-if="!item.imageData">
+                                        <div>
+                                            <input 
+                                                type="file" 
+                                                :id="'image-upload-' + item.id" 
+                                                accept="image/jpeg,image/png,image/gif" 
+                                                class="hidden"
+                                                @change="handleImageUpload($event, item)"
+                                            />
+                                            <button 
+                                                type="button" 
+                                                @click="document.getElementById('image-upload-' + item.id).click()" 
+                                                class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                                            >
+                                                <i data-lucide="image" class="w-4 h-4"></i>
+                                                Add Image
+                                            </button>
+                                        </div>
+                                    </template>
+                                    <template x-if="item.imageData">
+                                        <div class="relative inline-block">
+                                            <img :src="item.imageData" :alt="item.imageName" class="max-w-md max-h-64 rounded-lg border border-gray-300" />
+                                            <button 
+                                                type="button" 
+                                                @click="item.imageData = null; item.imageName = null; reinitializeIcons()" 
+                                                class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700"
+                                            >
+                                                <i data-lucide="x" class="w-4 h-4"></i>
+                                            </button>
+                                            <p class="text-xs text-gray-500 mt-1" x-text="item.imageName"></p>
+                                        </div>
+                                    </template>
+                                </div>
+                                
                                 <div class="space-y-3">
                                     <template x-for="(option, optionIndex) in item.options" :key="optionIndex">
                                         <div class="flex items-center gap-2">
                                             <label class="flex-1 block border rounded-lg p-3 cursor-pointer hover:bg-gray-50">
                                                 <input type="radio" :name="'mc-' + item.id" :value="optionIndex" class="hidden peer" x-model="item.correctAnswer" />
-                                                <span class="peer-checked:font-semibold peer-checked:text-blue-600">
+                                                <span class="peer-checked:font-semibold peer-checked:text-orange-600">
                                                     <b x-text="String.fromCharCode(65 + optionIndex) + '.'"></b> 
                                                     <input type="text" :placeholder="'Option ' + String.fromCharCode(65 + optionIndex)" class="border-none outline-none bg-transparent min-w-[150px] max-w-full" x-model="item.options[optionIndex]"  />
                                                 </span>
@@ -139,23 +215,60 @@
                                             <button type="button" @click="item.options.splice(optionIndex, 1)" class="text-red-600 hover:text-red-800 px-2" x-show="item.options.length > 1">×</button>
                                         </div>
                                     </template>
-                                    <button type="button" @click="item.options.push('')" class="text-blue-600 hover:text-blue-800 text-sm">+ Add option</button>
+                                    <button type="button" @click="item.options.push('')" class="text-orange-600 hover:text-orange-800 text-sm">+ Add option</button>
                                 </div>
                             </div>
                         </template>
                         <template x-if="item.type === 'true_false'">
                             <div>
                                 <input type="text" placeholder="Enter statement..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText"  />
+                                
+                                <!-- Image Upload Section -->
+                                <div class="mb-4">
+                                    <template x-if="!item.imageData">
+                                        <div>
+                                            <input 
+                                                type="file" 
+                                                :id="'image-upload-' + item.id" 
+                                                accept="image/jpeg,image/png,image/gif" 
+                                                class="hidden"
+                                                @change="handleImageUpload($event, item)"
+                                            />
+                                            <button 
+                                                type="button" 
+                                                @click="document.getElementById('image-upload-' + item.id).click()" 
+                                                class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                                            >
+                                                <i data-lucide="image" class="w-4 h-4"></i>
+                                                Add Image
+                                            </button>
+                                        </div>
+                                    </template>
+                                    <template x-if="item.imageData">
+                                        <div class="relative inline-block">
+                                            <img :src="item.imageData" :alt="item.imageName" class="max-w-md max-h-64 rounded-lg border border-gray-300" />
+                                            <button 
+                                                type="button" 
+                                                @click="item.imageData = null; item.imageName = null; reinitializeIcons()" 
+                                                class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700"
+                                            >
+                                                <i data-lucide="x" class="w-4 h-4"></i>
+                                            </button>
+                                            <p class="text-xs text-gray-500 mt-1" x-text="item.imageName"></p>
+                                        </div>
+                                    </template>
+                                </div>
+                                
                                 <div class="space-y-3">
                                     <label class="block border rounded-lg p-3 cursor-pointer hover:bg-gray-50">
                                         <input type="radio" :name="'tf-' + item.id" value="true" class="hidden peer" x-model="item.correctAnswer" />
-                                        <span class="peer-checked:font-semibold peer-checked:text-blue-600">
+                                        <span class="peer-checked:font-semibold peer-checked:text-orange-600">
                                             <b>TRUE:</b> <input type="text" placeholder="True statement" class="border-none outline-none bg-transparent min-w-[150px] max-w-full" x-model="item.trueText"  />
                                         </span>
                                     </label>
                                     <label class="block border rounded-lg p-3 cursor-pointer hover:bg-gray-50">
                                         <input type="radio" :name="'tf-' + item.id" value="false" class="hidden peer" x-model="item.correctAnswer" />
-                                        <span class="peer-checked:font-semibold peer-checked:text-blue-600">
+                                        <span class="peer-checked:font-semibold peer-checked:text-orange-600">
                                             <b>FALSE:</b> <input type="text" placeholder="False statement" class="border-none outline-none bg-transparent min-w-[150px] max-w-full" x-model="item.falseText"  />
                                         </span>
                                     </label>
@@ -165,21 +278,102 @@
                         <template x-if="item.type === 'short_answer'">
                             <div>
                                 <input type="text" placeholder="Enter question..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText"  />
-                                <div class="mt-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Answer</label>
-                                    <input 
-                                        type="text" 
-                                        placeholder="Enter the correct answer..." 
-                                        class="px-4 py-2 rounded-xl border bg-white shadow-sm w-full" 
-                                        x-model="item.modelAnswer"
-                                        required
-                                    />
+                                
+                                <!-- Image Upload Section -->
+                                <div class="mb-4">
+                                    <template x-if="!item.imageData">
+                                        <div>
+                                            <input 
+                                                type="file" 
+                                                :id="'image-upload-' + item.id" 
+                                                accept="image/jpeg,image/png,image/gif" 
+                                                class="hidden"
+                                                @change="handleImageUpload($event, item)"
+                                            />
+                                            <button 
+                                                type="button" 
+                                                @click="document.getElementById('image-upload-' + item.id).click()" 
+                                                class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                                            >
+                                                <i data-lucide="image" class="w-4 h-4"></i>
+                                                Add Image
+                                            </button>
+                                        </div>
+                                    </template>
+                                    <template x-if="item.imageData">
+                                        <div class="relative inline-block">
+                                            <img :src="item.imageData" :alt="item.imageName" class="max-w-md max-h-64 rounded-lg border border-gray-300" />
+                                            <button 
+                                                type="button" 
+                                                @click="item.imageData = null; item.imageName = null; reinitializeIcons()" 
+                                                class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700"
+                                            >
+                                                <i data-lucide="x" class="w-4 h-4"></i>
+                                            </button>
+                                            <p class="text-xs text-gray-500 mt-1" x-text="item.imageName"></p>
+                                        </div>
+                                    </template>
                                 </div>
+                                
+                                <div class="space-y-2">
+                                    <template x-for="(answer, answerIndex) in item.acceptedAnswers" :key="answerIndex">
+                                        <div class="flex items-center gap-2">
+                                            <input 
+                                                type="text" 
+                                                :placeholder="'Accepted answer ' + (answerIndex + 1)" 
+                                                class="flex-1 border rounded-lg p-3 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                                                x-model="item.acceptedAnswers[answerIndex]" 
+                                            />
+                                            <button type="button" @click="item.acceptedAnswers.splice(answerIndex, 1)" class="text-red-600 hover:text-red-800 px-2" x-show="item.acceptedAnswers.length > 1">×</button>
+                                        </div>
+                                    </template>
+                                    <button type="button" @click="item.acceptedAnswers.push('')" class="text-orange-600 hover:text-orange-800 text-sm">+ Add another answer</button>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">
+                                    All answer variations will be accepted (case-insensitive matching)
+                                </p>
                             </div>
                         </template>
                         <template x-if="item.type === 'long_answer'">
                             <div>
                                 <input type="text" placeholder="Enter question..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText"  />
+                                
+                                <!-- Image Upload Section -->
+                                <div class="mb-4">
+                                    <template x-if="!item.imageData">
+                                        <div>
+                                            <input 
+                                                type="file" 
+                                                :id="'image-upload-' + item.id" 
+                                                accept="image/jpeg,image/png,image/gif" 
+                                                class="hidden"
+                                                @change="handleImageUpload($event, item)"
+                                            />
+                                            <button 
+                                                type="button" 
+                                                @click="document.getElementById('image-upload-' + item.id).click()" 
+                                                class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                                            >
+                                                <i data-lucide="image" class="w-4 h-4"></i>
+                                                Add Image
+                                            </button>
+                                        </div>
+                                    </template>
+                                    <template x-if="item.imageData">
+                                        <div class="relative inline-block">
+                                            <img :src="item.imageData" :alt="item.imageName" class="max-w-md max-h-64 rounded-lg border border-gray-300" />
+                                            <button 
+                                                type="button" 
+                                                @click="item.imageData = null; item.imageName = null; reinitializeIcons()" 
+                                                class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700"
+                                            >
+                                                <i data-lucide="x" class="w-4 h-4"></i>
+                                            </button>
+                                            <p class="text-xs text-gray-500 mt-1" x-text="item.imageName"></p>
+                                        </div>
+                                    </template>
+                                </div>
+                                
                                 <div class="mt-4">
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Model Answer</label>
                                     <textarea 
@@ -400,6 +594,33 @@
 
             // ===== ITEM MANAGEMENT =====
             
+            handleImageUpload(event, item) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                // Validate file type
+                const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                if (!validTypes.includes(file.type)) {
+                    alert('Please upload a valid image file (JPG, PNG, or GIF)');
+                    return;
+                }
+                
+                // Validate file size (max 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Image size must be less than 5MB');
+                    return;
+                }
+                
+                // Convert to base64
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    item.imageData = e.target.result;
+                    item.imageName = file.name;
+                    this.reinitializeIcons();
+                };
+                reader.readAsDataURL(file);
+            },
+            
             removeItem(index) {
                 if (index >= 0 && index < this.items.length) {
                     this.items.splice(index, 1);
@@ -425,10 +646,13 @@
                         shortAnswerField: '',
                         longAnswerField: '',
                         modelAnswer: '',
+                        acceptedAnswers: type === 'short_answer' ? [''] : [], // Initialize for short answer
                         trueText: 'True',
                         falseText: 'False',
                         correctAnswer: type === 'true_false' ? 'true' : 0,
-                        options: type === 'multiple_choice' ? ['', ''] : []
+                        options: type === 'multiple_choice' ? ['', ''] : [],
+                        imageData: null,
+                        imageName: null
                     };
 
                     if (this.insertAfterIndex !== null) {
@@ -525,18 +749,42 @@
                             if (typeof data === 'object') {
                                 if (data.success) {
                                     console.log('✅ SUCCESS:', data.message);
-                                    // Redirect to course page if course_code is provided
-                                    if (data.course_code) {
-                                        window.location.href = `/implementor/course-information/${data.course_code}`;
-                                    } else {
-                                        alert('✅ ' + data.message);
-                                    }
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Success!',
+                                        text: data.message,
+                                        confirmButtonColor: '#000000',
+                                        background: '#ffffff',
+                                        iconColor: '#22c55e'
+                                    }).then(() => {
+                                        // Redirect to course page if course_code is provided
+                                        if (data.course_code) {
+                                            window.location.href = `/implementor/course-information/${data.course_code}`;
+                                        } else {
+                                            window.location.reload();
+                                        }
+                                    });
                                 } else if (data.errors) {
                                     console.log('❌ Validation errors:', data.errors);
-                                    alert('❌ Validation failed: ' + JSON.stringify(data.errors, null, 2));
+                                    const errorMessages = Object.values(data.errors).flat().join('\n');
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Validation Failed',
+                                        text: errorMessages,
+                                        confirmButtonColor: '#000000',
+                                        background: '#ffffff',
+                                        iconColor: '#ef4444'
+                                    });
                                 } else if (data.message) {
                                     console.log('❌ ERROR:', data.message);
-                                    alert('❌ ' + data.message);
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: data.message,
+                                        confirmButtonColor: '#000000',
+                                        background: '#ffffff',
+                                        iconColor: '#ef4444'
+                                    });
                                 }
                             } else {
                                 console.log('Response is not JSON:', data);
@@ -544,7 +792,14 @@
                         })
                         .catch(error => {
                             console.error('Error submitting form:', error);
-                            alert('Error submitting form: ' + error.message);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Submission Error',
+                                text: 'Failed to submit form: ' + error.message,
+                                confirmButtonColor: '#000000',
+                                background: '#ffffff',
+                                iconColor: '#ef4444'
+                            });
                         });
                     } else {
                         console.error('Form not found!');
@@ -568,8 +823,8 @@
                         return;
                     }
                     
-                    // Clear any existing hidden inputs (except _token, _method, quiz_id, is_editing)
-                    const existingHidden = form.querySelectorAll('input[type="hidden"]:not([name="_token"]):not([name="_method"]):not([name="quiz_id"]):not([name="is_editing"])');
+                    // Clear any existing hidden inputs (except _token, _method, quiz_id, is_editing, course_id)
+                    const existingHidden = form.querySelectorAll('input[type="hidden"]:not([name="_token"]):not([name="_method"]):not([name="quiz_id"]):not([name="is_editing"]):not([name="course_id"])');
                     existingHidden.forEach(input => input.remove());
                     
                     // Create hidden input for questions
@@ -584,6 +839,8 @@
                             type: item.type,
                             points: item.points || 1,
                             modelAnswer: item.modelAnswer || '',
+                            imageData: item.imageData || null,
+                            imageName: item.imageName || null,
                         };
                         
                         // Add type-specific data
@@ -594,6 +851,9 @@
                             question.trueText = item.trueText || '';
                             question.falseText = item.falseText || '';
                             question.correctAnswer = item.correctAnswer || 'true';
+                        } else if (item.type === 'short_answer') {
+                            // Send acceptedAnswers array for short answer questions
+                            question.acceptedAnswers = item.acceptedAnswers || [''];
                         }
                         
                         return question;
@@ -648,41 +908,72 @@
                 const quizId = {{ $quiz->id ?? 'null' }};
                 const courseCode = '{{ $quiz->course->course_code ?? "" }}';
                 
+                let title = 'Delete Assessment?';
                 let message = 'Are you sure you want to delete this assessment?';
+                let warning = '';
                 
                 if (status === 'Published') {
-                    message = 'WARNING: This assessment is PUBLISHED and learners may have already taken it.\n\n' +
-                              'Deleting it will remove all associated submissions and results.\n\n' +
-                              'Are you absolutely sure you want to delete this assessment?';
+                    title = 'Delete Published Assessment?';
+                    message = 'This assessment is PUBLISHED and learners may have already taken it.';
+                    warning = 'Deleting it will remove all associated submissions and results.';
                 } else if (status === 'Draft') {
-                    message = 'Are you sure you want to delete this draft assessment?\n\n' +
-                              'This action cannot be undone.';
+                    title = 'Delete Draft Assessment?';
+                    message = 'This action cannot be undone.';
                 }
                 
-                if (confirm(message)) {
-                    // Send delete request
-                    fetch(`/implementor/assessment-builder/${quizId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert('Assessment deleted successfully');
-                            window.location.href = `/implementor/course-information/${courseCode}`;
-                        } else {
-                            alert('Error: ' + data.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Delete error:', error);
-                        alert('Failed to delete assessment');
-                    });
-                }
+                Swal.fire({
+                    icon: 'warning',
+                    title: title,
+                    html: warning ? `<p>${message}</p><p class="mt-2 font-semibold text-red-600">${warning}</p>` : message,
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Yes, delete it',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Send delete request
+                        fetch(`/implementor/assessment-builder/${quizId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: 'Assessment deleted successfully',
+                                    confirmButtonColor: '#000000',
+                                    timer: 2000,
+                                    timerProgressBar: true
+                                }).then(() => {
+                                    window.location.href = `/implementor/course-information/${courseCode}`;
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: data.message,
+                                    confirmButtonColor: '#000000'
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Delete error:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Failed to delete assessment',
+                                confirmButtonColor: '#000000'
+                            });
+                        });
+                    }
+                });
             },
 
             // ===== PREVIEW FUNCTIONALITY =====
@@ -725,12 +1016,22 @@
                     trueText: item.trueText || 'True',
                     falseText: item.falseText || 'False',
                     options: item.options || [],
-                    points: item.points || 1
+                    points: item.points || 1,
+                    imageData: item.imageData || null,
+                    imageName: item.imageName || null
                 };
             },
 
             generatePreviewHTML(type, values, itemId) {
-                const { questionText, textValue, shortAnswerField, longAnswerField, trueText, falseText, options, points } = values;
+                const { questionText, textValue, shortAnswerField, longAnswerField, trueText, falseText, options, points, imageData, imageName } = values;
+                
+                // Helper function to generate image HTML if present
+                const getImageHTML = () => {
+                    if (imageData) {
+                        return `<div class="mb-4"><img src="${imageData}" alt="${imageName || 'Question image'}" class="max-w-md max-h-64 rounded-lg border border-gray-200" /></div>`;
+                    }
+                    return '';
+                };
                 
                 switch (type) {
                     case 'text':
@@ -746,6 +1047,7 @@
                                     <label class="block text-lg font-medium">${questionText || 'Enter question...'}</label>
                                     <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">${points} point${points !== 1 ? 's' : ''}</span>
                                 </div>
+                                ${getImageHTML()}
                                 <input type="text" placeholder="Your answer here..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                             </div>
                         `;
@@ -757,6 +1059,7 @@
                                     <label class="block text-lg font-medium">${questionText || 'Enter question...'}</label>
                                     <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">${points} point${points !== 1 ? 's' : ''}</span>
                                 </div>
+                                ${getImageHTML()}
                                 <textarea placeholder="Your answer here..." rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"></textarea>
                             </div>
                         `;
@@ -768,6 +1071,7 @@
                                     <label class="block text-lg font-medium">${questionText || 'Enter statement...'}</label>
                                     <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">${points} point${points !== 1 ? 's' : ''}</span>
                                 </div>
+                                ${getImageHTML()}
                                 <div class="space-y-2">
                                     <label class="flex items-center">
                                         <input type="radio" name="tf-${itemId}" value="true" class="mr-2" />
@@ -792,6 +1096,7 @@
                                     <label class="block text-lg font-medium">${questionText || 'Enter question...'}</label>
                                     <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">${points} point${points !== 1 ? 's' : ''}</span>
                                 </div>
+                                ${getImageHTML()}
                                 <div class="space-y-2">${mcOptions}</div>
                             </div>
                         `;

@@ -5,36 +5,48 @@
 @section('content')
 <div class="min-h-screen px-4 sm:px-6 md:px-8 py-6 space-y-10">
 
-    {{-- ================= RECENTLY ACCESSED ================= --}}
-    @if($recentCourses->isNotEmpty())
-        @php $course = $recentCourses->first(); @endphp
+   {{-- ================= FEATURED COURSE ================= --}}
+@if($featuredCourse)
+@php
+    $isEnrolled = $featuredCourse->enrollees->contains(auth()->id());
+@endphp
 
-        @if($course->enrollees->contains(auth()->id()))
-        <div class="relative rounded-2xl shadow-lg overflow-hidden h-60 sm:h-72 md:h-80">
-            <img
-                src="{{ $course->activeCoverPhoto
-                    ? asset('storage/' . $course->activeCoverPhoto->path)
-                    : asset('storage/implementor/course/thumbnail.jpg') }}"
-                class="absolute inset-0 w-full h-full object-cover"
-            >
+<div class="relative rounded-2xl shadow-lg overflow-hidden h-72 md:h-96">
+    <img
+        src="{{ $featuredCourse->activeCoverPhoto
+            ? asset('storage/' . $featuredCourse->activeCoverPhoto->path)
+            : asset('storage/implementor/course/thumbnail.jpg') }}"
+        class="absolute inset-0 w-full h-full object-cover"
+    >
 
-            <div class="absolute inset-0 bg-black/40"></div>
+    <div class="absolute inset-0 bg-black/40"></div>
 
-            <div class="relative z-10 h-full flex flex-col justify-center text-white px-4 sm:px-8">
-                <p class="text-sm">{{ $course->subject }}</p>
-                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold">
-                    {{ $course->course_title }}
-                </h2>
+    <div class="relative z-10 h-full flex flex-col justify-center text-white px-6 md:px-10">
+        <p class="text-sm opacity-90">
+            {{ $isEnrolled ? 'Continue learning' : 'New course available' }}
+        </p>
 
-                <a href="{{ route('learner.course.show', $course) }}"
-                   class="mt-4 inline-flex items-center gap-2 bg-white text-black px-5 py-3 rounded-full w-fit hover:bg-gray-200">
-                    <i data-lucide="play" class="w-5 h-5"></i>
-                    Continue course
-                </a>
-            </div>
-        </div>
+        <h2 class="text-2xl md:text-4xl font-bold">
+            {{ $featuredCourse->course_title }}
+        </h2>
+
+        {{-- BUTTON --}}
+        @if($isEnrolled)
+            <a href="{{ route('learner.course.show', $featuredCourse) }}"
+               class="mt-6 inline-flex items-center gap-2 bg-white text-black px-6 py-3 rounded-full w-fit hover:bg-gray-200">
+                <i data-lucide="play" class="w-5 h-5"></i>
+                Continue course
+            </a>
+        @else
+            <a href="{{ route('learner.course.join', $featuredCourse) }}"
+               class="mt-6 inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-full w-fit hover:bg-blue-700">
+                <i data-lucide="plus" class="w-5 h-5"></i>
+                Join Class
+            </a>
         @endif
-    @endif
+    </div>
+</div>
+@endif
 
     {{-- ================= COURSE SUGGESTIONS ================= --}}
     <div class="bg-white rounded-2xl shadow p-4 sm:p-8">

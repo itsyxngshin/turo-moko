@@ -1,5 +1,4 @@
-<div x-data="{ open: false }" wire:poll.10s>
-    <!-- Bell Button -->
+<div x-data="{ open: false }" wire:ignore>
     <button @click="open = !open" class="relative p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors focus:outline-none">
         <i data-lucide="bell" class="w-6 h-6"></i>
         @if($this->unreadCount > 0)

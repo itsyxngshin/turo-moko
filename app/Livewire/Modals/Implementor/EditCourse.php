@@ -145,7 +145,7 @@ if ($this->thumbnail) {
     }
 
     // Update Livewire property so Alpine can show preview
-    $this->existingThumbnail = $path;
+    $this->existingThumbnail = asset('storage/' . $path);
     $this->thumbnail = null;
 }
 

@@ -34,6 +34,9 @@ class Enrollees extends Component
     public $edit_username;
     public $edit_phonenum;
     public $edit_password;
+    public $showCoursesModal = false;
+public $selectedStudentCourses;
+public $selectedStudentName;
     
     // Photo handling
     public $edit_photo;      // The new file being uploaded
@@ -203,22 +206,53 @@ class Enrollees extends Component
         ]);
     }
 
-    public function render()
-    {
-        $query = CourseEnrollee::query()
-            ->with(['enrollee.profile.photo', 'course']);
+public function render()
+{
+    $query = CourseEnrollee::query()
+        ->with(['enrollee.profile.photo', 'course']);
 
-        if (!empty($this->search)) {
-            $query->whereHas('enrollee.profile', function ($q) {
-                $q->where('first_name', 'like', '%' . $this->search . '%')
-                  ->orWhere('last_name', 'like', '%' . $this->search . '%');
-            })->orWhereHas('course', function ($q) {
-                $q->where('course_title', 'like', '%' . $this->search . '%');
-            });
-        }
-
-        return view('livewire.admin.enrollees', [
-            'enrollees' => $query->latest('enrollment_date')->paginate(10)
-        ])->layout('layouts.layout');
+    if (!empty($this->search)) {
+        $query->whereHas('enrollee.profile', function ($q) {
+            $q->where('first_name', 'like', '%' . $this->search . '%')
+              ->orWhere('last_name', 'like', '%' . $this->search . '%');
+        })->orWhereHas('course', function ($q) {
+            $q->where('course_title', 'like', '%' . $this->search . '%');
+        });
     }
+
+    // GET ALL ENROLLEES FOR GROUPING (avoid duplicate rows)
+    $allEnrollees = $query->latest('enrollment_date')->get();
+    $enrolleesByStudent = $allEnrollees->groupBy('enrollee_id');
+
+    // PAGINATION: slice the grouped collection manually
+    $perPage = 10;
+    $currentPage = \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage();
+    $items = $enrolleesByStudent->values(); // reindex collection
+    $paginatedEnrolleesByStudent = new \Illuminate\Pagination\LengthAwarePaginator(
+        $items->slice(($currentPage - 1) * $perPage, $perPage),
+        $items->count(),
+        $perPage,
+        $currentPage,
+        ['path' => request()->url(), 'query' => request()->query()]
+    );
+
+    return view('livewire.admin.enrollees', [
+        'enrolleesByStudent' => $paginatedEnrolleesByStudent,
+        'enrollees' => $paginatedEnrolleesByStudent, // for links()
+    ])->layout('layouts.layout');
+}
+
+public function viewCourses($enrolleeId)
+{
+    $this->selectedEnrolleeId = $enrolleeId; // Set selectedEnrolleeId
+    $this->showCoursesModal = true;
+
+    $student = CourseEnrollee::with('enrollee.profile.photo', 'course')
+        ->where('enrollee_id', $enrolleeId)
+        ->get();
+
+    $this->selectedStudentCourses = $student;
+    $this->selectedStudentName = $student->first()?->enrollee->profile->first_name . ' ' . $student->first()?->enrollee->profile->last_name;
+}
+
 }

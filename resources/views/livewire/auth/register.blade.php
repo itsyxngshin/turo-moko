@@ -154,7 +154,7 @@
                             wire:model.blur="phonenum"
                             type="text"
                             id="phonenum"
-                            placeholder="+639XX-XXXX-XXX"
+                            placeholder="+639XXXXXXXXX"
                             class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 @error('phone_number') border-red-500 @enderror"
                         />
                     </div>
