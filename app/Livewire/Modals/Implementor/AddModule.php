@@ -32,7 +32,7 @@ class AddModule extends Component
             $this->validate([
                 'module_number' => 'required|integer',
                 'module_title'  => 'required|string|max:255',
-                'content'       => 'required|string',
+                'content'       => 'nullable|string',
                 'attachments'   => 'nullable|file|max:10240',
             ]);
 
@@ -79,8 +79,14 @@ class AddModule extends Component
                 'text'  => 'Module & Lesson added successfully!',
             ]);
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Re-throw validation exceptions to show field-specific errors
+            throw $e;
         } catch (\Throwable $e) {
-            dd($e->getMessage());
+            $this->dispatch('swal:error', [
+                'title' => 'Error!',
+                'text'  => $e->getMessage(),
+            ]);
         }
     }
 
