@@ -9,6 +9,9 @@ use App\Models\Category;
 use App\Models\CourseTag;
 use App\Models\CoverPhoto;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User; 
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\GeneralNotification; 
 
 class CreateCourse extends Component
 {
@@ -105,6 +108,31 @@ class CreateCourse extends Component
                     'tag'       => $tag,
                 ]);
             }
+
+            $currentUser = Auth::user();
+            $implementorName = $currentUser->profile->first_name ?? $currentUser->username;
+
+            // A. Notify Admins
+            $admins = User::whereHas('role', function ($query) {
+                $query->where('role_name', 'admin'); 
+            })->get();
+
+            $adminNotification = new GeneralNotification(
+                'New Course Created',
+                "Implementor {$implementorName} has created a new course: {$this->course_title}.",
+                route('admin.courses') 
+            );
+
+            Notification::send($admins, $adminNotification);
+
+            // B. Notify the Implementor (Self)
+            $selfNotification = new GeneralNotification(
+                'Course Created Successfully', 
+                "You have successfully created the course \"{$this->course_title}\".", 
+                route('implementor.course-information', $course) // Link to the specific course page
+            );
+
+            $currentUser->notify($selfNotification);
 
             // Reset form fields
             $this->reset([

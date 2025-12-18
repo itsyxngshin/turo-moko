@@ -20,6 +20,6 @@ public function mount($courseId)
 
     public function render()
     {
-return view('livewire.modals.implementor.add-resource');
+    return view('livewire.modals.implementor.add-resource');
     }
 }

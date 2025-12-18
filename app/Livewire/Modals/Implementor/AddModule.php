@@ -6,6 +6,9 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Module;
 use App\Models\Lesson;
+use App\Models\User;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\GeneralNotification;
 
 class AddModule extends Component
 {
@@ -16,8 +19,10 @@ class AddModule extends Component
     public $module_number;
     public $module_title;
     public $content;
-    public $attachments;               // Current file upload
-    public $removeAttachment = false;  // For tracking removal in UI
+    public $attachments;
+    
+    // FIX: Renamed from $removeAttachment to match frontend request
+    public $attachments_removed = false; 
 
     protected $listeners = ['refreshModuleList' => '$refresh'];
 
@@ -39,12 +44,13 @@ class AddModule extends Component
             $filePath = null;
             $originalName = null;
 
-            if ($this->attachments && !$this->removeAttachment) {
+            // FIX: Updated check to use $this->attachments_removed
+            if ($this->attachments && !$this->attachments_removed) {
                 $filePath = $this->attachments->store('attachments', 'public');
                 $originalName = $this->attachments->getClientOriginalName();
             }
 
-            // Get the next order number across ALL timeline items
+            // Get the next order number
             $maxOrder = max(
                 Module::where('course_id', $this->courseId)->max('order') ?? 0,
                 \App\Models\Assignment::where('course_id', $this->courseId)->max('order') ?? 0,
@@ -70,6 +76,26 @@ class AddModule extends Component
                 'attachments_original_name' => $originalName,
             ]);
 
+            // ==========================================
+            // NOTIFY ENROLLEES
+            // ==========================================
+            
+            $enrollees = User::whereIn('id', function($query) {
+                $query->select('enrollee_id')
+                      ->from('course_enrollees')
+                      ->where('course_id', $this->courseId)
+                      ->where('status', 'Active');
+            })->get();
+
+            if ($enrollees->count() > 0) {
+                Notification::send($enrollees, new GeneralNotification(
+                    'New Module Added', 
+                    "A new module '{$this->module_title}' has been added to your course.", 
+                    // Ensure this route is correct for your app
+                    route('learner.course.overview', $this->courseId) 
+                ));
+            }
+
             $this->resetForm();
 
             $this->dispatch('module-modal-close');
@@ -80,7 +106,6 @@ class AddModule extends Component
             ]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
-            // Re-throw validation exceptions to show field-specific errors
             throw $e;
         } catch (\Throwable $e) {
             $this->dispatch('swal:error', [
@@ -93,11 +118,8 @@ class AddModule extends Component
     public function resetForm()
     {
         $this->reset([
-            'module_number',
-            'module_title',
-            'content',
-            'attachments',
-            'removeAttachment'
+            'module_number', 'module_title', 'content',
+            'attachments', 'attachments_removed' // FIX: Reset the correct property
         ]);
 
         $this->dispatch('reset-upload-box');

@@ -5,6 +5,9 @@ namespace App\Livewire\Modals\Implementor;
 use Livewire\Component;
 use App\Models\ProgramEvaluation;
 use App\Models\ImplementerEvaluation;
+use App\Models\User;
+use Illuminate\Support\Facades\Notification; 
+use App\Notifications\GeneralNotification;
 use Illuminate\Support\Facades\Auth;
 
 class AddEvaluation extends Component
@@ -68,6 +71,23 @@ class AddEvaluation extends Component
             'description'    => 'Implementor Evaluation',
             'status'         => 'active',
         ]);
+
+        // Fetch active enrollees
+        $enrollees = User::whereIn('id', function($query) {
+            $query->select('enrollee_id')
+                  ->from('course_enrollees')
+                  ->where('course_id', $this->courseId)
+                  ->where('status', 'Active');
+        })->get();
+
+        if ($enrollees->count() > 0) {
+            Notification::send($enrollees, new GeneralNotification(
+                'Evaluation Available', // Title
+                "The evaluation forms for your course are now available. Please complete them.", // Message
+                // PLEASE UPDATE THIS ROUTE to your actual learner course view route
+                route('learner.course.overview', $this->courseId) 
+            ));
+        }
 
         // Close modal and show success message
         $this->dispatch('evaluation-modal-close');

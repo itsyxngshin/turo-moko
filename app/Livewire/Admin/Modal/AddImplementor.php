@@ -12,6 +12,7 @@ use App\Models\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use App\Mail\VerificationCodeMail;
 use App\Mail\ImplementorCredentialsMail;
 
@@ -20,17 +21,20 @@ class AddImplementor extends Component
     use WithFileUploads;
 
     public $isOpen = false;
+    public $viewMode = 'manual'; // 'manual' or 'bulk'
 
-    // Form Fields
+    // Manual Form Fields
     public $first_name, $middle_name, $last_name;
     public $phonenum, $email, $username;
     public $password, $password_confirmation;
     public $photo;
 
-    // New: Notification State
+    // Bulk Import Field
+    public $csvFile;
+
     public $alert = [
         'show' => false,
-        'type' => '', // 'success' or 'error'
+        'type' => '',
         'message' => ''
     ];
 
@@ -38,13 +42,14 @@ class AddImplementor extends Component
     public function openModal()
     {
         $this->isOpen = true;
+        $this->viewMode = 'manual';
         $this->resetAlert();
     }
 
     public function closeModal()
     {
         $this->isOpen = false;
-        $this->reset(); // Clears form and alerts
+        $this->reset(); 
         $this->resetValidation();
     }
 
@@ -57,6 +62,129 @@ class AddImplementor extends Component
     {
         $this->photo = null;
     }
+
+    public function toggleMode($mode)
+    {
+        $this->viewMode = $mode;
+        $this->resetValidation(); // Clear errors when switching tabs
+        $this->resetAlert();
+        $this->reset(['photo', 'csvFile', 'first_name', 'last_name', 'email', 'phonenum', 'username', 'password', 'password_confirmation']);
+    }
+
+    // --- BULK IMPORT LOGIC ---
+
+    public function downloadTemplate()
+    {
+        return response()->streamDownload(function () {
+            echo "First Name,Middle Name,Last Name,Email,Phone,Username\n";
+            echo "Juan,Dela,Cruz,juan@gmail.com,9123456789,juandc";
+        }, 'implementor-template.csv');
+    }
+
+    public function importCsv()
+    {
+        $this->resetAlert();
+        $this->validate([
+            'csvFile' => 'required|file|mimes:csv,txt|max:2048',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $path = $this->csvFile->getRealPath();
+            $data = array_map('str_getcsv', file($path));
+            
+            // Remove header if it exists (basic check if first row contains "Email")
+            if (isset($data[0]) && in_array('Email', $data[0])) {
+                array_shift($data);
+            }
+
+            $count = 0;
+            $errors = [];
+
+            foreach ($data as $index => $row) {
+                // Skip empty rows or rows with insufficient columns
+                if (count($row) < 6) continue;
+
+                $firstName  = trim($row[0]);
+                $middleName = trim($row[1]);
+                $lastName   = trim($row[2]);
+                $email      = trim($row[3]);
+                $phone      = trim($row[4]); // Expected format: 9xxxxxxxxx
+                $username   = trim($row[5]);
+
+                // Basic Validation per row
+                if (User::where('email', $email)->exists() || User::where('username', $username)->exists()) {
+                    $errors[] = "Row " . ($index + 2) . ": $email or $username already exists.";
+                    continue;
+                }
+
+                // Generate Random Password
+                $generatedPassword = Str::password(10, true, true, true, false); 
+                $formattedPhone = '+63' . $phone;
+
+                // Create Profile
+                $profile = Profile::create([
+                    'photo_id' => null, // No photo for bulk import
+                    'first_name' => $firstName,
+                    'middle_name' => $middleName,
+                    'last_name' => $lastName,
+                    'status' => 'Active',
+                ]);
+
+                // Create User
+                $user = User::create([
+                    'email' => $email,
+                    'phonenum' => $formattedPhone,
+                    'username' => $username,
+                    'password' => bcrypt($generatedPassword),
+                    'profile_id' => $profile->id,
+                    'role_id' => 2, // Implementor Role
+                ]);
+
+                // Send Credentials Email
+                Mail::to($email)->send(new ImplementorCredentialsMail(
+                    $firstName, $username, $email, $generatedPassword
+                ));
+
+                $count++;
+            }
+
+            if (count($errors) > 0) {
+                // If there were specific row errors, throw exception to rollback everything
+                // so the user can fix the CSV and try again cleanly.
+                throw new \Exception("Import failed. Issues found: " . implode(" | ", $errors));
+            }
+
+            Log::create([
+                'user_id' => Auth::id(),
+                'action' => 'admin.bulk_create_implementor',
+                'description' => "Bulk imported $count implementors.",
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ]);
+
+            DB::commit();
+
+            $this->reset(['csvFile']);
+            $this->alert = [
+                'show' => true,
+                'type' => 'success',
+                'message' => "Successfully imported $count implementors! Credentials sent via email."
+            ];
+            $this->dispatch('implementor-saved');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $this->alert = [
+                'show' => true,
+                'type' => 'error',
+                'message' => 'Import Error: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    // --- MANUAL ENTRY LOGIC ---
 
     public function save()
     {
@@ -75,7 +203,6 @@ class AddImplementor extends Component
             ],
         ]);
 
-        // Start Transaction
         DB::beginTransaction();
 
         try {
@@ -119,7 +246,6 @@ class AddImplementor extends Component
             ]);
 
             // 5. Send Emails
-            // We do this LAST so if it fails, the catch block rolls back the User creation
             Mail::to($this->email)->send(new ImplementorCredentialsMail(
                 $this->first_name, $this->username, $this->email, $this->password
             ));
@@ -127,10 +253,9 @@ class AddImplementor extends Component
             $code = rand(100000, 999999); 
             Mail::to($user->email)->send(new VerificationCodeMail($code));
 
-            // Commit Transaction (Save to DB permanently)
             DB::commit();
 
-            // SUCCESS STATE
+            // Success State
             $this->reset(['first_name', 'middle_name', 'last_name', 'phonenum', 'email', 'username', 'password', 'password_confirmation', 'photo']);
             
             $this->alert = [
@@ -140,20 +265,15 @@ class AddImplementor extends Component
             ];
 
             $this->dispatch('implementor-saved', message: "Implementor '{$this->username}' created successfully!");
-            
-            // REMOVED: $this->resetPage(); 
-            // Reason: This causes an error if the component doesn't use WithPagination trait.
 
         } catch (\Exception $e) {
-            // Rollback Transaction (Undo DB changes if error occurred)
             DB::rollBack();
-
             \Illuminate\Support\Facades\Log::error('Add Implementor Error: ' . $e->getMessage());
             
             $this->alert = [
                 'show' => true,
                 'type' => 'error',
-                'message' => 'Error: ' . $e->getMessage() // Showing message temporarily to help you debug
+                'message' => 'Error: ' . $e->getMessage()
             ];
         }
     }

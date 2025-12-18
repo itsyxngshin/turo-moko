@@ -183,7 +183,7 @@ class Register extends Component
             $identify = $user->role->role_name ?? 'learner';
         
             $match = match($identify) {
-                'implementer' => route('admin.implementors'), 
+                'implementor' => route('admin.implementors'), 
                 'learner' => route('admin.enrollees'),
                 default => route('homepage'),
             };

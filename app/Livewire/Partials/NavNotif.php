@@ -3,13 +3,38 @@
 namespace App\Livewire\Partials;
 
 use Livewire\Component;
+use Livewire\WithPagination; // Import Pagination
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 
 class NavNotif extends Component
 {
-    protected $listeners = ['notificationMarkedAsRead' => '$refresh'];
+    use WithPagination; // Use Pagination
 
+    protected $listeners = ['notificationMarkedAsRead' => '$refresh'];
+    
+    // State for the modal
+    public $showAllNotificationsModal = false;
+
+    // Reset pagination when the modal is closed so it re-opens on page 1
+    public function updatedShowAllNotificationsModal($value)
+    {
+        if (!$value) {
+            $this->resetPage();
+        }
+    }
+
+    public function openModal()
+    {
+        $this->showAllNotificationsModal = true;
+    }
+
+    public function closeModal()
+    {
+        $this->showAllNotificationsModal = false;
+    }
+
+    // This property remains for the "Dropdown" preview (top 5)
     public function getNotificationsProperty()
     {
         /** @var \App\Models\User $user */
@@ -17,7 +42,6 @@ class NavNotif extends Component
         
         if (!$user) return collect(); 
 
-        // FIX: Removed the () after $user
         return $user->unreadNotifications()->latest()->take(5)->get();
     }
 
@@ -56,6 +80,16 @@ class NavNotif extends Component
 
     public function render()
     {
-        return view('livewire.partials.nav-notif');
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        
+        // We fetch "All" notifications only if the modal is open to save performance
+        $allNotifications = ($this->showAllNotificationsModal && $user) 
+            ? $user->notifications()->latest()->paginate(10) 
+            : [];
+
+        return view('livewire.partials.nav-notif', [
+            'allNotifications' => $allNotifications
+        ]);
     }
 }
