@@ -41,7 +41,7 @@
             <input 
                 id="enrollLink"
                 type="text" 
-                value="{{ route('learner.course.join', $course->course_code) }}" 
+                value="{{ route('course.join', $course->course_code) }}" 
                 readonly
                 class="border rounded-l-lg px-3 py-2 w-full md:w-64 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >

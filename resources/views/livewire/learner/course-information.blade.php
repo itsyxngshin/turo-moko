@@ -90,12 +90,13 @@
                             @php $section = $item['data']; @endphp
                             <!-- Section Header (Read-only) -->
                             <div class="mb-6 mt-8">
-                                <div class="bg-gradient-to-r from-orange-50 to-white border-l-4 border-orange-500 py-6 px-4 rounded-r-lg shadow-sm">
-                                    <h3 class="text-2xl font-bold text-orange-500 text-center">
-                                        {{ $section->title }}
-                                    </h3>
-                                </div>
-                            </div>
+    <div class="py-6 px-4 rounded-r-lg bg-gradient-to-r from-orange-50 to-white/50 border border-gray/30 border-l-4 border-l-orange-500 shadow-sm transform-gpu backdrop-blur-sm">
+        <h3 class="text-2xl font-bold text-orange-500 text-center">
+            {{ $section->title }}
+        </h3>
+    </div>
+</div>
+
                             @break
 
                         @case('module')

@@ -818,6 +818,10 @@ document.addEventListener('alpine:init', () => {
                 submissionIndex = this.quizData.submissions.findIndex(s => s.id === submission.id);
             }
             
+            console.log('Opening modal with submission:', submission);
+            console.log('Submission has answers:', submission?.answers);
+            console.log('Answers count:', submission?.answers?.length);
+            
             this.selectedSubmission = submission;
             this.currentSubmissionIndex = submissionIndex;
             this.modalOpen = true;

@@ -120,6 +120,14 @@ Route::middleware('guest')->group(function () {
     Route::get('/reset-password/{token}', ResetPassword::class)->name('password.reset');
 });
 
+    // Show confirmation page
+Route::get('/courses/{course:course_code}/join', [CourseEnrollmentController::class, 'join'])
+    ->name('course.join');
+
+// Handle confirmation
+Route::post('/courses/{course:course_code}/enroll', [CourseEnrollmentController::class, 'confirmEnrollment'])
+    ->name('course.enroll.confirm');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -175,9 +183,6 @@ Route::post('/course/{course}/enroll', [DashboardController::class, 'enroll'])
  Route::get('/notifications', fn() => view('learner.notifications-page'))->name('notifications');
  Route::post('/course/{course}/leave', [CourseController::class, 'leaveCourse'])
     ->name('course.leave');
-    Route::get('/courses/{course:course_code}/join', 
-    [CourseEnrollmentController::class, 'join']
-)->name('course.join');
 
  
  // Livewire Viewsaction: 
@@ -265,12 +270,12 @@ Route::middleware(['auth', 'role:implementor', 'verified'])
     // --------------------------
     Route::get('/create-announcement', [ImplementorAddAnnouncementController::class, 'show'])->name('add-announcement');
     Route::delete('/announcement/{course:course_code}', [ImplementorCourseInformationController::class, 'deleteAnnouncement'])->name('announcement.delete');
-
+    
     // --------------------------
     // Timeline Order
     // --------------------------
     Route::post('/course/{course:id}/reorder-timeline', [ImplementorCourseInformationController::class, 'reorderTimeline'])->name('course.reorder-timeline');
-
+    
     // --------------------------
     // Assessment Builder
     // --------------------------

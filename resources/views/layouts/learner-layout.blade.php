@@ -23,8 +23,7 @@
 <!-- Lucide Icons -->
 <script src="https://unpkg.com/lucide@latest"></script>
 
-<!-- Alpine.js -->
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
 
     <style>
         html {
@@ -174,29 +173,34 @@
     <div class="flex-1 flex flex-col h-screen">
 
         <!-- Top Nav -->
-        <nav class="flex justify-between items-center h-16 px-6 sticky top-0 z-30 bg-gray-50">
-            <div class="flex items-center gap-4 pl-5">
-                <a href="{{ route('learner.profile') }}">
-                    <div class="h-10 w-10 rounded-full overflow-hidden border-2 border-white shadow">
-                        @if ($profile && $profile->photo)
-                            <img src="{{ asset('storage/' . $profile->photo->photos) }}" class="h-full w-full object-cover">
-                        @else
-                            <div class="h-full w-full bg-orange-100 flex items-center justify-center text-orange-500 font-bold">{{ $initials }}</div>
-                        @endif
-                    </div>
-                </a>
-                <div class="flex flex-col leading-tight">
-                    <h1 class="text-lg font-bold text-gray-800">
-                        Hello, <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-orange-600">{{ $profile->first_name ?? 'User' }}</span>!
-                    </h1>
-                    <span class="text-xs text-gray-400 uppercase">Learner</span>
-                </div>
+<nav class="flex justify-between items-center h-16 px-6 sticky top-0 z-30 bg-gray-50">
+    <div class="flex items-center gap-4 pl-5">
+        <a href="{{ route('learner.profile') }}">
+            <div class="h-10 w-10 rounded-full overflow-hidden border-2 border-white shadow">
+                @if ($profile && $profile->photo)
+                    <img src="{{ asset('storage/' . $profile->photo->photos) }}" class="h-full w-full object-cover">
+                @else
+                    <div class="h-full w-full bg-orange-100 flex items-center justify-center text-orange-500 font-bold">{{ $initials }}</div>
+                @endif
             </div>
+        </a>
+        <div class="flex flex-col leading-tight">
+            <h1 class="text-lg font-bold text-gray-800">
+                Hello, <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-orange-600">{{ $profile->first_name ?? 'User' }}</span>!
+            </h1>
+            <span class="text-xs text-gray-400 uppercase">Learner</span>
+        </div>
+    </div>
 
-            <div class="flex items-center gap-3">
-                <livewire:partials.nav-notif />
-            </div>
-        </nav>
+    <div class="flex items-center gap-3">
+        <livewire:partials.nav-notif />
+      <!-- Enroll Button -->
+       <livewire:learner.course-code-enrollment />
+
+
+    </div>
+</nav>
+
 
         <!-- Page Content -->
         <main class="flex-1 overflow-y-auto p-4 scrollbar-hide">

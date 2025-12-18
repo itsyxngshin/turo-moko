@@ -22,7 +22,7 @@
             </a>
 
             <button type="submit"
-                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700">
                 Confirm Enrollment
             </button>
         </div>
