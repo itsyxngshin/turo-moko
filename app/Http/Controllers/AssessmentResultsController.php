@@ -123,7 +123,13 @@ class AssessmentResultsController extends Controller
     {
         $quiz = Quiz::with(['course', 'questions.choices'])->findOrFail($quizId);
         
-        // Get only the latest attempt for each student
+        // Get ALL enrolled students for this course
+        $enrollees = CourseEnrollee::where('course_id', $quiz->course_id)
+            ->whereIn('status', ['Active', 'Completed'])
+            ->with(['user.profile'])
+            ->get();
+        
+        // Get only the latest attempt for each student who has submitted
         $latestAttempts = QuizResult::where('quiz_id', $quizId)
             ->select('course_enrollee_id', DB::raw('MAX(attempt_number) as max_attempt'))
             ->groupBy('course_enrollee_id')
@@ -142,15 +148,16 @@ class AssessmentResultsController extends Controller
             })
             ->with(['enrollee.user.profile'])
             ->get();
+        
+        // Create a map of enrollee_id => result for quick lookup
+        $resultsMap = $results->keyBy('course_enrollee_id');
 
         // Calculate stats
         $totalPoints = $quiz->questions->sum('points');
         $totalSubmissions = $results->count();
         $gradedCount = $results->where('status', 'Checked')->count();
         $pendingCount = $results->where('status', 'Pending')->count();
-        $enrolledCount = CourseEnrollee::where('course_id', $quiz->course_id)
-            ->whereIn('status', ['Active', 'Completed'])
-            ->count();
+        $enrolledCount = $enrollees->count();
         
         $gradedResults = $results->where('status', 'Checked');
         $averageScore = $gradedResults->count() > 0 
@@ -203,25 +210,43 @@ class AssessmentResultsController extends Controller
             ->get()
             ->groupBy('question_id');
 
-        // Build student submissions data
-        $submissions = $results->map(function ($result) use ($quiz, $totalPoints) {
-            $user = $result->enrollee->user ?? null;
+        // Build student submissions data - include ALL enrolled students
+        $submissions = $enrollees->map(function ($enrollee) use ($resultsMap, $quiz, $totalPoints) {
+            $result = $resultsMap->get($enrollee->id);
+            $user = $enrollee->user ?? null;
             $profile = $user->profile ?? null;
+            
+            $studentName = $profile 
+                ? trim($profile->first_name . ' ' . $profile->last_name) 
+                : ($user->username ?? $user->email ?? 'Unknown Student');
+            
+            // If student hasn't submitted, return minimal data
+            if (!$result) {
+                return [
+                    'id' => null,
+                    'course_enrollee_id' => $enrollee->id,
+                    'student_name' => $studentName,
+                    'email' => $user->email ?? '',
+                    'submitted_at' => null,
+                    'score' => 0,
+                    'total_points' => $totalPoints,
+                    'percentage' => 0,
+                    'status' => 'Not Submitted',
+                    'has_submission' => false,
+                    'has_ungraded' => false,
+                    'answers' => [],
+                ];
+            }
             
             // Get total number of attempts for this student
             $totalAttempts = QuizResult::where('quiz_id', $quiz->id)
-                ->where('course_enrollee_id', $result->course_enrollee_id)
+                ->where('course_enrollee_id', $enrollee->id)
                 ->count();
             
-            // Get student's answers for this quiz (latest attempt only)
-            // Get the most recent N answers where N = number of questions
-            $questionCount = $quiz->questions->count();
-            
+            // Get student's answers for this quiz
             $answers = Answer::where('quiz_id', $quiz->id)
-                ->where('course_enrollee_id', $result->course_enrollee_id)
-                ->orderBy('created_at', 'desc')
+                ->where('course_enrollee_id', $enrollee->id)
                 ->with(['question', 'choice'])
-                ->limit($questionCount)
                 ->get();
 
             // Check if there are any ungraded long-answer questions (points = -1 means ungraded)
@@ -232,18 +257,18 @@ class AssessmentResultsController extends Controller
 
             return [
                 'id' => $result->id,
-                'course_enrollee_id' => $result->course_enrollee_id,
+                'course_enrollee_id' => $enrollee->id,
                 'attempt_number' => $result->attempt_number,
                 'total_attempts' => $totalAttempts,
-                'student_name' => $profile 
-                    ? trim($profile->first_name . ' ' . $profile->last_name) 
-                    : ($user->username ?? 'Unknown Student'),
+                'student_name' => $studentName,
                 'email' => $user->email ?? '',
                 'submitted_at' => $result->created_at->format('M d, Y h:i A'),
+                'submitted_at_timestamp' => $result->created_at->timestamp,
                 'score' => $result->score ?? 0,
                 'total_points' => $totalPoints,
                 'percentage' => $totalPoints > 0 ? round((($result->score ?? 0) / $totalPoints) * 100, 1) : 0,
                 'status' => $result->status,
+                'has_submission' => true,
                 'has_ungraded' => $hasUngradedEssays,
                 'answers' => $answers->map(function ($answer) {
                     $question = $answer->question;

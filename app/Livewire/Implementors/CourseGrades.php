@@ -224,14 +224,18 @@ public function downloadGradesCsv(): StreamedResponse
                             'grade' => $this->formatAssignmentGrade($submission),
                         ];
 
-                        // Always include assignment percentage (no submission = 0)
-                        $percentages[] = $this->assignmentPercentage($submission);
+                        // Include in final grade calculation based on submission status
+                        $percentage = $this->assignmentPercentage($submission);
+                        if ($percentage !== null) {
+                            $percentages[] = $percentage;
+                        }
                     } else {
                         $resultKey = $student->id . '-' . $activity['id'];
                         $result = $quizResults->get($resultKey)?->first();
                         $totalPoints = $quizTotals[$activity['id']] ?? null;
                         $quizPercent = $this->quizPercentage($result, $totalPoints);
 
+                        // Include in final grade: no submission = 0, submitted = percentage or null if not graded
                         if ($quizPercent !== null) {
                             $percentages[] = $quizPercent;
                         }
@@ -270,16 +274,16 @@ public function downloadGradesCsv(): StreamedResponse
         return $this->formatScore($submission->grade) . '%';
     }
 
-    protected function assignmentPercentage(?Submission $submission): float
+    protected function assignmentPercentage(?Submission $submission): ?float
     {
         if (!$submission) {
-            // No submission = 0%
+            // No submission = 0% (included in final grade)
             return 0.0;
         }
         
         if ($submission->grade === null) {
-            // Submitted but not graded yet - don't count in average
-            return 0.0;
+            // Submitted but not graded yet - excluded from final grade calculation
+            return null;
         }
 
         // Grade is already a percentage (0-100)
@@ -288,8 +292,14 @@ public function downloadGradesCsv(): StreamedResponse
 
     protected function formatQuizGrade(?QuizResult $result, ?float $totalPoints): ?string
     {
-        if (!$result || $result->score === null) {
-            return null;
+        if (!$result) {
+            // No submission = 0%
+            return '0%';
+        }
+        
+        if ($result->score === null) {
+            // Submitted but not graded yet
+            return '—';
         }
 
         if ($totalPoints && $totalPoints > 0) {
@@ -302,7 +312,13 @@ public function downloadGradesCsv(): StreamedResponse
 
     protected function quizPercentage(?QuizResult $result, ?float $totalPoints): ?float
     {
-        if (!$result || $result->score === null || !$totalPoints || $totalPoints <= 0) {
+        if (!$result) {
+            // No submission = 0% (included in final grade)
+            return 0.0;
+        }
+        
+        if ($result->score === null || !$totalPoints || $totalPoints <= 0) {
+            // Submitted but not graded yet OR invalid total points - excluded from final grade
             return null;
         }
 

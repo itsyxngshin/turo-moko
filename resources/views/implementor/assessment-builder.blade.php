@@ -165,12 +165,49 @@
                         <template x-if="item.type === 'multiple_choice'">
                             <div>
                                 <input type="text" placeholder="Enter question..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText"  />
+                                
+                                <!-- Image Upload Section -->
+                                <div class="mb-4">
+                                    <template x-if="!item.imageData">
+                                        <div>
+                                            <input 
+                                                type="file" 
+                                                :id="'image-upload-' + item.id" 
+                                                accept="image/jpeg,image/png,image/gif" 
+                                                class="hidden"
+                                                @change="handleImageUpload($event, item)"
+                                            />
+                                            <button 
+                                                type="button" 
+                                                @click="document.getElementById('image-upload-' + item.id).click()" 
+                                                class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                                            >
+                                                <i data-lucide="image" class="w-4 h-4"></i>
+                                                Add Image
+                                            </button>
+                                        </div>
+                                    </template>
+                                    <template x-if="item.imageData">
+                                        <div class="relative inline-block">
+                                            <img :src="item.imageData" :alt="item.imageName" class="max-w-md max-h-64 rounded-lg border border-gray-300" />
+                                            <button 
+                                                type="button" 
+                                                @click="item.imageData = null; item.imageName = null; reinitializeIcons()" 
+                                                class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700"
+                                            >
+                                                <i data-lucide="x" class="w-4 h-4"></i>
+                                            </button>
+                                            <p class="text-xs text-gray-500 mt-1" x-text="item.imageName"></p>
+                                        </div>
+                                    </template>
+                                </div>
+                                
                                 <div class="space-y-3">
                                     <template x-for="(option, optionIndex) in item.options" :key="optionIndex">
                                         <div class="flex items-center gap-2">
                                             <label class="flex-1 block border rounded-lg p-3 cursor-pointer hover:bg-gray-50">
                                                 <input type="radio" :name="'mc-' + item.id" :value="optionIndex" class="hidden peer" x-model="item.correctAnswer" />
-                                                <span class="peer-checked:font-semibold peer-checked:text-blue-600">
+                                                <span class="peer-checked:font-semibold peer-checked:text-orange-600">
                                                     <b x-text="String.fromCharCode(65 + optionIndex) + '.'"></b> 
                                                     <input type="text" :placeholder="'Option ' + String.fromCharCode(65 + optionIndex)" class="border-none outline-none bg-transparent min-w-[150px] max-w-full" x-model="item.options[optionIndex]"  />
                                                 </span>
@@ -178,23 +215,60 @@
                                             <button type="button" @click="item.options.splice(optionIndex, 1)" class="text-red-600 hover:text-red-800 px-2" x-show="item.options.length > 1">×</button>
                                         </div>
                                     </template>
-                                    <button type="button" @click="item.options.push('')" class="text-blue-600 hover:text-blue-800 text-sm">+ Add option</button>
+                                    <button type="button" @click="item.options.push('')" class="text-orange-600 hover:text-orange-800 text-sm">+ Add option</button>
                                 </div>
                             </div>
                         </template>
                         <template x-if="item.type === 'true_false'">
                             <div>
                                 <input type="text" placeholder="Enter statement..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText"  />
+                                
+                                <!-- Image Upload Section -->
+                                <div class="mb-4">
+                                    <template x-if="!item.imageData">
+                                        <div>
+                                            <input 
+                                                type="file" 
+                                                :id="'image-upload-' + item.id" 
+                                                accept="image/jpeg,image/png,image/gif" 
+                                                class="hidden"
+                                                @change="handleImageUpload($event, item)"
+                                            />
+                                            <button 
+                                                type="button" 
+                                                @click="document.getElementById('image-upload-' + item.id).click()" 
+                                                class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                                            >
+                                                <i data-lucide="image" class="w-4 h-4"></i>
+                                                Add Image
+                                            </button>
+                                        </div>
+                                    </template>
+                                    <template x-if="item.imageData">
+                                        <div class="relative inline-block">
+                                            <img :src="item.imageData" :alt="item.imageName" class="max-w-md max-h-64 rounded-lg border border-gray-300" />
+                                            <button 
+                                                type="button" 
+                                                @click="item.imageData = null; item.imageName = null; reinitializeIcons()" 
+                                                class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700"
+                                            >
+                                                <i data-lucide="x" class="w-4 h-4"></i>
+                                            </button>
+                                            <p class="text-xs text-gray-500 mt-1" x-text="item.imageName"></p>
+                                        </div>
+                                    </template>
+                                </div>
+                                
                                 <div class="space-y-3">
                                     <label class="block border rounded-lg p-3 cursor-pointer hover:bg-gray-50">
                                         <input type="radio" :name="'tf-' + item.id" value="true" class="hidden peer" x-model="item.correctAnswer" />
-                                        <span class="peer-checked:font-semibold peer-checked:text-blue-600">
+                                        <span class="peer-checked:font-semibold peer-checked:text-orange-600">
                                             <b>TRUE:</b> <input type="text" placeholder="True statement" class="border-none outline-none bg-transparent min-w-[150px] max-w-full" x-model="item.trueText"  />
                                         </span>
                                     </label>
                                     <label class="block border rounded-lg p-3 cursor-pointer hover:bg-gray-50">
                                         <input type="radio" :name="'tf-' + item.id" value="false" class="hidden peer" x-model="item.correctAnswer" />
-                                        <span class="peer-checked:font-semibold peer-checked:text-blue-600">
+                                        <span class="peer-checked:font-semibold peer-checked:text-orange-600">
                                             <b>FALSE:</b> <input type="text" placeholder="False statement" class="border-none outline-none bg-transparent min-w-[150px] max-w-full" x-model="item.falseText"  />
                                         </span>
                                     </label>
@@ -204,21 +278,102 @@
                         <template x-if="item.type === 'short_answer'">
                             <div>
                                 <input type="text" placeholder="Enter question..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText"  />
-                                <div class="mt-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Answer</label>
-                                    <input 
-                                        type="text" 
-                                        placeholder="Enter the correct answer..." 
-                                        class="px-4 py-2 rounded-xl border bg-white shadow-sm w-full" 
-                                        x-model="item.modelAnswer"
-                                        required
-                                    />
+                                
+                                <!-- Image Upload Section -->
+                                <div class="mb-4">
+                                    <template x-if="!item.imageData">
+                                        <div>
+                                            <input 
+                                                type="file" 
+                                                :id="'image-upload-' + item.id" 
+                                                accept="image/jpeg,image/png,image/gif" 
+                                                class="hidden"
+                                                @change="handleImageUpload($event, item)"
+                                            />
+                                            <button 
+                                                type="button" 
+                                                @click="document.getElementById('image-upload-' + item.id).click()" 
+                                                class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                                            >
+                                                <i data-lucide="image" class="w-4 h-4"></i>
+                                                Add Image
+                                            </button>
+                                        </div>
+                                    </template>
+                                    <template x-if="item.imageData">
+                                        <div class="relative inline-block">
+                                            <img :src="item.imageData" :alt="item.imageName" class="max-w-md max-h-64 rounded-lg border border-gray-300" />
+                                            <button 
+                                                type="button" 
+                                                @click="item.imageData = null; item.imageName = null; reinitializeIcons()" 
+                                                class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700"
+                                            >
+                                                <i data-lucide="x" class="w-4 h-4"></i>
+                                            </button>
+                                            <p class="text-xs text-gray-500 mt-1" x-text="item.imageName"></p>
+                                        </div>
+                                    </template>
                                 </div>
+                                
+                                <div class="space-y-2">
+                                    <template x-for="(answer, answerIndex) in item.acceptedAnswers" :key="answerIndex">
+                                        <div class="flex items-center gap-2">
+                                            <input 
+                                                type="text" 
+                                                :placeholder="'Accepted answer ' + (answerIndex + 1)" 
+                                                class="flex-1 border rounded-lg p-3 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                                                x-model="item.acceptedAnswers[answerIndex]" 
+                                            />
+                                            <button type="button" @click="item.acceptedAnswers.splice(answerIndex, 1)" class="text-red-600 hover:text-red-800 px-2" x-show="item.acceptedAnswers.length > 1">×</button>
+                                        </div>
+                                    </template>
+                                    <button type="button" @click="item.acceptedAnswers.push('')" class="text-orange-600 hover:text-orange-800 text-sm">+ Add another answer</button>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">
+                                    All answer variations will be accepted (case-insensitive matching)
+                                </p>
                             </div>
                         </template>
                         <template x-if="item.type === 'long_answer'">
                             <div>
                                 <input type="text" placeholder="Enter question..." class="text-xl font-semibold mb-4 w-full min-w-0" x-model="item.questionText"  />
+                                
+                                <!-- Image Upload Section -->
+                                <div class="mb-4">
+                                    <template x-if="!item.imageData">
+                                        <div>
+                                            <input 
+                                                type="file" 
+                                                :id="'image-upload-' + item.id" 
+                                                accept="image/jpeg,image/png,image/gif" 
+                                                class="hidden"
+                                                @change="handleImageUpload($event, item)"
+                                            />
+                                            <button 
+                                                type="button" 
+                                                @click="document.getElementById('image-upload-' + item.id).click()" 
+                                                class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                                            >
+                                                <i data-lucide="image" class="w-4 h-4"></i>
+                                                Add Image
+                                            </button>
+                                        </div>
+                                    </template>
+                                    <template x-if="item.imageData">
+                                        <div class="relative inline-block">
+                                            <img :src="item.imageData" :alt="item.imageName" class="max-w-md max-h-64 rounded-lg border border-gray-300" />
+                                            <button 
+                                                type="button" 
+                                                @click="item.imageData = null; item.imageName = null; reinitializeIcons()" 
+                                                class="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700"
+                                            >
+                                                <i data-lucide="x" class="w-4 h-4"></i>
+                                            </button>
+                                            <p class="text-xs text-gray-500 mt-1" x-text="item.imageName"></p>
+                                        </div>
+                                    </template>
+                                </div>
+                                
                                 <div class="mt-4">
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Model Answer</label>
                                     <textarea 
@@ -439,6 +594,33 @@
 
             // ===== ITEM MANAGEMENT =====
             
+            handleImageUpload(event, item) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                // Validate file type
+                const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                if (!validTypes.includes(file.type)) {
+                    alert('Please upload a valid image file (JPG, PNG, or GIF)');
+                    return;
+                }
+                
+                // Validate file size (max 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Image size must be less than 5MB');
+                    return;
+                }
+                
+                // Convert to base64
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    item.imageData = e.target.result;
+                    item.imageName = file.name;
+                    this.reinitializeIcons();
+                };
+                reader.readAsDataURL(file);
+            },
+            
             removeItem(index) {
                 if (index >= 0 && index < this.items.length) {
                     this.items.splice(index, 1);
@@ -464,10 +646,13 @@
                         shortAnswerField: '',
                         longAnswerField: '',
                         modelAnswer: '',
+                        acceptedAnswers: type === 'short_answer' ? [''] : [], // Initialize for short answer
                         trueText: 'True',
                         falseText: 'False',
                         correctAnswer: type === 'true_false' ? 'true' : 0,
-                        options: type === 'multiple_choice' ? ['', ''] : []
+                        options: type === 'multiple_choice' ? ['', ''] : [],
+                        imageData: null,
+                        imageName: null
                     };
 
                     if (this.insertAfterIndex !== null) {
@@ -654,6 +839,8 @@
                             type: item.type,
                             points: item.points || 1,
                             modelAnswer: item.modelAnswer || '',
+                            imageData: item.imageData || null,
+                            imageName: item.imageName || null,
                         };
                         
                         // Add type-specific data
@@ -664,6 +851,9 @@
                             question.trueText = item.trueText || '';
                             question.falseText = item.falseText || '';
                             question.correctAnswer = item.correctAnswer || 'true';
+                        } else if (item.type === 'short_answer') {
+                            // Send acceptedAnswers array for short answer questions
+                            question.acceptedAnswers = item.acceptedAnswers || [''];
                         }
                         
                         return question;
@@ -826,12 +1016,22 @@
                     trueText: item.trueText || 'True',
                     falseText: item.falseText || 'False',
                     options: item.options || [],
-                    points: item.points || 1
+                    points: item.points || 1,
+                    imageData: item.imageData || null,
+                    imageName: item.imageName || null
                 };
             },
 
             generatePreviewHTML(type, values, itemId) {
-                const { questionText, textValue, shortAnswerField, longAnswerField, trueText, falseText, options, points } = values;
+                const { questionText, textValue, shortAnswerField, longAnswerField, trueText, falseText, options, points, imageData, imageName } = values;
+                
+                // Helper function to generate image HTML if present
+                const getImageHTML = () => {
+                    if (imageData) {
+                        return `<div class="mb-4"><img src="${imageData}" alt="${imageName || 'Question image'}" class="max-w-md max-h-64 rounded-lg border border-gray-200" /></div>`;
+                    }
+                    return '';
+                };
                 
                 switch (type) {
                     case 'text':
@@ -847,6 +1047,7 @@
                                     <label class="block text-lg font-medium">${questionText || 'Enter question...'}</label>
                                     <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">${points} point${points !== 1 ? 's' : ''}</span>
                                 </div>
+                                ${getImageHTML()}
                                 <input type="text" placeholder="Your answer here..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                             </div>
                         `;
@@ -858,6 +1059,7 @@
                                     <label class="block text-lg font-medium">${questionText || 'Enter question...'}</label>
                                     <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">${points} point${points !== 1 ? 's' : ''}</span>
                                 </div>
+                                ${getImageHTML()}
                                 <textarea placeholder="Your answer here..." rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"></textarea>
                             </div>
                         `;
@@ -869,6 +1071,7 @@
                                     <label class="block text-lg font-medium">${questionText || 'Enter statement...'}</label>
                                     <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">${points} point${points !== 1 ? 's' : ''}</span>
                                 </div>
+                                ${getImageHTML()}
                                 <div class="space-y-2">
                                     <label class="flex items-center">
                                         <input type="radio" name="tf-${itemId}" value="true" class="mr-2" />
@@ -893,6 +1096,7 @@
                                     <label class="block text-lg font-medium">${questionText || 'Enter question...'}</label>
                                     <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">${points} point${points !== 1 ? 's' : ''}</span>
                                 </div>
+                                ${getImageHTML()}
                                 <div class="space-y-2">${mcOptions}</div>
                             </div>
                         `;

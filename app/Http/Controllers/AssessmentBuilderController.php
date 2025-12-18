@@ -11,9 +11,39 @@ use App\Models\Answer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class AssessmentBuilderController extends Controller
 {
+    /**
+     * Save base64 image to storage and return path
+     */
+    private function saveBase64Image($base64String, $imageName)
+    {
+        if (!$base64String || !str_starts_with($base64String, 'data:image/')) {
+            return null;
+        }
+
+        try {
+            // Extract image data
+            $image = str_replace('data:image/', '', $base64String);
+            $image = explode(';base64,', $image);
+            $extension = $image[0];
+            $imageData = base64_decode($image[1]);
+
+            // Generate unique filename
+            $filename = 'question_images/' . time() . '_' . uniqid() . '.' . $extension;
+
+            // Save to storage
+            Storage::disk('public')->put($filename, $imageData);
+
+            return $filename;
+        } catch (\Exception $e) {
+            \Log::error('Failed to save image: ' . $e->getMessage());
+            return null;
+        }
+    }
+
     /**
      * Show the assessment builder form
      */
@@ -37,6 +67,8 @@ class AssessmentBuilderController extends Controller
                         'questionText' => $q->question_text, // Alpine.js uses questionText
                         'points' => $q->points,
                         'modelAnswer' => $q->model_answer ?? '',
+                        'imageData' => $q->image_path ? asset('storage/' . $q->image_path) : null,
+                        'imageName' => $q->image_name,
                     ];
                     
                     if ($q->type === 'multiple_choice') {
@@ -50,6 +82,14 @@ class AssessmentBuilderController extends Controller
                         $item['correctAnswer'] = $correctChoice && $correctChoice->choice_text === 'True' ? 'true' : 'false';
                     } elseif ($q->type === 'short_answer') {
                         $item['shortAnswerField'] = ''; // Initialize for Alpine
+                        // Convert model_answer to acceptedAnswers array for backward compatibility
+                        if (!empty($q->model_answer)) {
+                            // Check if model_answer is JSON array or single string
+                            $decoded = json_decode($q->model_answer, true);
+                            $item['acceptedAnswers'] = is_array($decoded) ? $decoded : [$q->model_answer];
+                        } else {
+                            $item['acceptedAnswers'] = [''];
+                        }
                     } elseif ($q->type === 'long_answer') {
                         $item['longAnswerField'] = ''; // Initialize for Alpine
                     }
@@ -139,10 +179,22 @@ class AssessmentBuilderController extends Controller
                     }
                 }
 
-                // Short answer questions must have a correct answer defined
+                // Short answer questions must have acceptedAnswers or modelAnswer defined
                 if ($question['type'] === 'short_answer') {
-                    if (empty($question['modelAnswer']) || trim($question['modelAnswer']) === '') {
-                        $validator->errors()->add("questions.{$index}.modelAnswer", 'Answer is required for short answer questions.');
+                    // Support both old (modelAnswer) and new (acceptedAnswers) formats
+                    $hasAnswers = false;
+                    
+                    if (isset($question['acceptedAnswers']) && is_array($question['acceptedAnswers'])) {
+                        $validAnswers = array_filter($question['acceptedAnswers'], function($ans) {
+                            return !empty(trim($ans));
+                        });
+                        $hasAnswers = count($validAnswers) > 0;
+                    } elseif (isset($question['modelAnswer']) && !empty(trim($question['modelAnswer']))) {
+                        $hasAnswers = true;
+                    }
+                    
+                    if (!$hasAnswers) {
+                        $validator->errors()->add("questions.{$index}.acceptedAnswers", 'At least one answer is required for short answer questions.');
                     }
                 }
             }
@@ -197,11 +249,27 @@ class AssessmentBuilderController extends Controller
             $questions = $questionsData;
             
             foreach ($questions as $questionData) {
+                // Prepare model_answer field
+                $modelAnswer = null;
+                if ($questionData['type'] === 'short_answer') {
+                    // For short answer, store acceptedAnswers as JSON, or fallback to modelAnswer
+                    if (isset($questionData['acceptedAnswers']) && is_array($questionData['acceptedAnswers'])) {
+                        $validAnswers = array_filter($questionData['acceptedAnswers'], function($ans) {
+                            return !empty(trim($ans));
+                        });
+                        $modelAnswer = json_encode(array_values($validAnswers));
+                    } elseif (isset($questionData['modelAnswer'])) {
+                        $modelAnswer = $questionData['modelAnswer'];
+                    }
+                } else {
+                    $modelAnswer = $questionData['modelAnswer'] ?? null;
+                }
+                
                 // Create the question
                 $question = Question::create([
                     'quiz_id' => $quiz->id,
                     'question_text' => $questionData['text'],
-                    'model_answer' => $questionData['modelAnswer'] ?? null,
+                    'model_answer' => $modelAnswer,
                     'type' => $questionData['type'],
                     'points' => $questionData['points'],
                 ]);
@@ -355,10 +423,22 @@ class AssessmentBuilderController extends Controller
                     }
                 }
 
-                // Short answer questions must have a correct answer defined
+                // Short answer questions must have acceptedAnswers or modelAnswer defined
                 if ($question['type'] === 'short_answer') {
-                    if (empty($question['modelAnswer']) || trim($question['modelAnswer']) === '') {
-                        $validator->errors()->add("questions.{$index}.modelAnswer", 'Answer is required for short answer questions.');
+                    // Support both old (modelAnswer) and new (acceptedAnswers) formats
+                    $hasAnswers = false;
+                    
+                    if (isset($question['acceptedAnswers']) && is_array($question['acceptedAnswers'])) {
+                        $validAnswers = array_filter($question['acceptedAnswers'], function($ans) {
+                            return !empty(trim($ans));
+                        });
+                        $hasAnswers = count($validAnswers) > 0;
+                    } elseif (isset($question['modelAnswer']) && !empty(trim($question['modelAnswer']))) {
+                        $hasAnswers = true;
+                    }
+                    
+                    if (!$hasAnswers) {
+                        $validator->errors()->add("questions.{$index}.acceptedAnswers", 'At least one answer is required for short answer questions.');
                     }
                 }
             }
@@ -410,13 +490,39 @@ class AssessmentBuilderController extends Controller
 
             // Process questions (use already decoded $questionsData)
             foreach ($questionsData as $questionData) {
+                // Prepare model_answer field
+                $modelAnswer = null;
+                if ($questionData['type'] === 'short_answer') {
+                    // For short answer, store acceptedAnswers as JSON, or fallback to modelAnswer
+                    if (isset($questionData['acceptedAnswers']) && is_array($questionData['acceptedAnswers'])) {
+                        $validAnswers = array_filter($questionData['acceptedAnswers'], function($ans) {
+                            return !empty(trim($ans));
+                        });
+                        $modelAnswer = json_encode(array_values($validAnswers));
+                    } elseif (isset($questionData['modelAnswer'])) {
+                        $modelAnswer = $questionData['modelAnswer'];
+                    }
+                } else {
+                    $modelAnswer = $questionData['modelAnswer'] ?? null;
+                }
+                
+                // Handle image upload
+                $imagePath = null;
+                $imageName = null;
+                if (isset($questionData['imageData']) && $questionData['imageData']) {
+                    $imagePath = $this->saveBase64Image($questionData['imageData'], $questionData['imageName'] ?? 'image.jpg');
+                    $imageName = $questionData['imageName'] ?? null;
+                }
+                
                 // Create the question
                 $question = Question::create([
                     'quiz_id' => $quiz->id,
                     'question_text' => $questionData['text'],
-                    'model_answer' => $questionData['modelAnswer'] ?? null,
+                    'model_answer' => $modelAnswer,
                     'type' => $questionData['type'],
                     'points' => $questionData['points'],
+                    'image_path' => $imagePath,
+                    'image_name' => $imageName,
                 ]);
 
                 // Handle different question types (same logic as store)

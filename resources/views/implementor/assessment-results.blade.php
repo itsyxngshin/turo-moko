@@ -236,8 +236,35 @@
 
         <!-- Student Submissions Table -->
         <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                 <h2 class="text-lg font-semibold text-gray-900">Student Submissions</h2>
+                
+                <!-- Sort Toggle -->
+                <div class="flex items-center gap-2">
+                    <span class="text-sm text-gray-600">Sort by:</span>
+                    <div class="inline-flex rounded-lg border border-gray-300 p-1 bg-gray-50">
+                        <button 
+                            @click="toggleSort('name')"
+                            class="px-3 py-1.5 text-sm font-medium rounded-md transition-colors"
+                            :class="sortBy === 'name' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+                        >
+                            <div class="flex items-center gap-1.5">
+                                <i data-lucide="user" class="w-4 h-4"></i>
+                                <span>Name</span>
+                            </div>
+                        </button>
+                        <button 
+                            @click="toggleSort('date')"
+                            class="px-3 py-1.5 text-sm font-medium rounded-md transition-colors"
+                            :class="sortBy === 'date' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+                        >
+                            <div class="flex items-center gap-1.5">
+                                <i data-lucide="calendar" class="w-4 h-4"></i>
+                                <span>Date</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
             </div>
             
             <!-- Table -->
@@ -253,7 +280,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
-                        <template x-for="submission in quizData.submissions" :key="submission.id">
+                        <template x-for="(submission, index) in quizData.submissions" :key="submission.course_enrollee_id">
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
@@ -266,29 +293,35 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-500" x-text="submission.submitted_at"></td>
+                                <td class="px-6 py-4 text-sm" :class="submission.has_submission ? 'text-gray-500' : 'text-gray-400'" x-text="submission.submitted_at || '—'"></td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-2">
-                                        <span class="font-semibold text-gray-900" x-text="submission.score + '/' + submission.total_points"></span>
-                                        <span class="text-sm text-gray-500" x-text="'(' + submission.percentage + '%)'"></span>
+                                        <span class="font-semibold" :class="submission.has_submission ? 'text-gray-900' : 'text-red-600'" x-text="submission.score + '/' + submission.total_points"></span>
+                                        <span class="text-sm" :class="submission.has_submission ? 'text-gray-500' : 'text-red-500'" x-text="'(' + submission.percentage + '%)'"></span>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
                                     <span 
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                                        :class="submission.status === 'Checked' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'"
+                                        :class="{
+                                            'bg-green-100 text-green-800': submission.status === 'Checked',
+                                            'bg-amber-100 text-amber-800': submission.status === 'Pending' || submission.has_ungraded,
+                                            'bg-red-100 text-red-800': submission.status === 'Not Submitted'
+                                        }"
                                     >
-                                        <span x-text="submission.status === 'Checked' ? 'Graded' : 'Needs Review'"></span>
+                                        <span x-text="submission.status === 'Checked' ? 'Graded' : (submission.status === 'Pending' || submission.has_ungraded ? 'Needs Review' : 'No Submission')"></span>
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <button 
-                                        @click="openModal(submission)"
+                                        x-show="submission.has_submission"
+                                        @click="openModal(submission, index)"
                                         class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
                                     >
                                         <i data-lucide="eye" class="w-4 h-4"></i>
                                         <span>View</span>
                                     </button>
+                                    <span x-show="!submission.has_submission" class="text-sm text-gray-400">—</span>
                                 </td>
                             </tr>
                         </template>
@@ -394,9 +427,36 @@
         x-transition:leave="transition ease-in duration-150"
         x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0"
+        @keydown.arrow-left.window="hasPreviousSubmission() && navigateToPrevious()"
+        @keydown.arrow-right.window="hasNextSubmission() && navigateToNext()"
+        @keydown.escape.window="closeModal()"
     >
         <!-- Backdrop -->
-        <div class="fixed inset-0 bg-black bg-opacity-50" @click="closeModal()"></div>
+        <div class="fixed inset-0 bg-black bg-opacity-50"></div>
+        
+        <!-- Left Navigation Zone -->
+        <div 
+            x-show="hasPreviousSubmission()"
+            @click="navigateToPrevious()"
+            class="absolute left-0 top-0 bottom-0 w-24 flex items-center justify-start pl-4 cursor-pointer group z-20 hover:bg-black hover:bg-opacity-10 transition-all"
+            title="Previous submission"
+        >
+            <div class="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <i data-lucide="chevron-left" class="w-6 h-6 text-gray-700"></i>
+            </div>
+        </div>
+        
+        <!-- Right Navigation Zone -->
+        <div 
+            x-show="hasNextSubmission()"
+            @click="navigateToNext()"
+            class="absolute right-0 top-0 bottom-0 w-24 flex items-center justify-end pr-4 cursor-pointer group z-20 hover:bg-black hover:bg-opacity-10 transition-all"
+            title="Next submission"
+        >
+            <div class="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <i data-lucide="chevron-right" class="w-6 h-6 text-gray-700"></i>
+            </div>
+        </div>
         
         <!-- Modal Content -->
         <div class="flex min-h-screen items-center justify-center p-4">
@@ -408,13 +468,18 @@
                 x-transition:leave="transition ease-in duration-150"
                 x-transition:leave-start="opacity-100 scale-100"
                 x-transition:leave-end="opacity-0 scale-95"
-                class="relative bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[85vh] overflow-hidden"
+                class="relative bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[85vh] overflow-hidden flex flex-col"
                 @click.stop
             >
                 <!-- Modal Header -->
                 <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
-                    <div>
-                        <h2 class="text-xl font-bold text-gray-900" x-text="selectedSubmission?.student_name + '\\'s Submission'"></h2>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3">
+                            <h2 class="text-xl font-bold text-gray-900" x-text="selectedSubmission?.student_name + '\\'s Submission'"></h2>
+                            <span x-show="currentSubmissionIndex >= 0" class="text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 font-medium">
+                                <span x-text="currentSubmissionIndex + 1"></span> of <span x-text="quizData?.submissions.filter(s => s.has_submission).length"></span>
+                            </span>
+                        </div>
                         <p class="text-sm text-gray-500 mt-0.5">
                             Score: <span class="font-semibold" x-text="selectedSubmission?.score + '/' + selectedSubmission?.total_points"></span>
                             (<span x-text="selectedSubmission?.percentage + '%'"></span>)
@@ -570,6 +635,40 @@
                         </template>
                     </div>
                 </div>
+                
+                <!-- Modal Footer with Navigation -->
+                <div class="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-6 py-4 flex items-center justify-between">
+                    <!-- Navigation Buttons -->
+                    <div class="flex gap-2">
+                        <button 
+                            x-show="hasPreviousSubmission()"
+                            @click="navigateToPrevious()"
+                            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            title="Previous submission (Left Arrow)"
+                        >
+                            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                            <span>Previous</span>
+                        </button>
+                        
+                        <button 
+                            x-show="hasNextSubmission()"
+                            @click="navigateToNext()"
+                            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            title="Next submission (Right Arrow)"
+                        >
+                            <span>Next</span>
+                            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Close Button -->
+                    <button 
+                        @click="closeModal()"
+                        class="px-6 py-2 text-sm font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-900 transition-colors"
+                    >
+                        Close
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -607,6 +706,8 @@ document.addEventListener('alpine:init', () => {
         modalOpen: false,
         questionModalOpen: false,
         selectedSubmission: null,
+        currentSubmissionIndex: -1,
+        sortBy: 'name', // 'name' or 'date'
         _preserveModal: false,
         _scrollLockCount: 0,
         questionChart: null,
@@ -658,6 +759,9 @@ document.addEventListener('alpine:init', () => {
                 
                 this.quizData = await response.json();
                 
+                // Sort submissions after loading
+                this.sortSubmissions();
+                
                 this.$nextTick(() => {
                     if (typeof lucide !== 'undefined') {
                         lucide.createIcons();
@@ -672,9 +776,50 @@ document.addEventListener('alpine:init', () => {
                 this.loading = false;
             }
         },
+        
+        toggleSort(sortBy) {
+            this.sortBy = sortBy;
+            this.sortSubmissions();
+        },
+        
+        sortSubmissions() {
+            if (!this.quizData || !this.quizData.submissions) return;
+            
+            const submissions = this.quizData.submissions;
+            
+            // Separate into three groups
+            const ungraded = submissions.filter(s => s.has_submission && (s.status === 'Pending' || s.has_ungraded));
+            const graded = submissions.filter(s => s.has_submission && s.status === 'Checked' && !s.has_ungraded);
+            const noSubmission = submissions.filter(s => !s.has_submission);
+            
+            // Sort each group based on selected sort option
+            const sortFn = this.sortBy === 'name' 
+                ? (a, b) => a.student_name.localeCompare(b.student_name)
+                : (a, b) => {
+                    // For date sorting
+                    if (!a.submitted_at_timestamp && !b.submitted_at_timestamp) return 0;
+                    if (!a.submitted_at_timestamp) return 1;
+                    if (!b.submitted_at_timestamp) return -1;
+                    return b.submitted_at_timestamp - a.submitted_at_timestamp;
+                };
+            
+            ungraded.sort(sortFn);
+            graded.sort(sortFn);
+            // Always sort no submissions by name
+            noSubmission.sort((a, b) => a.student_name.localeCompare(b.student_name));
+            
+            // Combine: ungraded first, then graded, then no submission
+            this.quizData.submissions = [...ungraded, ...graded, ...noSubmission];
+        },
 
-        openModal(submission) {
+        openModal(submission, submissionIndex = -1) {
+            // Find the index if not provided
+            if (submissionIndex === -1 && submission) {
+                submissionIndex = this.quizData.submissions.findIndex(s => s.id === submission.id);
+            }
+            
             this.selectedSubmission = submission;
+            this.currentSubmissionIndex = submissionIndex;
             this.modalOpen = true;
             this.lockBodyScroll();
             this.$nextTick(() => {
@@ -687,7 +832,56 @@ document.addEventListener('alpine:init', () => {
         closeModal() {
             this.modalOpen = false;
             this.selectedSubmission = null;
+            this.currentSubmissionIndex = -1;
             this.unlockBodyScroll();
+        },
+        
+        navigateToPrevious() {
+            if (this.currentSubmissionIndex > 0) {
+                let prevIndex = this.currentSubmissionIndex - 1;
+                
+                // Find previous submission that has content
+                while (prevIndex >= 0 && !this.quizData.submissions[prevIndex].has_submission) {
+                    prevIndex--;
+                }
+                
+                if (prevIndex >= 0 && this.quizData.submissions[prevIndex].has_submission) {
+                    this.openModal(this.quizData.submissions[prevIndex], prevIndex);
+                }
+            }
+        },
+        
+        navigateToNext() {
+            if (this.currentSubmissionIndex < this.quizData.submissions.length - 1) {
+                let nextIndex = this.currentSubmissionIndex + 1;
+                
+                // Find next submission that has content
+                while (nextIndex < this.quizData.submissions.length && !this.quizData.submissions[nextIndex].has_submission) {
+                    nextIndex++;
+                }
+                
+                if (nextIndex < this.quizData.submissions.length && this.quizData.submissions[nextIndex].has_submission) {
+                    this.openModal(this.quizData.submissions[nextIndex], nextIndex);
+                }
+            }
+        },
+        
+        hasPreviousSubmission() {
+            if (this.currentSubmissionIndex <= 0) return false;
+            
+            for (let i = this.currentSubmissionIndex - 1; i >= 0; i--) {
+                if (this.quizData.submissions[i].has_submission) return true;
+            }
+            return false;
+        },
+        
+        hasNextSubmission() {
+            if (this.currentSubmissionIndex < 0 || this.currentSubmissionIndex >= this.quizData.submissions.length - 1) return false;
+            
+            for (let i = this.currentSubmissionIndex + 1; i < this.quizData.submissions.length; i++) {
+                if (this.quizData.submissions[i].has_submission) return true;
+            }
+            return false;
         },
 
         openQuestionModal() {

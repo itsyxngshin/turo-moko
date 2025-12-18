@@ -193,6 +193,17 @@
                         </span>
                     </div>
 
+                    {{-- Question Image (if available) --}}
+                    @if(!empty($question['image_path']))
+                        <div class="mb-4">
+                            <img 
+                                src="{{ $question['image_path'] }}" 
+                                alt="{{ $question['image_name'] ?? 'Question image' }}" 
+                                class="max-w-full sm:max-w-md max-h-64 rounded-lg border border-gray-200 shadow-sm"
+                            />
+                        </div>
+                    @endif
+
                     {{-- Question Types --}}
                     @if($question['type'] === 'multiple_choice')
                         {{-- Multiple Choice --}}

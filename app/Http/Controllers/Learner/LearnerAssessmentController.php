@@ -120,21 +120,38 @@ class LearnerAssessmentController extends Controller
         // Check if overdue
         $isOverdue = $quiz->end_date < now();
 
-        // Prepare questions data
-        $questions = $quiz->questions->map(function ($question, $index) {
-            return [
+        // Prepare questions data with randomization
+        $shuffledQuestions = $quiz->questions->shuffle(); // Shuffle question order
+        
+        $questions = $shuffledQuestions->map(function ($question, $index) {
+            $questionData = [
                 'id' => $question->id,
                 'number' => $index + 1,
                 'text' => $question->question_text,
                 'type' => $question->type,
                 'points' => $question->points,
-                'choices' => $question->choices->map(function ($choice) {
+                'image_path' => $question->image_path ? asset('storage/' . $question->image_path) : null,
+                'image_name' => $question->image_name,
+            ];
+            
+            // Shuffle choices for multiple choice and true/false questions
+            if (in_array($question->type, ['multiple_choice', 'true_false'])) {
+                $questionData['choices'] = $question->choices->shuffle()->map(function ($choice) {
                     return [
                         'id' => $choice->id,
                         'text' => $choice->choice_text,
                     ];
-                }),
-            ];
+                })->values(); // Reset array keys after shuffle
+            } else {
+                $questionData['choices'] = $question->choices->map(function ($choice) {
+                    return [
+                        'id' => $choice->id,
+                        'text' => $choice->choice_text,
+                    ];
+                });
+            }
+            
+            return $questionData;
         });
 
         $totalPoints = $quiz->questions->sum('points');
@@ -217,22 +234,44 @@ class LearnerAssessmentController extends Controller
                         break;
 
                     case 'short_answer':
-                        // Auto-grade short answer based on model answer
+                        // Auto-grade short answer based on model answer(s)
                         $studentAnswerRaw = $answerValue ?? '';
                         $answerData['answer_text'] = $studentAnswerRaw;
 
                         $modelAnswerRaw = (string) ($question->model_answer ?? '');
-                        $studentNormalized = trim(mb_strtolower($studentAnswerRaw));
-                        $modelNormalized = trim(mb_strtolower($modelAnswerRaw));
+                        
+                        // Try to parse as JSON array (multiple accepted answers)
+                        $acceptedAnswers = [];
+                        $decodedAnswers = json_decode($modelAnswerRaw, true);
+                        if (is_array($decodedAnswers)) {
+                            $acceptedAnswers = $decodedAnswers;
+                        } elseif (!empty($modelAnswerRaw)) {
+                            // Single answer (backward compatibility)
+                            $acceptedAnswers = [$modelAnswerRaw];
+                        }
 
-                        // If no model answer is defined (legacy quizzes), fall back to manual grading
-                        if ($modelNormalized === '') {
+                        // If no accepted answers defined, fall back to manual grading
+                        if (empty($acceptedAnswers)) {
                             $answerData['is_correct'] = false;
                             $answerData['points'] = -1; // ungraded
                             $hasUngradedAnswers = true;
                         } else {
-                            // Treat empty student answer as incorrect with 0 points
-                            if ($studentNormalized !== '' && $studentNormalized === $modelNormalized) {
+                            // Normalize student answer
+                            $studentNormalized = trim(mb_strtolower($studentAnswerRaw));
+                            
+                            // Check if student answer matches any accepted answer (case-insensitive)
+                            $isCorrect = false;
+                            if ($studentNormalized !== '') {
+                                foreach ($acceptedAnswers as $acceptedAnswer) {
+                                    $acceptedNormalized = trim(mb_strtolower($acceptedAnswer));
+                                    if ($studentNormalized === $acceptedNormalized) {
+                                        $isCorrect = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            if ($isCorrect) {
                                 $answerData['is_correct'] = true;
                                 $answerData['points'] = $question->points;
                                 $totalScore += $answerData['points'];
